@@ -1,0 +1,389 @@
+/*
+ * resum8 - Minimal Resume Stylesheet
+ * Clean sans-serif typography with minimal decoration
+ * https://github.com/yatfuchan/resum8
+ */
+
+/*==========================================
+  BASE / RESET
+============================================ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+:root {
+	--font-family: 'Helvetica Neue', 'Arial', 'Segoe UI', sans-serif;
+	--base-font-size: 10pt;
+	--text-color: #1a1a1a;
+	--muted-color: #666;
+	--border-color: #ddd;
+}
+
+html {
+	font-size: var(--base-font-size);
+}
+
+body {
+	font-family: var(--font-family);
+	line-height: 1.5;
+	color: var(--text-color);
+	margin: 0 auto;
+	max-width: 8.5in;
+	padding: 0.5in 0.6in;
+	background: #fff;
+}
+
+*:not(dialog) {
+	margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		interpolate-size: allow-keywords;
+	}
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+
+p {
+	text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: nowrap;
+}
+
+/* Hide Pandoc's auto-generated title block */
+header#title-block-header {
+	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+}
+
+header#title-block-header * {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+/*==========================================
+  UTILITY CLASS
+============================================ */
+
+.right,
+a[href='#right'] {
+	float: right;
+}
+
+a[href='#right'] {
+	pointer-events: none;
+	text-decoration: none;
+	color: inherit;
+}
+
+/*==========================================
+  HEADER - Name (H1)
+============================================ */
+
+h1 {
+	text-align: center;
+	font-size: 1.8rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	margin: 0 0 0.3em 0;
+	padding: 0;
+	border: none;
+}
+
+/*==========================================
+  CONTACT INFO - Blockquote
+============================================ */
+
+blockquote {
+	text-align: center;
+	margin: 0 0 16px 0;
+	padding: 0;
+	border: none;
+	color: var(--muted-color);
+	font-size: 0.9rem;
+}
+
+blockquote p {
+	margin: 2px 0;
+}
+
+blockquote a {
+	color: var(--muted-color);
+	text-decoration: none;
+}
+
+blockquote a:hover {
+	text-decoration: underline;
+}
+
+/*==========================================
+  SECTION HEADERS - H2
+============================================ */
+
+h2 {
+	font-size: 1.1rem !important;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--text-color);
+	border-bottom: 1px solid var(--border-color);
+	margin: 16px 0 10px 0;
+	padding-bottom: 4px;
+}
+
+/* Entry Header - H3 */
+h3 {
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-color);
+	margin: 10px 0 2px 0;
+	padding: 0;
+}
+
+/* ============================================
+   SECONDARY INFO - Italics after H3
+   ============================================ */
+
+h3 + p {
+	margin-top: 0;
+	margin-bottom: 4px;
+}
+
+h3 + p > em,
+h3 + p em,
+h3 + p > em:only-child {
+	font-style: normal;
+	color: var(--muted-color);
+}
+
+/* Multiple italic lines stacked */
+p > em:only-child {
+	display: block;
+}
+
+/* ============================================
+   TECH TAGS - Inline Code
+   ============================================ */
+
+code {
+	background: none;
+	color: var(--text-color);
+	padding: 0;
+	font-size: inherit;
+	font-family: inherit;
+	font-weight: 600;
+}
+
+/* Lists - Bullets */
+ul {
+	margin: 4px 0 8px 0;
+	padding-left: 1.2em;
+}
+
+li {
+	margin-bottom: 3px;
+	font-size: 1rem;
+}
+
+li::marker {
+	color: var(--muted-color);
+}
+
+/* Skills - Definition List */
+dl {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 16px;
+	margin: 8px 0;
+	font-size: 1rem;
+}
+
+dt {
+	font-weight: 600;
+	color: var(--text-color);
+	white-space: nowrap;
+}
+
+dd {
+	margin: 0;
+	color: var(--muted-color);
+}
+
+/* ============================================
+   SKILLS - Table (portable alternative)
+   ============================================ */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0;
+	font-size: 1rem;
+}
+
+table,
+th,
+td {
+	border: none;
+}
+
+th,
+td {
+	padding: 4px 0;
+	vertical-align: top;
+	text-align: left;
+}
+
+th:first-child,
+td:first-child {
+	width: max-content;
+	font-weight: 600;
+	color: var(--text-color);
+	white-space: nowrap;
+	padding-right: 16px;
+}
+
+th:last-child,
+td:last-child {
+	color: var(--muted-color);
+	font-weight: normal;
+}
+
+/* Empty header cells become invisible */
+th:empty {
+	padding: 0;
+}
+
+/* ============================================
+   LINKS - General
+   ============================================ */
+
+a {
+	color: var(--text-color);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+	body {
+		padding: 0;
+		font-size: 10pt;
+		line-height: 1.5;
+	}
+
+	h1 {
+		font-size: 16pt;
+	}
+
+	h3 {
+		font-size: 10pt;
+		margin-top: 10px;
+	}
+
+	ul {
+		margin: 4px 0 8px 0;
+	}
+
+	li {
+		margin-bottom: 2px;
+	}
+
+	a {
+		color: var(--text-color);
+	}
+
+	@page {
+		size: letter;
+		margin: 0.5in;
+	}
+}
+
+/* ============================================
+   RESPONSIVE - Mobile
+   ============================================ */
+
+@media screen and (max-width: 600px) {
+	body {
+		padding: 16px;
+		font-size: 10pt;
+	}
+
+	h1 {
+		font-size: 14pt;
+	}
+
+	.right,
+	a[href='right'] {
+		float: none;
+		display: block;
+		margin-top: 2px;
+	}
+
+	dl {
+		grid-template-columns: 1fr;
+	}
+
+	dt {
+		margin-top: 8px;
+	}
+
+	table td {
+		display: block;
+		width: 100%;
+		padding: 0;
+	}
+
+	table td:first-child {
+		width: 100%;
+		padding-right: 0;
+		margin-top: 8px;
+	}
+}
