@@ -59,9 +59,6 @@ Write your resume in markdown. Render it anywhere.
 ```bash
 npm install -g resum8
 
-m8 init                       # Create resume.md from template
-m8 init john-doe.md           # Create john-doe.md from template
-
 m8 john-doe.md                # -> john-doe.pdf
 m8 john-doe.md -s formal      # Use a specific style
 m8 john-doe.md --html --word  # Render to HTML and Word
