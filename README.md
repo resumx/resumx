@@ -1,5 +1,14 @@
 # resum8
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/resum8"><img src="https://img.shields.io/npm/v/resum8?color=blue" alt="npm version"></a>
+  <a href="https://github.com/ocmrz/resum8/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="license"></a>
+</p>
+
+<p align="center">
+  No schemas. No lock-in. Just markdown.
+</p>
+
 Write your resume in markdown. Render it anywhere.
 
 ## Why resum8?
