@@ -33,7 +33,8 @@ Write your resume in markdown. Render it anywhere.
 ## Education
 
 ### Stanford University [Sept 2018 - June 2022](#right)
-*Bachelor of Science in Computer Science, Summa Cum Laude*
+
+_Bachelor of Science in Computer Science, Summa Cum Laude_
 
 - Cumulative GPA: 3.82 | Dean's List (2019-2022) | Computer Science Excellence Award
 - Advanced coursework: Distributed Systems, Advanced Algorithms, Compiler Design, Applied Cryptography
@@ -42,7 +43,8 @@ Write your resume in markdown. Render it anywhere.
 ## Work Experience
 
 ### Google [June 2022 - Present](#right)
-*Senior Software Engineer, Infrastructure Platform Team* [San Francisco, CA](#right)
+
+_Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA](#right)
 
 - Architected distributed microservices orchestration platform with `Kubernetes` and `Docker`
 - Reduced deployment latency by 60% across 50+ services
@@ -97,7 +99,8 @@ Write your resume in standard markdown syntax. Use `[text](#right)` to right-ali
 ## Experience
 
 ### Acme Corp [Jan 2022 - Present](#right)
-*Senior Software Engineer*  [San Francisco, CA](#right)
+
+_Senior Software Engineer_ [San Francisco, CA](#right)
 
 - Built REST API serving 10k requests/min using `Node.js` and `Redis`
 - Led team of 10 engineers to deliver project on time
@@ -110,18 +113,18 @@ See the [full syntax reference](docs/syntax.md) for tables, skills sections, and
 
 ## CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `m8 <file>` | Render to PDF (default) |
-| `m8 <file> --html` | Render to HTML |
-| `m8 <file> --word` | Render to Word (.docx) |
-| `m8 <file> --all` | Render all formats |
-| `m8 <file> -w` | Watch mode (auto-rebuild) |
-| `m8 <file> -s <style>` | Use specific style |
-| `m8 init [filename]` | Create resume from template (default: resume.md) |
-| `m8 eject [style]` | Copy style to ./styles/ for customization |
-| `m8 style` | List available styles |
-| `m8 style -d <name>` | Set default style |
+| Command                | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `m8 <file>`            | Render to PDF (default)                          |
+| `m8 <file> --html`     | Render to HTML                                   |
+| `m8 <file> --word`     | Render to Word (.docx)                           |
+| `m8 <file> --all`      | Render all formats                               |
+| `m8 <file> -w`         | Watch mode (auto-rebuild)                        |
+| `m8 <file> -s <style>` | Use specific style                               |
+| `m8 init [filename]`   | Create resume from template (default: resume.md) |
+| `m8 eject [style]`     | Copy style to ./styles/ for customization        |
+| `m8 style`             | List available styles                            |
+| `m8 style -d <name>`   | Set default style                                |
 
 ### Examples
 
@@ -147,11 +150,11 @@ Or create `resum8.config.json`:
 
 ```json
 {
-  "style": "formal",
-  "variables": {
-    "font-family": "Inter, sans-serif",
-    "section-header-color": "#2563eb"
-  }
+	"style": "formal",
+	"variables": {
+		"font-family": "Inter, sans-serif",
+		"section-header-color": "#2563eb"
+	}
 }
 ```
 
@@ -169,6 +172,7 @@ m8 eject formal               # Copy to ./styles/ for customization
 ## Requirements
 
 **For CLI:**
+
 - [Node.js](https://nodejs.org/) 20+
 - [Pandoc](https://pandoc.org/)
 - [WeasyPrint](https://weasyprint.org/)

@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+coverage
+
+# Package files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Logs
+*.log
+
+# Cursor files
+.cursor/plans
