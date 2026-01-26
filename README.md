@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/ocmrz/resum8/raw/main/assets/og-image.png" alt="resum8 banner" width="100%">
+</p>
+
 # resum8
 
 <p align="center">
