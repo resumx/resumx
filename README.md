@@ -10,7 +10,34 @@ Write your resume in markdown. Render it anywhere.
 - **AI-friendly** — Let AI help write and refine your resume
 - **No lock-in** — Grab the stylesheet, skip the CLI entirely if you want
 
-![resum8 source vs rendered](https://github.com/ocmrz/resum8/raw/main/assets/source-vs-rendered.png)
+## Sample
+
+```markdown
+# Adrian Sterling
+
+> [+1 555-123-4567](tel:+15551234567) | [adrian.sterling@email.com](mailto:adrian.sterling@email.com) | [linkedin.com/in/adriansterling](https://linkedin.com/in/adriansterling) | [github.com/adriansterling](https://github.com/adriansterling)
+
+## Education
+
+### Stanford University [Sept 2018 - June 2022](#right)
+*Bachelor of Science in Computer Science, Summa Cum Laude*
+
+- Cumulative GPA: 3.82 | Dean's List (2019-2022) | Computer Science Excellence Award
+- Advanced coursework: Distributed Systems, Advanced Algorithms, Compiler Design, Applied Cryptography
+- President, Computer Science Student Association (2021-2022) — Led 200+ members, organized FAANG speaker series
+
+## Work Experience
+
+### Google [June 2022 - Present](#right)
+*Senior Software Engineer, Infrastructure Platform Team* [San Francisco, CA](#right)
+
+- Architected distributed microservices orchestration platform with `Kubernetes` and `Docker`
+- Reduced deployment latency by 60% across 50+ services
+- Led cloud-native migration on `Google Cloud`, improving scalability 300% and saving $2M annually
+- Built CI/CD pipeline with `Cloud Build`, `Terraform`, `GitOps` reducing release cycles to 2 days
+```
+
+![Rendered PDF](https://github.com/ocmrz/resum8/raw/main/assets/rendered.png)
 
 ## Get Started
 
