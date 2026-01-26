@@ -129,12 +129,12 @@ See the [full syntax reference](docs/syntax.md) for tables, skills sections, and
 ### Examples
 
 ```bash
-m8 resume.md                 # → output/resume.pdf
-m8 resume.md --html          # → output/resume.html
+m8 resume.md                 # → resume.pdf
+m8 resume.md --html          # → resume.html
 m8 resume.md --all           # → all formats
 m8 resume.md --watch         # watch mode
 m8 resume.md --style formal  # use formal style
-m8 resume.md --output cv     # → output/cv.pdf
+m8 resume.md --output cv     # → cv.pdf
 ```
 
 ### CSS Variable Customization
