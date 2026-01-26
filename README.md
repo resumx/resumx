@@ -59,9 +59,9 @@ Write your resume in markdown. Render it anywhere.
 ```bash
 npm install -g resum8
 
-m8 john-doe.md                # -> john-doe.pdf
-m8 john-doe.md -s formal      # Use a specific style
-m8 john-doe.md --html --word  # Render to HTML and Word
+m8 john-doe.md                 # -> john-doe.pdf
+m8 john-doe.md --style formal  # Use a specific style
+m8 john-doe.md --html --word   # Render to HTML and Word
 ```
 
 ### Option 2: Just grab a stylesheet
@@ -126,12 +126,12 @@ See the [full syntax reference](docs/syntax.md) for tables, skills sections, and
 ### Examples
 
 ```bash
-m8 resume.md                    # → output/resume.pdf
-m8 resume.md --html             # → output/resume.html
-m8 resume.md --all              # → all formats
-m8 resume.md -w                 # watch mode
-m8 resume.md -s formal          # use formal style
-m8 resume.md -o cv              # → output/cv.pdf
+m8 resume.md                 # → output/resume.pdf
+m8 resume.md --html          # → output/resume.html
+m8 resume.md --all           # → all formats
+m8 resume.md --watch         # watch mode
+m8 resume.md --style formal  # use formal style
+m8 resume.md --output cv     # → output/cv.pdf
 ```
 
 ### CSS Variable Customization
@@ -160,10 +160,10 @@ Or create `resum8.config.json`:
 Three built-in styles: `classic` (default), `formal`, `minimal`
 
 ```bash
-m8 style                # List available styles
-m8 style -d formal      # Set default style
-m8 resume.md -s minimal # Use a specific style (one-time)
-m8 eject formal         # Copy to ./styles/ for customization
+m8 style                      # List available styles
+m8 style --default formal     # Set default style
+m8 resume.md --style minimal  # Use a specific style (one-time)
+m8 eject formal               # Copy to ./styles/ for customization
 ```
 
 ## Requirements
