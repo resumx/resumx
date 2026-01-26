@@ -10,6 +10,8 @@ Write your resume in markdown. Render it anywhere.
 - **AI-friendly** — Let AI help write and refine your resume
 - **No lock-in** — Grab the stylesheet, skip the CLI entirely if you want
 
+![resum8 source vs rendered](https://github.com/ocmrz/resum8/raw/main/assets/source-vs-rendered.png)
+
 ## Get Started
 
 ### Option 1: Use the CLI (recommended)
