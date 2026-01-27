@@ -1,5 +1,5 @@
 import { existsSync, copyFileSync, mkdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import chalk from 'chalk'
 import {
 	getBundledStylePath,
@@ -38,8 +38,9 @@ export async function ejectCommand(
 
 	// Check if already exists
 	if (existsSync(localPath) && !options.force) {
-		console.error(chalk.red(`Error: ${localPath} already exists.`))
-		console.error('Use --force to overwrite.')
+		const relativePath = relative(cwd, localPath)
+		console.error(chalk.red(`Error: ${relativePath} already exists.`))
+		console.error('Use ' + chalk.cyan('--force') + ' to overwrite.')
 		process.exit(1)
 	}
 
@@ -51,7 +52,11 @@ export async function ejectCommand(
 	// Copy style
 	try {
 		copyFileSync(bundledPath, localPath)
-		console.log(chalk.green('✓') + ` Ejected ${name} style to ${localPath}`)
+		const relativePath = relative(cwd, localPath)
+		console.log(
+			chalk.green('✓')
+				+ ` Ejected ${chalk.cyan(name)} style to ${chalk.cyan(relativePath)}`,
+		)
 		console.log('')
 		console.log('The local copy will now be used when you run:')
 		console.log(`  ${chalk.cyan(`m8 resume.md --style ${name}`)}`)
