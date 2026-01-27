@@ -55,7 +55,7 @@ export async function initCommand(
 	// Check if output already exists
 	if (existsSync(outputPath) && !options.force) {
 		const shouldOverwrite = await confirm(
-			`${outputFilename} already exists. Overwrite? [y/N] `,
+			chalk.yellow(`${outputFilename} already exists. Overwrite? [y/N] `),
 		)
 		if (!shouldOverwrite) {
 			console.log('Aborted.')
@@ -66,10 +66,12 @@ export async function initCommand(
 	// Copy template
 	try {
 		copyFileSync(TEMPLATE_PATH, outputPath)
-		console.log(chalk.green('✓') + ` Created ${outputFilename}`)
+		console.log(chalk.green('✓') + ' Created ' + chalk.cyan(outputFilename))
 		console.log('')
 		console.log('Next steps:')
-		console.log(`  1. Edit ${outputFilename} with your information`)
+		console.log(
+			'  1. Edit ' + chalk.cyan(outputFilename) + ' with your information',
+		)
 		console.log(`  2. Run ${chalk.cyan(`m8 ${outputFilename}`)} to build PDF`)
 	} catch (error) {
 		console.error(chalk.red(`Error: Failed to create ${outputFilename}`))
