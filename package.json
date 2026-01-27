@@ -17,6 +17,7 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
 		"test:watch": "vitest",
 		"lint": "tsc --noEmit",
 		"format": "prettier --write .",
