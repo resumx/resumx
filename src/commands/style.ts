@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import { readFileSync } from 'node:fs'
+import { relative } from 'node:path'
 import {
 	listStyles,
 	getDefaultStyle,
@@ -288,9 +289,14 @@ async function showStyleInfo(
 	const hasSavedOverrides = Object.keys(savedOverrides).length > 0
 
 	// Display style info
-	console.log(chalk.bold(`Style: ${styleName}`))
 	if (style.isLocal) {
-		console.log(chalk.dim(`Path: ${style.path}`))
+		const relativePath = relative(cwd, style.path)
+		console.log(
+			chalk.bold(`Style: ${styleName}`)
+				+ chalk.yellow(` (overridden in ${relativePath})`),
+		)
+	} else {
+		console.log(chalk.bold(`Style: ${styleName}`))
 	}
 	console.log('')
 
@@ -303,7 +309,7 @@ async function showStyleInfo(
 			const varName = v.name.slice(2) // Remove -- prefix
 			const override = savedOverrides[varName]
 
-			console.log(`  ${chalk.cyan(v.name)}`)
+			console.log(`  ${chalk.cyan(varName)}`)
 			if (override && override !== v.value) {
 				console.log(
 					`    ${chalk.dim(v.value)} ${chalk.yellow('→')} ${chalk.green(override)}`,
@@ -378,14 +384,13 @@ async function listAllStyles(cwd: string): Promise<void> {
 
 	for (const style of styles) {
 		const isDefault = style.name === defaultStyle
-		const markers: string[] = []
-
-		if (isDefault) markers.push('default')
-		if (style.isLocal) markers.push('local')
 
 		const name = isDefault ? chalk.cyan(style.name) : style.name
-		const markerStr =
-			markers.length > 0 ? chalk.dim(` (${markers.join(', ')})`) : ''
+		let markerStr = ''
+		if (style.isLocal) {
+			const relativePath = relative(cwd, style.path)
+			markerStr = chalk.yellow(` (overridden in ${relativePath})`)
+		}
 
 		console.log(`  ${name}${markerStr}`)
 	}
