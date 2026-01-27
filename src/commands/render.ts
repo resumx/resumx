@@ -145,7 +145,7 @@ function runRender(
 		return false
 	}
 
-	console.log(chalk.yellow(`Building resume from: ${inputPath}`))
+	console.log(`Building resume from: ${inputPath}`)
 	console.log('')
 
 	// Render content (frontmatter already stripped)
@@ -199,25 +199,14 @@ export async function renderCommand(
 		process.exit(1)
 	}
 
-	// Run initial render
-	const success = runRender(inputFile, inputPath, options, cwd)
-
-	if (!options.watch) {
-		process.exit(success ? 0 : 1)
-	}
-
-	// Watch mode
-	console.log('')
-	console.log(chalk.yellow('Watching for changes...') + ' (Ctrl+C to stop)')
-
-	// Resolve style for watching (re-parse frontmatter to get style)
+	// Resolve watch paths (needed for both message and watcher setup)
 	const { config: fmConfig } = parseFrontmatter(inputPath)
 	const styleArg = options.style ?? fmConfig?.style
-	let cssPath: string
+	let cssPath = ''
 	try {
 		cssPath = resolveStyle(styleArg, cwd)
 	} catch {
-		cssPath = '' // Will be empty if style not found, but we already errored above
+		// Will error during render if style not found
 	}
 
 	const watchPaths = [inputPath]
@@ -225,8 +214,22 @@ export async function renderCommand(
 		watchPaths.push(cssPath)
 	}
 
-	console.log(`  Watching: ${watchPaths.join(', ')}`)
-	console.log('')
+	// Print watch message before initial render
+	if (options.watch) {
+		const relativeWatchPaths = watchPaths.map(p => relative(process.cwd(), p))
+		console.log(
+			chalk.blue(`Watching for changes...`)
+				+ ` (${relativeWatchPaths.join(', ')})`,
+		)
+		console.log('')
+	}
+
+	// Run initial render
+	const success = runRender(inputFile, inputPath, options, cwd)
+
+	if (!options.watch) {
+		process.exit(success ? 0 : 1)
+	}
 
 	// Debounce rapid changes
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -246,16 +249,15 @@ export async function renderCommand(
 
 		debounceTimer = setTimeout(() => {
 			console.log('')
-			console.log(chalk.yellow('Change detected, rebuilding...'))
+			console.log(chalk.blue('Change detected, rebuilding...'))
 			runRender(inputFile, inputPath, options, cwd)
-			console.log(chalk.green('Ready.'))
 		}, 150)
 	})
 
 	// Keep process alive
 	process.on('SIGINT', () => {
 		console.log('')
-		console.log(chalk.yellow('Stopped watching.'))
+		console.log('Stopped watching.')
 		watcher.close()
 		process.exit(0)
 	})
