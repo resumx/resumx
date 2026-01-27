@@ -40,7 +40,7 @@ export async function ejectCommand(
 	if (existsSync(localPath) && !options.force) {
 		const relativePath = relative(cwd, localPath)
 		console.error(chalk.red(`Error: ${relativePath} already exists.`))
-		console.error('Use ' + chalk.cyan('--force') + ' to overwrite.')
+		console.error('Use ' + chalk.blue('--force') + ' to overwrite.')
 		process.exit(1)
 	}
 
@@ -59,7 +59,7 @@ export async function ejectCommand(
 		)
 		console.log('')
 		console.log('The local copy will now be used when you run:')
-		console.log(`  ${chalk.cyan(`m8 resume.md --style ${name}`)}`)
+		console.log(`  ${chalk.blue(`m8 resume.md --style ${name}`)}`)
 		console.log('')
 		console.log('Edit the CSS to customize fonts, colors, and layout.')
 	} catch (error) {

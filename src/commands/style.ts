@@ -55,7 +55,7 @@ export async function styleCommand(
 			)
 			console.log('')
 			console.log('Usage:')
-			console.log(`  ${chalk.cyan('m8 style <name> --reset-all')}`)
+			console.log(`  ${chalk.blue('m8 style <name> --reset-all')}`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -72,7 +72,7 @@ export async function styleCommand(
 			)
 			console.log('')
 			console.log('Usage:')
-			console.log(`  ${chalk.cyan('m8 style <name> --reset <variable-name>')}`)
+			console.log(`  ${chalk.blue('m8 style <name> --reset <variable-name>')}`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -94,7 +94,7 @@ export async function styleCommand(
 			)
 			console.log('')
 			console.log('Usage:')
-			console.log(`  ${chalk.cyan('m8 style <name> --var key=value')}`)
+			console.log(`  ${chalk.blue('m8 style <name> --var key=value')}`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -317,24 +317,24 @@ async function showStyleInfo(
 	console.log('')
 	console.log('Override with:')
 	console.log(
-		`  ${chalk.cyan(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
+		`  ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
 	)
 	console.log('')
 	console.log('Set default override:')
 	console.log(
-		`  ${chalk.cyan(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
+		`  ${chalk.blue(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
 	)
 	console.log('')
 	console.log('Reset specific variable:')
 	console.log(
-		`  ${chalk.cyan(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}`,
+		`  ${chalk.blue(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}`,
 	)
 	console.log('')
 	console.log('Reset all overrides:')
-	console.log(`  ${chalk.cyan(`m8 style ${styleName} --reset-all`)}`)
+	console.log(`  ${chalk.blue(`m8 style ${styleName} --reset-all`)}`)
 	console.log('')
 	console.log('Or customize fully:')
-	console.log(`  ${chalk.cyan(`m8 eject ${styleName}`)}`)
+	console.log(`  ${chalk.blue(`m8 eject ${styleName}`)}`)
 }
 
 /**
@@ -392,16 +392,16 @@ async function listAllStyles(cwd: string): Promise<void> {
 
 	console.log('')
 	console.log('Usage:')
-	console.log(`  ${chalk.cyan('m8 resume.md --style <name>')}`)
+	console.log(`  ${chalk.blue('m8 resume.md --style <name>')}`)
 	console.log('')
 	console.log('View style details:')
-	console.log(`  ${chalk.cyan('m8 style <name>')}`)
+	console.log(`  ${chalk.blue('m8 style <name>')}`)
 	console.log('')
 	console.log('Set default style:')
-	console.log(`  ${chalk.cyan('m8 style --default <name>')}`)
+	console.log(`  ${chalk.blue('m8 style --default <name>')}`)
 	console.log('')
 	console.log('Customize a style:')
 	console.log(
-		`  ${chalk.cyan('m8 eject <name>')}  Copy to ./styles/ for editing`,
+		`  ${chalk.blue('m8 eject <name>')}  Copy to ./styles/ for editing`,
 	)
 }

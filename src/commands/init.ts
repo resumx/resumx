@@ -58,7 +58,7 @@ export async function initCommand(
 			chalk.yellow(`${outputFilename} already exists. Overwrite? [y/N] `),
 		)
 		if (!shouldOverwrite) {
-			console.log('Aborted.')
+			console.log(chalk.red('Aborted.'))
 			return
 		}
 	}
@@ -72,7 +72,7 @@ export async function initCommand(
 		console.log(
 			'  1. Edit ' + chalk.cyan(outputFilename) + ' with your information',
 		)
-		console.log(`  2. Run ${chalk.cyan(`m8 ${outputFilename}`)} to build PDF`)
+		console.log(`  2. Run ${chalk.blue(`m8 ${outputFilename}`)} to build PDF`)
 	} catch (error) {
 		console.error(chalk.red(`Error: Failed to create ${outputFilename}`))
 		console.error((error as Error).message)
