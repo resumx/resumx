@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -11,6 +11,11 @@ import {
 	DEFAULT_STYLE,
 	BUNDLED_STYLES,
 } from './styles.js'
+
+// Mock config to isolate tests from user's global config
+vi.mock('./config.js', () => ({
+	getConfiguredDefaultStyle: () => undefined,
+}))
 
 describe('styles', () => {
 	let tempDir: string

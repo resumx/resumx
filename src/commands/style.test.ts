@@ -40,12 +40,19 @@ describe('style command', () => {
 	})
 
 	describe('style info', () => {
+		let globalConfigDir: string
+
+		beforeEach(() => {
+			globalConfigDir = join(tempDir, '.config', 'resum8')
+			mkdirSync(globalConfigDir, { recursive: true })
+		})
+
 		it('shows configurable variables for a bundled style', async () => {
 			// Change cwd for the test
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', {})
+			await styleCommand('classic', { _configDir: globalConfigDir })
 
 			process.cwd = originalCwd
 
@@ -60,7 +67,7 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('formal', {})
+			await styleCommand('formal', { _configDir: globalConfigDir })
 
 			process.cwd = originalCwd
 
@@ -73,7 +80,7 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', {})
+			await styleCommand('classic', { _configDir: globalConfigDir })
 
 			process.cwd = originalCwd
 
@@ -90,7 +97,7 @@ describe('style command', () => {
 				exitCode = code
 			}) as typeof process.exit
 
-			await styleCommand('nonexistent', {})
+			await styleCommand('nonexistent', { _configDir: globalConfigDir })
 
 			process.cwd = originalCwd
 			process.exit = originalExit
