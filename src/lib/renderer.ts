@@ -10,6 +10,7 @@ import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import MarkdownIt from 'markdown-it'
 import attrs from 'markdown-it-attrs'
+import { dl } from '@mdit/plugin-dl'
 import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
@@ -38,6 +39,7 @@ const md = new MarkdownIt({
 	typographer: true,
 })
 	.use(bracketedSpans)
+	.use(dl)
 	.use(attrs)
 
 /**
