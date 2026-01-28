@@ -10,6 +10,7 @@ import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import MarkdownIt from 'markdown-it'
 import attrs from 'markdown-it-attrs'
+import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
 
@@ -29,12 +30,15 @@ export interface RenderResult {
 	error?: string
 }
 
-// Initialize markdown-it with attrs plugin for {.class #id} syntax
+// Initialize markdown-it with bracketed-spans and attrs plugins
+// CRITICAL: bracketedSpans MUST come BEFORE attrs for proper attribute application
 const md = new MarkdownIt({
 	html: true,
 	linkify: true,
 	typographer: true,
-}).use(attrs)
+})
+	.use(bracketedSpans)
+	.use(attrs)
 
 /**
  * Resolve CSS and combine with variable overrides
@@ -55,6 +59,7 @@ function resolveCSS(
  * Convert markdown to standalone HTML with embedded CSS
  */
 function markdownToHtml(content: string, css: string): string {
+	// Render markdown with bracketed-spans plugin handling [text]{.class} syntax
 	const body = md.render(content)
 
 	return `<!DOCTYPE html>
