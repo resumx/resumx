@@ -12,6 +12,8 @@ import MarkdownIt from 'markdown-it'
 import attrs from 'markdown-it-attrs'
 import { dl } from '@mdit/plugin-dl'
 import { mark } from '@mdit/plugin-mark'
+import { sub } from '@mdit/plugin-sub'
+import { sup } from '@mdit/plugin-sup'
 import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
@@ -43,6 +45,8 @@ const md = new MarkdownIt({
 	.use(dl)
 	.use(mark)
 	.use(attrs)
+	.use(sub)
+	.use(sup)
 
 /**
  * Resolve CSS and combine with variable overrides
