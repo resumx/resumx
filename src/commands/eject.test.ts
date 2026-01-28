@@ -60,7 +60,7 @@ describe('eject command', () => {
 
 			const output = consoleOutput.join('\n')
 			expect(output).toContain('Ejected classic style')
-			expect(output).toContain(localPath)
+			expect(output).toContain('styles/classic.css') // Relative path is shown
 		})
 
 		it('should copy the specified bundled style to local styles directory', async () => {

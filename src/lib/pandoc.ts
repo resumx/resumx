@@ -9,6 +9,7 @@ import {
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { generateVariablesCSS } from './config.js'
+import { resolveCssImports } from './css-resolver.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 
@@ -28,16 +29,18 @@ export interface RenderResult {
 
 /**
  * Create a temporary CSS file that includes variable overrides and main CSS
+ * Resolves all @import statements to inline the imported CSS
  */
 function createTempCSS(
 	cssPath: string,
 	variables?: Record<string, string>,
 ): string {
-	const originalCSS = readFileSync(cssPath, 'utf-8')
+	// Resolve @import statements first
+	const resolvedCSS = resolveCssImports(cssPath)
 	const variablesCSS = variables ? generateVariablesCSS(variables) : ''
 
-	// Append variable overrides AFTER original CSS so they take precedence
-	const combinedCSS = originalCSS + '\n' + variablesCSS
+	// Append variable overrides AFTER resolved CSS so they take precedence
+	const combinedCSS = resolvedCSS + '\n' + variablesCSS
 
 	// Create temp file
 	const tempDir = tmpdir()
@@ -82,14 +85,9 @@ function createTempMarkdown(content: string): string {
  * Render markdown content to the specified format
  */
 export function render(options: RenderOptions): RenderResult {
-	const hasVariables =
-		options.variables && Object.keys(options.variables).length > 0
-
-	// Use temp CSS only if we have variable overrides
-	const cssPath =
-		hasVariables ?
-			createTempCSS(options.cssPath, options.variables)
-		:	options.cssPath
+	// Always create temp CSS to resolve @import statements
+	// This ensures Pandoc gets a single CSS file with all imports inlined
+	const cssPath = createTempCSS(options.cssPath, options.variables)
 
 	// Always create temp markdown file from content
 	const inputPath = createTempMarkdown(options.content)
@@ -126,8 +124,8 @@ export function render(options: RenderOptions): RenderResult {
 			error: message,
 		}
 	} finally {
-		// Cleanup temp CSS if created
-		if (hasVariables && existsSync(cssPath)) {
+		// Cleanup temp CSS
+		if (existsSync(cssPath)) {
 			try {
 				unlinkSync(cssPath)
 			} catch {

@@ -58,9 +58,9 @@ describe('style command', () => {
 
 			const output = consoleOutput.join('\n')
 			expect(output).toContain('classic')
-			expect(output).toContain('--font-family')
-			expect(output).toContain('--base-font-size')
-			expect(output).toContain('--text-color')
+			expect(output).toContain('font-family')
+			expect(output).toContain('font-size')
+			expect(output).toContain('section-header-color')
 		})
 
 		it('shows variables for formal style including section-header-color', async () => {
@@ -73,7 +73,7 @@ describe('style command', () => {
 
 			const output = consoleOutput.join('\n')
 			expect(output).toContain('formal')
-			expect(output).toContain('--section-header-color')
+			expect(output).toContain('section-header-color')
 		})
 
 		it('shows usage hint for --var flag', async () => {
@@ -221,7 +221,7 @@ describe('style command', () => {
 			writeGlobalConfig(
 				{
 					styleVariables: {
-						classic: { 'text-color': '#222' }, // Same as default in classic.css
+						classic: { 'font-size': '11pt' }, // Same as default in classic.css
 					},
 				},
 				globalConfigDir,
@@ -235,16 +235,14 @@ describe('style command', () => {
 			const output = consoleOutput.join('\n')
 			const lines = output.split('\n')
 
-			// Find the text-color line
-			const textColorIndex = lines.findIndex(line =>
-				line.includes('--text-color'),
-			)
-			expect(textColorIndex).toBeGreaterThan(-1)
+			// Find the font-size line
+			const fontSizeIndex = lines.findIndex(line => line.includes('font-size'))
+			expect(fontSizeIndex).toBeGreaterThan(-1)
 
 			// The next line should NOT contain an arrow
-			const valueLine = lines[textColorIndex + 1]
+			const valueLine = lines[fontSizeIndex + 1]
 			expect(valueLine).not.toContain('→')
-			expect(valueLine).toContain('#222')
+			expect(valueLine).toContain('11pt')
 		})
 	})
 

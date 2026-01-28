@@ -21,6 +21,16 @@ describe('render command', () => {
 	let tempDir: string
 
 	/**
+	 * Helper to run CLI with test config directory
+	 */
+	const runCLI = (args: string[], options: { cwd: string; reject?: false }) => {
+		return execa('node', [CLI_PATH, ...args], {
+			...options,
+			env: { ...process.env, RESUM8_CONFIG_DIR: process.env.RESUM8_CONFIG_DIR },
+		})
+	}
+
+	/**
 	 * Output behavior test coverage:
 	 *
 	 * Default behavior:
@@ -53,24 +63,27 @@ describe('render command', () => {
 		mkdirSync(tempDir, { recursive: true })
 		// Copy fixture to temp dir
 		copyFileSync(FIXTURE_PATH, join(tempDir, 'sample.md'))
+
+		// Set test config directory to avoid using global config
+		process.env.RESUM8_CONFIG_DIR = join(tempDir, '.config', 'resum8')
 	})
 
 	afterEach(() => {
 		if (existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true })
 		}
+		// Clean up test env var
+		delete process.env.RESUM8_CONFIG_DIR
 	})
 
 	it('renders HTML output', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--html'], {
-			cwd: tempDir,
-		})
+		await runCLI(['sample.md', '--html'], { cwd: tempDir })
 
 		expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
 	})
 
 	it('renders PDF output', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--pdf'], {
+		await runCLI(['sample.md', '--pdf'], {
 			cwd: tempDir,
 		})
 
@@ -78,7 +91,7 @@ describe('render command', () => {
 	})
 
 	it('renders all formats with --all', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--all'], {
+		await runCLI(['sample.md', '--all'], {
 			cwd: tempDir,
 		})
 
@@ -88,7 +101,7 @@ describe('render command', () => {
 	})
 
 	it('uses custom filename with -o', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--html', '-o', 'custom'], {
+		await runCLI(['sample.md', '--html', '-o', 'custom'], {
 			cwd: tempDir,
 		})
 
@@ -109,7 +122,7 @@ describe('render command', () => {
 	})
 
 	it('uses directory path ending with slash to preserve input filename', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--html', '-o', 'output/'], {
+		await runCLI(['sample.md', '--html', '-o', 'output/'], {
 			cwd: tempDir,
 		})
 
@@ -118,7 +131,7 @@ describe('render command', () => {
 	})
 
 	it('strips extension from output name to avoid double extensions', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--html', '-o', 'resume.pdf'], {
+		await runCLI(['sample.md', '--html', '-o', 'resume.pdf'], {
 			cwd: tempDir,
 		})
 
@@ -188,7 +201,7 @@ describe('render command', () => {
 	})
 
 	it('handles deeply nested directory with trailing slash', async () => {
-		await execa('node', [CLI_PATH, 'sample.md', '--pdf', '-o', 'dist/build/'], {
+		await runCLI(['sample.md', '--pdf', '-o', 'dist/build/'], {
 			cwd: tempDir,
 		})
 
@@ -224,7 +237,7 @@ describe('render command', () => {
 	})
 
 	it('fails gracefully with non-existent file', async () => {
-		const result = await execa('node', [CLI_PATH, 'nonexistent.md', '--html'], {
+		const result = await runCLI(['nonexistent.md', '--html'], {
 			cwd: tempDir,
 			reject: false,
 		})
@@ -237,7 +250,7 @@ describe('render command', () => {
 		// Copy fixture as "my-resume.md"
 		copyFileSync(FIXTURE_PATH, join(tempDir, 'my-resume.md'))
 
-		await execa('node', [CLI_PATH, 'my-resume.md', '--html'], {
+		await runCLI(['my-resume.md', '--html'], {
 			cwd: tempDir,
 		})
 
@@ -254,7 +267,7 @@ describe('render command', () => {
 			copyFileSync(FIXTURE_PATH, join(subDir, 'nested.md'))
 
 			// Run from tempDir, reference file in subdirectory
-			await execa('node', [CLI_PATH, 'subdirectory/nested.md', '--html'], {
+			await runCLI(['subdirectory/nested.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -269,7 +282,7 @@ describe('render command', () => {
 			mkdirSync(subDir, { recursive: true })
 
 			// sample.md is in tempDir (parent), run from subDir (child)
-			await execa('node', [CLI_PATH, '../sample.md', '--html'], {
+			await runCLI(['../sample.md', '--html'], {
 				cwd: subDir,
 			})
 
@@ -285,7 +298,7 @@ describe('render command', () => {
 			copyFileSync(FIXTURE_PATH, join(deepDir, 'deep.md'))
 
 			// Run from tempDir
-			await execa('node', [CLI_PATH, 'level1/level2/level3/deep.md', '--pdf'], {
+			await runCLI(['level1/level2/level3/deep.md', '--pdf'], {
 				cwd: tempDir,
 			})
 
@@ -335,7 +348,7 @@ describe('render command', () => {
 			mkdirSync(workDir, { recursive: true })
 
 			// Run from workDir but use absolute path to file in tempDir
-			await execa('node', [CLI_PATH, absolutePath, '--html'], {
+			await runCLI([absolutePath, '--html'], {
 				cwd: workDir,
 			})
 
@@ -352,7 +365,7 @@ describe('render command', () => {
 			copyFileSync(FIXTURE_PATH, join(dir1, 'sibling.md'))
 
 			// Run from dir2, reference file in dir1
-			await execa('node', [CLI_PATH, '../dir1/sibling.md', '--word'], {
+			await runCLI(['../dir1/sibling.md', '--word'], {
 				cwd: dir2,
 			})
 
@@ -367,7 +380,7 @@ describe('render command', () => {
 			copyFileSync(FIXTURE_PATH, join(inputDir, 'resume.md'))
 
 			// Run from tempDir
-			await execa('node', [CLI_PATH, 'source/nested/resume.md', '--pdf'], {
+			await runCLI(['source/nested/resume.md', '--pdf'], {
 				cwd: tempDir,
 			})
 
@@ -378,7 +391,7 @@ describe('render command', () => {
 
 	describe('argument validation', () => {
 		it('errors on extra positional argument', async () => {
-			const result = await execa('node', [CLI_PATH, 'sample.md', 'extra.pdf'], {
+			const result = await runCLI(['sample.md', 'extra.pdf'], {
 				cwd: tempDir,
 				reject: false,
 			})
@@ -522,7 +535,7 @@ style: formal
 Test content`
 			writeFileSync(join(tempDir, 'with-style.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'with-style.md', '--html'], {
+			await runCLI(['with-style.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -544,7 +557,7 @@ outputName: custom-output-name
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -563,7 +576,7 @@ outputDir: ./dist
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -583,7 +596,7 @@ Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			// No explicit format flags - should use frontmatter formats
-			await execa('node', [CLI_PATH, 'resume.md'], {
+			await runCLI(['resume.md'], {
 				cwd: tempDir,
 			})
 
@@ -604,7 +617,7 @@ variables:
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -647,7 +660,7 @@ outputName: test
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -670,7 +683,7 @@ outputName = "toml-output"
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 
@@ -687,7 +700,7 @@ outputDir: ./build/output
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+			await runCLI(['resume.md', '--html'], {
 				cwd: tempDir,
 			})
 

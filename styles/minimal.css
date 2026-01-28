@@ -7,23 +7,20 @@
 /*==========================================
   BASE / RESET
 ============================================ */
-
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
+@import 'common/base.css';
+@import 'common/icons.css';
+@import 'common/utilities.css';
 
 :root {
 	--font-family: 'Helvetica Neue', 'Arial', 'Segoe UI', sans-serif;
-	--base-font-size: 10pt;
+	--font-size: 10pt;
 	--text-color: #1a1a1a;
 	--muted-color: #666;
 	--border-color: #ddd;
 }
 
 html {
-	font-size: var(--base-font-size);
+	font-size: var(--font-size);
 }
 
 body {
@@ -34,88 +31,6 @@ body {
 	max-width: 8.5in;
 	padding: 0.5in 0.6in;
 	background: #fff;
-}
-
-*:not(dialog) {
-	margin: 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-	html {
-		interpolate-size: allow-keywords;
-	}
-}
-
-body {
-	-webkit-font-smoothing: antialiased;
-}
-
-img,
-picture,
-video,
-canvas,
-svg {
-	display: block;
-	max-width: 100%;
-}
-
-input,
-button,
-textarea,
-select {
-	font: inherit;
-}
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	overflow-wrap: break-word;
-}
-
-p {
-	text-wrap: pretty;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	text-wrap: nowrap;
-}
-
-/* Hide Pandoc's auto-generated title block */
-header#title-block-header {
-	display: none !important;
-	visibility: hidden !important;
-	height: 0 !important;
-	margin: 0 !important;
-	padding: 0 !important;
-	overflow: hidden !important;
-}
-
-header#title-block-header * {
-	display: none !important;
-	visibility: hidden !important;
-}
-
-/*==========================================
-  UTILITY CLASS
-============================================ */
-
-.right,
-a[href='#right'] {
-	float: right;
-}
-
-a[href='#right'] {
-	pointer-events: none;
-	text-decoration: none;
-	color: inherit;
 }
 
 /*==========================================
@@ -138,11 +53,11 @@ h1 {
 
 blockquote {
 	text-align: center;
-	margin: 0 0 16px 0;
+	margin: 6px 0 6px 0;
 	padding: 0;
 	border: none;
+	font-size: 1rem !important;
 	color: var(--muted-color);
-	font-size: 0.9rem;
 }
 
 blockquote p {
@@ -168,14 +83,14 @@ h2 {
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	color: var(--text-color);
-	border-bottom: 1px solid var(--border-color);
+	border-bottom: 3px solid var(--border-color);
 	margin: 16px 0 10px 0;
 	padding-bottom: 4px;
 }
 
 /* Entry Header - H3 */
 h3 {
-	font-size: 1rem;
+	font-size: 1rem !important;
 	font-weight: 600;
 	color: var(--text-color);
 	margin: 10px 0 2px 0;
@@ -189,6 +104,7 @@ h3 {
 h3 + p {
 	margin-top: 0;
 	margin-bottom: 4px;
+	font-size: 1rem !important;
 }
 
 h3 + p > em,
@@ -343,47 +259,5 @@ a:hover {
 	@page {
 		size: letter;
 		margin: 0.5in;
-	}
-}
-
-/* ============================================
-   RESPONSIVE - Mobile
-   ============================================ */
-
-@media screen and (max-width: 600px) {
-	body {
-		padding: 16px;
-		font-size: 10pt;
-	}
-
-	h1 {
-		font-size: 14pt;
-	}
-
-	.right,
-	a[href='right'] {
-		float: none;
-		display: block;
-		margin-top: 2px;
-	}
-
-	dl {
-		grid-template-columns: 1fr;
-	}
-
-	dt {
-		margin-top: 8px;
-	}
-
-	table td {
-		display: block;
-		width: 100%;
-		padding: 0;
-	}
-
-	table td:first-child {
-		width: 100%;
-		padding-right: 0;
-		margin-top: 8px;
 	}
 }

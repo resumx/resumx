@@ -206,10 +206,10 @@ body { color: var(--text-color); }
 			// Classic should have these variables
 			const varNames = vars.map(v => v.name)
 			expect(varNames).toContain('--font-family')
-			expect(varNames).toContain('--base-font-size')
-			expect(varNames).toContain('--text-color')
-			expect(varNames).toContain('--muted-color')
-			expect(varNames).toContain('--border-color')
+			expect(varNames).toContain('--font-size')
+			expect(varNames).toContain('--section-header-color')
+			expect(varNames).toContain('--section-gap')
+			expect(varNames).toContain('--list-bullets')
 		})
 
 		it('parses bundled formal style variables', () => {

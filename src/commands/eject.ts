@@ -1,4 +1,4 @@
-import { existsSync, copyFileSync, mkdirSync } from 'node:fs'
+import { existsSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import chalk from 'chalk'
 import {
@@ -7,6 +7,7 @@ import {
 	BUNDLED_STYLES,
 	DEFAULT_STYLE,
 } from '../lib/styles.js'
+import { resolveCssImports } from '../lib/css-resolver.js'
 
 export interface EjectCommandOptions {
 	force?: boolean
@@ -49,9 +50,12 @@ export async function ejectCommand(
 		mkdirSync(localDir, { recursive: true })
 	}
 
-	// Copy style
+	// Merge and write style
 	try {
-		copyFileSync(bundledPath, localPath)
+		// Resolve all @import statements to create a single, self-contained CSS file
+		const mergedCSS = resolveCssImports(bundledPath)
+		writeFileSync(localPath, mergedCSS)
+
 		const relativePath = relative(cwd, localPath)
 		console.log(
 			chalk.green('✓')

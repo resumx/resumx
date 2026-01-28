@@ -6,7 +6,18 @@ import { join } from 'node:path'
 // Global Config (~/.config/m8/config.json)
 // =============================================================================
 
-const GLOBAL_CONFIG_DIR = join(homedir(), '.config', 'resum8')
+/**
+ * Get global config directory
+ * Supports RESUM8_CONFIG_DIR env var for testing
+ */
+function getGlobalConfigDir(): string {
+	if (process.env['RESUM8_CONFIG_DIR']) {
+		return process.env['RESUM8_CONFIG_DIR']
+	}
+	return join(homedir(), '.config', 'resum8')
+}
+
+const GLOBAL_CONFIG_DIR = getGlobalConfigDir()
 const GLOBAL_CONFIG_FILE = join(GLOBAL_CONFIG_DIR, 'config.json')
 
 export interface GlobalConfig {
@@ -17,7 +28,7 @@ export interface GlobalConfig {
 /**
  * Get path to global config directory
  */
-export function getGlobalConfigDir(): string {
+export function getGlobalConfigDirPath(): string {
 	return GLOBAL_CONFIG_DIR
 }
 

@@ -1,0 +1,99 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+:root {
+	--font-family: 'Times New Roman', serif;
+	--font-size: 10pt;
+	--line-height: 1.35;
+	--text-color: #333;
+	--background-color: #fff;
+}
+
+@page {
+	size: A4;
+	margin: 0;
+}
+
+html {
+	font-size: var(--font-size);
+}
+
+body {
+	font-family: var(--font-family);
+	line-height: var(--line-height);
+	color: var(--text-color);
+	margin: 0 auto;
+	max-width: 8.5in;
+	padding: 0.3in 0.4in;
+	background: var(--background-color);
+}
+
+*:not(dialog) {
+	margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		interpolate-size: allow-keywords;
+	}
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+
+p {
+	text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: nowrap;
+}
+
+/* Hide Pandoc's auto-generated title block */
+header#title-block-header {
+	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+}
+
+header#title-block-header * {
+	display: none !important;
+	visibility: hidden !important;
+}
