@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os'
 import MarkdownIt from 'markdown-it'
 import attrs from 'markdown-it-attrs'
 import { dl } from '@mdit/plugin-dl'
+import { mark } from '@mdit/plugin-mark'
 import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
@@ -40,6 +41,7 @@ const md = new MarkdownIt({
 })
 	.use(bracketedSpans)
 	.use(dl)
+	.use(mark)
 	.use(attrs)
 
 /**
