@@ -88,7 +88,7 @@ _Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA]{.fl
 
    ```bash
    m8 resume.md --style formal   # Apply a different style
-   m8 resume.md --html --word    # Generate HTML and Word formats
+   m8 resume.md --html --docx    # Generate HTML and DOCX formats
    m8 resume.md --watch          # Auto-rebuild on changes
    ```
 
@@ -119,7 +119,7 @@ See the [full syntax reference](docs/syntax.md) for tables, skills sections, and
 | ---------------------- | ------------------------------------------------ |
 | `m8 <file>`            | Render to PDF (default)                          |
 | `m8 <file> --html`     | Render to HTML                                   |
-| `m8 <file> --word`     | Render to Word (.docx)                           |
+| `m8 <file> --docx`     | Render to DOCX (.docx)                           |
 | `m8 <file> --all`      | Render all formats                               |
 | `m8 <file> -w`         | Watch mode (auto-rebuild)                        |
 | `m8 <file> -s <style>` | Use specific style                               |

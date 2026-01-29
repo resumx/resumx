@@ -135,7 +135,7 @@ program
 	)
 	.option('--pdf', 'Output PDF only')
 	.option('--html', 'Output HTML only')
-	.option('--word', 'Output Word document only')
+	.option('--docx', 'Output DOCX document only')
 	.option('--all', 'Output all formats (PDF, HTML, Word)')
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.action(async (file: string, options: RenderCommandOptions) => {

@@ -321,8 +321,8 @@ m8 resume.md --pdf
 # Build HTML only
 m8 resume.md --html
 
-# Build Word document only
-m8 resume.md --word
+# Build DOCX document only
+m8 resume.md --docx
 
 # Use a specific style
 m8 resume.md --style formal

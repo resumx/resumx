@@ -365,7 +365,7 @@ describe('render command', () => {
 			copyFileSync(FIXTURE_PATH, join(dir1, 'sibling.md'))
 
 			// Run from dir2, reference file in dir1
-			await runCLI(['../dir1/sibling.md', '--word'], {
+			await runCLI(['../dir1/sibling.md', '--docx'], {
 				cwd: dir2,
 			})
 

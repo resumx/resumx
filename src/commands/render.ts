@@ -23,7 +23,7 @@ export interface RenderCommandOptions {
 	var?: string[]
 	pdf?: boolean
 	html?: boolean
-	word?: boolean
+	docx?: boolean
 	all?: boolean
 	watch?: boolean
 	_configDir?: string // For testing global style variables
@@ -46,7 +46,7 @@ function resolveFormats(
 	const cliFormats: OutputFormat[] = []
 	if (options.pdf) cliFormats.push('pdf')
 	if (options.html) cliFormats.push('html')
-	if (options.word) cliFormats.push('docx')
+	if (options.docx) cliFormats.push('docx')
 
 	// If CLI format flags are set, use them
 	if (cliFormats.length > 0) {
