@@ -8,6 +8,7 @@ import {
 	DEFAULT_STYLE,
 } from '../lib/styles.js'
 import { resolveCssImports } from '../lib/css-resolver.js'
+import dedent from 'dedent'
 
 export interface EjectCommandOptions {
 	force?: boolean
@@ -22,14 +23,15 @@ export async function ejectCommand(
 ): Promise<void> {
 	const cwd = process.cwd()
 
-	// Default to classic style
 	const name = styleName ?? DEFAULT_STYLE
 
 	// Check if it's a valid bundled style
 	const bundledPath = getBundledStylePath(name)
 	if (!bundledPath) {
-		console.error(chalk.red(`Error: '${name}' is not a bundled style.`))
-		console.error(`Available styles: ${BUNDLED_STYLES.join(', ')}`)
+		console.error(dedent`
+			${chalk.red('Error:')} '${name}' is not a bundled style.
+			Available styles: ${BUNDLED_STYLES.join(', ')}
+		`)
 		process.exit(1)
 	}
 
@@ -40,8 +42,10 @@ export async function ejectCommand(
 	// Check if already exists
 	if (existsSync(localPath) && !options.force) {
 		const relativePath = relative(cwd, localPath)
-		console.error(chalk.red(`Error: ${relativePath} already exists.`))
-		console.error('Use ' + chalk.blue('--force') + ' to overwrite.')
+		console.error(dedent`
+			${chalk.red(`Error: ${relativePath} already exists.`)}
+			Use ${chalk.blue('--force')} to overwrite.
+		`)
 		process.exit(1)
 	}
 
@@ -52,23 +56,21 @@ export async function ejectCommand(
 
 	// Merge and write style
 	try {
-		// Resolve all @import statements to create a single, self-contained CSS file
 		const mergedCSS = resolveCssImports(bundledPath)
 		writeFileSync(localPath, mergedCSS)
-
-		const relativePath = relative(cwd, localPath)
-		console.log(
-			chalk.green('✓')
-				+ ` Ejected ${chalk.cyan(name)} style to ${chalk.cyan(relativePath)}`,
-		)
-		console.log('')
-		console.log('The local copy will now be used when you run:')
-		console.log(`  ${chalk.blue(`m8 resume.md --style ${name}`)}`)
-		console.log('')
-		console.log('Edit the CSS to customize fonts, colors, and layout.')
 	} catch (error) {
-		console.error(chalk.red(`Error: Failed to eject style`))
-		console.error((error as Error).message)
+		const message = error instanceof Error ? error.message : String(error)
+		console.error(chalk.red(`Error: Failed to eject style: ${message}`))
 		process.exit(1)
 	}
+
+	const relativePath = relative(cwd, localPath)
+	console.log(dedent`
+		${chalk.green('✓')} Ejected ${chalk.cyan(name)} style to ${chalk.cyan(relativePath)}
+
+		The local copy will now be used when you run:
+			${chalk.blue(`m8 resume.md --style ${name}`)}
+
+		Edit the CSS to customize fonts, colors, and layout.
+	`)
 }

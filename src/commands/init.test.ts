@@ -188,7 +188,7 @@ describe('init command', () => {
 				input: 'n\n',
 			})
 
-			expect(result.exitCode).toBe(0)
+			expect(result.exitCode).toBe(1)
 			expect(result.stdout).toContain('Aborted')
 
 			// Original file should be unchanged

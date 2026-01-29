@@ -3,6 +3,7 @@ import { createInterface } from 'node:readline'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import chalk from 'chalk'
+import dedent from 'dedent'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -45,10 +46,10 @@ export async function initCommand(
 
 	// Check if template exists
 	if (!existsSync(TEMPLATE_PATH)) {
-		console.error(chalk.red('Error: Template file not found in package.'))
-		console.error(
-			'This might be an installation issue. Try reinstalling resum8.',
-		)
+		console.error(dedent`
+			${chalk.red('Error: Template file not found in package.')}
+			This might be an installation issue. Try reinstalling resum8.
+		`)
 		process.exit(1)
 	}
 
@@ -59,23 +60,26 @@ export async function initCommand(
 		)
 		if (!shouldOverwrite) {
 			console.log(chalk.red('Aborted.'))
-			return
+			process.exit(1)
 		}
 	}
 
 	// Copy template
 	try {
 		copyFileSync(TEMPLATE_PATH, outputPath)
-		console.log(chalk.green('✓') + ' Created ' + chalk.cyan(outputFilename))
-		console.log('')
-		console.log('Next steps:')
-		console.log(
-			'  1. Edit ' + chalk.cyan(outputFilename) + ' with your information',
-		)
-		console.log(`  2. Run ${chalk.blue(`m8 ${outputFilename}`)} to build PDF`)
+		console.log(dedent`
+			${chalk.green('✓') + ' Created ' + chalk.cyan(outputFilename)}
+
+			Next steps:
+			  1. Edit ${chalk.cyan(outputFilename)} with your information
+			  2. Run ${chalk.blue(`m8 ${outputFilename}`)} to build PDF
+
+		`)
 	} catch (error) {
-		console.error(chalk.red(`Error: Failed to create ${outputFilename}`))
-		console.error((error as Error).message)
+		console.error(dedent`
+			${chalk.red(`Error: Failed to create ${outputFilename}`)}
+			${(error as Error).message}
+		`)
 		process.exit(1)
 	}
 }

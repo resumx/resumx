@@ -15,6 +15,7 @@ import {
 	resetStyleVariables,
 	getStyleVariables,
 } from '../lib/config.js'
+import dedent from 'dedent'
 
 export interface StyleCommandOptions {
 	default?: string
@@ -51,12 +52,12 @@ export async function styleCommand(
 	// Reset all style variables (requires style name)
 	if (options.resetAll) {
 		if (!styleName) {
-			console.error(
-				chalk.red('Error: A style name is required when using --reset-all'),
-			)
-			console.log('')
-			console.log('Usage:')
-			console.log(`  ${chalk.blue('m8 style <name> --reset-all')}`)
+			console.error(dedent`
+				${chalk.red('Error: A style name is required when using --reset-all')}
+
+				Usage:
+				  ${chalk.blue('m8 style <name> --reset-all')}
+			`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -68,12 +69,12 @@ export async function styleCommand(
 	// Reset specific style variable (requires style name)
 	if (options.reset) {
 		if (!styleName) {
-			console.error(
-				chalk.red('Error: A style name is required when using --reset'),
-			)
-			console.log('')
-			console.log('Usage:')
-			console.log(`  ${chalk.blue('m8 style <name> --reset <variable-name>')}`)
+			console.error(dedent`
+				${chalk.red('Error: A style name is required when using --reset')}
+
+				Usage:
+				  ${chalk.blue('m8 style <name> --reset <variable-name>')}
+			`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -90,12 +91,12 @@ export async function styleCommand(
 	// Set variable overrides (requires style name)
 	if (options.var && options.var.length > 0) {
 		if (!styleName) {
-			console.error(
-				chalk.red('Error: A style name is required when using --var'),
-			)
-			console.log('')
-			console.log('Usage:')
-			console.log(`  ${chalk.blue('m8 style <name> --var key=value')}`)
+			console.error(dedent`
+				${chalk.red('Error: A style name is required when using --var')}
+
+				Usage:
+				  ${chalk.blue('m8 style <name> --var key=value')}
+			`)
 			process.exit(1)
 			return // For testing where process.exit is mocked
 		}
@@ -127,22 +128,23 @@ async function resetAllStyleVarOverrides(
 	const style = styles.find(s => s.name === styleName)
 
 	if (!style) {
-		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log('')
-		console.log('Available styles:')
-		for (const s of styles) {
-			console.log(`  ${s.name}`)
-		}
+		console.error(dedent.withOptions({ alignValues: true })`
+			${chalk.red(`Error: Style '${styleName}' not found.`)}
+
+			Available styles:
+			  ${styles.map(s => `${s.name}`).join('\n')}
+		`)
 		process.exit(1)
 		return // For testing where process.exit is mocked
 	}
 
 	// Clear saved variables
 	resetStyleVariables(styleName, configDir)
+	console.log(dedent`
+		All variable overrides cleared for ${chalk.cyan(styleName)}
 
-	console.log(`All variable overrides cleared for ${chalk.cyan(styleName)}`)
-	console.log('')
-	console.log(chalk.dim('Style will now use original default values.'))
+		${chalk.dim('Style will now use original default values.')}
+	`)
 }
 
 /**
@@ -159,12 +161,12 @@ async function resetSingleStyleVarOverride(
 	const style = styles.find(s => s.name === styleName)
 
 	if (!style) {
-		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log('')
-		console.log('Available styles:')
-		for (const s of styles) {
-			console.log(`  ${s.name}`)
-		}
+		console.error(dedent.withOptions({ alignValues: true })`
+			${chalk.red(`Error: Style '${styleName}' not found.`)}
+
+			Available styles:
+			  ${styles.map(s => `${s.name}`).join('\n')}
+		`)
 		process.exit(1)
 		return // For testing where process.exit is mocked
 	}
@@ -174,21 +176,13 @@ async function resetSingleStyleVarOverride(
 
 	// Check if the variable has an override
 	if (!currentOverrides[varName]) {
-		console.error(
-			chalk.red(
-				`Error: No override found for variable '${varName}' in style '${styleName}'.`,
-			),
-		)
-		console.log('')
-		console.log('Current overrides:')
 		const overrideKeys = Object.keys(currentOverrides)
-		if (overrideKeys.length === 0) {
-			console.log(chalk.dim('  (none)'))
-		} else {
-			for (const key of overrideKeys) {
-				console.log(`  ${chalk.cyan(`--${key}`)}`)
-			}
-		}
+		console.error(dedent.withOptions({ alignValues: true })`
+			${chalk.red(`Error: No override found for variable '${varName}' in style '${styleName}'.`)}
+
+			Current overrides:
+			  ${overrideKeys.length > 0 ? overrideKeys.map(k => chalk.cyan(`--${k}`)).join('\n') : chalk.dim('(none)')}
+		`)
 		process.exit(1)
 		return // For testing where process.exit is mocked
 	}
@@ -211,11 +205,11 @@ async function resetSingleStyleVarOverride(
 		writeGlobalConfig({ styleVariables: updatedStyleVariables }, configDir)
 	}
 
-	console.log(
-		`Variable override ${chalk.cyan(`--${varName}`)} cleared for ${chalk.cyan(styleName)}`,
-	)
-	console.log('')
-	console.log(chalk.dim('Variable will now use its original default value.'))
+	console.log(dedent`
+		Variable override ${chalk.cyan(`--${varName}`)} cleared for ${chalk.cyan(styleName)}
+
+		${chalk.dim('Variable will now use its original default value.')}
+	`)
 }
 
 /**
@@ -232,12 +226,13 @@ async function setStyleVarOverrides(
 	const style = styles.find(s => s.name === styleName)
 
 	if (!style) {
-		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log('')
-		console.log('Available styles:')
-		for (const s of styles) {
-			console.log(`  ${s.name}`)
-		}
+		console.error(dedent.withOptions({ alignValues: true })`
+			${chalk.red(`Error: Style '${styleName}' not found.`)}
+
+			Available styles:
+			  ${styles.map(s => `${s.name}`).join('\n')}
+
+		`)
 		process.exit(1)
 		return // For testing where process.exit is mocked
 	}
@@ -246,15 +241,15 @@ async function setStyleVarOverrides(
 	const variables = parseVarFlags(varFlags)
 	setStyleVariables(styleName, variables, configDir)
 
-	console.log(`Default variable overrides saved for ${chalk.cyan(styleName)}:`)
-	console.log('')
-	for (const [key, value] of Object.entries(variables)) {
-		console.log(`  ${chalk.cyan(`--${key}`)}: ${value}`)
-	}
-	console.log('')
-	console.log(
-		chalk.dim('These will be applied when rendering with this style.'),
-	)
+	console.log(dedent.withOptions({ alignValues: true })`
+		Default variable overrides saved for ${chalk.cyan(styleName)}:
+
+		  ${Object.entries(variables)
+				.map(([key, value]) => `${chalk.cyan(`--${key}`)}: ${value}`)
+				.join('\n')}
+
+		${chalk.dim('These will be applied when rendering with this style.')}
+	`)
 }
 
 /**
@@ -271,11 +266,11 @@ async function showStyleInfo(
 
 	if (!style) {
 		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log('')
-		console.log('Available styles:')
-		for (const s of styles) {
-			console.log(`  ${s.name}`)
-		}
+		console.log(dedent.withOptions({ alignValues: true })`
+
+			Available styles:
+			  ${styles.map(s => `${s.name}`).join('\n')}
+		`)
 		process.exit(1)
 		return // For testing where process.exit is mocked
 	}
@@ -292,13 +287,11 @@ async function showStyleInfo(
 	if (style.isLocal) {
 		const relativePath = relative(cwd, style.path)
 		console.log(
-			chalk.bold(`Style: ${styleName}`)
-				+ chalk.yellow(` (overridden in ${relativePath})`),
+			`${chalk.bold(`Style: ${styleName}`)} ${chalk.yellow(`(overridden in ${relativePath})`)}`,
 		)
 	} else {
 		console.log(chalk.bold(`Style: ${styleName}`))
 	}
-	console.log('')
 
 	if (variables.length === 0) {
 		console.log(chalk.dim('No configurable CSS variables found.'))
@@ -319,28 +312,22 @@ async function showStyleInfo(
 			}
 		}
 	}
+	console.log(dedent`
+		Override with:
+		  ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
-	console.log('')
-	console.log('Override with:')
-	console.log(
-		`  ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
-	)
-	console.log('')
-	console.log('Set default override:')
-	console.log(
-		`  ${chalk.blue(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}`,
-	)
-	console.log('')
-	console.log('Reset specific variable:')
-	console.log(
-		`  ${chalk.blue(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}`,
-	)
-	console.log('')
-	console.log('Reset all overrides:')
-	console.log(`  ${chalk.blue(`m8 style ${styleName} --reset-all`)}`)
-	console.log('')
-	console.log('Or customize fully:')
-	console.log(`  ${chalk.blue(`m8 eject ${styleName}`)}`)
+		Set default override:
+		  ${chalk.blue(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+
+		Reset specific variable:
+		  ${chalk.blue(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}
+
+		Reset all overrides:
+		  ${chalk.blue(`m8 style ${styleName} --reset-all`)}
+
+		Or customize fully:
+		  ${chalk.blue(`m8 eject ${styleName}`)}
+	`)
 }
 
 /**
@@ -356,20 +343,22 @@ async function setDefaultStyle(
 	const styleExists = styles.some(s => s.name === styleName)
 
 	if (!styleExists) {
-		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log('')
-		console.log('Available styles:')
-		for (const style of styles) {
-			console.log(`  ${style.name}`)
-		}
+		console.error(dedent.withOptions({ alignValues: true })`
+			${chalk.red(`Error: Style '${styleName}' not found.`)}
+
+			Available styles:
+			  ${styles.map(s => `${s.name}`).join('\n')}
+		`)
 		process.exit(1)
 	}
 
 	// Write to global config
 	writeGlobalConfig({ defaultStyle: styleName }, configDir)
 
-	console.log(`Default style set to ${chalk.cyan(styleName)}`)
-	console.log(chalk.dim(`Config saved to ${getConfigPath()}`))
+	console.log(dedent`
+		Default style set to ${chalk.cyan(styleName)}
+		${chalk.dim(`Config saved to ${getConfigPath()}`)}
+	`)
 }
 
 /**
@@ -395,18 +384,17 @@ async function listAllStyles(cwd: string): Promise<void> {
 		console.log(`  ${name}${markerStr}`)
 	}
 
-	console.log('')
-	console.log('Usage:')
-	console.log(`  ${chalk.blue('m8 resume.md --style <name>')}`)
-	console.log('')
-	console.log('View style details:')
-	console.log(`  ${chalk.blue('m8 style <name>')}`)
-	console.log('')
-	console.log('Set default style:')
-	console.log(`  ${chalk.blue('m8 style --default <name>')}`)
-	console.log('')
-	console.log('Customize a style:')
-	console.log(
-		`  ${chalk.blue('m8 eject <name>')}  Copy to ./styles/ for editing`,
-	)
+	console.log(dedent`
+		Usage:
+		  ${chalk.blue('m8 resume.md --style <name>')}
+
+		View style details:
+		  ${chalk.blue('m8 style <name>')}
+
+		Set default style:
+		  ${chalk.blue('m8 style --default <name>')}
+
+		Customize a style:
+		  ${chalk.blue('m8 eject <name>')}  Copy to ./styles/ for editing
+	`)
 }

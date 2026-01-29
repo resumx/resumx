@@ -148,8 +148,7 @@ async function runRender(
 	}
 
 	const relativeInputPath = relative(cwd, inputPath)
-	console.log(`Building resume from: ${chalk.cyan(relativeInputPath)}`)
-	console.log('')
+	console.log(`Building resume from: ${chalk.cyan(relativeInputPath)}\n`)
 
 	// Build expression context from frontmatter (all properties directly accessible)
 	const expressionContext: Record<string, unknown> = {
@@ -275,8 +274,7 @@ export async function renderCommand(
 		}
 
 		debounceTimer = setTimeout(async () => {
-			console.log('')
-			console.log(chalk.blue('Change detected, rebuilding...'))
+			console.log(chalk.blue('\nChange detected, rebuilding...'))
 			await runRender(inputFile, inputPath, options, cwd)
 		}, 150)
 	})
