@@ -57,44 +57,36 @@ _Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA]{.fl
 
 ## Get Started
 
-1. Install WeasyPrint:
-
-   **macOS**
+1. Install the CLI:
 
    ```bash
-   brew install weasyprint
-   ```
+   pip install pdf2docx   # or pipx install pdf2docx / uv tool install pdf2docx
 
-   **Windows**
-
-   ```bash
-   choco install weasyprint
-   ```
-
-2. Install the CLI:
-
-   ```bash
    npm install -g resum8
    ```
 
-3. Create your first resume:
+   PDF rendering uses [Playwright](https://playwright.dev/) with a bundled Chromium installed automatically.
+
+2. Create your first resume:
 
    ```bash
    m8 init resume.md   # Generate a template resume
    m8 resume.md        # Render to PDF
    ```
 
-4. (Optional) Customize your output:
+3. (Optional) Customize your output:
 
    ```bash
    m8 resume.md --style formal   # Apply a different style
-   m8 resume.md --html --docx    # Generate HTML and DOCX formats
+   m8 resume.md --html           # Generate HTML
+   m8 resume.md --docx           # Generate DOCX (requires: pip install pdf2docx)
+   m8 resume.md --all            # PDF, HTML, and DOCX
    m8 resume.md --watch          # Auto-rebuild on changes
    ```
 
 ## Writing Your Resume
 
-Write your resume in standard markdown syntax. Use `[text](#right)` to right-align text.
+Write your resume in standard markdown syntax. Use bracketed spans like `[text]{.float-right}` with Tailwind CSS v4 classes to style your resume (see [syntax reference](docs/syntax.md)).
 
 ```markdown
 # Jane Doe
@@ -195,11 +187,21 @@ m8 eject formal               # Copy to ./styles/ for customization
 **For CLI:**
 
 - [Node.js](https://nodejs.org/) 20+
-- [WeasyPrint](https://weasyprint.org/) (for PDF output)
+- **PDF / HTML:** None. The package uses Playwright with a bundled Chromium (installed automatically via `npm install`).
+- **DOCX** (when using `--docx` or `--all`): [pdf2docx](https://github.com/dothinking/pdf2docx) to convert PDF to Word. Install with:
+
+  ```bash
+  pip install pdf2docx
+  ```
+
+**Development (contributors):**
 
 ```bash
-# macOS
-brew install weasyprint
+git clone <repo>
+cd resum8
+npm install          # installs deps and runs `npx playwright install chromium`
+npm run build        # compile TypeScript
+npm test             # run tests
 ```
 
 **For stylesheet-only:** Any markdown-to-HTML/PDF tool that supports custom CSS.
