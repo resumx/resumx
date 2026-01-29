@@ -137,11 +137,10 @@ async function runRender(
 	const formats = resolveFormats(options, fmConfig?.formats)
 
 	// Check dependencies
-	// PDF and DOCX both require weasyprint (DOCX generates PDF first, then converts)
-	const needsPdf = formats.includes('pdf') || formats.includes('docx')
+	// Only pdf2docx is required for DOCX output (PDF uses bundled Playwright Chromium)
 	const needsDocx = formats.includes('docx')
 	try {
-		requireDependencies({ pdf: needsPdf, docx: needsDocx })
+		requireDependencies({ docx: needsDocx })
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false

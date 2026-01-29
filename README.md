@@ -21,7 +21,7 @@ Write your resume in markdown. Render it anywhere.
 - **Beautiful defaults** — Professional templates that look great out of the box
 - **Git-native** — Plain text files, meaningful diffs, branch your resume versions
 - **AI-friendly** — Markdown plays well with LLMs for writing and editing
-- **Tailwind-compatible** — Use the same class for styling as Tailwind CSS
+- **Tailwind-compatible** — Use the same class for styling as Tailwind CSS v4
 - **Easily ejectable** — Copy the stylesheet to your project and customize it to your liking
 
 ## Sample

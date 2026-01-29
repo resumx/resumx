@@ -8,6 +8,7 @@ import {
 } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { chromium } from 'playwright'
 import MarkdownIt from 'markdown-it'
 import attrs from 'markdown-it-attrs'
 import { dl } from '@mdit/plugin-dl'
@@ -17,6 +18,7 @@ import { sup } from '@mdit/plugin-sup'
 import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
+import { compileTailwindCSS } from './tailwind.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 
@@ -51,7 +53,7 @@ const md = new MarkdownIt({
 /**
  * Resolve CSS and combine with variable overrides
  */
-function resolveCSS(
+function resolveBaseCSS(
 	cssPath: string,
 	variables?: Record<string, string>,
 ): string {
@@ -65,18 +67,33 @@ function resolveCSS(
 
 /**
  * Convert markdown to standalone HTML with embedded CSS
+ * Includes Tailwind CSS compilation for utility classes used in the content
  */
-function markdownToHtml(content: string, css: string): string {
-	// Render markdown with bracketed-spans plugin handling [text]{.class} syntax
+async function markdownToHtml(
+	content: string,
+	cssPath: string,
+	variables?: Record<string, string>,
+): Promise<string> {
+	// 1. Render markdown to HTML body
 	const body = md.render(content)
 
+	// 2. Compile Tailwind CSS for classes used in the HTML body
+	const tailwindCSS = await compileTailwindCSS(body)
+
+	// 3. Resolve base CSS with variable overrides
+	const baseCSS = resolveBaseCSS(cssPath, variables)
+
+	// 4. Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
+	const combinedCSS = tailwindCSS + '\n' + baseCSS
+
+	// 5. Assemble final HTML
 	return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-${css}
+${combinedCSS}
 </style>
 </head>
 <body>
@@ -109,18 +126,93 @@ function cleanupTempFile(path: string): void {
 }
 
 /**
- * Render HTML to PDF using WeasyPrint CLI
+ * Shared browser instance for reuse across renders (faster in watch mode)
  */
-function renderPdf(html: string, outputPath: string): void {
-	const tempHtmlPath = createTempFile(html, '.html')
+let sharedBrowser: Awaited<ReturnType<typeof chromium.launch>> | null = null
+let browserPromise: Promise<
+	Awaited<ReturnType<typeof chromium.launch>>
+> | null = null
 
+/**
+ * Get or create a shared browser instance
+ * Reuses existing browser for faster subsequent renders
+ */
+async function getBrowser() {
+	// Return existing browser if available and connected
+	if (sharedBrowser?.isConnected()) {
+		return sharedBrowser
+	}
+
+	// If browser is being launched, wait for it
+	if (browserPromise) {
+		return browserPromise
+	}
+
+	// Launch new browser
+	browserPromise = launchBrowserInstance()
 	try {
-		execSync(`weasyprint "${tempHtmlPath}" "${outputPath}"`, {
-			stdio: ['pipe', 'pipe', 'pipe'],
-			encoding: 'utf-8',
+		sharedBrowser = await browserPromise
+		return sharedBrowser
+	} finally {
+		browserPromise = null
+	}
+}
+
+/**
+ * Launch Playwright's Chromium for PDF rendering
+ * Uses Playwright's downloaded Chromium (optimized for headless automation)
+ */
+async function launchBrowserInstance() {
+	try {
+		return await chromium.launch({ headless: true })
+	} catch {
+		throw new Error(
+			'Chromium not found. Please run: npx playwright install chromium',
+		)
+	}
+}
+
+/**
+ * Close the shared browser instance
+ * Call this when done with all rendering (e.g., on process exit)
+ */
+export async function closeBrowser(): Promise<void> {
+	if (sharedBrowser) {
+		await sharedBrowser.close()
+		sharedBrowser = null
+	}
+}
+
+// Cleanup browser on process exit
+process.on('exit', () => {
+	sharedBrowser?.close()
+})
+process.on('SIGINT', async () => {
+	await closeBrowser()
+	process.exit(0)
+})
+process.on('SIGTERM', async () => {
+	await closeBrowser()
+	process.exit(0)
+})
+
+/**
+ * Render HTML to PDF using Playwright (headless Chrome/Chromium)
+ * Reuses browser instance for faster subsequent renders
+ */
+async function renderPdf(html: string, outputPath: string): Promise<void> {
+	const browser = await getBrowser()
+	const page = await browser.newPage()
+	try {
+		await page.setContent(html, { waitUntil: 'networkidle' })
+		await page.pdf({
+			path: outputPath,
+			format: 'Letter',
+			printBackground: true,
+			preferCSSPageSize: true,
 		})
 	} finally {
-		cleanupTempFile(tempHtmlPath)
+		await page.close()
 	}
 }
 
@@ -147,11 +239,12 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
  */
 export async function render(options: RenderOptions): Promise<RenderResult> {
 	try {
-		// Resolve CSS with variable overrides
-		const css = resolveCSS(options.cssPath, options.variables)
-
-		// Convert markdown to standalone HTML
-		const html = markdownToHtml(options.content, css)
+		// Convert markdown to standalone HTML with Tailwind CSS compilation
+		const html = await markdownToHtml(
+			options.content,
+			options.cssPath,
+			options.variables,
+		)
 
 		// Ensure output directory exists
 		const outputDir = dirname(options.output)
@@ -165,13 +258,13 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 				writeFileSync(options.output, html)
 				break
 			case 'pdf':
-				renderPdf(html, options.output)
+				await renderPdf(html, options.output)
 				break
 			case 'docx': {
 				// Generate PDF first (temporary), then convert to DOCX for high fidelity
 				const tempPdfPath = createTempFile('', '.pdf')
 				try {
-					renderPdf(html, tempPdfPath)
+					await renderPdf(html, tempPdfPath)
 					renderDocxFromPdf(tempPdfPath, options.output)
 				} finally {
 					cleanupTempFile(tempPdfPath)
