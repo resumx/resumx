@@ -40,19 +40,6 @@ function getVersion(
 }
 
 /**
- * Check weasyprint installation
- */
-export function checkWeasyprint(): DependencyStatus {
-	const installed = commandExists('weasyprint')
-	return {
-		name: 'weasyprint',
-		installed,
-		version: installed ? getVersion('weasyprint') : undefined,
-		installHint: 'brew install weasyprint',
-	}
-}
-
-/**
  * Check pdf2docx installation
  */
 export function checkPdf2docx(): DependencyStatus {
@@ -67,39 +54,27 @@ export function checkPdf2docx(): DependencyStatus {
 
 /**
  * Check all required dependencies
+ * Note: PDF rendering uses bundled Puppeteer (no external dependencies)
+ * Only pdf2docx requires external installation for DOCX output
  */
 export function checkDependencies(): {
-	weasyprint: DependencyStatus
 	pdf2docx: DependencyStatus
 	allInstalled: boolean
 } {
-	const weasyprint = checkWeasyprint()
 	const pdf2docx = checkPdf2docx()
 
 	return {
-		weasyprint,
 		pdf2docx,
-		allInstalled: weasyprint.installed && pdf2docx.installed,
+		allInstalled: pdf2docx.installed,
 	}
 }
 
 /**
  * Require dependencies or throw
- * WeasyPrint is required for PDF output
+ * PDF rendering uses Puppeteer with bundled Chromium (no external deps)
  * pdf2docx is required for DOCX output (converts PDF to DOCX for high fidelity)
  */
-export function requireDependencies(
-	options: { pdf?: boolean; docx?: boolean } = {},
-): void {
-	if (options.pdf !== false) {
-		const weasyprint = checkWeasyprint()
-		if (!weasyprint.installed) {
-			throw new Error(
-				`weasyprint is required for PDF output. Install with: ${weasyprint.installHint}`,
-			)
-		}
-	}
-
+export function requireDependencies(options: { docx?: boolean } = {}): void {
 	if (options.docx) {
 		const pdf2docx = checkPdf2docx()
 		if (!pdf2docx.installed) {
