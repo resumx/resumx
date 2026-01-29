@@ -19,6 +19,7 @@ import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
+import { processExpressions } from './expressions.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 
@@ -28,6 +29,7 @@ export interface RenderOptions {
 	format: OutputFormat
 	cssPath: string
 	variables?: Record<string, string>
+	expressionContext?: Record<string, unknown>
 }
 
 export interface RenderResult {
@@ -73,20 +75,27 @@ async function markdownToHtml(
 	content: string,
 	cssPath: string,
 	variables?: Record<string, string>,
+	expressionContext?: Record<string, unknown>,
 ): Promise<string> {
-	// 1. Render markdown to HTML body
-	const body = md.render(content)
+	// Process {{ }} expressions before markdown rendering
+	const processedContent =
+		expressionContext ?
+			await processExpressions(content, expressionContext)
+		:	content
 
-	// 2. Compile Tailwind CSS for classes used in the HTML body
+	// Render markdown to HTML body
+	const body = md.render(processedContent)
+
+	// Compile Tailwind CSS for classes used in the HTML body
 	const tailwindCSS = await compileTailwindCSS(body)
 
-	// 3. Resolve base CSS with variable overrides
+	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(cssPath, variables)
 
-	// 4. Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
+	// Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
 
-	// 5. Assemble final HTML
+	// Assemble final HTML
 	return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -244,6 +253,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			options.content,
 			options.cssPath,
 			options.variables,
+			options.expressionContext,
 		)
 
 		// Ensure output directory exists
@@ -298,15 +308,22 @@ export async function renderMultiple(
 	formats: OutputFormat[],
 	cssPath: string,
 	variables?: Record<string, string>,
+	expressionContext?: Record<string, unknown>,
 ): Promise<Map<OutputFormat, RenderResult>> {
 	const results = new Map<OutputFormat, RenderResult>()
+
+	// Process expressions once before rendering to any format
+	const processedContent =
+		expressionContext ?
+			await processExpressions(content, expressionContext)
+		:	content
 
 	for (const format of formats) {
 		const ext = format === 'docx' ? 'docx' : format
 		const output = join(outputDir, `${outputName}.${ext}`)
 
 		const result = await render({
-			content,
+			content: processedContent,
 			output,
 			format,
 			cssPath,
