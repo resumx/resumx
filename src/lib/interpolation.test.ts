@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { processExpressions, evaluateExpression } from './expressions.js'
+import { processExpressions, evaluateExpression } from './interpolation.js'
 
 describe('expressions', () => {
 	describe('evaluateExpression', () => {

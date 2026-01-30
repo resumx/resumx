@@ -20,7 +20,7 @@ import { bracketedSpans } from './mdit-plugins/bracketed-span/index.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
-import { processExpressions } from './expressions.js'
+import { processExpressions } from './interpolation.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 

@@ -40,34 +40,26 @@ function getVersion(
 }
 
 /**
- * Check pdf2docx installation
+ * Check dependencies installation
  */
-export function checkPdf2docx(): DependencyStatus {
-	const installed = commandExists('pdf2docx')
+export function checkDependency(
+	dep: string,
+	installHint: string,
+): DependencyStatus {
+	const installed = commandExists(dep)
 	return {
-		name: 'pdf2docx',
+		name: dep,
 		installed,
-		version: installed ? getVersion('pdf2docx') : undefined,
-		installHint: 'pip install pdf2docx',
+		version: installed ? getVersion(dep) : undefined,
+		installHint,
 	}
 }
 
 /**
- * Check all required dependencies
- * Note: PDF rendering uses bundled Puppeteer (no external dependencies)
- * Only pdf2docx requires external installation for DOCX output
+ * Check pdf2docx installation
  */
-export function checkDependencies(): {
-	pdf2docx: DependencyStatus
-	allInstalled: boolean
-} {
-	const pdf2docx = checkPdf2docx()
-
-	return {
-		pdf2docx,
-		allInstalled: pdf2docx.installed,
-	}
-}
+export const checkPdf2docxInstalled = () =>
+	checkDependency('pdf2docx', 'pip install pdf2docx')
 
 /**
  * Require dependencies or throw
@@ -76,7 +68,7 @@ export function checkDependencies(): {
  */
 export function requireDependencies(options: { docx?: boolean } = {}): void {
 	if (options.docx) {
-		const pdf2docx = checkPdf2docx()
+		const pdf2docx = checkPdf2docxInstalled()
 		if (!pdf2docx.installed) {
 			throw new Error(
 				`pdf2docx is required for DOCX output. Install with: ${pdf2docx.installHint}`,
