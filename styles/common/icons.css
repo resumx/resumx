@@ -1,5 +1,13 @@
 :root {
-	--logo: none; /* show, none */
+	--logo: show; /* show, none */
+}
+
+/* Iconify icons - align with text */
+iconify-icon {
+	width: 1em;
+	height: 1em;
+	vertical-align: text-top;
+	display: var(--logo);
 }
 
 /* Email */

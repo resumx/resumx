@@ -15,6 +15,7 @@ import { dl } from '@mdit/plugin-dl'
 import { mark } from '@mdit/plugin-mark'
 import { sub } from '@mdit/plugin-sub'
 import { sup } from '@mdit/plugin-sup'
+import { icon, iconifyRender } from './mdit-plugins/icon/index.js'
 import { bracketedSpans } from './markdown-it-bracketed-spans.js'
 import { generateVariablesCSS } from './config.js'
 import { resolveCssImports } from './css-resolver.js'
@@ -46,6 +47,7 @@ const md = new MarkdownIt({
 	typographer: true,
 })
 	.use(bracketedSpans)
+	.use(icon, { resolvers: [iconifyRender] })
 	.use(dl)
 	.use(mark)
 	.use(attrs)
@@ -101,6 +103,7 @@ async function markdownToHtml(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 <style>
 ${combinedCSS}
 </style>
