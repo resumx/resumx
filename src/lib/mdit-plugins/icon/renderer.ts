@@ -4,9 +4,18 @@
  */
 
 import { escapeHtml } from '@mdit/helper'
+import { deviconMap } from './mappings/devicon.js'
+import { iconifyHtml } from './utils.js'
 
 /** Function that resolves an icon name to HTML, or returns null if it cannot. */
 export type IconResolver = (name: string) => string | null
+
+/**
+ * Resolves resume-specific icon aliases (e.g. "react", "python") to their Iconify icon implementations.
+ * These are user-friendly names defined by resum8, not Iconify icon names directly.
+ */
+export const resumxIconResolver = (name: string): string | null =>
+	deviconMap[name] ?? null
 
 /**
  * Renders an icon via [Iconify](https://iconify.design/). Use icon id e.g. `mdi:home`, `fa6-brands:react`.
@@ -14,9 +23,8 @@ export type IconResolver = (name: string) => string | null
  * @param name - Iconify id (set:name). Trimmed and escaped.
  * @returns HTML string: `<iconify-icon icon="..." style="..."></iconify-icon>`.
  */
-export function iconifyRender(name: string): string {
-	const content = name.trim()
-	return `<iconify-icon icon="${escapeHtml(content)}" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>`
+export function iconifyResolver(name: string): string {
+	return iconifyHtml(name)
 }
 
 /**

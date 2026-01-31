@@ -13,7 +13,7 @@ import {
 import { iconParserRule } from './parser.js'
 
 export type { IconResolver, MarkdownItIconOptions }
-export { iconifyRender, createCustomResolver } from './renderer.js'
+export { createCustomResolver } from './renderer.js'
 
 /**
  * Markdown-it plugin that parses `::icon-name::` and renders icons via resolvers.

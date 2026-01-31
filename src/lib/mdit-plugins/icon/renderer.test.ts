@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { iconifyRender, createCustomResolver } from './index.js'
+import {
+	iconifyResolver,
+	createCustomResolver,
+	resumxIconResolver,
+} from './index.js'
 import { buildRender, createIconRenderRule } from './renderer.js'
 
 describe('buildRender', () => {
@@ -7,7 +11,7 @@ describe('buildRender', () => {
 		const render = buildRender({
 			resolvers: [
 				createCustomResolver({ star: '<span class="star">★</span>' }),
-				iconifyRender,
+				iconifyResolver,
 			],
 		})
 		expect(render('star')).toBe('<span class="star">★</span>')
@@ -56,21 +60,21 @@ describe('createIconRenderRule', () => {
 	})
 })
 
-describe('iconifyRender', () => {
+describe('iconifyResolver', () => {
 	it('renders with alignment styles', () => {
-		expect(iconifyRender('mdi:home')).toBe(
+		expect(iconifyResolver('mdi:home')).toBe(
 			'<iconify-icon icon="mdi:home" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
 		)
 	})
 
 	it('escapes HTML in icon name', () => {
-		expect(iconifyRender('mdi:foo<script>')).toBe(
+		expect(iconifyResolver('mdi:foo<script>')).toBe(
 			'<iconify-icon icon="mdi:foo&lt;script&gt;" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
 		)
 	})
 
 	it('escapes " in icon name', () => {
-		expect(iconifyRender('mdi:foo" onclick="alert(1)')).toBe(
+		expect(iconifyResolver('mdi:foo" onclick="alert(1)')).toBe(
 			'<iconify-icon icon="mdi:foo&quot; onclick=&quot;alert(1)" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
 		)
 	})
@@ -82,5 +86,27 @@ describe('createCustomResolver', () => {
 		expect(resolve('star')).toBe('<star/>')
 		expect(resolve('  star  ')).toBe('<star/>')
 		expect(resolve('other')).toBeNull()
+	})
+})
+
+describe('resumxIconResolver', () => {
+	it('resolves devicon names to HTML with devicon: prefix', () => {
+		const html = resumxIconResolver('react')
+		expect(html).toContain('devicon:react')
+		expect(html).toContain('iconify-icon')
+	})
+
+	it('uses override for aws (amazonwebservices)', () => {
+		const html = resumxIconResolver('aws')
+		expect(html).toContain('devicon:amazonwebservices')
+	})
+
+	it('uses override for nodejs (logos set)', () => {
+		const html = resumxIconResolver('nodejs')
+		expect(html).toContain('logos:nodejs-icon')
+	})
+
+	it('returns null for unknown name', () => {
+		expect(resumxIconResolver('unknown-icon-name')).toBeNull()
 	})
 })

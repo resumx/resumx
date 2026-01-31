@@ -15,12 +15,16 @@ import { dl } from '@mdit/plugin-dl'
 import { mark } from '@mdit/plugin-mark'
 import { sub } from '@mdit/plugin-sub'
 import { sup } from '@mdit/plugin-sup'
-import { icon, iconifyRender } from './mdit-plugins/icon/index.js'
+import { icon } from './mdit-plugins/icon/index.js'
 import { bracketedSpans } from './mdit-plugins/bracketed-span/index.js'
 import { generateVariablesCSS } from './styles.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
 import { processExpressions } from './interpolation.js'
+import {
+	iconifyResolver,
+	resumxIconResolver,
+} from './mdit-plugins/icon/renderer.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 
@@ -47,7 +51,7 @@ const md = new MarkdownIt({
 	typographer: true,
 })
 	.use(bracketedSpans)
-	.use(icon, { resolvers: [iconifyRender] })
+	.use(icon, { resolvers: [resumxIconResolver, iconifyResolver] })
 	.use(dl)
 	.use(mark)
 	.use(attrs)

@@ -3,8 +3,10 @@
  */
 export {
 	icon,
-	iconifyRender,
 	createCustomResolver,
 	type MarkdownItIconOptions,
 	type IconResolver,
 } from './plugin.js'
+
+export { resumxIconResolver } from './renderer.js'
+export { iconifyResolver } from './renderer.js'
