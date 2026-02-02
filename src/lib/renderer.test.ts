@@ -10,6 +10,7 @@ import {
 import { dirname, join, basename } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
+import { browserManager } from './browser.js'
 
 // Get project paths
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -70,7 +71,6 @@ describe('renderer', () => {
 	// Import once at top level to avoid MaxListeners warning from repeated module loads
 	let render: typeof import('./renderer.js').render
 	let renderMultiple: typeof import('./renderer.js').renderMultiple
-	let closeBrowser: typeof import('./renderer.js').closeBrowser
 	let extractNameFromMarkdown: typeof import('./renderer.js').extractNameFromMarkdown
 	let getOutputName: typeof import('./renderer.js').getOutputName
 	let moduleLoaded = false
@@ -80,7 +80,6 @@ describe('renderer', () => {
 			const module = await import('./renderer.js')
 			render = module.render
 			renderMultiple = module.renderMultiple
-			closeBrowser = module.closeBrowser
 			extractNameFromMarkdown = module.extractNameFromMarkdown
 			getOutputName = module.getOutputName
 			moduleLoaded = true
@@ -931,10 +930,10 @@ Tools
 	})
 
 	// =========================================================================
-	// closeBrowser Function
+	// Browser Cleanup
 	// =========================================================================
 
-	describe('closeBrowser', () => {
+	describe('browser cleanup', () => {
 		it('closes browser after PDF render', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test'
@@ -951,7 +950,7 @@ Tools
 				})
 
 				// Should not throw
-				await expect(closeBrowser()).resolves.not.toThrow()
+				await expect(browserManager.closeBrowser()).resolves.not.toThrow()
 			})
 		})
 
@@ -970,9 +969,9 @@ Tools
 				})
 
 				// Multiple close calls should not throw
-				await closeBrowser()
-				await closeBrowser()
-				await closeBrowser()
+				await browserManager.closeBrowser()
+				await browserManager.closeBrowser()
+				await browserManager.closeBrowser()
 			})
 		})
 
@@ -992,7 +991,7 @@ Tools
 				})
 
 				// Close browser
-				await closeBrowser()
+				await browserManager.closeBrowser()
 
 				// Second render should work (launches new browser)
 				const result = await render({

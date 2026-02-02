@@ -53,12 +53,6 @@ function cleanupTempFile(path: string): void {
 }
 
 /**
- * Close the shared browser instance
- * Re-exported for backwards compatibility
- */
-export const closeBrowser = () => browserManager.closeBrowser()
-
-/**
  * Render HTML to PDF using Playwright (headless Chrome/Chromium)
  * Reuses browser instance for faster subsequent renders
  */

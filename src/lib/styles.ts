@@ -10,9 +10,6 @@ const BUNDLED_STYLES_DIR = resolve(__dirname, '../../styles')
 // Fallback default style name (when no config)
 export const FALLBACK_DEFAULT_STYLE = 'classic'
 
-// Alias for backwards compatibility
-export const DEFAULT_STYLE = FALLBACK_DEFAULT_STYLE
-
 // =============================================================================
 // CSS Variable Utilities
 // =============================================================================
