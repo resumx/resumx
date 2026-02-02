@@ -8,24 +8,8 @@ import {
 } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { chromium } from 'playwright'
-import MarkdownIt from 'markdown-it'
-import attrs from 'markdown-it-attrs'
-import { dl } from '@mdit/plugin-dl'
-import { mark } from '@mdit/plugin-mark'
-import { sub } from '@mdit/plugin-sub'
-import { sup } from '@mdit/plugin-sup'
-import {
-	icon,
-	iconifyResolver,
-	resumxIconResolver,
-	wikiCommonsResolver,
-	githubResolver,
-} from './mdit-plugins/icon/index.js'
-import { bracketedSpans } from './mdit-plugins/bracketed-span/index.js'
-import { generateVariablesCSS } from './styles.js'
-import { resolveCssImports } from './css-resolver.js'
-import { compileTailwindCSS } from './tailwind.js'
+import { browserManager } from './browser.js'
+import { generateHtml } from './html-generator.js'
 import { processExpressions } from './interpolation.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
@@ -43,88 +27,6 @@ export interface RenderResult {
 	success: boolean
 	outputPath: string
 	error?: string
-}
-
-// Initialize markdown-it with bracketed-spans and attrs plugins
-// CRITICAL: bracketedSpans MUST come BEFORE attrs for proper attribute application
-const md = new MarkdownIt({
-	html: true,
-	linkify: true,
-	typographer: true,
-})
-	.use(bracketedSpans)
-	.use(icon, {
-		resolvers: [
-			resumxIconResolver,
-			wikiCommonsResolver,
-			githubResolver,
-			iconifyResolver,
-		],
-	})
-	.use(dl)
-	.use(mark)
-	.use(attrs)
-	.use(sub)
-	.use(sup)
-
-/**
- * Resolve CSS and combine with variable overrides
- */
-function resolveBaseCSS(
-	cssPath: string,
-	variables?: Record<string, string>,
-): string {
-	// Resolve @import statements
-	const resolvedCSS = resolveCssImports(cssPath)
-	const variablesCSS = variables ? generateVariablesCSS(variables) : ''
-
-	// Append variable overrides AFTER resolved CSS so they take precedence
-	return resolvedCSS + '\n' + variablesCSS
-}
-
-/**
- * Convert markdown to standalone HTML with embedded CSS
- * Includes Tailwind CSS compilation for utility classes used in the content
- */
-async function markdownToHtml(
-	content: string,
-	cssPath: string,
-	variables?: Record<string, string>,
-	expressionContext?: Record<string, unknown>,
-): Promise<string> {
-	// Process {{ }} expressions before markdown rendering
-	const processedContent =
-		expressionContext ?
-			await processExpressions(content, expressionContext)
-		:	content
-
-	// Render markdown to HTML body
-	const body = md.render(processedContent)
-
-	// Compile Tailwind CSS for classes used in the HTML body
-	const tailwindCSS = await compileTailwindCSS(body)
-
-	// Resolve base CSS with variable overrides
-	const baseCSS = resolveBaseCSS(cssPath, variables)
-
-	// Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
-	const combinedCSS = tailwindCSS + '\n' + baseCSS
-
-	// Assemble final HTML
-	return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<style>
-${combinedCSS}
-</style>
-</head>
-<body>
-${body}
-</body>
-</html>`
 }
 
 /**
@@ -151,82 +53,17 @@ function cleanupTempFile(path: string): void {
 }
 
 /**
- * Shared browser instance for reuse across renders (faster in watch mode)
- */
-let sharedBrowser: Awaited<ReturnType<typeof chromium.launch>> | null = null
-let browserPromise: Promise<
-	Awaited<ReturnType<typeof chromium.launch>>
-> | null = null
-
-/**
- * Get or create a shared browser instance
- * Reuses existing browser for faster subsequent renders
- */
-async function getBrowser() {
-	// Return existing browser if available and connected
-	if (sharedBrowser?.isConnected()) {
-		return sharedBrowser
-	}
-
-	// If browser is being launched, wait for it
-	if (browserPromise) {
-		return browserPromise
-	}
-
-	// Launch new browser
-	browserPromise = launchBrowserInstance()
-	try {
-		sharedBrowser = await browserPromise
-		return sharedBrowser
-	} finally {
-		browserPromise = null
-	}
-}
-
-/**
- * Launch Playwright's Chromium for PDF rendering
- * Uses Playwright's downloaded Chromium (optimized for headless automation)
- */
-async function launchBrowserInstance() {
-	try {
-		return await chromium.launch({ headless: true })
-	} catch {
-		throw new Error(
-			'Chromium not found. Please run: npx playwright install chromium',
-		)
-	}
-}
-
-/**
  * Close the shared browser instance
- * Call this when done with all rendering (e.g., on process exit)
+ * Re-exported for backwards compatibility
  */
-export async function closeBrowser(): Promise<void> {
-	if (sharedBrowser) {
-		await sharedBrowser.close()
-		sharedBrowser = null
-	}
-}
-
-// Cleanup browser on process exit
-process.on('exit', () => {
-	sharedBrowser?.close()
-})
-process.on('SIGINT', async () => {
-	await closeBrowser()
-	process.exit(0)
-})
-process.on('SIGTERM', async () => {
-	await closeBrowser()
-	process.exit(0)
-})
+export const closeBrowser = () => browserManager.closeBrowser()
 
 /**
  * Render HTML to PDF using Playwright (headless Chrome/Chromium)
  * Reuses browser instance for faster subsequent renders
  */
 async function renderPdf(html: string, outputPath: string): Promise<void> {
-	const browser = await getBrowser()
+	const browser = await browserManager.getBrowser()
 	const page = await browser.newPage()
 	try {
 		await page.setContent(html, { waitUntil: 'networkidle' })
@@ -265,12 +102,11 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 export async function render(options: RenderOptions): Promise<RenderResult> {
 	try {
 		// Convert markdown to standalone HTML with Tailwind CSS compilation
-		const html = await markdownToHtml(
-			options.content,
-			options.cssPath,
-			options.variables,
-			options.expressionContext,
-		)
+		const html = await generateHtml(options.content, {
+			cssPath: options.cssPath,
+			variables: options.variables,
+			expressionContext: options.expressionContext,
+		})
 
 		// Ensure output directory exists
 		const outputDir = dirname(options.output)
