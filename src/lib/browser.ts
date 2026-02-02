@@ -96,5 +96,4 @@ export function registerCleanupHandlers(): void {
 }
 
 // Auto-register cleanup handlers for CLI usage
-// This maintains backward compatibility with the original behavior
 registerCleanupHandlers()

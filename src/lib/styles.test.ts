@@ -8,7 +8,7 @@ import {
 	getBundledStylePath,
 	getLocalStylePath,
 	parseCssVariables,
-	DEFAULT_STYLE,
+	FALLBACK_DEFAULT_STYLE,
 	BUNDLED_STYLES,
 } from './styles.js'
 
@@ -59,8 +59,8 @@ describe('styles', () => {
 	describe('resolveStyle', () => {
 		it('resolves bundled default style by name', () => {
 			// Callers are responsible for providing defaults; this verifies the fallback works
-			const path = resolveStyle(DEFAULT_STYLE, tempDir)
-			expect(path).toContain(DEFAULT_STYLE)
+			const path = resolveStyle(FALLBACK_DEFAULT_STYLE, tempDir)
+			expect(path).toContain(FALLBACK_DEFAULT_STYLE)
 			expect(existsSync(path)).toBe(true)
 		})
 

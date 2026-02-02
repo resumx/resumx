@@ -172,20 +172,4 @@ describe('browser', () => {
 			expect(browserManager.isConnected()).toBe(false)
 		})
 	})
-
-	// =========================================================================
-	// Legacy API (backwards compatibility)
-	// =========================================================================
-
-	describe('legacy API', () => {
-		afterEach(async () => {
-			await browserManager.closeBrowser()
-		})
-
-		it('closeBrowser function works', async () => {
-			await browserManager.getBrowser()
-			await browserManager.closeBrowser()
-			expect(browserManager.isConnected()).toBe(false)
-		})
-	})
 })
