@@ -77,12 +77,11 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve style (CLI > Frontmatter > Global default)
-	const styleArg = options.style ?? fmConfig?.style
-	const styleName = styleArg ?? store.defaultStyle
+	// Resolve style name (CLI > Frontmatter > Global default)
+	const styleName = options.style ?? fmConfig?.style ?? store.defaultStyle
 	let cssPath: string
 	try {
-		cssPath = resolveStyle(styleArg, cwd)
+		cssPath = resolveStyle(styleName, cwd)
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false
@@ -226,10 +225,10 @@ export async function renderCommand(
 
 	// Resolve watch paths (needed for both message and watcher setup)
 	const { config: fmConfig } = parseFrontmatter(inputPath)
-	const styleArg = options.style ?? fmConfig?.style
+	const styleName = options.style ?? fmConfig?.style ?? store.defaultStyle
 	let cssPath = ''
 	try {
-		cssPath = resolveStyle(styleArg, cwd)
+		cssPath = resolveStyle(styleName, cwd)
 	} catch {
 		// Will error during render if style not found
 	}

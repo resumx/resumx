@@ -1,7 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve, isAbsolute, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { config } from './config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -139,35 +138,16 @@ export function listStyles(cwd: string = process.cwd()): StyleInfo[] {
  * 1. If it's a path (contains / or ends with .css), use it directly
  * 2. Check ./styles/<name>.css (local override)
  * 3. Check bundled styles
- * 4. Default to bundled classic
+ *
+ * Callers are responsible for providing a style name (handling defaults).
  */
 export function resolveStyle(
-	styleArg?: string,
+	style: string,
 	cwd: string = process.cwd(),
 ): string {
-	// No style specified - use default
-	if (!styleArg) {
-		const defaultStyle = config.defaultStyle
-
-		// Check if local default exists
-		const localDefault = getLocalStylePath(defaultStyle, cwd)
-		if (localDefault) return localDefault
-
-		// Use bundled default
-		const bundledDefault = getBundledStylePath(defaultStyle)
-		if (bundledDefault) return bundledDefault
-
-		throw new Error(`Default style '${defaultStyle}' not found`)
-	}
-
 	// Path-like input (contains / or \ or ends with .css)
-	if (
-		styleArg.includes('/')
-		|| styleArg.includes('\\')
-		|| styleArg.endsWith('.css')
-	) {
-		const absolutePath =
-			isAbsolute(styleArg) ? styleArg : resolve(cwd, styleArg)
+	if (style.includes('/') || style.includes('\\') || style.endsWith('.css')) {
+		const absolutePath = isAbsolute(style) ? style : resolve(cwd, style)
 
 		if (!existsSync(absolutePath)) {
 			throw new Error(`Style file not found: ${absolutePath}`)
@@ -176,18 +156,16 @@ export function resolveStyle(
 	}
 
 	// Name-based resolution
-	const name = styleArg
-
 	// Check local first
-	const localPath = getLocalStylePath(name, cwd)
+	const localPath = getLocalStylePath(style, cwd)
 	if (localPath) return localPath
 
 	// Check bundled
-	const bundledPath = getBundledStylePath(name)
+	const bundledPath = getBundledStylePath(style)
 	if (bundledPath) return bundledPath
 
 	throw new Error(
-		`Style '${name}' not found. Available styles: ${BUNDLED_STYLES.join(', ')}`,
+		`Style '${style}' not found. Available styles: ${BUNDLED_STYLES.join(', ')}`,
 	)
 }
 

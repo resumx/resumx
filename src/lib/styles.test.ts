@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -11,13 +11,6 @@ import {
 	DEFAULT_STYLE,
 	BUNDLED_STYLES,
 } from './styles.js'
-
-// Mock config to isolate tests from user's global config
-vi.mock('./config.js', () => ({
-	config: {
-		defaultStyle: 'classic',
-	},
-}))
 
 describe('styles', () => {
 	let tempDir: string
@@ -64,8 +57,9 @@ describe('styles', () => {
 	})
 
 	describe('resolveStyle', () => {
-		it('resolves to bundled default when no arg', () => {
-			const path = resolveStyle(undefined, tempDir)
+		it('resolves bundled default style by name', () => {
+			// Callers are responsible for providing defaults; this verifies the fallback works
+			const path = resolveStyle(DEFAULT_STYLE, tempDir)
 			expect(path).toContain(DEFAULT_STYLE)
 			expect(existsSync(path)).toBe(true)
 		})
