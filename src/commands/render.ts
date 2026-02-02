@@ -277,11 +277,10 @@ export async function renderCommand(
 		}, 150)
 	})
 
-	// Keep process alive
-	process.on('SIGINT', () => {
+	process.on('SIGINT', async () => {
 		console.log('')
 		console.log('Stopped watching.')
-		watcher.close()
+		await watcher.close()
 		process.exit(0)
 	})
 }
