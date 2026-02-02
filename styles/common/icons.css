@@ -3,10 +3,12 @@
 }
 
 /* Iconify icons - align with text */
-.iconify {
+.iconify,
+.icon {
 	vertical-align: text-top;
 	display: var(--logo);
 	height: 1em;
+	object-fit: contain;
 	overflow: visible;
 }
 

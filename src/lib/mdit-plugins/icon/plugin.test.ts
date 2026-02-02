@@ -8,7 +8,7 @@ describe('icon plugin', () => {
 			resolvers: [iconifyResolver],
 		})
 		expect(md.renderInline('hello ::mdi:home:: world')).toBe(
-			'hello <iconify-icon icon="mdi:home" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon> world',
+			'hello <span class="iconify" data-icon="mdi:home" style="display: inline-block;"></span> world',
 		)
 	})
 
@@ -18,7 +18,7 @@ describe('icon plugin', () => {
 		})
 		// Iconify will render any name, even if it's not a valid iconify icon
 		expect(md.renderInline('::react::')).toBe(
-			'<iconify-icon icon="react" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
+			'<span class="iconify" data-icon="react" style="display: inline-block;"></span>',
 		)
 	})
 
@@ -31,10 +31,10 @@ describe('icon plugin', () => {
 		})
 		expect(md.renderInline('::star::')).toBe('<span class="star">★</span>')
 		expect(md.renderInline('::mdi:home::')).toBe(
-			'<iconify-icon icon="mdi:home" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
+			'<span class="iconify" data-icon="mdi:home" style="display: inline-block;"></span>',
 		)
 		expect(md.renderInline('::react::')).toBe(
-			'<iconify-icon icon="react" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>',
+			'<span class="iconify" data-icon="react" style="display: inline-block;"></span>',
 		)
 	})
 

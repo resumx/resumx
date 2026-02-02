@@ -10,3 +10,5 @@ export {
 
 export { resumxIconResolver } from './renderer.js'
 export { iconifyResolver } from './renderer.js'
+export { wikiCommonsResolver } from './renderer.js'
+export { githubResolver } from './renderer.js'

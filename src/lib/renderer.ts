@@ -24,6 +24,8 @@ import { processExpressions } from './interpolation.js'
 import {
 	iconifyResolver,
 	resumxIconResolver,
+	wikiCommonsResolver,
+	githubResolver,
 } from './mdit-plugins/icon/renderer.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx'
@@ -51,7 +53,14 @@ const md = new MarkdownIt({
 	typographer: true,
 })
 	.use(bracketedSpans)
-	.use(icon, { resolvers: [resumxIconResolver, iconifyResolver] })
+	.use(icon, {
+		resolvers: [
+			resumxIconResolver,
+			wikiCommonsResolver,
+			githubResolver,
+			iconifyResolver,
+		],
+	})
 	.use(dl)
 	.use(mark)
 	.use(attrs)

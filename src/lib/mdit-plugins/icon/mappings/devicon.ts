@@ -1,7 +1,13 @@
 import { iconifyHtml } from '../utils.js'
 
-/** Default devicon names used by resumxIconResolver. Override aws/nodejs to use different icon IDs. */
-const RESUMX_DEVICON_NAMES = [
+type DeviconEntry = string | { key: string; icon: string }
+
+/**
+ * List of devicon icons used by resumxIconResolver.
+ * - String entries use the same value for both input key and icon name
+ * - Object entries specify different input key and icon name
+ */
+const RESUMX_DEVICON_NAMES: readonly DeviconEntry[] = [
 	// A
 	'anaconda',
 	'android',
@@ -22,7 +28,7 @@ const RESUMX_DEVICON_NAMES = [
 	'argocd',
 	'astro',
 	'atom',
-	'aws',
+	{ key: 'aws', icon: 'amazonwebservices' },
 	'azure',
 	'azuredevops',
 	// B
@@ -200,7 +206,6 @@ const RESUMX_DEVICON_NAMES = [
 	'nextjs',
 	'nginx',
 	'nixos',
-	'nodejs',
 	'nodemon',
 	'npm',
 	'numpy',
@@ -347,25 +352,21 @@ const RESUMX_DEVICON_NAMES = [
 	'zsh',
 ] as const
 
-/** Overrides for names that don't match devicon id (e.g. different set or alias). */
-const DEVICON_OVERRIDES: Record<string, string> = {
-	aws: 'devicon:amazonwebservices',
-	nodejs: 'logos:nodejs-icon',
-}
-
 /**
- * Builds a name → HTML map for Iconify icons from a list of icon names.
- * Each name maps to `devicon:${name}` by default. Use `overrides` to point a name
- * to a different icon set or ID (e.g. `{ aws: 'devicon:amazonwebservices', nodejs: 'logos:nodejs-icon' }`).
+ * Builds a name → HTML map for Iconify devicon icons.
+ * String entries use the value for both key and icon name.
+ * Object entries specify different key and icon name (without devicon: prefix).
  *
- * @param names - List of icon names (keys in the returned map).
- * @param overrides - Optional map of name → full icon id for non-default icons.
  * @returns Record<string, string> suitable for createCustomResolver or lookup.
  */
 function createDeviconMap(): Record<string, string> {
 	const map: Record<string, string> = {}
-	for (const name of RESUMX_DEVICON_NAMES) {
-		map[name] = iconifyHtml(DEVICON_OVERRIDES[name] ?? `devicon:${name}`)
+	for (const entry of RESUMX_DEVICON_NAMES) {
+		if (typeof entry === 'string') {
+			map[entry] = iconifyHtml(`devicon:${entry}`)
+		} else {
+			map[entry.key] = iconifyHtml(`devicon:${entry.icon}`)
+		}
 	}
 	return map
 }
