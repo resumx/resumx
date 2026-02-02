@@ -2,13 +2,33 @@ import { describe, it, expect } from 'vitest'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { generateHtml } from './html-generator.js'
+import { parseHTML } from 'linkedom'
+import { generateHtml, processColumns } from './html-generator.js'
 
 // =============================================================================
 // Test Utilities
 // =============================================================================
 
 type VirtualFileMap = Record<string, string>
+
+/**
+ * Parse HTML string into a DOM for structural assertions
+ * Uses linkedom (same parser as production code) for consistency
+ * Returns a wrapper element containing the parsed content
+ */
+function parseHtml(html: string): {
+	body: Element
+	querySelector: (selector: string) => Element | null
+	querySelectorAll: (selector: string) => NodeListOf<Element>
+} {
+	const { document } = parseHTML(`<div id="root">${html}</div>`)
+	const root = document.getElementById('root')!
+	return {
+		body: root,
+		querySelector: (selector: string) => root.querySelector(selector),
+		querySelectorAll: (selector: string) => root.querySelectorAll(selector),
+	}
+}
 
 async function withTempDir<T>(fn: (dir: string) => Promise<T>): Promise<T> {
 	const dir = mkdtempSync(join(tmpdir(), 'html-gen-test-'))
@@ -261,6 +281,266 @@ Languages
 					cssPath: '/non/existent/style.css',
 				}),
 			).rejects.toThrow('not found')
+		})
+	})
+
+	describe('processColumns', () => {
+		const CSS_WITH_TWO_COLUMN = `
+.two-column-layout {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+}
+`
+		const CSS_WITHOUT_TWO_COLUMN = `
+body {
+	font-family: Arial;
+}
+`
+
+		describe('header extraction', () => {
+			it('extracts content before first h2 into header element', () => {
+				const html = '<h1>Name</h1><p>Contact</p><h2>Experience</h2><p>Job</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				// Check header exists and contains correct elements
+				const header = doc.querySelector('header')
+				expect(header).toBeTruthy()
+				expect(header?.querySelector('h1')?.textContent).toBe('Name')
+				expect(header?.querySelector('p')?.textContent).toBe('Contact')
+
+				// Check sequence: header comes before h2
+				const body = doc.body
+				const headerIndex = Array.from(body.children).indexOf(header!)
+				const h2 = doc.querySelector('h2')
+				const h2Index = Array.from(body.children).indexOf(h2!)
+				expect(headerIndex).toBeLessThan(h2Index)
+			})
+
+			it('does not create header when h2 is first element', () => {
+				const html = '<h2>Experience</h2><p>Job</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				expect(doc.querySelector('header')).toBeNull()
+			})
+
+			it('does not create header when no h2 exists', () => {
+				const html = '<h1>Title</h1><p>Content</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				expect(doc.querySelector('header')).toBeNull()
+				expect(result).toBe(html)
+			})
+
+			it('extracts header in single-column mode (no hr)', () => {
+				const html = '<h1>Name</h1><h2>Experience</h2><p>Job</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				const header = doc.querySelector('header')
+				expect(header).toBeTruthy()
+				expect(header?.querySelector('h1')?.textContent).toBe('Name')
+				expect(doc.querySelector('h2')?.textContent).toBe('Experience')
+			})
+
+			it('extracts header when style does not support two-column', () => {
+				const html = '<h1>Name</h1><h2>Experience</h2><hr><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITHOUT_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				const header = doc.querySelector('header')
+				expect(header).toBeTruthy()
+				expect(header?.querySelector('h1')?.textContent).toBe('Name')
+
+				// Should not have hr tags (stripped)
+				expect(doc.querySelector('hr')).toBeNull()
+				// Should not have two-column layout
+				expect(doc.querySelector('.two-column-layout')).toBeNull()
+			})
+		})
+
+		describe('two-column layout', () => {
+			it('wraps in two-column layout when style supports it', () => {
+				const html = '<h1>Name</h1><h2>Experience</h2><hr><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				// Check two-column wrapper exists
+				const layout = doc.querySelector('.two-column-layout')
+				expect(layout).toBeTruthy()
+
+				// Check header exists inside layout
+				const header = layout?.querySelector('header')
+				expect(header?.querySelector('h1')?.textContent).toBe('Name')
+
+				// Check primary and secondary columns
+				const primary = layout?.querySelector('.primary')
+				const secondary = layout?.querySelector('.secondary')
+				expect(primary).toBeTruthy()
+				expect(secondary).toBeTruthy()
+
+				// Check content distribution
+				expect(primary?.querySelector('h2')?.textContent).toBe('Experience')
+				expect(secondary?.querySelector('h2')?.textContent).toBe('Skills')
+
+				// No hr should remain
+				expect(doc.querySelector('hr')).toBeNull()
+			})
+
+			it('places header inside two-column-layout div', () => {
+				const html = '<h1>Name</h1><h2>Experience</h2><hr><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				const layout = doc.querySelector('.two-column-layout')
+				const header = doc.querySelector('header')
+
+				// Header should be child of layout
+				expect(header?.parentElement).toBe(layout)
+			})
+
+			it('strips <hr> and concatenates when style does not support two-column', () => {
+				const html = '<h2>Experience</h2><hr><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITHOUT_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				// No two-column layout
+				expect(doc.querySelector('.two-column-layout')).toBeNull()
+
+				// No hr tags
+				expect(doc.querySelector('hr')).toBeNull()
+
+				// Both h2s present
+				const h2s = doc.querySelectorAll('h2')
+				expect(h2s.length).toBe(2)
+				expect(h2s[0].textContent).toBe('Experience')
+				expect(h2s[1].textContent).toBe('Skills')
+			})
+
+			it('splits at first <hr> and removes all others', () => {
+				const html = '<h2>Exp</h2><hr><h2>Skills</h2><hr><h2>Other</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				// Check layout exists
+				const layout = doc.querySelector('.two-column-layout')
+				expect(layout).toBeTruthy()
+
+				// Check primary has first h2
+				const primary = layout?.querySelector('.primary')
+				expect(primary?.querySelector('h2')?.textContent).toBe('Exp')
+
+				// Check secondary has both other h2s
+				const secondary = layout?.querySelector('.secondary')
+				const secondaryH2s = secondary?.querySelectorAll('h2')
+				expect(secondaryH2s?.length).toBe(2)
+				expect(secondaryH2s?.[0].textContent).toBe('Skills')
+				expect(secondaryH2s?.[1].textContent).toBe('Other')
+
+				// No hr should remain
+				expect(doc.querySelector('hr')).toBeNull()
+			})
+
+			it('handles <hr /> self-closing syntax', () => {
+				const html = '<h2>Exp</h2><hr /><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				expect(doc.querySelector('.two-column-layout')).toBeTruthy()
+				expect(doc.querySelector('hr')).toBeNull()
+			})
+
+			it('handles <hr/> self-closing syntax without space', () => {
+				const html = '<h2>Exp</h2><hr/><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				expect(doc.querySelector('.two-column-layout')).toBeTruthy()
+				expect(doc.querySelector('hr')).toBeNull()
+			})
+
+			it('handles empty primary column', () => {
+				const html = '<hr><h2>Only secondary</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				const layout = doc.querySelector('.two-column-layout')
+				const primary = layout?.querySelector('.primary')
+				const secondary = layout?.querySelector('.secondary')
+
+				expect(primary).toBeTruthy()
+				expect(primary?.textContent?.trim()).toBe('')
+				expect(secondary?.querySelector('h2')?.textContent).toBe(
+					'Only secondary',
+				)
+			})
+
+			it('handles empty secondary column', () => {
+				const html = '<h2>Only primary</h2><hr>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				const layout = doc.querySelector('.two-column-layout')
+				const primary = layout?.querySelector('.primary')
+				const secondary = layout?.querySelector('.secondary')
+
+				expect(primary?.querySelector('h2')?.textContent).toBe('Only primary')
+				expect(secondary).toBeTruthy()
+				expect(secondary?.textContent?.trim()).toBe('')
+			})
+
+			it('is case-insensitive for hr tags', () => {
+				const html = '<h2>Exp</h2><HR><h2>Skills</h2>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				expect(doc.querySelector('.two-column-layout')).toBeTruthy()
+				expect(doc.querySelector('hr')).toBeNull()
+			})
+
+			it('detects .two-column-layout with various whitespace', () => {
+				const cssVariants = [
+					'.two-column-layout{display:grid}',
+					'.two-column-layout { display: grid }',
+					'.two-column-layout\n{\n\tdisplay: grid;\n}',
+				]
+
+				const html = '<h2>Exp</h2><hr><h2>Skills</h2>'
+
+				for (const css of cssVariants) {
+					const result = processColumns(html, css)
+					const doc = parseHtml(result)
+					expect(doc.querySelector('.two-column-layout')).toBeTruthy()
+				}
+			})
+		})
+
+		describe('no hr present', () => {
+			it('returns unchanged when no h2 and no hr', () => {
+				const html = '<h1>Title</h1><p>Content</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+
+				expect(result).toBe('<h1>Title</h1><p>Content</p>')
+			})
+
+			it('extracts header but no two-column when only h2 present (no hr)', () => {
+				const html = '<h1>Name</h1><h2>Section</h2><p>Content</p>'
+				const result = processColumns(html, CSS_WITH_TWO_COLUMN)
+				const doc = parseHtml(result)
+
+				// Should have header
+				const header = doc.querySelector('header')
+				expect(header).toBeTruthy()
+				expect(header?.querySelector('h1')?.textContent).toBe('Name')
+
+				// Should have h2 after header
+				expect(doc.querySelector('h2')?.textContent).toBe('Section')
+
+				// Should NOT have two-column layout
+				expect(doc.querySelector('.two-column-layout')).toBeNull()
+			})
 		})
 	})
 })

@@ -59,6 +59,7 @@
 		"dedent": "^1.7.1",
 		"gray-matter": "^4.0.3",
 		"iconify-icon": "^3.0.2",
+		"linkedom": "^0.18.12",
 		"markdown-it": "^14.1.0",
 		"markdown-it-attrs": "^4.3.1",
 		"playwright": "^1.58.0",
