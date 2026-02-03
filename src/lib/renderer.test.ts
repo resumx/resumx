@@ -306,7 +306,8 @@ describe('renderer', () => {
 				expect(result.success).toBe(true)
 				const html = readFileSync(result.outputPath, 'utf-8')
 				expect(html).toContain('<h1>Dynamic Name</h1>')
-				expect(html).toContain('Year: 2026')
+				// Year gets wrapped in <time> tag by the time plugin
+				expect(html).toContain('Year: <time datetime="2026">2026</time>')
 			})
 		})
 

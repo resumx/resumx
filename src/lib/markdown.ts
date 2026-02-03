@@ -18,6 +18,7 @@ import {
 } from './mdit-plugins/icon/index.js'
 import { bracketedSpans } from './mdit-plugins/bracketed-span/index.js'
 import { fencedDiv } from './mdit-plugins/fenced-div/index.js'
+import { timePlugin } from './mdit-plugins/time/index.js'
 
 /**
  * Create a configured markdown-it instance with all resume plugins
@@ -47,6 +48,7 @@ export function createMarkdownRenderer(): MarkdownIt {
 		.use(attrs)
 		.use(sub)
 		.use(sup)
+		.use(timePlugin)
 }
 
 /**
