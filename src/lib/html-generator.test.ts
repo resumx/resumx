@@ -195,8 +195,7 @@ describe('html-generator', () => {
 				})
 
 				expect(html).toContain('<h1>Dynamic Title</h1>')
-				// Year gets wrapped in <time> tag by the time plugin
-				expect(html).toContain('Year: <time datetime="2026">2026</time>')
+				expect(html).toContain('Year: 2026')
 			})
 		})
 

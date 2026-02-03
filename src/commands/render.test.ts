@@ -733,13 +733,16 @@ Test content`
 - React {.role:frontend}
 - Node.js {.role:backend}
 - Common skill`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+			writeFileSync(join(tempDir, 'resume-frontend.md'), mdContent)
 
 			await runCLI(['resume.md', '--html', '--role', 'frontend'], {
 				cwd: tempDir,
 			})
 
-			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const htmlContent = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
 			expect(htmlContent).toContain('React')
 			expect(htmlContent).not.toContain('Node.js')
 			expect(htmlContent).toContain('Common skill')
@@ -792,8 +795,8 @@ Test content`
 			})
 
 			// Should generate single file (no role suffix when only one)
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 		})
 
@@ -816,7 +819,8 @@ roles:
 			})
 
 			// Should only generate frontend (configured in frontmatter)
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
 		})
@@ -866,7 +870,10 @@ roles:
 				cwd: tempDir,
 			})
 
-			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const htmlContent = readFileSync(
+				join(tempDir, 'resume-backend.html'),
+				'utf-8',
+			)
 			expect(htmlContent).not.toContain('Frontend Skills')
 			expect(htmlContent).not.toContain('React')
 			expect(htmlContent).toContain('Backend Skills')

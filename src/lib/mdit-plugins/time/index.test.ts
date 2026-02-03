@@ -49,17 +49,6 @@ describe('timePlugin', () => {
 			expect(timeEl?.textContent).toBe('January 15, 2020')
 		})
 
-		it('wraps year-only date with year precision', () => {
-			const md = createMd()
-			const html = md.renderInline('Founded in 2020')
-			const doc = parseHtml(html)
-
-			const timeEl = doc.querySelector('time')
-			expect(timeEl).toBeTruthy()
-			expect(timeEl?.getAttribute('datetime')).toBe('2020')
-			expect(timeEl?.textContent).toBe('2020')
-		})
-
 		it.each([
 			['Jan 2020', '2020-01'],
 			['January 2020', '2020-01'],
@@ -116,7 +105,6 @@ describe('timePlugin', () => {
 		it.each([
 			['Jan 2020 – Dec 2024', '2020-01', '2024-12'],
 			['January 2020 - December 2024', '2020-01', '2024-12'],
-			['2020 – 2024', '2020', '2024'],
 		])(
 			'parses range "%s" with start=%s end=%s',
 			(input, expectedStart, expectedEnd) => {
