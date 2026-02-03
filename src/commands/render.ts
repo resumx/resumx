@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { execSync } from 'node:child_process'
-import { resolve, dirname, relative, basename } from 'node:path'
+import { resolve, dirname, relative, basename, join } from 'node:path'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
@@ -17,8 +17,31 @@ import { parseFrontmatter } from '../lib/frontmatter.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { extractRoles, resolveRoles } from '../lib/roles.js'
 
+/**
+ * Resolve which styles to use (CLI > Frontmatter > Global default)
+ * Returns array of style names
+ */
+function resolveStyles(
+	cliStyles: string[] | undefined,
+	frontmatterStyles: string[] | undefined,
+	defaultStyle: string,
+): string[] {
+	// CLI takes precedence
+	if (cliStyles && cliStyles.length > 0) {
+		return cliStyles
+	}
+
+	// Frontmatter styles
+	if (frontmatterStyles && frontmatterStyles.length > 0) {
+		return frontmatterStyles
+	}
+
+	// Global default
+	return [defaultStyle]
+}
+
 export interface RenderCommandOptions {
-	style?: string
+	style?: string[]
 	output?: string
 	var?: string[]
 	role?: string[]
@@ -63,6 +86,81 @@ function resolveFormats(
 }
 
 /**
+ * Render task representing a single (style, role) combination
+ */
+interface RenderTask {
+	styleName: string
+	cssPath: string
+	variables: Record<string, string>
+	outputDir: string
+	outputName: string
+	activeRole: string | undefined
+	label: string
+}
+
+/**
+ * Build render tasks for all style × role combinations
+ *
+ * Output naming rules:
+ * - 1 style, no roles    → resume.pdf
+ * - 1 style, roles       → resume-frontend.pdf
+ * - multi-style, no roles → resume-formal.pdf
+ * - multi-style + roles   → frontend/resume-formal.pdf
+ */
+function buildRenderTasks(
+	styles: Array<{
+		name: string
+		cssPath: string
+		variables: Record<string, string>
+	}>,
+	roles: string[],
+	baseOutputDir: string,
+	baseOutputName: string,
+): RenderTask[] {
+	const tasks: RenderTask[] = []
+	const hasMultipleStyles = styles.length > 1
+	const hasRoles = roles.length > 0
+
+	for (const style of styles) {
+		const effectiveRoles = hasRoles ? roles : [undefined]
+
+		for (const role of effectiveRoles) {
+			let outputDir = baseOutputDir
+			let outputName = baseOutputName
+			const labelParts: string[] = []
+
+			if (hasMultipleStyles && hasRoles && role) {
+				// multi-style + roles → frontend/resume-formal.pdf
+				outputDir = join(baseOutputDir, role)
+				outputName = `${baseOutputName}-${style.name}`
+				labelParts.push(`role: ${role}`, `style: ${style.name}`)
+			} else if (hasMultipleStyles) {
+				// multi-style, no roles → resume-formal.pdf
+				outputName = `${baseOutputName}-${style.name}`
+				labelParts.push(`style: ${style.name}`)
+			} else if (hasRoles && role) {
+				// 1 style, roles → resume-frontend.pdf
+				outputName = `${baseOutputName}-${role}`
+				labelParts.push(`role: ${role}`)
+			}
+			// else: 1 style, no roles → resume.pdf (no suffix)
+
+			tasks.push({
+				styleName: style.name,
+				cssPath: style.cssPath,
+				variables: style.variables,
+				outputDir,
+				outputName,
+				activeRole: role,
+				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
+			})
+		}
+	}
+
+	return tasks
+}
+
+/**
  * Run a single render cycle
  */
 async function runRender(
@@ -80,29 +178,43 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve style name (CLI > Frontmatter > Global default)
-	const styleName = options.style ?? fmConfig?.style ?? store.defaultStyle
-	let cssPath: string
-	try {
-		cssPath = resolveStyle(styleName, cwd)
-	} catch (error) {
-		console.error(chalk.red(`Error: ${(error as Error).message}`))
-		return false
+	// Resolve styles (CLI > Frontmatter > Global default)
+	const styleNames = resolveStyles(
+		options.style,
+		fmConfig?.style,
+		store.defaultStyle,
+	)
+
+	// Resolve each style to CSS path and variables
+	const styles: Array<{
+		name: string
+		cssPath: string
+		variables: Record<string, string>
+	}> = []
+	for (const styleName of styleNames) {
+		let cssPath: string
+		try {
+			cssPath = resolveStyle(styleName, cwd)
+		} catch (error) {
+			console.error(chalk.red(`Error: ${(error as Error).message}`))
+			return false
+		}
+
+		// Merge variables (CLI > Frontmatter > Global style defaults)
+		const globalStyleVars = store.getStyleVariables(styleName)
+		const cliVars = options.var ? parseVarFlags(options.var) : undefined
+		const variables = mergeVariables(
+			globalStyleVars,
+			fmConfig?.variables,
+			cliVars,
+		)
+
+		styles.push({ name: styleName, cssPath, variables })
 	}
 
-	// Merge variables (CLI > Frontmatter > Global style defaults)
-	const globalStyleVars = store.getStyleVariables(styleName)
-	const cliVars = options.var ? parseVarFlags(options.var) : undefined
-	const variables = mergeVariables(
-		globalStyleVars,
-		fmConfig?.variables,
-		cliVars,
-	)
-	const hasVariables = Object.keys(variables).length > 0
-
-	// Determine output name and directory (CLI > Frontmatter > defaults)
-	let outputName: string
-	let outputDir: string
+	// Determine base output name and directory (CLI > Frontmatter > defaults)
+	let baseOutputName: string
+	let baseOutputDir: string
 
 	if (options.output) {
 		// CLI -o flag takes precedence
@@ -110,12 +222,12 @@ async function runRender(
 
 		if (endsWithSlash) {
 			// Use frontmatter outputName or input filename in specified directory
-			outputName = fmConfig?.outputName ?? getOutputName(inputPath)
-			outputDir = resolve(cwd, options.output)
+			baseOutputName = fmConfig?.outputName ?? getOutputName(inputPath)
+			baseOutputDir = resolve(cwd, options.output)
 		} else {
 			// Split path into directory and filename
 			const resolvedOutput = resolve(cwd, options.output)
-			outputDir = dirname(resolvedOutput)
+			baseOutputDir = dirname(resolvedOutput)
 
 			// Get basename and strip document extensions
 			let baseName = basename(resolvedOutput)
@@ -126,12 +238,12 @@ async function runRender(
 					break
 				}
 			}
-			outputName = baseName
+			baseOutputName = baseName
 		}
 	} else {
 		// No CLI -o flag: check frontmatter, then defaults
-		outputName = fmConfig?.outputName ?? getOutputName(inputPath)
-		outputDir = fmConfig?.outputDir ? resolve(cwd, fmConfig.outputDir) : cwd
+		baseOutputName = fmConfig?.outputName ?? getOutputName(inputPath)
+		baseOutputDir = fmConfig?.outputDir ? resolve(cwd, fmConfig.outputDir) : cwd
 	}
 
 	// Get formats to render (CLI > Frontmatter > default)
@@ -188,32 +300,25 @@ async function runRender(
 		return false
 	}
 
-	// Build render tasks - treat "no roles" as a single task with no suffix
-	interface RenderTask {
-		outputName: string
-		activeRole: string | undefined
-		label: string | undefined
-	}
-
-	const renderTasks: RenderTask[] =
-		rolesToGenerate.length > 0 ?
-			rolesToGenerate.map(role => ({
-				outputName: `${outputName}-${role}`,
-				activeRole: role,
-				label: `[role: ${role}]`,
-			}))
-		:	[{ outputName, activeRole: undefined, label: undefined }]
+	// Build render tasks for all style × role combinations
+	const renderTasks = buildRenderTasks(
+		styles,
+		rolesToGenerate,
+		baseOutputDir,
+		baseOutputName,
+	)
 
 	// Render all tasks in parallel
 	const taskResults = await Promise.all(
 		renderTasks.map(async task => {
+			const hasVariables = Object.keys(task.variables).length > 0
 			const results = await renderMultiple({
 				content,
-				outputDir,
+				outputDir: task.outputDir,
 				outputName: task.outputName,
 				formats,
-				cssPath,
-				variables: hasVariables ? variables : undefined,
+				cssPath: task.cssPath,
+				variables: hasVariables ? task.variables : undefined,
 				expressionContext:
 					Object.keys(expressionContext).length > 0 ?
 						expressionContext
@@ -275,18 +380,26 @@ export async function renderCommand(
 
 	// Resolve watch paths (needed for both message and watcher setup)
 	const { config: fmConfig } = parseFrontmatter(inputPath)
-	const styleName = options.style ?? fmConfig?.style ?? store.defaultStyle
-	let cssPath = ''
-	try {
-		cssPath = resolveStyle(styleName, cwd)
-	} catch {
-		// Will error during render if style not found
+	const styleNamesForWatch = resolveStyles(
+		options.style,
+		fmConfig?.style,
+		store.defaultStyle,
+	)
+
+	// Collect CSS paths for all styles
+	const cssPaths: string[] = []
+	for (const styleName of styleNamesForWatch) {
+		try {
+			const cssPath = resolveStyle(styleName, cwd)
+			if (existsSync(cssPath)) {
+				cssPaths.push(cssPath)
+			}
+		} catch {
+			// Will error during render if style not found
+		}
 	}
 
-	const watchPaths = [inputPath]
-	if (cssPath && existsSync(cssPath)) {
-		watchPaths.push(cssPath)
-	}
+	const watchPaths = [inputPath, ...cssPaths]
 
 	// Print watch message before initial render
 	if (options.watch) {

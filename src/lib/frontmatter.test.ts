@@ -43,7 +43,7 @@ Some content here.`
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: 'formal',
+					style: ['formal'],
 					outputName: 'john-doe-resume',
 					outputDir: './dist',
 					formats: ['pdf', 'html'],
@@ -63,7 +63,7 @@ style: minimal
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: 'minimal' })
+				expect(result.config).toEqual({ style: ['minimal'] })
 				expect(result.content.trim()).toBe('# Resume')
 			})
 
@@ -143,9 +143,22 @@ roles:
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: 'formal',
+					style: ['formal'],
 					roles: ['frontend', 'fullstack'],
 				})
+			})
+
+			it('parses YAML frontmatter with multiple styles', () => {
+				const input = `---
+style:
+  - formal
+  - minimal
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({ style: ['formal', 'minimal'] })
 			})
 		})
 
@@ -168,7 +181,7 @@ Some content here.`
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: 'formal',
+					style: ['formal'],
 					outputName: 'john-doe-resume',
 					outputDir: './dist',
 					formats: ['pdf', 'html'],
@@ -188,7 +201,18 @@ style = "minimal"
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: 'minimal' })
+				expect(result.config).toEqual({ style: ['minimal'] })
+			})
+
+			it('parses TOML frontmatter with multiple styles', () => {
+				const input = `+++
+style = ["formal", "minimal"]
++++
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({ style: ['formal', 'minimal'] })
 			})
 
 			it('parses TOML frontmatter with only variables', () => {
@@ -298,15 +322,39 @@ ${content}`
 		})
 
 		describe('validation', () => {
-			it('throws on non-string style', () => {
+			it('throws on non-string/array style', () => {
 				const input = `---
 style: 123
 ---
 # Resume`
 
 				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'style' must be a string",
+					"'style' must be a string or an array of strings",
 				)
+			})
+
+			it('throws on non-string style array element', () => {
+				const input = `---
+style:
+  - formal
+  - 123
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'style' must contain only strings",
+				)
+			})
+
+			it('normalizes string style to single-element array', () => {
+				const input = `---
+style: formal
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.style).toEqual(['formal'])
 			})
 
 			it('throws on non-string outputName', () => {
@@ -415,7 +463,7 @@ anotherUnknown: 123
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: 'formal' })
+				expect(result.config).toEqual({ style: ['formal'] })
 				expect(result.warnings).toHaveLength(2)
 				expect(result.warnings).toContain(
 					"unknown frontmatter field 'unknownField' will be ignored",
@@ -476,7 +524,7 @@ style: ""
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.style).toBe('')
+				expect(result.config?.style).toEqual([''])
 			})
 
 			it('handles frontmatter with whitespace in values', () => {
@@ -520,7 +568,7 @@ outputName: test-resume
 			const result = parseFrontmatter(filePath)
 
 			expect(result.config).toEqual({
-				style: 'formal',
+				style: ['formal'],
 				outputName: 'test-resume',
 			})
 			expect(result.content.trim()).toBe('# Test Person')
@@ -539,7 +587,7 @@ formats = ["pdf", "html"]
 			const result = parseFrontmatter(filePath)
 
 			expect(result.config).toEqual({
-				style: 'minimal',
+				style: ['minimal'],
 				formats: ['pdf', 'html'],
 			})
 		})

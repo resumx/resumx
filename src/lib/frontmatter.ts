@@ -7,7 +7,7 @@ const VALID_FORMATS = ['pdf', 'html', 'docx'] as const
 export type OutputFormat = (typeof VALID_FORMATS)[number]
 
 export interface FrontmatterConfig {
-	style?: string
+	style?: string[]
 	outputName?: string
 	outputDir?: string
 	formats?: OutputFormat[]
@@ -65,12 +65,23 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		}
 	}
 
-	// Validate style
+	// Validate style (accepts string or array of strings)
 	if (data['style'] !== undefined) {
-		if (typeof data['style'] !== 'string') {
-			throw new Error("'style' must be a string")
+		// Normalize string to single-element array
+		const styleValue =
+			typeof data['style'] === 'string' ? [data['style']] : data['style']
+
+		if (!Array.isArray(styleValue)) {
+			throw new Error("'style' must be a string or an array of strings")
 		}
-		config.style = data['style']
+
+		for (const style of styleValue as unknown[]) {
+			if (typeof style !== 'string') {
+				throw new Error("'style' must contain only strings")
+			}
+		}
+
+		config.style = styleValue as string[]
 	}
 
 	// Validate outputName

@@ -129,7 +129,12 @@ program
 // Default action: render
 program
 	.argument('[file]', 'Markdown file to render', 'resume.md')
-	.option('-s, --style <name>', 'Style to use (name or path)')
+	.option(
+		'-s, --style <name>',
+		'Style(s) to use (name or path, repeatable)',
+		collectWithCommas,
+		[],
+	)
 	.option('-o, --output <name>', 'Output filename (without extension)')
 	.option(
 		'--var <name=value>',
@@ -140,7 +145,7 @@ program
 	.option(
 		'--role <name>',
 		'Generate for specific role(s) only (repeatable)',
-		collect,
+		collectWithCommas,
 		[],
 	)
 	.option('--pdf', 'Output PDF only')
@@ -206,9 +211,18 @@ program
 		await validateCommand(file ?? 'resume.md', options)
 	})
 
-// Helper to collect repeatable options
+// Helper to collect repeatable options (no comma splitting - for values that may contain commas)
 function collect(value: string, previous: string[]): string[] {
 	return previous.concat([value])
+}
+
+// Helper to collect repeatable options with comma-separated support (for style/role)
+function collectWithCommas(value: string, previous: string[]): string[] {
+	const values = value
+		.split(',')
+		.map(v => v.trim())
+		.filter(v => v.length > 0)
+	return previous.concat(values)
 }
 
 // Show help when no arguments provided

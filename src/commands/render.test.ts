@@ -467,7 +467,7 @@ describe('render command', () => {
 				'sample.md',
 				{
 					html: true,
-					style: 'classic', // Explicitly use classic to match the styleVariables
+					style: ['classic'], // Explicitly use classic to match the styleVariables
 				},
 				store,
 			)
@@ -500,7 +500,7 @@ describe('render command', () => {
 				'sample.md',
 				{
 					html: true,
-					style: 'classic', // Explicitly use classic to match the styleVariables
+					style: ['classic'], // Explicitly use classic to match the styleVariables
 					var: ['font-family=CLIFont, monospace'],
 				},
 				store,
@@ -733,7 +733,7 @@ Test content`
 - React {.role:frontend}
 - Node.js {.role:backend}
 - Common skill`
-			writeFileSync(join(tempDir, 'resume-frontend.md'), mdContent)
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await runCLI(['resume.md', '--html', '--role', 'frontend'], {
 				cwd: tempDir,
@@ -878,6 +878,227 @@ roles:
 			expect(htmlContent).not.toContain('React')
 			expect(htmlContent).toContain('Backend Skills')
 			expect(htmlContent).toContain('Node.js')
+		})
+	})
+
+	describe('comma-separated CLI options', () => {
+		it('accepts comma-separated roles', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}
+- Go {.role:devops}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// Using comma-separated roles
+			await runCLI(['resume.md', '--html', '--role', 'frontend,backend'], {
+				cwd: tempDir,
+			})
+
+			// Should generate both specified roles
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+			// But not devops
+			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
+		})
+
+		it('accepts comma-separated roles with spaces', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// Using comma-separated with spaces
+			await runCLI(['resume.md', '--html', '--role', 'frontend, backend'], {
+				cwd: tempDir,
+			})
+
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+		})
+
+		it('combines repeated flags with comma-separated values', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}
+- Go {.role:devops}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// Combine repeated flags and comma-separated
+			await runCLI(
+				[
+					'resume.md',
+					'--html',
+					'--role',
+					'frontend',
+					'--role',
+					'backend,devops',
+				],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// Should generate all three
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(true)
+		})
+
+		it('ignores empty values from trailing commas', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// Trailing comma should not cause issues
+			await runCLI(['resume.md', '--html', '--role', 'frontend,'], {
+				cwd: tempDir,
+			})
+
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			// Should not create an empty-named file
+			expect(existsSync(join(tempDir, 'resume-.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
+		})
+	})
+
+	describe('multi-style rendering', () => {
+		it('generates multiple style variants with style suffix', async () => {
+			// multi-style, no roles → resume-formal.html, resume-minimal.html
+			await runCLI(['sample.md', '--html', '--style', 'formal,minimal'], {
+				cwd: tempDir,
+			})
+
+			// Should generate both style variants
+			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'sample-minimal.html'))).toBe(true)
+
+			// Verify each uses the correct style
+			const formalHtml = readFileSync(
+				join(tempDir, 'sample-formal.html'),
+				'utf-8',
+			)
+			expect(formalHtml).toContain('Palatino Linotype') // formal style font
+
+			const minimalHtml = readFileSync(
+				join(tempDir, 'sample-minimal.html'),
+				'utf-8',
+			)
+			expect(minimalHtml).toContain('Helvetica Neue') // minimal style font
+		})
+
+		it('generates role folders with style suffix for multi-style + roles', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// multi-style + roles → frontend/resume-formal.html, frontend/resume-minimal.html, etc.
+			await runCLI(
+				[
+					'resume.md',
+					'--html',
+					'--style',
+					'formal,minimal',
+					'--role',
+					'frontend,backend',
+				],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// Should generate role folders with style-suffixed files
+			expect(existsSync(join(tempDir, 'frontend/resume-formal.html'))).toBe(
+				true,
+			)
+			expect(existsSync(join(tempDir, 'frontend/resume-minimal.html'))).toBe(
+				true,
+			)
+			expect(existsSync(join(tempDir, 'backend/resume-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'backend/resume-minimal.html'))).toBe(
+				true,
+			)
+
+			// Verify content filtering in frontend variant
+			const frontendFormalHtml = readFileSync(
+				join(tempDir, 'frontend/resume-formal.html'),
+				'utf-8',
+			)
+			expect(frontendFormalHtml).toContain('React')
+			expect(frontendFormalHtml).not.toContain('Node.js')
+			expect(frontendFormalHtml).toContain('Palatino Linotype') // formal style
+
+			// Verify content filtering in backend variant
+			const backendMinimalHtml = readFileSync(
+				join(tempDir, 'backend/resume-minimal.html'),
+				'utf-8',
+			)
+			expect(backendMinimalHtml).toContain('Node.js')
+			expect(backendMinimalHtml).not.toContain('React')
+			expect(backendMinimalHtml).toContain('Helvetica Neue') // minimal style
+		})
+
+		it('single style with no roles produces no suffix', async () => {
+			await runCLI(['sample.md', '--html', '--style', 'formal'], {
+				cwd: tempDir,
+			})
+
+			// Should generate single file with no suffix
+			expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(false)
+		})
+
+		it('single style with roles produces role suffix only', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(
+				['resume.md', '--html', '--style', 'formal', '--role', 'frontend'],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// Should generate file with role suffix, no style suffix
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-formal.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-frontend-formal.html'))).toBe(
+				false,
+			)
+		})
+
+		it('supports repeated --style flags', async () => {
+			await runCLI(
+				['sample.md', '--html', '--style', 'formal', '--style', 'minimal'],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// Should generate both style variants
+			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'sample-minimal.html'))).toBe(true)
 		})
 	})
 })
