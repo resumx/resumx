@@ -137,6 +137,12 @@ program
 		collect,
 		[],
 	)
+	.option(
+		'--role <name>',
+		'Generate for specific role(s) only (repeatable)',
+		collect,
+		[],
+	)
 	.option('--pdf', 'Output PDF only')
 	.option('--html', 'Output HTML only')
 	.option('--docx', 'Output DOCX document only')

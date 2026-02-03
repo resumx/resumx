@@ -736,13 +736,13 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'output',
-					['html'],
-					join(dir, 'style.css'),
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'output',
+					formats: ['html'],
+					cssPath: join(dir, 'style.css'),
+				})
 
 				expect(results.size).toBe(1)
 				expect(results.get('html')?.success).toBe(true)
@@ -757,13 +757,13 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'multi',
-					['html', 'pdf'],
-					join(dir, 'style.css'),
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'multi',
+					formats: ['html', 'pdf'],
+					cssPath: join(dir, 'style.css'),
+				})
 
 				expect(results.size).toBe(2)
 				expect(results.get('html')?.success).toBe(true)
@@ -785,13 +785,13 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'all-formats',
-					['html', 'pdf', 'docx'],
-					join(dir, 'style.css'),
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'all-formats',
+					formats: ['html', 'pdf', 'docx'],
+					cssPath: join(dir, 'style.css'),
+				})
 
 				expect(results.size).toBe(3)
 				expect(results.get('html')?.success).toBe(true)
@@ -818,14 +818,14 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'with-vars',
-					['html'],
-					join(dir, 'style.css'),
-					{ 'custom-var': 'custom-value' },
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'with-vars',
+					formats: ['html'],
+					cssPath: join(dir, 'style.css'),
+					variables: { 'custom-var': 'custom-value' },
+				})
 
 				expect(results.get('html')?.success).toBe(true)
 				const html = readFileSync(join(dir, 'with-vars.html'), 'utf-8')
@@ -840,15 +840,14 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'with-ctx',
-					['html'],
-					join(dir, 'style.css'),
-					undefined,
-					{ title: 'Dynamic Title' },
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'with-ctx',
+					formats: ['html'],
+					cssPath: join(dir, 'style.css'),
+					expressionContext: { title: 'Dynamic Title' },
+				})
 
 				expect(results.get('html')?.success).toBe(true)
 				const html = readFileSync(join(dir, 'with-ctx.html'), 'utf-8')
@@ -865,15 +864,14 @@ Tools
 				})
 
 				const timestamp = Date.now()
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'expr-once',
-					['html', 'pdf'],
-					join(dir, 'style.css'),
-					undefined,
-					{ timestamp },
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'expr-once',
+					formats: ['html', 'pdf'],
+					cssPath: join(dir, 'style.css'),
+					expressionContext: { timestamp },
+				})
 
 				expect(results.get('html')?.success).toBe(true)
 				// PDF may fail without Chromium
@@ -897,13 +895,13 @@ Tools
 
 				const outputDir = join(dir, 'nested', 'output')
 
-				const results = await renderMultiple(
-					mdContent,
+				const results = await renderMultiple({
+					content: mdContent,
 					outputDir,
-					'nested',
-					['html'],
-					join(dir, 'style.css'),
-				)
+					outputName: 'nested',
+					formats: ['html'],
+					cssPath: join(dir, 'style.css'),
+				})
 
 				expect(results.get('html')?.success).toBe(true)
 				expect(existsSync(join(outputDir, 'nested.html'))).toBe(true)
@@ -914,13 +912,13 @@ Tools
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test'
 				// No CSS file - should cause errors
-				const results = await renderMultiple(
-					mdContent,
-					dir,
-					'partial',
-					['html', 'pdf'],
-					'/non/existent/style.css',
-				)
+				const results = await renderMultiple({
+					content: mdContent,
+					outputDir: dir,
+					outputName: 'partial',
+					formats: ['html', 'pdf'],
+					cssPath: '/non/existent/style.css',
+				})
 
 				expect(results.size).toBe(2)
 				expect(results.get('html')?.success).toBe(false)

@@ -12,6 +12,7 @@ export interface FrontmatterConfig {
 	outputDir?: string
 	formats?: OutputFormat[]
 	variables?: Record<string, string>
+	roles?: string[]
 }
 
 export interface ParseResult {
@@ -27,6 +28,7 @@ const KNOWN_FIELDS = [
 	'outputDir',
 	'formats',
 	'variables',
+	'roles',
 ]
 
 /**
@@ -121,6 +123,25 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		}
 
 		config.variables = vars as Record<string, string>
+	}
+
+	// Validate roles
+	if (data['roles'] !== undefined) {
+		// Normalize string to single-element array
+		const rolesValue =
+			typeof data['roles'] === 'string' ? [data['roles']] : data['roles']
+
+		if (!Array.isArray(rolesValue)) {
+			throw new Error("'roles' must be a string or an array of strings")
+		}
+
+		for (const role of rolesValue as unknown[]) {
+			if (typeof role !== 'string') {
+				throw new Error("'roles' must contain only strings")
+			}
+		}
+
+		config.roles = rolesValue as string[]
 	}
 
 	return { config, warnings }

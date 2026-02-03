@@ -115,6 +115,38 @@ variables:
 					variables: { 'primary-color': '#ff0000' },
 				})
 			})
+
+			it('parses YAML frontmatter with roles', () => {
+				const input = `---
+roles:
+  - frontend
+  - backend
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({
+					roles: ['frontend', 'backend'],
+				})
+			})
+
+			it('parses YAML frontmatter with all fields including roles', () => {
+				const input = `---
+style: formal
+roles:
+  - frontend
+  - fullstack
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({
+					style: 'formal',
+					roles: ['frontend', 'fullstack'],
+				})
+			})
 		})
 
 		describe('TOML frontmatter', () => {
@@ -170,6 +202,19 @@ primary-color = "#ff0000"
 
 				expect(result.config).toEqual({
 					variables: { 'primary-color': '#ff0000' },
+				})
+			})
+
+			it('parses TOML frontmatter with roles', () => {
+				const input = `+++
+roles = ["frontend", "backend"]
++++
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({
+					roles: ['frontend', 'backend'],
 				})
 			})
 		})
@@ -377,6 +422,30 @@ anotherUnknown: 123
 				)
 				expect(result.warnings).toContain(
 					"unknown frontmatter field 'anotherUnknown' will be ignored",
+				)
+			})
+
+			it('normalizes string role to single-element array', () => {
+				const input = `---
+roles: frontend
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.roles).toEqual(['frontend'])
+			})
+
+			it('throws on non-string role array element', () => {
+				const input = `---
+roles:
+  - frontend
+  - 123
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'roles' must contain only strings",
 				)
 			})
 

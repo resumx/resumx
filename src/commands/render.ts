@@ -14,11 +14,14 @@ import {
 	type OutputFormat,
 } from '../lib/renderer.js'
 import { parseFrontmatter } from '../lib/frontmatter.js'
+import { renderMarkdown } from '../lib/markdown.js'
+import { extractRoles, resolveRoles } from '../lib/roles.js'
 
 export interface RenderCommandOptions {
 	style?: string
 	output?: string
 	var?: string[]
+	role?: string[]
 	pdf?: boolean
 	html?: boolean
 	docx?: boolean
@@ -168,29 +171,76 @@ async function runRender(
 		...(fmConfig ?? {}),
 	}
 
-	// Render content (frontmatter already stripped)
-	const results = await renderMultiple(
-		content,
-		outputDir,
-		outputName,
-		formats,
-		cssPath,
-		hasVariables ? variables : undefined,
-		Object.keys(expressionContext).length > 0 ? expressionContext : undefined,
+	// Discover roles from content (render markdown first to get HTML)
+	const html = renderMarkdown(content)
+	const discoveredRoles = extractRoles(html)
+
+	// Resolve which roles to generate (priority: CLI > frontmatter > discovered)
+	let rolesToGenerate: string[]
+	try {
+		rolesToGenerate = resolveRoles({
+			explicit: options.role,
+			configured: fmConfig?.roles,
+			discovered: discoveredRoles,
+		})
+	} catch (error) {
+		console.error(chalk.red(`Error: ${(error as Error).message}`))
+		return false
+	}
+
+	// Build render tasks - treat "no roles" as a single task with no suffix
+	interface RenderTask {
+		outputName: string
+		activeRole: string | undefined
+		label: string | undefined
+	}
+
+	const renderTasks: RenderTask[] =
+		rolesToGenerate.length > 0 ?
+			rolesToGenerate.map(role => ({
+				outputName: `${outputName}-${role}`,
+				activeRole: role,
+				label: `[role: ${role}]`,
+			}))
+		:	[{ outputName, activeRole: undefined, label: undefined }]
+
+	// Render all tasks in parallel
+	const taskResults = await Promise.all(
+		renderTasks.map(async task => {
+			const results = await renderMultiple({
+				content,
+				outputDir,
+				outputName: task.outputName,
+				formats,
+				cssPath,
+				variables: hasVariables ? variables : undefined,
+				expressionContext:
+					Object.keys(expressionContext).length > 0 ?
+						expressionContext
+					:	undefined,
+				activeRole: task.activeRole,
+			})
+			return { label: task.label, results }
+		}),
 	)
 
+	// Print results in order
 	let allSuccess = true
-
-	for (const [format, result] of results) {
-		const formatLabel = format.toUpperCase().padEnd(4)
-		if (result.success) {
-			const relativePath = relative(cwd, result.outputPath)
-			console.log(`  ${formatLabel}... ${chalk.green('✓')} ${relativePath}`)
-		} else {
-			console.log(
-				`  ${formatLabel}... ${chalk.red('✗')} ${chalk.red(result.error)}`,
-			)
-			allSuccess = false
+	for (const { label, results } of taskResults) {
+		if (label) {
+			console.log(chalk.dim(`  ${label}`))
+		}
+		for (const [format, result] of results) {
+			const formatLabel = format.toUpperCase().padEnd(4)
+			if (result.success) {
+				const relativePath = relative(cwd, result.outputPath)
+				console.log(`  ${formatLabel}... ${chalk.green('✓')} ${relativePath}`)
+			} else {
+				console.log(
+					`  ${formatLabel}... ${chalk.red('✗')} ${chalk.red(result.error)}`,
+				)
+				allSuccess = false
+			}
 		}
 	}
 

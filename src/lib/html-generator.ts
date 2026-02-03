@@ -9,6 +9,7 @@ import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
 import { processExpressions } from './interpolation.js'
 import { renderMarkdown } from './markdown.js'
+import { filterByRole } from './roles.js'
 
 /**
  * Get siblings of an element up to (but not including) a target element
@@ -128,6 +129,8 @@ export interface HtmlGeneratorOptions {
 	variables?: Record<string, string>
 	/** Optional expression evaluation context */
 	expressionContext?: Record<string, unknown>
+	/** Active role for filtering content (if set, only matching role content is included) */
+	activeRole?: string
 }
 
 /**
@@ -182,11 +185,15 @@ export async function generateHtml(
 	// Render markdown to HTML body
 	const rawBody = renderMarkdown(processedContent)
 
+	// Filter by role if specified (removes elements with non-matching role:* classes)
+	const filteredBody =
+		options.activeRole ? filterByRole(rawBody, options.activeRole) : rawBody
+
 	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)
 
 	// Process two-column layout (strips <hr>, wraps if style supports it)
-	const body = processColumns(rawBody, baseCSS)
+	const body = processColumns(filteredBody, baseCSS)
 
 	// Compile Tailwind CSS for classes used in the HTML body
 	const tailwindCSS = await compileTailwindCSS(body)

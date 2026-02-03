@@ -282,6 +282,76 @@ Languages
 				}),
 			).rejects.toThrow('not found')
 		})
+
+		describe('activeRole filtering', () => {
+			it('filters content to keep only matching role', async () => {
+				await withTempDir(async dir => {
+					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+					const markdown = `
+# Resume
+
+- Frontend skill {.role:frontend}
+- Backend skill {.role:backend}
+- Common skill
+`
+					const html = await generateHtml(markdown, {
+						cssPath: join(dir, 'style.css'),
+						activeRole: 'frontend',
+					})
+
+					expect(html).toContain('Frontend skill')
+					expect(html).not.toContain('Backend skill')
+					expect(html).toContain('Common skill')
+				})
+			})
+
+			it('keeps all content when no activeRole specified', async () => {
+				await withTempDir(async dir => {
+					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+					const markdown = `
+- Frontend skill {.role:frontend}
+- Backend skill {.role:backend}
+`
+					const html = await generateHtml(markdown, {
+						cssPath: join(dir, 'style.css'),
+					})
+
+					expect(html).toContain('Frontend skill')
+					expect(html).toContain('Backend skill')
+				})
+			})
+
+			it('filters fenced div content by role', async () => {
+				await withTempDir(async dir => {
+					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+					const markdown = `
+# Skills
+
+::: {.role:frontend}
+- React
+- TypeScript
+:::
+
+::: {.role:backend}
+- Node.js
+- PostgreSQL
+:::
+`
+					const html = await generateHtml(markdown, {
+						cssPath: join(dir, 'style.css'),
+						activeRole: 'backend',
+					})
+
+					expect(html).not.toContain('React')
+					expect(html).not.toContain('TypeScript')
+					expect(html).toContain('Node.js')
+					expect(html).toContain('PostgreSQL')
+				})
+			})
+		})
 	})
 
 	describe('processColumns', () => {

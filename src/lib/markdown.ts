@@ -17,11 +17,13 @@ import {
 	githubResolver,
 } from './mdit-plugins/icon/index.js'
 import { bracketedSpans } from './mdit-plugins/bracketed-span/index.js'
+import { fencedDiv } from './mdit-plugins/fenced-div/index.js'
 
 /**
  * Create a configured markdown-it instance with all resume plugins
  *
  * Plugin order is critical:
+ * - fencedDiv MUST come early to handle ::: {.class} blocks before other rules
  * - bracketedSpans MUST come BEFORE attrs for proper attribute application
  */
 export function createMarkdownRenderer(): MarkdownIt {
@@ -30,6 +32,7 @@ export function createMarkdownRenderer(): MarkdownIt {
 		linkify: true,
 		typographer: true,
 	})
+		.use(fencedDiv)
 		.use(bracketedSpans)
 		.use(icon, {
 			resolvers: [

@@ -21,6 +21,7 @@ export interface RenderOptions {
 	cssPath: string
 	variables?: Record<string, string>
 	expressionContext?: Record<string, unknown>
+	activeRole?: string
 }
 
 export interface RenderResult {
@@ -100,6 +101,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			cssPath: options.cssPath,
 			variables: options.variables,
 			expressionContext: options.expressionContext,
+			activeRole: options.activeRole,
 		})
 
 		// Ensure output directory exists
@@ -145,17 +147,36 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 }
 
 /**
+ * Options for renderMultiple
+ */
+export interface RenderMultipleOptions {
+	content: string
+	outputDir: string
+	outputName: string
+	formats: OutputFormat[]
+	cssPath: string
+	variables?: Record<string, string>
+	expressionContext?: Record<string, unknown>
+	activeRole?: string
+}
+
+/**
  * Render content to multiple formats
  */
 export async function renderMultiple(
-	content: string,
-	outputDir: string,
-	outputName: string,
-	formats: OutputFormat[],
-	cssPath: string,
-	variables?: Record<string, string>,
-	expressionContext?: Record<string, unknown>,
+	options: RenderMultipleOptions,
 ): Promise<Map<OutputFormat, RenderResult>> {
+	const {
+		content,
+		outputDir,
+		outputName,
+		formats,
+		cssPath,
+		variables,
+		expressionContext,
+		activeRole,
+	} = options
+
 	const results = new Map<OutputFormat, RenderResult>()
 
 	// Process expressions once before rendering to any format
@@ -174,6 +195,7 @@ export async function renderMultiple(
 			format,
 			cssPath,
 			variables,
+			activeRole,
 		})
 
 		results.set(format, result)

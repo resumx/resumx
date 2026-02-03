@@ -723,4 +723,154 @@ Test content`
 			expect(htmlContent).not.toContain('FrontmatterFont')
 		})
 	})
+
+	describe('role filtering', () => {
+		it('filters content with --role flag', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html', '--role', 'frontend'], {
+				cwd: tempDir,
+			})
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('React')
+			expect(htmlContent).not.toContain('Node.js')
+			expect(htmlContent).toContain('Common skill')
+		})
+
+		it('auto-generates all role variants when roles exist', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should generate separate files for each role
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+
+			// Check content filtering
+			const frontendHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			expect(frontendHtml).toContain('React')
+			expect(frontendHtml).not.toContain('Node.js')
+
+			const backendHtml = readFileSync(
+				join(tempDir, 'resume-backend.html'),
+				'utf-8',
+			)
+			expect(backendHtml).toContain('Node.js')
+			expect(backendHtml).not.toContain('React')
+		})
+
+		it('generates single file with explicit role flag', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html', '--role', 'frontend'], {
+				cwd: tempDir,
+			})
+
+			// Should generate single file (no role suffix when only one)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
+		})
+
+		it('uses frontmatter roles to limit generation', async () => {
+			const mdContent = `---
+roles:
+  - frontend
+---
+# Test Person
+
+## Skills
+
+- React {.role:frontend}
+- Node.js {.role:backend}
+- Go {.role:devops}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should only generate frontend (configured in frontmatter)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
+		})
+
+		it('renders normally when no roles in content', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React
+- Node.js
+- Go`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should generate single file (no role suffix)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('React')
+			expect(htmlContent).toContain('Node.js')
+			expect(htmlContent).toContain('Go')
+		})
+
+		it('filters fenced div blocks with role class', async () => {
+			const mdContent = `# Test Person
+
+::: {.role:frontend}
+## Frontend Skills
+
+- React
+- TypeScript
+:::
+
+::: {.role:backend}
+## Backend Skills
+
+- Node.js
+- PostgreSQL
+:::`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--html', '--role', 'backend'], {
+				cwd: tempDir,
+			})
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).not.toContain('Frontend Skills')
+			expect(htmlContent).not.toContain('React')
+			expect(htmlContent).toContain('Backend Skills')
+			expect(htmlContent).toContain('Node.js')
+		})
+	})
 })
