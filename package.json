@@ -58,6 +58,7 @@
 		"commander": "^12.1.0",
 		"conf": "^15.0.2",
 		"dedent": "^1.7.1",
+		"fastest-levenshtein": "^1.0.16",
 		"gray-matter": "^4.0.3",
 		"iconify-icon": "^3.0.2",
 		"js-beautify": "^1.15.4",
