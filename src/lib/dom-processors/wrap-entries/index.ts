@@ -12,6 +12,7 @@
 
 import { parseHTML } from 'linkedom'
 import type { PipelineContext } from '../types.js'
+import { collectSiblings } from '../shared/dom.js'
 
 /**
  * Wrap h3 entries within a container element
@@ -44,18 +45,10 @@ function wrapEntriesInContainer(container: Element, document: Document): void {
 		article.setAttribute('class', 'entry')
 
 		// Collect elements: h3 + siblings until next h3, h2, or hr
-		const elementsToWrap: Element[] = [h3]
-		let sibling = h3.nextElementSibling
-
-		while (
-			sibling
-			&& sibling.tagName !== 'H3'
-			&& sibling.tagName !== 'H2'
-			&& sibling.tagName !== 'HR'
-		) {
-			elementsToWrap.push(sibling)
-			sibling = sibling.nextElementSibling
-		}
+		const elementsToWrap = collectSiblings(
+			h3,
+			el => el.tagName === 'H3' || el.tagName === 'H2' || el.tagName === 'HR',
+		)
 
 		// Move elements into article
 		for (const el of elementsToWrap) {

@@ -7,21 +7,7 @@
 
 import { parseHTML } from 'linkedom'
 import type { PipelineContext } from '../types.js'
-
-/**
- * Get siblings of an element up to (but not including) a target element
- */
-function getSiblingsBefore(parent: Element, target: Element | null): Element[] {
-	const siblings: Element[] = []
-	let current = parent.firstElementChild
-
-	while (current && current !== target) {
-		siblings.push(current)
-		current = current.nextElementSibling
-	}
-
-	return siblings
-}
+import { collectSiblings } from '../shared/dom.js'
 
 /**
  * Serialize an array of elements to HTML string
@@ -49,15 +35,10 @@ export function extractHeader(html: string, _ctx: PipelineContext): string {
 	}
 
 	// Extract header (content before first h2)
-	const headerContent = getSiblingsBefore(root, firstH2)
+	const headerContent = collectSiblings(root.firstElementChild, firstH2)
 
 	// Get rest of content (h2 and everything after)
-	const restContent: Element[] = []
-	let current: Element | null = firstH2
-	while (current) {
-		restContent.push(current)
-		current = current.nextElementSibling
-	}
+	const restContent = collectSiblings(firstH2)
 
 	return `<header>${serializeElements(headerContent)}</header>\n${serializeElements(restContent)}`
 }

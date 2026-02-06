@@ -12,6 +12,7 @@
 
 import { parseHTML } from 'linkedom'
 import type { PipelineContext } from '../types.js'
+import { collectSiblings } from '../shared/dom.js'
 
 /**
  * Convert text to URL-friendly slug
@@ -51,13 +52,10 @@ function wrapSectionsInContainer(container: Element, document: Document): void {
 		}
 
 		// Collect elements: h2 + siblings until next h2 or hr
-		const elementsToWrap: Element[] = [h2]
-		let sibling = h2.nextElementSibling
-
-		while (sibling && sibling.tagName !== 'H2' && sibling.tagName !== 'HR') {
-			elementsToWrap.push(sibling)
-			sibling = sibling.nextElementSibling
-		}
+		const elementsToWrap = collectSiblings(
+			h2,
+			el => el.tagName === 'H2' || el.tagName === 'HR',
+		)
 
 		// Insert section before the h2
 		h2.parentElement?.insertBefore(section, h2)

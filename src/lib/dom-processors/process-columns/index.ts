@@ -9,6 +9,7 @@
 
 import { parseHTML } from 'linkedom'
 import type { PipelineContext } from '../types.js'
+import { collectSiblings } from '../shared/dom.js'
 
 /**
  * Serialize an array of elements to HTML string
@@ -45,18 +46,19 @@ export function processColumns(html: string, ctx: PipelineContext): string {
 
 	// Collect all elements, separating header, before-hr, and after-hr
 	const header = root.querySelector('header')
-	const allElements = Array.from(root.children)
-
-	// Find hr index
-	const hrIndex = allElements.indexOf(firstHr)
+	const notHeaderOrHr = (el: Element) =>
+		el.tagName !== 'HEADER' && el.tagName !== 'HR'
+	const notHr = (el: Element) => el.tagName !== 'HR'
 
 	// Elements before hr (excluding header)
-	const beforeHr = allElements
-		.slice(0, hrIndex)
-		.filter(el => el.tagName !== 'HEADER' && el.tagName !== 'HR')
+	const beforeHr = collectSiblings(
+		root.firstElementChild,
+		firstHr,
+		notHeaderOrHr,
+	)
 
 	// Elements after hr (excluding any hr elements)
-	const afterHr = allElements.slice(hrIndex).filter(el => el.tagName !== 'HR')
+	const afterHr = collectSiblings(firstHr, undefined, notHr)
 
 	// Check if style supports two-column layout
 	if (!supportsTwoColumn(css)) {
