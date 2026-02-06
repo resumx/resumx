@@ -8,8 +8,8 @@
  * regardless of the actual heading text ("Work Experience", "Employment History", etc.)
  */
 
-import { parseHTML } from 'linkedom'
 import type { PipelineContext } from '../types.js'
+import { withDOM } from '../shared/dom.js'
 import { Classifier } from '../../classifier/index.js'
 
 /**
@@ -190,24 +190,18 @@ export const sectionClassifier = new Classifier({
  * @returns HTML with data-section attributes added
  */
 export function classifySections(html: string, _ctx: PipelineContext): string {
-	const { document } = parseHTML(`<div id="root">${html}</div>`)
-	const root = document.getElementById('root')!
+	return withDOM(html, root => {
+		const sections = Array.from(root.querySelectorAll('section'))
 
-	// Find all section elements
-	const sections = Array.from(root.querySelectorAll('section'))
+		for (const section of sections) {
+			const h2 = section.querySelector('h2')
+			if (!h2) continue
 
-	for (const section of sections) {
-		// Get the h2 text for classification
-		const h2 = section.querySelector('h2')
-		if (!h2) continue
+			const headingText = h2.textContent?.trim()
+			if (!headingText) continue
 
-		const headingText = h2.textContent?.trim()
-		if (!headingText) continue
-
-		// Classify and add attribute
-		const sectionType = sectionClassifier.classify(headingText)
-		section.setAttribute('data-section', sectionType)
-	}
-
-	return root.innerHTML
+			const sectionType = sectionClassifier.classify(headingText)
+			section.setAttribute('data-section', sectionType)
+		}
+	})
 }

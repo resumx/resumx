@@ -254,110 +254,6 @@ describe('wrapEntries', () => {
 		})
 	})
 
-	describe('two-column layout handling', () => {
-		it('wraps entries inside primary column with entries div', () => {
-			const input = `
-				<div class="two-column-layout">
-					<div class="primary">
-						<section id="experience"><h2>Experience</h2><h3>Google</h3><p>Job</p></section>
-					</div>
-					<div class="secondary">
-						<section id="skills"><h2>Skills</h2><p>Skill list</p></section>
-					</div>
-				</div>
-			`
-
-			const expected = `
-				<div class="two-column-layout">
-					<div class="primary">
-						<section id="experience">
-							<h2>Experience</h2>
-							<div class="entries">
-								<article class="entry">
-									<h3>Google</h3>
-									<p>Job</p>
-								</article>
-							</div>
-						</section>
-					</div>
-					<div class="secondary">
-						<section id="skills"><h2>Skills</h2><p>Skill list</p></section>
-					</div>
-				</div>
-			`
-
-			expectStructure(wrap(input), expected)
-		})
-
-		it('wraps entries inside secondary column with entries div', () => {
-			const input = `
-				<div class="two-column-layout">
-					<div class="primary"><h2>Experience</h2></div>
-					<div class="secondary">
-						<section id="awards"><h2>Awards</h2><h3>Winner</h3><p>Details</p></section>
-					</div>
-				</div>
-			`
-
-			const expected = `
-				<div class="two-column-layout">
-					<div class="primary"><h2>Experience</h2></div>
-					<div class="secondary">
-						<section id="awards">
-							<h2>Awards</h2>
-							<div class="entries">
-								<article class="entry">
-									<h3>Winner</h3>
-									<p>Details</p>
-								</article>
-							</div>
-						</section>
-					</div>
-				</div>
-			`
-
-			expectStructure(wrap(input), expected)
-		})
-
-		it('handles multiple entries per column', () => {
-			const input = `
-				<div class="two-column-layout">
-					<div class="primary">
-						<section id="experience">
-							<h2>Experience</h2>
-							<h3>Google</h3><p>Job 1</p>
-							<h3>Meta</h3><p>Job 2</p>
-						</section>
-					</div>
-					<div class="secondary"><h2>Skills</h2></div>
-				</div>
-			`
-
-			const expected = `
-				<div class="two-column-layout">
-					<div class="primary">
-						<section id="experience">
-							<h2>Experience</h2>
-							<div class="entries">
-								<article class="entry">
-									<h3>Google</h3>
-									<p>Job 1</p>
-								</article>
-								<article class="entry">
-									<h3>Meta</h3>
-									<p>Job 2</p>
-								</article>
-							</div>
-						</section>
-					</div>
-					<div class="secondary"><h2>Skills</h2></div>
-				</div>
-			`
-
-			expectStructure(wrap(input), expected)
-		})
-	})
-
 	describe('element attribute preservation', () => {
 		it('preserves classes on h3 elements', () => {
 			const input =
@@ -557,6 +453,264 @@ describe('wrapEntries', () => {
 						<p class="role:backend">Backend work</p>
 					</article>
 				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+	})
+
+	describe('prose/summary content', () => {
+		it('wraps h3 + prose paragraph + bullet list into one entry', () => {
+			const input = `
+				<h3>Google</h3>
+				<p>Built scalable backend services for Google Cloud Platform.</p>
+				<ul>
+					<li>Led team of 5 engineers</li>
+					<li>Improved system reliability by 40%</li>
+				</ul>
+			`
+
+			const expected = `
+				<div class="entries">
+					<article class="entry">
+						<h3>Google</h3>
+						<p>Built scalable backend services for Google Cloud Platform.</p>
+						<ul>
+							<li>Led team of 5 engineers</li>
+							<li>Improved system reliability by 40%</li>
+						</ul>
+					</article>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3 + bullet list + prose after bullets into one entry', () => {
+			const input = `
+				<h3>Meta</h3>
+				<ul>
+					<li>Developed new features</li>
+					<li>Reduced latency by 30%</li>
+				</ul>
+				<p>Key contributor to the infrastructure modernization initiative.</p>
+			`
+
+			const expected = `
+				<div class="entries">
+					<article class="entry">
+						<h3>Meta</h3>
+						<ul>
+							<li>Developed new features</li>
+							<li>Reduced latency by 30%</li>
+						</ul>
+						<p>Key contributor to the infrastructure modernization initiative.</p>
+					</article>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3 + multiple paragraphs + bullet list into one entry', () => {
+			const input = `
+				<h3>Startup Inc</h3>
+				<p><em>Senior Engineer</em></p>
+				<p>Joined as the second engineering hire and helped scale the platform.</p>
+				<ul>
+					<li>Designed microservice architecture</li>
+					<li>Mentored junior developers</li>
+				</ul>
+			`
+
+			const expected = `
+				<div class="entries">
+					<article class="entry">
+						<h3>Startup Inc</h3>
+						<p><em>Senior Engineer</em></p>
+						<p>Joined as the second engineering hire and helped scale the platform.</p>
+						<ul>
+							<li>Designed microservice architecture</li>
+							<li>Mentored junior developers</li>
+						</ul>
+					</article>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('keeps prose in separate entries when separated by h3', () => {
+			const input = `
+				<h3>First Role</h3>
+				<p>Summary of first role.</p>
+				<ul><li>Achievement 1</li></ul>
+				<h3>Second Role</h3>
+				<p>Summary of second role.</p>
+				<ul><li>Achievement 2</li></ul>
+			`
+
+			const expected = `
+				<div class="entries">
+					<article class="entry">
+						<h3>First Role</h3>
+						<p>Summary of first role.</p>
+						<ul><li>Achievement 1</li></ul>
+					</article>
+					<article class="entry">
+						<h3>Second Role</h3>
+						<p>Summary of second role.</p>
+						<ul><li>Achievement 2</li></ul>
+					</article>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+	})
+
+	describe('container-agnostic wrapping', () => {
+		it('wraps h3s inside a non-section container (div)', () => {
+			const input = `
+				<div class="custom-wrapper">
+					<h3>Entry A</h3>
+					<p>Details A</p>
+					<h3>Entry B</h3>
+					<p>Details B</p>
+				</div>
+			`
+
+			const expected = `
+				<div class="custom-wrapper">
+					<div class="entries">
+						<article class="entry">
+							<h3>Entry A</h3>
+							<p>Details A</p>
+						</article>
+						<article class="entry">
+							<h3>Entry B</h3>
+							<p>Details B</p>
+						</article>
+					</div>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3s in different containers independently', () => {
+			const input = `
+				<div class="group-a">
+					<h3>Entry A</h3>
+					<p>Details A</p>
+				</div>
+				<div class="group-b">
+					<h3>Entry B</h3>
+					<p>Details B</p>
+				</div>
+			`
+
+			const expected = `
+				<div class="group-a">
+					<div class="entries">
+						<article class="entry">
+							<h3>Entry A</h3>
+							<p>Details A</p>
+						</article>
+					</div>
+				</div>
+				<div class="group-b">
+					<div class="entries">
+						<article class="entry">
+							<h3>Entry B</h3>
+							<p>Details B</p>
+						</article>
+					</div>
+				</div>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3 nested inside intermediate element within a section (not a direct child)', () => {
+			const input = `
+				<section id="experience">
+					<h2>Experience</h2>
+					<div class="inner">
+						<h3>Nested Entry</h3>
+						<p>This h3 is not a direct child of the section</p>
+					</div>
+				</section>
+			`
+
+			const expected = `
+				<section id="experience">
+					<h2>Experience</h2>
+					<div class="inner">
+						<div class="entries">
+							<article class="entry">
+								<h3>Nested Entry</h3>
+								<p>This h3 is not a direct child of the section</p>
+							</article>
+						</div>
+					</div>
+				</section>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3s inside blockquote container', () => {
+			const input = `
+				<blockquote>
+					<h3>Quoted Entry</h3>
+					<p>Content inside blockquote</p>
+				</blockquote>
+			`
+
+			const expected = `
+				<blockquote>
+					<div class="entries">
+						<article class="entry">
+							<h3>Quoted Entry</h3>
+							<p>Content inside blockquote</p>
+						</article>
+					</div>
+				</blockquote>
+			`
+
+			expectStructure(wrap(input), expected)
+		})
+
+		it('wraps h3 inside deeply nested containers', () => {
+			const input = `
+				<section id="experience">
+					<h2>Experience</h2>
+					<div class="outer">
+						<div class="inner">
+							<h3>Deep Entry</h3>
+							<p>Several levels deep</p>
+							<ul><li>Still found</li></ul>
+						</div>
+					</div>
+				</section>
+			`
+
+			const expected = `
+				<section id="experience">
+					<h2>Experience</h2>
+					<div class="outer">
+						<div class="inner">
+							<div class="entries">
+								<article class="entry">
+									<h3>Deep Entry</h3>
+									<p>Several levels deep</p>
+									<ul><li>Still found</li></ul>
+								</article>
+							</div>
+						</div>
+					</div>
+				</section>
 			`
 
 			expectStructure(wrap(input), expected)

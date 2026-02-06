@@ -4,6 +4,8 @@
  * Reusable functions for common DOM traversal patterns across processors.
  */
 
+import { parseHTML } from 'linkedom'
+
 /**
  * Collect sibling elements in a range [start, until).
  *
@@ -51,4 +53,29 @@ export function collectSiblings(
 	}
 
 	return results
+}
+
+/**
+ * Serialize an array of elements to an HTML string.
+ */
+export function serializeElements(elements: Element[]): string {
+	return elements.map(el => el.outerHTML).join('')
+}
+
+/**
+ * Parse HTML into a DOM, run a mutation function, and serialize back.
+ *
+ * Wraps the common parse → mutate → serialize boilerplate used by most processors.
+ *
+ * - If `fn` returns a string, that string is used as the result.
+ * - If `fn` returns void/undefined, `root.innerHTML` is returned.
+ */
+export function withDOM(
+	html: string,
+	fn: (root: Element, document: Document) => string | void,
+): string {
+	const { document } = parseHTML(`<div id="root">${html}</div>`)
+	const root = document.getElementById('root')!
+	const result = fn(root, document)
+	return typeof result === 'string' ? result : root.innerHTML
 }

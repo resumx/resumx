@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
-import { collectSiblings } from './dom.js'
+import { collectSiblings, serializeElements, withDOM } from './dom.js'
 
 // =============================================================================
 // Test Utilities
@@ -14,6 +14,19 @@ function createSiblings(html: string) {
 	const { document } = parseHTML(`<div id="root">${html}</div>`)
 	const root = document.getElementById('root')!
 	return { root, document }
+}
+
+/**
+ * Parse an HTML string into a DOM for assertion.
+ */
+function parseHtml(html: string) {
+	const { document } = parseHTML(`<div id="root">${html}</div>`)
+	const root = document.getElementById('root')!
+	return {
+		body: root,
+		querySelector: (selector: string) => root.querySelector(selector),
+		querySelectorAll: (selector: string) => root.querySelectorAll(selector),
+	}
 }
 
 /**
@@ -815,6 +828,255 @@ describe('collectSiblings', () => {
 
 			expect(result.length).toBe(2)
 			expect(texts(result)).toEqual(['B', 'C'])
+		})
+	})
+})
+
+// =============================================================================
+// Tests: serializeElements
+// =============================================================================
+
+describe('serializeElements', () => {
+	it('serializes multiple elements into a single HTML string', () => {
+		const { root } = createSiblings('<p>A</p><p>B</p><p>C</p>')
+		const elements = Array.from(root.children) as Element[]
+		const result = serializeElements(elements)
+
+		const doc = parseHtml(result)
+		const ps = doc.querySelectorAll('p')
+		expect(ps.length).toBe(3)
+		expect(ps[0].textContent).toBe('A')
+		expect(ps[1].textContent).toBe('B')
+		expect(ps[2].textContent).toBe('C')
+	})
+
+	it('returns empty string for empty array', () => {
+		const result = serializeElements([])
+		expect(result).toBe('')
+	})
+
+	it('serializes a single element', () => {
+		const { root } = createSiblings('<div class="box">Content</div>')
+		const elements = [root.firstElementChild!]
+		const result = serializeElements(elements)
+
+		const doc = parseHtml(result)
+		expect(doc.querySelector('.box')).toBeTruthy()
+		expect(doc.querySelector('.box')?.textContent).toBe('Content')
+	})
+
+	it('preserves element attributes', () => {
+		const { root } = createSiblings(
+			'<a href="https://example.com" class="link">Click</a>',
+		)
+		const elements = [root.firstElementChild!]
+		const result = serializeElements(elements)
+
+		const doc = parseHtml(result)
+		const link = doc.querySelector('a')
+		expect(link?.getAttribute('href')).toBe('https://example.com')
+		expect(link?.classList.contains('link')).toBe(true)
+		expect(link?.textContent).toBe('Click')
+	})
+
+	it('preserves nested structure', () => {
+		const { root } = createSiblings(
+			'<div><ul><li>Item 1</li><li>Item 2</li></ul></div>',
+		)
+		const elements = [root.firstElementChild!]
+		const result = serializeElements(elements)
+
+		const doc = parseHtml(result)
+		const items = doc.querySelectorAll('div ul li')
+		expect(items.length).toBe(2)
+		expect(items[0].textContent).toBe('Item 1')
+		expect(items[1].textContent).toBe('Item 2')
+	})
+
+	it('concatenates without separators', () => {
+		const { root } = createSiblings('<span>A</span><span>B</span>')
+		const elements = Array.from(root.children) as Element[]
+		const result = serializeElements(elements)
+
+		// Verify the spans are directly adjacent
+		const doc = parseHtml(result)
+		const spans = doc.querySelectorAll('span')
+		expect(spans.length).toBe(2)
+	})
+
+	it('handles self-closing elements', () => {
+		const { root } = createSiblings('<br><hr><img src="x">')
+		const elements = Array.from(root.children) as Element[]
+		const result = serializeElements(elements)
+
+		const doc = parseHtml(result)
+		expect(doc.querySelector('br')).toBeTruthy()
+		expect(doc.querySelector('hr')).toBeTruthy()
+		expect(doc.querySelector('img')).toBeTruthy()
+	})
+
+	it('works with collectSiblings output', () => {
+		const { root } = createSiblings(
+			'<h1>Name</h1><p>Email</p><p>Phone</p><h2>Section</h2>',
+		)
+		const siblings = collectSiblings(
+			root.firstElementChild,
+			root.querySelector('h2'),
+		)
+		const result = serializeElements(siblings)
+
+		const doc = parseHtml(result)
+		expect(doc.querySelector('h1')?.textContent).toBe('Name')
+		expect(doc.querySelectorAll('p').length).toBe(2)
+		expect(doc.querySelector('h2')).toBeNull()
+	})
+})
+
+// =============================================================================
+// Tests: withDOM
+// =============================================================================
+
+describe('withDOM', () => {
+	describe('basic parsing and serialization', () => {
+		it('parses HTML and returns innerHTML when fn returns void', () => {
+			const result = withDOM('<p>Hello</p>', () => {
+				// no return — void
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('p')?.textContent).toBe('Hello')
+		})
+
+		it('returns fn result when fn returns a string', () => {
+			const result = withDOM('<p>Hello</p>', () => {
+				return '<div>Custom</div>'
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('div')?.textContent).toBe('Custom')
+			// Original content should not appear since fn returned a string
+			expect(doc.querySelector('p')).toBeNull()
+		})
+
+		it('returns empty string when fn returns empty string', () => {
+			const result = withDOM('<p>Hello</p>', () => '')
+			expect(result).toBe('')
+		})
+	})
+
+	describe('DOM mutation via fn', () => {
+		it('mutations to root are reflected in the output', () => {
+			const result = withDOM('<p>Old</p>', (root, document) => {
+				const div = document.createElement('div')
+				div.className = 'new'
+				div.textContent = 'Added'
+				root.appendChild(div)
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('p')?.textContent).toBe('Old')
+			expect(doc.querySelector('.new')?.textContent).toBe('Added')
+		})
+
+		it('can remove elements from the DOM', () => {
+			const result = withDOM(
+				'<p>Keep</p><p class="remove">Remove</p>',
+				root => {
+					root.querySelector('.remove')?.remove()
+				},
+			)
+
+			const doc = parseHtml(result)
+			expect(doc.querySelectorAll('p').length).toBe(1)
+			expect(doc.querySelector('p')?.textContent).toBe('Keep')
+		})
+
+		it('can modify element attributes', () => {
+			const result = withDOM('<a href="old.html">Link</a>', root => {
+				root.querySelector('a')?.setAttribute('href', 'new.html')
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('a')?.getAttribute('href')).toBe('new.html')
+		})
+
+		it('can wrap elements', () => {
+			const result = withDOM('<p>A</p><p>B</p>', (root, document) => {
+				const wrapper = document.createElement('section')
+				wrapper.className = 'wrapper'
+				while (root.firstChild) {
+					wrapper.appendChild(root.firstChild)
+				}
+				root.appendChild(wrapper)
+			})
+
+			const doc = parseHtml(result)
+			const wrapper = doc.querySelector('.wrapper')
+			expect(wrapper).toBeTruthy()
+			expect(wrapper?.querySelectorAll('p').length).toBe(2)
+			expect(wrapper?.parentElement).toBe(doc.body)
+		})
+	})
+
+	describe('fn receives correct arguments', () => {
+		it('root contains the parsed HTML content', () => {
+			withDOM('<h1>Title</h1><p>Body</p>', root => {
+				expect(root.querySelector('h1')?.textContent).toBe('Title')
+				expect(root.querySelector('p')?.textContent).toBe('Body')
+				expect(root.children.length).toBe(2)
+			})
+		})
+
+		it('document can be used to create new elements', () => {
+			const result = withDOM('<p>Existing</p>', (root, document) => {
+				const span = document.createElement('span')
+				span.textContent = 'Created'
+				root.appendChild(span)
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('span')?.textContent).toBe('Created')
+		})
+	})
+
+	describe('edge cases', () => {
+		it('handles empty HTML input', () => {
+			const result = withDOM('', () => {})
+			expect(result).toBe('')
+		})
+
+		it('handles complex nested HTML', () => {
+			const html =
+				'<div class="outer"><div class="inner"><ul><li>1</li><li>2</li></ul></div></div>'
+			const result = withDOM(html, () => {})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('.outer .inner ul')).toBeTruthy()
+			expect(doc.querySelectorAll('.outer .inner ul li').length).toBe(2)
+		})
+
+		it('fn return value takes precedence over root.innerHTML', () => {
+			const result = withDOM('<p>Root content</p>', root => {
+				// Mutate root AND return a string — return value wins
+				root.querySelector('p')!.textContent = 'Mutated'
+				return '<span>Returned</span>'
+			})
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('span')?.textContent).toBe('Returned')
+			expect(doc.querySelector('p')).toBeNull()
+		})
+
+		it('handles HTML with multiple top-level elements', () => {
+			const result = withDOM(
+				'<h1>Title</h1><p>Para</p><ul><li>Item</li></ul>',
+				() => {},
+			)
+
+			const doc = parseHtml(result)
+			expect(doc.querySelector('h1')).toBeTruthy()
+			expect(doc.querySelector('p')).toBeTruthy()
+			expect(doc.querySelector('ul li')).toBeTruthy()
 		})
 	})
 })
