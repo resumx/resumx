@@ -1,5 +1,5 @@
-import { existsSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import chalk from 'chalk'
 import {
 	getBundledStylePath,
@@ -7,7 +7,6 @@ import {
 	BUNDLED_STYLES,
 	FALLBACK_DEFAULT_STYLE,
 } from '../lib/styles.js'
-import { resolveCssImports } from '../lib/css-resolver.js'
 import dedent from 'dedent'
 
 export interface EjectCommandOptions {
@@ -49,15 +48,16 @@ export async function ejectCommand(
 		process.exit(1)
 	}
 
-	// Create styles directory if needed
-	if (!existsSync(localDir)) {
-		mkdirSync(localDir, { recursive: true })
+	// Create parent directories if needed (handles nested paths like common/base)
+	const parentDir = dirname(localPath)
+	if (!existsSync(parentDir)) {
+		mkdirSync(parentDir, { recursive: true })
 	}
 
-	// Merge and write style
+	// Copy raw style file (preserving @import statements for runtime resolution)
 	try {
-		const mergedCSS = resolveCssImports(bundledPath)
-		writeFileSync(localPath, mergedCSS)
+		const rawCSS = readFileSync(bundledPath, 'utf-8')
+		writeFileSync(localPath, rawCSS)
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error)
 		console.error(chalk.red(`Error: Failed to eject style: ${message}`))

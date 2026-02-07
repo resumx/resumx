@@ -86,6 +86,31 @@ describe('eject command', () => {
 			expect(output).toContain('Ejected formal style')
 		})
 
+		it('should preserve @import statements in ejected file instead of inlining', async () => {
+			const originalCwd = process.cwd
+			const originalExit = process.exit
+
+			process.cwd = () => tempDir
+			process.exit = (() => {}) as typeof process.exit
+
+			await ejectCommand('classic', {})
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+
+			const localPath = join(tempDir, 'styles', 'classic.css')
+			const content = readFileSync(localPath, 'utf-8')
+
+			// @import statements should be preserved, not inlined
+			expect(content).toContain("@import 'common/base.css';")
+			expect(content).toContain("@import 'common/icons.css';")
+			expect(content).toContain("@import 'common/utilities.css';")
+
+			// The ejected file should NOT contain inlined content from common files
+			// (base.css defines box-sizing, icons.css defines .icon classes, etc.)
+			expect(content).not.toContain('box-sizing: border-box')
+		})
+
 		it('should create the styles directory if it does not exist', async () => {
 			const originalCwd = process.cwd
 			const originalExit = process.exit
@@ -306,6 +331,126 @@ describe('eject command', () => {
 			// Both files should exist
 			expect(existsSync(join(stylesDir, 'custom.css'))).toBe(true)
 			expect(existsSync(join(stylesDir, 'classic.css'))).toBe(true)
+		})
+	})
+
+	describe('when ejecting common styles', () => {
+		it('should eject common/base to styles/common/base.css', async () => {
+			const originalCwd = process.cwd
+			const originalExit = process.exit
+			let exitCode: number | undefined
+
+			process.cwd = () => tempDir
+			process.exit = ((code: number) => {
+				exitCode = code
+			}) as typeof process.exit
+
+			await ejectCommand('common/base', {})
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+
+			const localPath = join(tempDir, 'styles', 'common', 'base.css')
+			expect(existsSync(localPath)).toBe(true)
+			expect(exitCode).toBeUndefined()
+
+			const content = readFileSync(localPath, 'utf-8')
+			expect(content.length).toBeGreaterThan(0)
+
+			const output = consoleOutput.join('\n')
+			expect(output).toContain('Ejected common/base style')
+		})
+
+		it('should create nested common directory even when styles dir does not exist', async () => {
+			const originalCwd = process.cwd
+			const originalExit = process.exit
+
+			process.cwd = () => tempDir
+			process.exit = (() => {}) as typeof process.exit
+
+			const stylesDir = join(tempDir, 'styles')
+			const commonDir = join(stylesDir, 'common')
+			expect(existsSync(stylesDir)).toBe(false)
+
+			await ejectCommand('common/icons', {})
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+
+			expect(existsSync(commonDir)).toBe(true)
+			expect(existsSync(join(commonDir, 'icons.css'))).toBe(true)
+		})
+
+		it('should eject all common styles individually', async () => {
+			const originalCwd = process.cwd
+			const originalExit = process.exit
+
+			process.cwd = () => tempDir
+			process.exit = (() => {}) as typeof process.exit
+
+			const commonStyles = ['common/base', 'common/icons', 'common/utilities']
+
+			for (const style of commonStyles) {
+				consoleOutput = []
+				await ejectCommand(style, {})
+
+				const localPath = join(tempDir, 'styles', `${style}.css`)
+				expect(existsSync(localPath)).toBe(true)
+
+				const output = consoleOutput.join('\n')
+				expect(output).toContain(`Ejected ${style} style`)
+			}
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+		})
+
+		it('should respect --force flag for common styles', async () => {
+			const originalCwd = process.cwd
+			const originalExit = process.exit
+			let exitCode: number | undefined
+
+			// Pre-create the file
+			const commonDir = join(tempDir, 'styles', 'common')
+			mkdirSync(commonDir, { recursive: true })
+			const existingContent = '/* custom base */'
+			writeFileSync(join(commonDir, 'base.css'), existingContent)
+
+			process.cwd = () => tempDir
+			process.exit = ((code: number) => {
+				exitCode = code
+				throw new Error(`process.exit: ${code}`)
+			}) as typeof process.exit
+
+			// Without --force should fail
+			await expect(ejectCommand('common/base', {})).rejects.toThrow(
+				'process.exit: 1',
+			)
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+
+			expect(exitCode).toBe(1)
+
+			// File should not be overwritten
+			const content = readFileSync(join(commonDir, 'base.css'), 'utf-8')
+			expect(content).toBe(existingContent)
+
+			// With --force should succeed
+			exitCode = undefined
+			process.cwd = () => tempDir
+			process.exit = ((code: number) => {
+				exitCode = code
+			}) as typeof process.exit
+
+			await ejectCommand('common/base', { force: true })
+
+			process.cwd = originalCwd
+			process.exit = originalExit
+
+			expect(exitCode).toBeUndefined()
+			const overwritten = readFileSync(join(commonDir, 'base.css'), 'utf-8')
+			expect(overwritten).not.toBe(existingContent)
 		})
 	})
 })

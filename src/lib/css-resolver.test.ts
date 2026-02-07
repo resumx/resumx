@@ -267,4 +267,163 @@ h1 { color: red; }
 			)
 		})
 	})
+
+	describe('fallbackDir', () => {
+		it('should resolve imports from fallbackDir when not found locally', () => {
+			withTempDir(dir => {
+				const baseCSS = ':root { --color: blue; }'
+				const mainCSS = `@import 'common/base.css';\n\nh1 { color: red; }`
+
+				// main.css is in localDir, but common/base.css is in fallbackDir
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+				})
+				writeVirtualFiles(fallbackDir, {
+					'common/base.css': baseCSS,
+				})
+
+				const result = resolveCssImports(
+					join(localDir, 'main.css'),
+					fallbackDir,
+				)
+
+				expect(result).toBe(`${baseCSS}\n\nh1 { color: red; }`)
+			})
+		})
+
+		it('should prefer local imports over fallbackDir', () => {
+			withTempDir(dir => {
+				const localBaseCSS = ':root { --color: green; }'
+				const fallbackBaseCSS = ':root { --color: blue; }'
+				const mainCSS = `@import 'common/base.css';\n\nh1 { color: red; }`
+
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+					'common/base.css': localBaseCSS,
+				})
+				writeVirtualFiles(fallbackDir, {
+					'common/base.css': fallbackBaseCSS,
+				})
+
+				const result = resolveCssImports(
+					join(localDir, 'main.css'),
+					fallbackDir,
+				)
+
+				// Local version should be used, not fallback
+				expect(result).toBe(`${localBaseCSS}\n\nh1 { color: red; }`)
+			})
+		})
+
+		it('should resolve multiple imports with mixed local and fallback sources', () => {
+			withTempDir(dir => {
+				const localIconsCSS = '.icon { display: flex; }'
+				const fallbackBaseCSS = '* { box-sizing: border-box; }'
+				const fallbackUtilsCSS = '.sr-only { display: none; }'
+				const mainCSS = `@import 'common/base.css';\n@import 'common/icons.css';\n@import 'common/utilities.css';\n\nh1 { color: red; }`
+
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+					'common/icons.css': localIconsCSS, // Local override
+				})
+				writeVirtualFiles(fallbackDir, {
+					'common/base.css': fallbackBaseCSS,
+					'common/utilities.css': fallbackUtilsCSS,
+				})
+
+				const result = resolveCssImports(
+					join(localDir, 'main.css'),
+					fallbackDir,
+				)
+
+				expect(result).toBe(
+					`${fallbackBaseCSS}\n${localIconsCSS}\n${fallbackUtilsCSS}\n\nh1 { color: red; }`,
+				)
+			})
+		})
+
+		it('should throw when import not found in either local or fallback', () => {
+			withTempDir(dir => {
+				const mainCSS = `@import 'common/missing.css';\n\nh1 { color: red; }`
+
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+				})
+				mkdirSync(fallbackDir, { recursive: true })
+
+				expect(() => {
+					resolveCssImports(join(localDir, 'main.css'), fallbackDir)
+				}).toThrow(/Failed to resolve import/)
+			})
+		})
+
+		it('should pass fallbackDir through to nested imports', () => {
+			withTempDir(dir => {
+				const colorsCSS = ':root { --primary: blue; }'
+				const baseCSS = `@import 'colors.css';\nbody { margin: 0; }`
+				const mainCSS = `@import 'common/base.css';\n\nh1 { color: red; }`
+
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+				})
+				writeVirtualFiles(fallbackDir, {
+					'common/base.css': baseCSS,
+					'common/colors.css': colorsCSS,
+				})
+
+				const result = resolveCssImports(
+					join(localDir, 'main.css'),
+					fallbackDir,
+				)
+
+				expect(result).toBe(
+					`${colorsCSS}\nbody { margin: 0; }\n\nh1 { color: red; }`,
+				)
+			})
+		})
+
+		it('should not resolve commented-out @import statements', () => {
+			withTempDir(dir => {
+				const baseCSS = ':root { --color: blue; }'
+				const iconsCSS = '.icon { display: inline-block; }'
+				const mainCSS = `@import 'common/base.css';\n/* @import 'common/icons.css'; */\n\nh1 { color: red; }`
+
+				const localDir = join(dir, 'local')
+				const fallbackDir = join(dir, 'bundled')
+
+				writeVirtualFiles(localDir, {
+					'main.css': mainCSS,
+				})
+				writeVirtualFiles(fallbackDir, {
+					'common/base.css': baseCSS,
+					'common/icons.css': iconsCSS,
+				})
+
+				const result = resolveCssImports(
+					join(localDir, 'main.css'),
+					fallbackDir,
+				)
+
+				// base.css should be resolved, but icons.css should remain as a comment
+				expect(result).toContain(baseCSS)
+				expect(result).toContain("/* @import 'common/icons.css'; */")
+				expect(result).not.toContain('.icon')
+			})
+		})
+	})
 })
