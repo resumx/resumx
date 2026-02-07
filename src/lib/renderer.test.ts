@@ -7,10 +7,10 @@ import {
 	existsSync,
 	readFileSync,
 } from 'node:fs'
-import { dirname, join, basename } from 'node:path'
+import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { browserManager } from './browser.js'
+import { browserPool } from './browser-pool.js'
 
 // Get project paths
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -949,7 +949,7 @@ Tools
 				})
 
 				// Should not throw
-				await expect(browserManager.closeBrowser()).resolves.not.toThrow()
+				await expect(browserPool.closeAll()).resolves.not.toThrow()
 			})
 		})
 
@@ -968,9 +968,9 @@ Tools
 				})
 
 				// Multiple close calls should not throw
-				await browserManager.closeBrowser()
-				await browserManager.closeBrowser()
-				await browserManager.closeBrowser()
+				await browserPool.closeAll()
+				await browserPool.closeAll()
+				await browserPool.closeAll()
 			})
 		})
 
@@ -990,7 +990,7 @@ Tools
 				})
 
 				// Close browser
-				await browserManager.closeBrowser()
+				await browserPool.closeAll()
 
 				// Second render should work (launches new browser)
 				const result = await render({

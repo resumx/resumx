@@ -8,7 +8,7 @@ import {
 } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { browserManager } from './browser.js'
+import { browserPool } from './browser-pool.js'
 import { generateHtml } from './html-generator.js'
 import { processExpressions } from './interpolation.js'
 
@@ -55,20 +55,24 @@ function cleanupTempFile(path: string): void {
 
 /**
  * Render HTML to PDF using Playwright (headless Chrome/Chromium)
- * Reuses browser instance for faster subsequent renders
+ * Uses browser pool for parallel rendering
  */
 async function renderPdf(html: string, outputPath: string): Promise<void> {
-	const browser = await browserManager.getBrowser()
-	const page = await browser.newPage()
+	const browser = await browserPool.acquire()
 	try {
-		await page.setContent(html, { waitUntil: 'networkidle' })
-		await page.pdf({
-			path: outputPath,
-			printBackground: true,
-			preferCSSPageSize: true,
-		})
+		const page = await browser.newPage()
+		try {
+			await page.setContent(html, { waitUntil: 'networkidle' })
+			await page.pdf({
+				path: outputPath,
+				printBackground: true,
+				preferCSSPageSize: true,
+			})
+		} finally {
+			await page.close()
+		}
 	} finally {
-		await page.close()
+		browserPool.release(browser)
 	}
 }
 
@@ -160,7 +164,7 @@ export interface RenderMultipleOptions {
 }
 
 /**
- * Render content to multiple formats
+ * Render content to multiple formats in parallel
  */
 export async function renderMultiple(
 	options: RenderMultipleOptions,
@@ -176,15 +180,14 @@ export async function renderMultiple(
 		activeRole,
 	} = options
 
-	const results = new Map<OutputFormat, RenderResult>()
-
 	// Process expressions once before rendering to any format
 	const processedContent =
 		expressionContext ?
 			await processExpressions(content, expressionContext)
 		:	content
 
-	for (const format of formats) {
+	// Render all formats in parallel
+	const renderPromises = formats.map(async format => {
 		const ext = format === 'docx' ? 'docx' : format
 		const output = join(outputDir, `${outputName}.${ext}`)
 
@@ -197,10 +200,12 @@ export async function renderMultiple(
 			activeRole,
 		})
 
-		results.set(format, result)
-	}
+		return [format, result] as const
+	})
 
-	return results
+	const results = await Promise.all(renderPromises)
+
+	return new Map(results)
 }
 
 /**
