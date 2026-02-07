@@ -121,6 +121,66 @@ john@example.com
 		}
 	})
 
+	it('should accept contact info in a later paragraph (not immediately after H1)', async () => {
+		const content = `# Adrian Sterling
+
+Java Developer
+
+[+1 555-123-4567](tel:+15551234567)
+
+<adrian.sterling@email.com>
+
+[in/adriansterling](https://linkedin.com/in/adriansterling)
+
+## Education
+
+### University
+
+- Content
+`
+		const issues = await validate(content)
+
+		expect(issues.length).toBe(0)
+	})
+
+	it('should detect contact via mailto: link href', async () => {
+		const content = `# John Doe
+
+[Contact Me](mailto:john@example.com)
+
+## Education
+`
+		const issues = await validate(content)
+
+		expect(issues.length).toBe(0)
+	})
+
+	it('should detect contact via tel: link href', async () => {
+		const content = `# John Doe
+
+[Call Me](tel:+15551234567)
+
+## Education
+`
+		const issues = await validate(content)
+
+		expect(issues.length).toBe(0)
+	})
+
+	it('should accept contact after a title/subtitle paragraph', async () => {
+		const content = `# Jane Smith
+
+Senior Software Engineer
+
+jane@example.com
+
+## Experience
+`
+		const issues = await validate(content)
+
+		expect(issues.length).toBe(0)
+	})
+
 	it('should not flag when no H1 exists (handled by missing-name)', async () => {
 		const content = `## Education
 

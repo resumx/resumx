@@ -45,20 +45,45 @@ function extractTextFromInline(token: Token): string {
 }
 
 /**
- * Check if content contains contact info (email or phone)
+ * Extract link hrefs from an inline token's children.
+ * This catches cases like `[Contact Me](mailto:foo@bar.com)` where the
+ * visible text doesn't match email/phone patterns but the href does.
  */
-function hasContactInfo(content: string): boolean {
-	return EMAIL_PATTERN.test(content) || PHONE_PATTERN.test(content)
+function extractLinkHrefs(token: Token): string[] {
+	if (!token.children) return []
+	return token.children
+		.filter(t => t.type === 'link_open' && t.attrs)
+		.flatMap(t => t.attrs ?? [])
+		.filter(([key]) => key === 'href')
+		.map(([, value]) => value)
 }
 
 /**
- * Get content from blockquote or paragraph after H1
+ * Check if content or link hrefs contain contact info (email, phone,
+ * or mailto:/tel: links — mirroring the signals used by the DOM-level
+ * contact-block classifier in `src/lib/dom-processors`).
  */
-function getContentAfterH1(
+function hasContactInfo(content: string, linkHrefs: string[] = []): boolean {
+	if (EMAIL_PATTERN.test(content) || PHONE_PATTERN.test(content)) return true
+
+	// Check link hrefs for mailto: / tel: schemes
+	return linkHrefs.some(
+		href => href.startsWith('mailto:') || href.startsWith('tel:'),
+	)
+}
+
+/**
+ * Collect all text content and link hrefs between H1 and the next heading.
+ *
+ * Previous implementation only checked the *first* paragraph / blockquote
+ * after H1. Resumes commonly have a job-title paragraph before the actual
+ * contact lines, so we must scan everything up to the next heading.
+ */
+function collectHeaderContent(
 	tokens: Token[],
 	h1Index: number,
-): { content: string; token: Token } | null {
-	// Skip heading_close
+): { content: string; linkHrefs: string[] } {
+	// Skip to heading_close
 	let i = h1Index + 1
 	while (i < tokens.length) {
 		const currentToken = tokens[i]
@@ -67,42 +92,26 @@ function getContentAfterH1(
 	}
 	i++ // Move past heading_close
 
-	// Look for blockquote or paragraph
+	let content = ''
+	const linkHrefs: string[] = []
+
+	// Scan ALL paragraphs and blockquotes until the next heading
 	while (i < tokens.length) {
 		const token = tokens[i]
 		if (!token) break
 
-		if (token.type === 'blockquote_open') {
-			// Collect all content in blockquote
-			let content = ''
-			i++
-			while (i < tokens.length) {
-				const innerToken = tokens[i]
-				if (!innerToken || innerToken.type === 'blockquote_close') break
-				if (innerToken.type === 'inline') {
-					content += extractTextFromInline(innerToken) + ' '
-				}
-				i++
-			}
-			return { content: content.trim(), token }
-		}
+		// Stop at next heading — we've left the header area
+		if (token.type === 'heading_open') break
 
-		if (token.type === 'paragraph_open') {
-			const inlineToken = tokens[i + 1]
-			if (inlineToken?.type === 'inline') {
-				return { content: extractTextFromInline(inlineToken), token }
-			}
-		}
-
-		// Stop if we hit another heading
-		if (token.type === 'heading_open') {
-			break
+		if (token.type === 'inline') {
+			content += extractTextFromInline(token) + ' '
+			linkHrefs.push(...extractLinkHrefs(token))
 		}
 
 		i++
 	}
 
-	return null
+	return { content: content.trim(), linkHrefs }
 }
 
 /**
@@ -135,8 +144,8 @@ export const missingContactPlugin: ValidatorPlugin = {
 
 		// Only check contact if H1 exists
 		if (h1Index >= 0) {
-			const contentAfterH1 = getContentAfterH1(tokens, h1Index)
-			if (!contentAfterH1 || !hasContactInfo(contentAfterH1.content)) {
+			const { content, linkHrefs } = collectHeaderContent(tokens, h1Index)
+			if (!content || !hasContactInfo(content, linkHrefs)) {
 				issues.push({
 					severity: 'critical',
 					code: 'missing-contact',
