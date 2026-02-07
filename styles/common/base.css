@@ -1,65 +1,106 @@
+/*
+ * BASE STYLES
+ * Foundation CSS reset and defaults for resume PDF generation
+ * ============================================================
+ */
+
+/* ==========================================================================
+   1. BOX MODEL & SIZING
+   ========================================================================== */
+
+/*
+ * Use border-box by default - padding and border included in element's total width/height.
+ * This makes layout calculations predictable.
+ */
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
 }
 
+/*
+ * Remove default margins from all elements except dialogs.
+ * Dialogs need their default centering margin.
+ */
+*:not(dialog) {
+	margin: 0;
+}
+
+/* ==========================================================================
+   2. CSS CUSTOM PROPERTIES
+   ========================================================================== */
+
+/*
+ * Design tokens that can be overridden by theme stylesheets.
+ * Using pt for font-size ensures consistent sizing in PDF output.
+ */
 :root {
 	--font-family: 'Times New Roman', serif;
 	--font-size: 10pt;
 	--line-height: 1.35;
 	--text-color: #333;
 	--background-color: #fff;
+	--page-margin-block: 0.3in; /* top/bottom margins */
+	--page-margin-inline: 0.4in; /* left/right margins */
 }
 
+/* ==========================================================================
+   3. PAGE & DOCUMENT SETUP
+   ========================================================================== */
+
+/*
+ * Configure PDF page size with consistent margins on every page.
+ * Uses CSS variables for easy customization across themes.
+ */
 @page {
 	size: A4;
-	margin: 0;
+	margin: var(--page-margin-block) var(--page-margin-inline);
 }
 
 html {
 	font-size: var(--font-size);
 }
 
+/*
+ * Core document styling.
+ * - font-feature-settings: Enable kerning and ligatures for professional typography
+ * - text-rendering: Prioritize legibility over rendering speed
+ * - -webkit-font-smoothing: Crisper fonts on macOS/WebKit (antialiased = thinner glyphs)
+ * - padding: Provides margins for browser preview; @page handles PDF margins
+ */
 body {
 	font-family: var(--font-family);
+	font-size: var(--font-size);
 	line-height: var(--line-height);
 	color: var(--text-color);
-	margin: 0 auto;
-	padding: 0.3in 0.4in;
 	background: var(--background-color);
-}
-
-*:not(dialog) {
-	margin: 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-	html {
-		interpolate-size: allow-keywords;
-	}
-}
-
-body {
+	margin: 0 auto;
+	padding: var(--page-margin-block) var(--page-margin-inline);
+	font-feature-settings:
+		'kern' 1,
+		'liga' 1;
+	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 }
 
-img,
-picture,
-video,
-canvas,
-svg {
-	display: block;
-	max-width: 100%;
+/*
+ * Remove body padding in print/PDF since @page margins handle it.
+ * Prevents double margins in PDF output.
+ */
+@media print {
+	body {
+		padding: 0;
+	}
 }
 
-input,
-button,
-textarea,
-select {
-	font: inherit;
-}
+/* ==========================================================================
+   4. TYPOGRAPHY
+   ========================================================================== */
 
+/*
+ * Prevent long words/URLs from overflowing their containers.
+ * break-word allows mid-word breaks only when necessary.
+ */
 p,
 h1,
 h2,
@@ -70,14 +111,248 @@ h6 {
 	overflow-wrap: break-word;
 }
 
-p {
+/*
+ * Smart line-breaking algorithm that avoids orphaned words
+ * at the end of paragraphs and balances line lengths.
+ */
+* {
 	text-wrap: pretty;
 }
+
+/*
+ * Auto-hyphenation improves text justification and reduces ragged edges.
+ * Only applied to paragraphs to avoid breaking headings/labels.
+ */
+p {
+	hyphens: auto;
+}
+
+/*
+ * Ensure bold text uses a consistent weight.
+ * Some fonts have multiple bold weights; this normalizes them.
+ */
+strong,
+b {
+	font-weight: 700;
+}
+
+/* ==========================================================================
+   5. PAGED MEDIA & PRINT
+   ========================================================================== */
+
+/*
+ * Prevent headings from appearing at the bottom of a page
+ * with their content on the next page.
+ */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	text-wrap: nowrap;
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Keep resume entries (job, education, project blocks) together on one page.
+ * Prevents an entry from splitting across a page break.
+ */
+.entry {
+	break-inside: avoid;
+}
+
+/*
+ * Orphans: minimum lines at bottom of page when a paragraph splits.
+ * Widows: minimum lines at top of next page when a paragraph splits.
+ * Value of 3 prevents single/double line fragments.
+ */
+p,
+li,
+dd {
+	orphans: 3;
+	widows: 3;
+}
+
+/*
+ * Prevent these elements from splitting across pages.
+ * If content is too long to fit, browser will ignore this (graceful fallback).
+ */
+li,
+figure,
+blockquote {
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+/*
+ * Force exact color reproduction in print output.
+ * Without this, browsers may adjust colors for "printing economy".
+ */
+* {
+	-webkit-print-color-adjust: exact;
+	print-color-adjust: exact;
+}
+
+/* ==========================================================================
+   6. LISTS
+   ========================================================================== */
+
+/*
+ * Reduce default list indentation for tighter resume layouts.
+ * Default browser value is usually ~40px; 1.25em is more compact.
+ */
+ul,
+ol {
+	padding-left: 1.25em;
+}
+
+/*
+ * Lists with role="list" are semantic markers, not visual lists.
+ * Remove styling for navigation, tag lists, etc.
+ */
+ul[role='list'],
+ol[role='list'] {
+	list-style: none;
+	padding-left: 0;
+}
+
+/* ==========================================================================
+   7. TABLES
+   ========================================================================== */
+
+/*
+ * Remove default cell spacing and ensure tables fill available width.
+ * border-collapse merges adjacent borders into single lines.
+ */
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+}
+
+/* Ensure table cells inherit text alignment */
+th,
+td {
+	text-align: inherit;
+	vertical-align: top;
+}
+
+/* ==========================================================================
+   8. LINKS
+   ========================================================================== */
+
+/*
+ * Links inherit text color for cleaner resume appearance.
+ * Underlines removed since clickable affordance isn't needed in PDF.
+ */
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/*
+ * Visible focus state for keyboard navigation (browser preview only).
+ * offset provides spacing between element and outline.
+ */
+a:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+/* ==========================================================================
+   9. MEDIA ELEMENTS
+   ========================================================================== */
+
+/*
+ * Images and media are block-level and responsive by default.
+ * Prevents unexpected inline spacing and overflow issues.
+ */
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+/* ==========================================================================
+   10. FORM ELEMENTS
+   ========================================================================== */
+
+/*
+ * Form elements don't inherit font by default in most browsers.
+ * This ensures consistent typography if forms are ever used.
+ */
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+/* ==========================================================================
+   11. CODE & PREFORMATTED TEXT
+   ========================================================================== */
+
+/*
+ * Prevent code blocks from overflowing.
+ * Horizontal scroll allows viewing long lines without breaking layout.
+ */
+pre {
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+/*
+ * Inline code inherits surrounding font size.
+ * Default monospace fonts are often larger than body text.
+ */
+code {
+	font-size: inherit;
+}
+
+/* ==========================================================================
+   12. UTILITY CLASSES
+   ========================================================================== */
+
+/*
+ * Visually hidden but accessible to screen readers.
+ * Use for labels that provide context to assistive technology.
+ */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ==========================================================================
+   13. BROWSER PREVIEW ENHANCEMENTS
+   ========================================================================== */
+
+/*
+ * Custom text selection color for browser preview.
+ * Subtle highlight that doesn't clash with resume colors.
+ */
+::selection {
+	background-color: rgba(0, 100, 200, 0.2);
+}
+
+/*
+ * Enable smooth transitions between auto/min-content/max-content sizes.
+ * Only applies when user hasn't requested reduced motion.
+ * New CSS feature (2024+) for animating intrinsic sizes.
+ */
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		interpolate-size: allow-keywords;
+	}
 }
