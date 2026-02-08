@@ -467,6 +467,31 @@ describe('classifyHeader - address wrapping', () => {
 			expect(address?.querySelector('a[href*="linkedin.com"]')).toBeTruthy()
 		})
 
+		it('preserves <p> structure when merging multiple contact elements', () => {
+			const html = `
+				<header>
+					<h1>John</h1>
+					<p><a href="tel:+15551234567">555-123-4567</a></p>
+					<p><a href="mailto:x@y.com">x@y.com</a></p>
+					<p><a href="https://linkedin.com/in/john">LinkedIn</a></p>
+					<p><a href="https://github.com/john">GitHub</a></p>
+				</header>
+			`
+			const result = classifyHeader(html, createContext())
+			const doc = parseHtml(result)
+
+			const address = doc.querySelector('header address')!
+			// Each contact should remain in its own <p> inside the <address>
+			const paragraphs = address.querySelectorAll('p')
+			expect(paragraphs.length).toBe(4)
+			expect(paragraphs[0]?.querySelector('a[href^="tel:"]')).toBeTruthy()
+			expect(paragraphs[1]?.querySelector('a[href^="mailto:"]')).toBeTruthy()
+			expect(
+				paragraphs[2]?.querySelector('a[href*="linkedin.com"]'),
+			).toBeTruthy()
+			expect(paragraphs[3]?.querySelector('a[href*="github.com"]')).toBeTruthy()
+		})
+
 		it('includes adjacent location-only elements in merged address', () => {
 			const html = `
 				<header>
