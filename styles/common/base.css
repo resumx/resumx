@@ -31,17 +31,54 @@
    ========================================================================== */
 
 /*
- * Design tokens that can be overridden by theme stylesheets.
+ * Design tokens that can be overridden by theme stylesheets or --var flags.
+ * Themes only need to override what differs from these defaults.
  * Using pt for font-size ensures consistent sizing in PDF output.
  */
 :root {
-	--font-family: 'Times New Roman', serif;
-	--font-size: 10pt;
-	--line-height: 1.35;
-	--text-color: #333;
-	--background-color: #fff;
-	--page-margin-block: 0.3in; /* top/bottom margins */
-	--page-margin-inline: 0.4in; /* left/right margins */
+	/* ---- Typography ---- */
+	--font-family: 'Times New Roman', serif; /* any font stack */
+	--font-size: 11pt; /* any font-size */
+	--line-height: 1.35; /* any unitless ratio */
+
+	/* ---- Colors ---- */
+	--text-color: #333; /* any color */
+	--muted-color: #555; /* any color */
+	--accent-color: inherit; /* any color | inherit */
+	--link-color: #0563bb; /* any color | inherit */
+	--background-color: #fff; /* any color */
+
+	/* ---- Headings ---- */
+	--name-size: 2rem; /* any font-size */
+	--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+	--section-title-size: 1.2rem; /* any font-size */
+	--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+	--section-header-color: var(--text-color); /* any color */
+	--header-text-align: center; /* left | center | right */
+	--section-header-align: left; /* left | center | right */
+	--section-border: 1px solid var(--section-header-color); /* any border shorthand | none */
+	--entry-title-size: 1.05rem; /* any font-size */
+
+	/* ---- Links ---- */
+	--link-underline: none; /* underline | none */
+
+	/* ---- Spacing ---- */
+	--page-margin-x: 0.4in; /* any length */
+	--page-margin-y: 0.3in; /* any length */
+	--section-gap: 10px; /* any length */
+	--entry-gap: 5px; /* any length */
+	--bullet-gap: 2px; /* any length */
+	--data-row-gap: 3px; /* any length — vertical gap for dl grids and tables */
+	--data-col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
+	--list-indent: 1.2em; /* any length */
+	--layout-columns: 2fr 1fr; /* any grid-template-columns value */
+	--column-gap: 1.5rem; /* any length */
+
+	/* ---- Lists ---- */
+	--bullet-style: disc; /* disc | circle | square | none */
+
+	/* ---- Features ---- */
+	--icons: inline; /* inline | none */
 }
 
 /* ==========================================================================
@@ -54,7 +91,7 @@
  */
 @page {
 	size: A4;
-	margin: var(--page-margin-block) var(--page-margin-inline);
+	margin: var(--page-margin-y) var(--page-margin-x);
 }
 
 html {
@@ -75,7 +112,7 @@ body {
 	color: var(--text-color);
 	background: var(--background-color);
 	margin: 0 auto;
-	padding: var(--page-margin-block) var(--page-margin-inline);
+	padding: var(--page-margin-y) var(--page-margin-x);
 	font-feature-settings:
 		'kern' 1,
 		'liga' 1;
@@ -195,7 +232,123 @@ blockquote {
 }
 
 /* ==========================================================================
-   6. LISTS
+   6. BROWSER RESETS (resume-specific)
+   ========================================================================== */
+
+/*
+ * Reset browser blockquote defaults (left border, padding).
+ * In Resumx, blockquote represents a summary statement.
+ */
+blockquote {
+	padding: 0;
+	border: none;
+	font-style: italic;
+	font-weight: bold;
+}
+
+/*
+ * Reset browser dd left margin (~40px default).
+ */
+dd {
+	margin: 0;
+}
+
+/*
+ * Definition lists mirror the table layout for structured data pairs.
+ * dt (bold label) sits on the left, dd (value) on the right.
+ * Row/column gaps are shared with table via --data-row-gap / --data-col-gap.
+ */
+dl {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: var(--data-row-gap) var(--data-col-gap);
+}
+
+dt {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/* ==========================================================================
+   7. VARIABLE WIRING
+   ========================================================================== */
+
+/*
+ * Connect :root variables to their target elements.
+ * Theme authors only need to set values in :root — wiring is automatic.
+ * Themes add personality (font-weight, letter-spacing, etc.) on top via cascade.
+ */
+
+header {
+	text-align: var(--header-text-align);
+}
+
+h1 {
+	font-size: var(--name-size);
+	font-variant-caps: var(--name-caps);
+}
+
+h2 {
+	font-size: var(--section-title-size);
+	font-variant-caps: var(--section-title-caps);
+	color: var(--section-header-color);
+	text-align: var(--section-header-align);
+	border-bottom: var(--section-border);
+	margin-top: var(--section-gap);
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+
+h3 {
+	margin-top: var(--entry-gap);
+	margin-bottom: 1.5px;
+	font-weight: bold;
+	font-size: var(--entry-title-size);
+}
+
+ul li {
+	list-style-type: var(--bullet-style);
+	margin-top: 2px;
+}
+
+li {
+	margin-bottom: var(--bullet-gap);
+}
+
+/* ==========================================================================
+   8. TWO-COLUMN LAYOUT WIRING
+   ========================================================================== */
+
+/*
+ * Map DOM structure classes to grid areas.
+ * Themes define the actual layout (grid-template-columns, grid-template-areas, gap, etc.).
+ * Inert for single-column themes that never use .two-column-layout.
+ */
+.two-column-layout {
+	display: grid;
+	grid-template-columns: var(--layout-columns);
+	grid-template-areas:
+		'header header'
+		'primary secondary';
+	gap: var(--column-gap);
+}
+
+.two-column-layout > header {
+	grid-area: header;
+}
+
+.two-column-layout > .primary {
+	grid-area: primary;
+	min-width: 0;
+}
+
+.two-column-layout > .secondary {
+	grid-area: secondary;
+	min-width: 0;
+}
+
+/* ==========================================================================
+   9. LISTS (continued)
    ========================================================================== */
 
 /*
@@ -204,7 +357,7 @@ blockquote {
  */
 ul,
 ol {
-	padding-left: 1.25em;
+	padding-left: var(--list-indent);
 }
 
 /*
@@ -218,28 +371,59 @@ ol[role='list'] {
 }
 
 /* ==========================================================================
-   7. TABLES
+   10. TABLES
    ========================================================================== */
 
 /*
- * Remove default cell spacing and ensure tables fill available width.
+ * Tables mirror the visual style of definition lists (dl).
+ * Key difference: dl has bold labels on the LEFT (dt), whereas
+ * tables have bold headers on TOP (th in thead).
+ *
  * border-collapse merges adjacent borders into single lines.
+ * Borderless by default — resume tables are never gridded.
  */
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
-	width: 100%;
+	border-collapse: separate;
+	border-spacing: var(--data-col-gap) var(--data-row-gap);
+	margin-left: calc(-1 * var(--data-col-gap));
 }
 
-/* Ensure table cells inherit text alignment */
+table,
 th,
 td {
-	text-align: inherit;
+	border: none;
+}
+
+th,
+td {
+	text-align: left;
 	vertical-align: top;
+	padding: 0;
+}
+
+/*
+ * Table headers (top row) — styled like dt in a definition list.
+ * Bold and non-wrapping for compact, scannable labels.
+ */
+th {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/*
+ * Table data cells — normal weight, like dd in a definition list.
+ */
+td {
+	font-weight: normal;
+}
+
+/* Collapse empty table header cells */
+th:empty {
+	padding: 0;
 }
 
 /* ==========================================================================
-   8. LINKS
+   11. LINKS
    ========================================================================== */
 
 /*
@@ -247,8 +431,12 @@ td {
  * Underlines removed since clickable affordance isn't needed in PDF.
  */
 a {
-	color: inherit;
-	text-decoration: none;
+	color: var(--link-color);
+	text-decoration: var(--link-underline);
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 /*
@@ -261,7 +449,7 @@ a:focus-visible {
 }
 
 /* ==========================================================================
-   9. MEDIA ELEMENTS
+   12. MEDIA ELEMENTS
    ========================================================================== */
 
 /*
@@ -278,7 +466,7 @@ svg {
 }
 
 /* ==========================================================================
-   10. FORM ELEMENTS
+   13. FORM ELEMENTS
    ========================================================================== */
 
 /*
@@ -293,7 +481,7 @@ select {
 }
 
 /* ==========================================================================
-   11. CODE & PREFORMATTED TEXT
+   14. CODE & PREFORMATTED TEXT
    ========================================================================== */
 
 /*
@@ -307,15 +495,18 @@ pre {
 }
 
 /*
- * Inline code inherits surrounding font size.
- * Default monospace fonts are often larger than body text.
+ * Inline code — monospace by default, no code-block styling.
+ * Themes can override font-family (e.g. inherit for seamless tech tags).
  */
 code {
+	font-family: monospace;
 	font-size: inherit;
+	background: none;
+	padding: 0;
 }
 
 /* ==========================================================================
-   12. UTILITY CLASSES
+   15. UTILITY CLASSES
    ========================================================================== */
 
 /*
@@ -335,7 +526,7 @@ code {
 }
 
 /* ==========================================================================
-   13. BROWSER PREVIEW ENHANCEMENTS
+   16. BROWSER PREVIEW ENHANCEMENTS
    ========================================================================== */
 
 /*
