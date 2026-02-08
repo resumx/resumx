@@ -94,35 +94,18 @@ function findContactRuns(
 	return runs
 }
 
-/**
- * Merge multiple elements into a single <address> element.
- */
-function mergeIntoAddress(
-	elements: ClassifiedElement[],
-	document: Document,
-): Element {
-	const address = document.createElement('address')
-
-	// Copy attributes from first element
-	copyAttributes(elements[0]!.el, address)
-
-	// Move children with newline separators
-	elements.forEach((item, i) => {
-		if (i > 0) address.appendChild(document.createTextNode('\n'))
-		while (item.el.firstChild) {
-			address.appendChild(item.el.firstChild)
-		}
-	})
-
-	return address
-}
-
 // =============================================================================
 // Main
 // =============================================================================
 
 /**
  * Wrap contact blocks in <address> elements within the header.
+ *
+ * Single element: replaces the wrapper (e.g. <p> → <address>), lifting
+ * attributes and children into the new <address>.
+ *
+ * Multiple elements: preserves each element's block structure (e.g. <p> tags)
+ * inside the <address>, respecting the user's intentional paragraph breaks.
  */
 export function wrapContactBlocks(root: Element, document: Document): void {
 	const candidates = getCandidateElements(root)
@@ -130,12 +113,22 @@ export function wrapContactBlocks(root: Element, document: Document): void {
 	const runs = findContactRuns(classified)
 
 	for (const run of runs) {
-		const address = mergeIntoAddress(run, document)
+		const address = document.createElement('address')
+		const firstEl = run[0]!.el
 
-		// Replace first element with merged address, remove the rest
-		run[0]!.el.replaceWith(address)
-		for (let i = 1; i < run.length; i++) {
-			run[i]!.el.remove()
+		if (run.length === 1) {
+			// Single element: replace wrapper (e.g. p → address)
+			copyAttributes(firstEl, address)
+			while (firstEl.firstChild) {
+				address.appendChild(firstEl.firstChild)
+			}
+			firstEl.replaceWith(address)
+		} else {
+			// Multiple elements: preserve block structure inside <address>
+			firstEl.before(address)
+			for (const item of run) {
+				address.appendChild(item.el)
+			}
 		}
 	}
 }
