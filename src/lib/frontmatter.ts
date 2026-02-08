@@ -120,9 +120,9 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		config.formats = data['formats'] as OutputFormat[]
 	}
 
-	// Validate variables
-	if (data['variables'] !== undefined) {
-		if (typeof data['variables'] !== 'object' || data['variables'] === null) {
+	// Validate variables (null means declared but empty — treat as no variables)
+	if (data['variables'] !== undefined && data['variables'] !== null) {
+		if (typeof data['variables'] !== 'object') {
 			throw new Error("'variables' must be an object")
 		}
 
