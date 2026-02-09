@@ -605,6 +605,64 @@ Tools
 	})
 
 	// =========================================================================
+	// Render Function - PNG Format
+	// =========================================================================
+
+	describe('render - PNG format', () => {
+		it('generates PNG output file', async () => {
+			await withTempDirAsync(async dir => {
+				const mdContent = '# Test PNG\n\nContent for PNG'
+				writeVirtualFiles(dir, {
+					'style.css': SIMPLE_CSS,
+				})
+
+				const result = await render({
+					content: mdContent,
+					output: join(dir, 'output.png'),
+					format: 'png',
+					cssPath: join(dir, 'style.css'),
+				})
+
+				// May fail if Chromium is not installed
+				if (result.success) {
+					expect(existsSync(result.outputPath)).toBe(true)
+					// Verify it's a PNG (check magic bytes: 0x89 P N G)
+					const pngContent = readFileSync(result.outputPath)
+					expect(pngContent[0]).toBe(0x89)
+					expect(pngContent.toString('utf-8', 1, 4)).toBe('PNG')
+				} else {
+					expect(result.error).toContain('Chromium')
+				}
+			})
+		})
+
+		it('creates nested output directory for PNG', async () => {
+			await withTempDirAsync(async dir => {
+				const mdContent = '# Test'
+				writeVirtualFiles(dir, {
+					'style.css': SIMPLE_CSS,
+				})
+
+				const outputPath = join(dir, 'build', 'images', 'output.png')
+
+				const result = await render({
+					content: mdContent,
+					output: outputPath,
+					format: 'png',
+					cssPath: join(dir, 'style.css'),
+				})
+
+				// May fail if Chromium is not installed
+				if (result.success) {
+					expect(existsSync(outputPath)).toBe(true)
+				} else {
+					expect(result.error).toContain('Chromium')
+				}
+			})
+		})
+	})
+
+	// =========================================================================
 	// Render Function - DOCX Format
 	// =========================================================================
 

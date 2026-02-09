@@ -124,6 +124,14 @@ describe('render command', () => {
 		expect(existsSync(join(tempDir, 'sample.pdf'))).toBe(true)
 	})
 
+	it('renders PNG output', async () => {
+		await runCLI(['sample.md', '--png'], {
+			cwd: tempDir,
+		})
+
+		expect(existsSync(join(tempDir, 'sample.png'))).toBe(true)
+	})
+
 	it('renders all formats with --all', async () => {
 		await runCLI(['sample.md', '--all'], {
 			cwd: tempDir,

@@ -439,18 +439,19 @@ variables:
 				)
 			})
 
-			it('allows valid formats: pdf, html, docx', () => {
+			it('allows valid formats: pdf, html, docx, png', () => {
 				const input = `---
 formats:
   - pdf
   - html
   - docx
+  - png
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.formats).toEqual(['pdf', 'html', 'docx'])
+				expect(result.config?.formats).toEqual(['pdf', 'html', 'docx', 'png'])
 			})
 
 			it('warns about unknown fields in frontmatter', () => {

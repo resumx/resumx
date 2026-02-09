@@ -3,7 +3,7 @@ import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
 
 // Valid output formats
-const VALID_FORMATS = ['pdf', 'html', 'docx'] as const
+const VALID_FORMATS = ['pdf', 'html', 'docx', 'png'] as const
 export type OutputFormat = (typeof VALID_FORMATS)[number]
 
 export interface FrontmatterConfig {

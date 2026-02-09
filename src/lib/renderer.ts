@@ -12,7 +12,7 @@ import { browserPool } from './browser-pool.js'
 import { generateHtml } from './html-generator.js'
 import { processExpressions } from './interpolation.js'
 
-export type OutputFormat = 'pdf' | 'html' | 'docx'
+export type OutputFormat = 'pdf' | 'html' | 'docx' | 'png'
 
 export interface RenderOptions {
 	content: string
@@ -77,6 +77,27 @@ async function renderPdf(html: string, outputPath: string): Promise<void> {
 }
 
 /**
+ * Render HTML to PNG using Playwright (headless Chrome/Chromium)
+ * Uses browser pool for parallel rendering
+ * Viewport is set to A4 width (794px) for consistent output
+ */
+async function renderPng(html: string, outputPath: string): Promise<void> {
+	const browser = await browserPool.acquire()
+	try {
+		const page = await browser.newPage()
+		try {
+			await page.setViewportSize({ width: 794, height: 1123 })
+			await page.setContent(html, { waitUntil: 'networkidle' })
+			await page.screenshot({ path: outputPath, fullPage: true })
+		} finally {
+			await page.close()
+		}
+	} finally {
+		browserPool.release(browser)
+	}
+}
+
+/**
  * Render PDF to DOCX using pdf2docx CLI
  * This provides higher fidelity conversion by leveraging the PDF layout
  * Requires: pip install pdf2docx
@@ -120,6 +141,9 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 				break
 			case 'pdf':
 				await renderPdf(html, options.output)
+				break
+			case 'png':
+				await renderPng(html, options.output)
 				break
 			case 'docx': {
 				// Generate PDF first (temporary), then convert to DOCX for high fidelity

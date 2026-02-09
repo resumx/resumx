@@ -49,6 +49,7 @@ export interface RenderCommandOptions {
 	pdf?: boolean
 	html?: boolean
 	docx?: boolean
+	png?: boolean
 	all?: boolean
 	watch?: boolean
 }
@@ -71,6 +72,7 @@ function resolveFormats(
 	if (options.pdf) cliFormats.push('pdf')
 	if (options.html) cliFormats.push('html')
 	if (options.docx) cliFormats.push('docx')
+	if (options.png) cliFormats.push('png')
 
 	// If CLI format flags are set, use them
 	if (cliFormats.length > 0) {
@@ -248,7 +250,14 @@ async function runRender(
 
 			// Get basename and strip document extensions
 			let baseName = basename(resolvedOutput)
-			const documentExtensions = ['.pdf', '.html', '.htm', '.docx', '.doc']
+			const documentExtensions = [
+				'.pdf',
+				'.html',
+				'.htm',
+				'.docx',
+				'.doc',
+				'.png',
+			]
 			for (const ext of documentExtensions) {
 				if (baseName.endsWith(ext)) {
 					baseName = baseName.slice(0, -ext.length)
