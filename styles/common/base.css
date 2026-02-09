@@ -4,10 +4,6 @@
  * ============================================================
  */
 
-/* ==========================================================================
-   1. BOX MODEL & SIZING
-   ========================================================================== */
-
 /*
  * Use border-box by default - padding and border included in element's total width/height.
  * This makes layout calculations predictable.
@@ -25,10 +21,6 @@
 *:not(dialog) {
 	margin: 0;
 }
-
-/* ==========================================================================
-   2. CSS CUSTOM PROPERTIES
-   ========================================================================== */
 
 /*
  * Design tokens that can be overridden by theme stylesheets or --var flags.
@@ -87,10 +79,6 @@
 	--icons: inline; /* inline | none */
 }
 
-/* ==========================================================================
-   3. PAGE & DOCUMENT SETUP
-   ========================================================================== */
-
 /*
  * Configure PDF page size with consistent margins on every page.
  * Uses CSS variables for easy customization across themes.
@@ -136,10 +124,6 @@ body {
 	}
 }
 
-/* ==========================================================================
-   4. TYPOGRAPHY
-   ========================================================================== */
-
 /*
  * Prevent long words/URLs from overflowing their containers.
  * break-word allows mid-word breaks only when necessary.
@@ -178,10 +162,6 @@ strong,
 b {
 	font-weight: 700;
 }
-
-/* ==========================================================================
-   5. PAGED MEDIA & PRINT
-   ========================================================================== */
 
 /*
  * Prevent headings from appearing at the bottom of a page
@@ -237,10 +217,6 @@ blockquote {
 	print-color-adjust: exact;
 }
 
-/* ==========================================================================
-   6. BROWSER RESETS (resume-specific)
-   ========================================================================== */
-
 /*
  * Reset browser blockquote defaults (left border, padding).
  * In Resumx, blockquote represents a summary statement.
@@ -274,10 +250,6 @@ dt {
 	font-weight: bold;
 	white-space: nowrap;
 }
-
-/* ==========================================================================
-   7. VARIABLE WIRING
-   ========================================================================== */
 
 /*
  * Connect :root variables to their target elements.
@@ -325,10 +297,6 @@ li {
 	margin-bottom: var(--bullet-gap);
 }
 
-/* ==========================================================================
-   8. TWO-COLUMN LAYOUT WIRING
-   ========================================================================== */
-
 /*
  * Map DOM structure classes to grid areas.
  * Themes define the actual layout (grid-template-columns, grid-template-areas, gap, etc.).
@@ -357,10 +325,6 @@ li {
 	min-width: 0;
 }
 
-/* ==========================================================================
-   9. LISTS (continued)
-   ========================================================================== */
-
 /*
  * Reduce default list indentation for tighter resume layouts.
  * Default browser value is usually ~40px; 1.25em is more compact.
@@ -379,10 +343,6 @@ ol[role='list'] {
 	list-style: none;
 	padding-left: 0;
 }
-
-/* ==========================================================================
-   10. TABLES
-   ========================================================================== */
 
 /*
  * Tables mirror the visual style of definition lists (dl).
@@ -432,10 +392,6 @@ th:empty {
 	padding: 0;
 }
 
-/* ==========================================================================
-   11. LINKS
-   ========================================================================== */
-
 /*
  * Links inherit text color for cleaner resume appearance.
  * Underlines removed since clickable affordance isn't needed in PDF.
@@ -458,10 +414,6 @@ a:focus-visible {
 	outline-offset: 2px;
 }
 
-/* ==========================================================================
-   12. MEDIA ELEMENTS
-   ========================================================================== */
-
 /*
  * Images and media are block-level and responsive by default.
  * Prevents unexpected inline spacing and overflow issues.
@@ -475,10 +427,6 @@ svg {
 	max-width: 100%;
 }
 
-/* ==========================================================================
-   13. FORM ELEMENTS
-   ========================================================================== */
-
 /*
  * Form elements don't inherit font by default in most browsers.
  * This ensures consistent typography if forms are ever used.
@@ -489,10 +437,6 @@ textarea,
 select {
 	font: inherit;
 }
-
-/* ==========================================================================
-   14. CODE & PREFORMATTED TEXT
-   ========================================================================== */
 
 /*
  * Prevent code blocks from overflowing.
@@ -514,30 +458,6 @@ code {
 	background: none;
 	padding: 0;
 }
-
-/* ==========================================================================
-   15. UTILITY CLASSES
-   ========================================================================== */
-
-/*
- * Visually hidden but accessible to screen readers.
- * Use for labels that provide context to assistive technology.
- */
-.sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-
-/* ==========================================================================
-   16. BROWSER PREVIEW ENHANCEMENTS
-   ========================================================================== */
 
 /*
  * Custom text selection color for browser preview.
