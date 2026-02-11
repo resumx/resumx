@@ -148,11 +148,12 @@ program
 		collectWithCommas,
 		[],
 	)
-	.option('--pdf', 'Output PDF only')
-	.option('--html', 'Output HTML only')
-	.option('--docx', 'Output DOCX document only')
-	.option('--png', 'Output PNG image')
-	.option('--all', 'Output all formats (PDF, HTML, Word)')
+	.option(
+		'-f, --format <name>',
+		'Output format(s): pdf, html, docx, png (repeatable, comma-separated)',
+		collectWithCommas,
+		[],
+	)
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.action(async (file: string, options: RenderCommandOptions) => {
 		// Don't run render if a subcommand was called
@@ -163,7 +164,7 @@ program
 program
 	.command('init [filename]')
 	.description('Create a new resume from template (default: resume.md)')
-	.option('-f, --force', 'Overwrite existing file without prompting')
+	.option('--force', 'Overwrite existing file without prompting')
 	.action(async (filename: string | undefined, options: InitCommandOptions) => {
 		await initCommand(filename, options)
 	})
@@ -172,7 +173,7 @@ program
 program
 	.command('eject [theme]')
 	.description('Copy a bundled theme to ./themes/ for customization')
-	.option('-f, --force', 'Overwrite existing local theme')
+	.option('--force', 'Overwrite existing local theme')
 	.action(async (theme: string | undefined, options: EjectCommandOptions) => {
 		await ejectCommand(theme, options)
 	})

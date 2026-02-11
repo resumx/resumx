@@ -46,13 +46,11 @@ export interface RenderCommandOptions {
 	output?: string
 	var?: string[]
 	role?: string[]
-	pdf?: boolean
-	html?: boolean
-	docx?: boolean
-	png?: boolean
-	all?: boolean
+	format?: string[]
 	watch?: boolean
 }
+
+const VALID_FORMATS: OutputFormat[] = ['pdf', 'html', 'docx', 'png']
 
 /**
  * Determine which formats to render based on CLI options and frontmatter
@@ -62,21 +60,18 @@ function resolveFormats(
 	options: RenderCommandOptions,
 	frontmatterFormats?: OutputFormat[],
 ): OutputFormat[] {
-	// --all takes precedence
-	if (options.all) {
-		return ['pdf', 'html', 'docx']
-	}
+	// Check if any CLI --format values are set
+	if (options.format && options.format.length > 0) {
+		// Validate each format value
+		for (const f of options.format) {
+			if (!VALID_FORMATS.includes(f as OutputFormat)) {
+				throw new Error(
+					`Unknown format: '${f}'. Valid formats: ${VALID_FORMATS.join(', ')}`,
+				)
+			}
+		}
 
-	// Check if any CLI format flags are set
-	const cliFormats: OutputFormat[] = []
-	if (options.pdf) cliFormats.push('pdf')
-	if (options.html) cliFormats.push('html')
-	if (options.docx) cliFormats.push('docx')
-	if (options.png) cliFormats.push('png')
-
-	// If CLI format flags are set, use them
-	if (cliFormats.length > 0) {
-		return cliFormats
+		return options.format as OutputFormat[]
 	}
 
 	// If frontmatter specifies formats, use them
@@ -273,7 +268,13 @@ async function runRender(
 	}
 
 	// Get formats to render (CLI > Frontmatter > default)
-	const formats = resolveFormats(options, fmConfig?.formats)
+	let formats: OutputFormat[]
+	try {
+		formats = resolveFormats(options, fmConfig?.formats)
+	} catch (error) {
+		console.error(chalk.red(`Error: ${(error as Error).message}`))
+		return false
+	}
 
 	// Check dependencies
 	// Only pdf2docx is required for DOCX output (PDF uses bundled Playwright Chromium)

@@ -80,17 +80,17 @@ Open `resume.md` in your editor and start writing. Read the full [Quick Start gu
 
 ## CLI at a Glance
 
-| Command                               | Description               |
-| ------------------------------------- | ------------------------- |
-| `resumx [file]`                       | Render to PDF (default)   |
-| `resumx [file] --watch`               | Live preview              |
-| `resumx [file] --theme zurich,oxford` | Multiple themes           |
-| `resumx [file] --role frontend`       | Role-specific output      |
-| `resumx [file] --all`                 | PDF + HTML + DOCX         |
-| `resumx init`                         | Create from template      |
-| `resumx eject [theme]`                | Copy theme CSS locally    |
-| `resumx theme`                        | List / manage themes      |
-| `resumx validate`                     | Validate resume structure |
+| Command                                | Description               |
+| -------------------------------------- | ------------------------- |
+| `resumx [file]`                        | Render to PDF (default)   |
+| `resumx [file] --watch`                | Live preview              |
+| `resumx [file] --theme zurich,oxford`  | Multiple themes           |
+| `resumx [file] --role frontend`        | Role-specific output      |
+| `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX         |
+| `resumx init`                          | Create from template      |
+| `resumx eject [theme]`                 | Copy theme CSS locally    |
+| `resumx theme`                         | List / manage themes      |
+| `resumx validate`                      | Validate resume structure |
 
 See the full [CLI Reference](docs/cli-reference.md).
 

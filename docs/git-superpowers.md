@@ -11,7 +11,7 @@ git resumx sent/stripe-2026-02                  # render a tag
 git resumx a3f1c2d --role backend               # specific commit, filtered by role
 git resumx HEAD~3 --theme zurich -o stripe      # 3 commits ago, custom theme + output
 git resumx --role frontend                      # HEAD with role filter (ref is optional)
-git resumx HEAD@{3 months ago} --png            # 3 months ago, as PNG
+git resumx HEAD@{3 months ago} --format png     # 3 months ago, as PNG
 ```
 
 Run this once to create the `git resumx` alias:

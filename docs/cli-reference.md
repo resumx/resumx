@@ -16,18 +16,14 @@ If no file is specified, defaults to `resume.md`.
 
 ### Options
 
-| Flag                  | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| `-t, --theme <name>`  | Theme(s) to use. Repeatable, comma-separated.                    |
-| `-o, --output <name>` | Output filename (without extension) or directory path.           |
-| `--var <name=value>`  | Override a CSS variable. Repeatable.                             |
-| `--role <name>`       | Generate for specific role(s) only. Repeatable, comma-separated. |
-| `--pdf`               | Output PDF only.                                                 |
-| `--html`              | Output HTML only.                                                |
-| `--docx`              | Output DOCX only (requires `pdf2docx`).                          |
-| `--png`               | Output PNG image.                                                |
-| `--all`               | Output all formats (PDF, HTML, DOCX).                            |
-| `-w, --watch`         | Watch for changes and auto-rebuild.                              |
+| Flag                  | Description                                                                  |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `-t, --theme <name>`  | Theme(s) to use. Repeatable, comma-separated.                                |
+| `-o, --output <name>` | Output filename (without extension) or directory path.                       |
+| `-f, --format <name>` | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated. |
+| `--var <name=value>`  | Override a CSS variable. Repeatable.                                         |
+| `--role <name>`       | Generate for specific role(s) only. Repeatable, comma-separated.             |
+| `-w, --watch`         | Watch for changes and auto-rebuild.                                          |
 
 ### Examples
 
@@ -48,7 +44,7 @@ resumx resume.md --output John_Doe_Resume
 resumx resume.md --var font-family="Inter, sans-serif" --var accent-color="#2563eb"
 
 # Multiple formats
-resumx resume.md --all
+resumx resume.md --format pdf,html,docx
 
 # Watch mode
 resumx resume.md --watch
@@ -57,7 +53,7 @@ resumx resume.md --watch
 resumx resume.md --role frontend
 
 # Combine options
-resumx resume.md --theme zurich --role frontend,backend --all --watch
+resumx resume.md --theme zurich --role frontend,backend --format pdf,html,docx --watch
 ```
 
 ## init
@@ -72,9 +68,9 @@ resumx init [filename]
 | ---------- | ----------- | ----------------------------- |
 | `filename` | `resume.md` | Name for the new resume file. |
 
-| Flag          | Description                                |
-| ------------- | ------------------------------------------ |
-| `-f, --force` | Overwrite existing file without prompting. |
+| Flag      | Description                                |
+| --------- | ------------------------------------------ |
+| `--force` | Overwrite existing file without prompting. |
 
 ### Examples
 
@@ -96,9 +92,9 @@ resumx eject [theme]
 | -------- | --------------- | ----------------------------------- |
 | `theme`  | _(interactive)_ | Name of the bundled theme to eject. |
 
-| Flag          | Description                     |
-| ------------- | ------------------------------- |
-| `-f, --force` | Overwrite existing local theme. |
+| Flag      | Description                     |
+| --------- | ------------------------------- |
+| `--force` | Overwrite existing local theme. |
 
 Once ejected, the local copy in `./themes/` takes precedence over the bundled version. Edit it freely.
 
@@ -194,14 +190,14 @@ resumx validate --min-severity warning    # Hide notes and bonuses
 
 ## Output Formats
 
-| Format | Flag              | Notes                                                               |
-| ------ | ----------------- | ------------------------------------------------------------------- |
-| PDF    | `--pdf` (default) | Rendered via Chromium, A4 page size                                 |
-| HTML   | `--html`          | Standalone file with embedded CSS                                   |
-| PNG    | `--png`           | A4 viewport (794 × 1123 px)                                         |
-| DOCX   | `--docx`          | Via PDF intermediate — requires `pdf2docx` (`pip install pdf2docx`) |
+| Format | Flag                     | Notes                                                               |
+| ------ | ------------------------ | ------------------------------------------------------------------- |
+| PDF    | `--format pdf` (default) | Rendered via Chromium, A4 page size                                 |
+| HTML   | `--format html`          | Standalone file with embedded CSS                                   |
+| PNG    | `--format png`           | A4 viewport (794 × 1123 px)                                         |
+| DOCX   | `--format docx`          | Via PDF intermediate — requires `pdf2docx` (`pip install pdf2docx`) |
 
-Use `--all` to generate PDF, HTML, and DOCX at once.
+Formats can be comma-separated: `--format pdf,html,docx`.
 
 ## Frontmatter Configuration
 
