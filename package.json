@@ -1,12 +1,12 @@
 {
-	"name": "resum8",
+	"name": "resumx",
 	"version": "0.1.0",
 	"description": "Minimal markdown resume builder with beautiful PDF output",
 	"type": "module",
 	"main": "dist/index.js",
 	"bin": {
-		"m8": "dist/index.js",
-		"resum8": "dist/index.js"
+		"rmx": "dist/index.js",
+		"resumx": "dist/index.js"
 	},
 	"files": [
 		"dist",
@@ -43,7 +43,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/yatfuchan/resum8"
+		"url": "https://github.com/yatfuchan/resumx"
 	},
 	"engines": {
 		"node": ">=20"

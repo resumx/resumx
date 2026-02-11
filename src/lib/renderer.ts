@@ -35,7 +35,7 @@ export interface RenderResult {
  */
 function createTempFile(content: string, extension: string): string {
 	const tempDir = tmpdir()
-	const tempPath = join(tempDir, `resum8-${Date.now()}${extension}`)
+	const tempPath = join(tempDir, `resumx-${Date.now()}${extension}`)
 	writeFileSync(tempPath, content)
 	return tempPath
 }

@@ -20,7 +20,7 @@ describe('eject command', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-eject-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-eject-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 		consoleOutput = []
 		console.log = (...args: unknown[]) => {
@@ -152,7 +152,7 @@ describe('eject command', () => {
 
 			const output = consoleOutput.join('\n')
 			expect(output).toContain('The local copy will now be used')
-			expect(output).toContain(`m8 resume.md --theme ${themeName}`)
+			expect(output).toContain(`resumx resume.md --theme ${themeName}`)
 			expect(output).toContain('Edit the CSS to customize')
 		})
 	})

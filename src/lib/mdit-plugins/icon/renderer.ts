@@ -77,7 +77,7 @@ export function githubResolver(name: string): string | null {
 
 /**
  * Resolves resume-specific icon aliases (e.g. "react", "python") to their Iconify icon implementations.
- * These are user-friendly names defined by resum8, not Iconify icon names directly.
+ * These are user-friendly names defined by Resumx, not Iconify icon names directly.
  * Checks devicon first, then logos.
  */
 export const resumxIconResolver = (name: string): string | null =>

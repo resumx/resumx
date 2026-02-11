@@ -43,12 +43,12 @@ function requireTheme(themeName: string, ctx: ThemeContext): ThemeInfo {
  * Theme command - list themes or set default
  *
  * Usage:
- *   m8 theme                                  # list themes
- *   m8 theme --default classic                # set default theme
- *   m8 theme classic                          # show theme info
- *   m8 theme classic --set key=value          # set default variable override
- *   m8 theme classic --reset font-family      # reset specific variable to default
- *   m8 theme classic --reset-all              # reset all variables to defaults
+ *   resumx theme                                  # list themes
+ *   resumx theme --default classic                # set default theme
+ *   resumx theme classic                          # show theme info
+ *   resumx theme classic --set key=value          # set default variable override
+ *   resumx theme classic --reset font-family      # reset specific variable to default
+ *   resumx theme classic --reset-all              # reset all variables to defaults
  */
 export async function themeCommand(
 	themeName: string | undefined,
@@ -68,7 +68,10 @@ export async function themeCommand(
 	if (options.resetAll) {
 		if (!themeName) {
 			console.error(
-				formatThemeNameRequired('--reset-all', 'm8 theme <name> --reset-all'),
+				formatThemeNameRequired(
+					'--reset-all',
+					'resumx theme <name> --reset-all',
+				),
 			)
 			process.exit(1)
 		}
@@ -81,7 +84,7 @@ export async function themeCommand(
 			console.error(
 				formatThemeNameRequired(
 					'--reset',
-					'm8 theme <name> --reset <variable-name>',
+					'resumx theme <name> --reset <variable-name>',
 				),
 			)
 			process.exit(1)
@@ -93,7 +96,7 @@ export async function themeCommand(
 	if (options.var && options.var.length > 0) {
 		if (!themeName) {
 			console.error(
-				formatThemeNameRequired('--var', 'm8 theme <name> --var key=value'),
+				formatThemeNameRequired('--var', 'resumx theme <name> --var key=value'),
 			)
 			process.exit(1)
 		}
@@ -224,19 +227,19 @@ async function showThemeInfo(
 	console.log('')
 	console.log(dedent`
 		Override with:
-		    ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+		    ${chalk.blue(`resumx resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
 		Set default override:
-		    ${chalk.blue(`m8 theme ${themeName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+		    ${chalk.blue(`resumx theme ${themeName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
 		Reset specific variable:
-		    ${chalk.blue(`m8 theme ${themeName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}
+		    ${chalk.blue(`resumx theme ${themeName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}
 
 		Reset all overrides:
-		    ${chalk.blue(`m8 theme ${themeName} --reset-all`)}
+		    ${chalk.blue(`resumx theme ${themeName} --reset-all`)}
 
 		Or customize fully:
-		    ${chalk.blue(`m8 eject ${themeName}`)}
+		    ${chalk.blue(`resumx eject ${themeName}`)}
 	`)
 }
 
@@ -272,16 +275,16 @@ async function listAllThemes(cwd: string): Promise<void> {
 
 	console.log(dedent`
 		Usage:
-		    ${chalk.blue('m8 resume.md --theme <name>')}
+		    ${chalk.blue('resumx resume.md --theme <name>')}
 
 		View theme details:
-		    ${chalk.blue('m8 theme <name>')}
+		    ${chalk.blue('resumx theme <name>')}
 
 		Set default theme:
-		    ${chalk.blue('m8 theme --default <name>')}
+		    ${chalk.blue('resumx theme --default <name>')}
 
 		Customize a theme:
-		    ${chalk.blue('m8 eject <name>')}  Copy to ./themes/ for editing
+		    ${chalk.blue('resumx eject <name>')}  Copy to ./themes/ for editing
 	`)
 }
 

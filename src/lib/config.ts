@@ -61,11 +61,11 @@ export interface ConfigStore {
 
 /**
  * Create a config store.
- * @param cwd - Config directory. Defaults to ~/.config/resum8 (pass custom path for testing).
+ * @param cwd - Config directory. Defaults to ~/.config/resumx (pass custom path for testing).
  */
 export function createConfigStore(
-	cwd = process.env['RESUM8_CONFIG_DIR']
-		?? join(homedir(), '.config', 'resum8'),
+	cwd = process.env['RESUMX_CONFIG_DIR']
+		?? join(homedir(), '.config', 'resumx'),
 ): ConfigStore {
 	const conf = new Conf<GlobalConfig>({
 		cwd,

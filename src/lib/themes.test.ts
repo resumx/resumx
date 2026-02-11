@@ -16,7 +16,7 @@ describe('themes', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 	})
 

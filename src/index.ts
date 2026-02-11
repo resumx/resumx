@@ -121,7 +121,7 @@ program.configureHelp({
 })
 
 program
-	.name('m8')
+	.name('resumx')
 	.description('Minimal markdown resume builder')
 	.version('0.1.0')
 	.allowExcessArguments(false)

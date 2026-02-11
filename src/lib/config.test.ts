@@ -13,7 +13,7 @@ describe('config', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-config-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-config-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 	})
 
@@ -70,7 +70,7 @@ describe('config', () => {
 		let configDir: string
 
 		beforeEach(() => {
-			configDir = join(tempDir, '.config', 'resum8')
+			configDir = join(tempDir, '.config', 'resumx')
 			mkdirSync(configDir, { recursive: true })
 		})
 

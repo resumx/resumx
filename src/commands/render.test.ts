@@ -88,7 +88,7 @@ describe('render command', () => {
 	 */
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-render-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-render-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 		// Copy fixture to temp dir
 		copyFileSync(FIXTURE_PATH, join(tempDir, 'sample.md'))
@@ -99,7 +99,7 @@ describe('render command', () => {
 		writeMockTheme(tempDir, 'classic', MOCK_CLASSIC_CSS)
 
 		// Set test config directory to avoid using global config
-		process.env.RESUM8_CONFIG_DIR = join(tempDir, '.config', 'resum8')
+		process.env.RESUMX_CONFIG_DIR = join(tempDir, '.config', 'resumx')
 	})
 
 	afterEach(() => {
@@ -107,7 +107,7 @@ describe('render command', () => {
 			rmSync(tempDir, { recursive: true, force: true })
 		}
 		// Clean up test env var
-		delete process.env.RESUM8_CONFIG_DIR
+		delete process.env.RESUMX_CONFIG_DIR
 	})
 
 	it('renders HTML output', async () => {
@@ -489,7 +489,7 @@ describe('render command', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resum8')
+			globalConfigDir = join(tempDir, '.config', 'resumx')
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 

@@ -56,7 +56,7 @@ export function toLspDiagnostic(issue: ValidationIssue): LspDiagnostic {
 		},
 		severity: severityToLsp[issue.severity],
 		code: issue.code,
-		source: 'resum8',
+		source: 'resumx',
 		message: issue.message,
 	}
 }

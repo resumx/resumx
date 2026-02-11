@@ -12,7 +12,7 @@ describe('frontmatter', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-frontmatter-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-frontmatter-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 	})
 

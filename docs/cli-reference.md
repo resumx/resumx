@@ -236,7 +236,7 @@ accent-color = "#2563eb"
 
 ## Global Configuration
 
-Global settings are stored in `~/.config/resum8/config.json`:
+Global settings are stored in `~/.config/resumx/config.json`:
 
 ```json
 {
@@ -251,7 +251,7 @@ Global settings are stored in `~/.config/resum8/config.json`:
 
 Manage via the `theme` command rather than editing directly.
 
-The config directory can be overridden with the `RESUM8_CONFIG_DIR` environment variable.
+The config directory can be overridden with the `RESUMX_CONFIG_DIR` environment variable.
 
 ## Output Naming
 

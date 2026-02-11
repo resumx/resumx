@@ -48,7 +48,7 @@ export async function initCommand(
 	if (!existsSync(TEMPLATE_PATH)) {
 		console.error(dedent`
 			${chalk.red('Error: Template file not found in package.')}
-			This might be an installation issue. Try reinstalling resum8.
+			This might be an installation issue. Try reinstalling Resumx.
 		`)
 		process.exit(1)
 	}
@@ -72,7 +72,7 @@ export async function initCommand(
 
 			Next steps:
 			  1. Edit ${chalk.cyan(outputFilename)} with your information
-			  2. Run ${chalk.blue(`m8 ${outputFilename}`)} to build PDF
+			  2. Run ${chalk.blue(`resumx ${outputFilename}`)} to build PDF
 
 		`)
 	} catch (error) {

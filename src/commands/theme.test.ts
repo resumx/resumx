@@ -70,7 +70,7 @@ describe('theme command', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-theme-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-theme-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 		consoleOutput = []
 		console.log = (...args: unknown[]) => {
@@ -93,7 +93,7 @@ describe('theme command', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resum8')
+			globalConfigDir = join(tempDir, '.config', 'resumx')
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
@@ -165,7 +165,7 @@ describe('theme command', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resum8')
+			globalConfigDir = join(tempDir, '.config', 'resumx')
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
@@ -310,7 +310,7 @@ describe('theme command', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resum8')
+			globalConfigDir = join(tempDir, '.config', 'resumx')
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 

@@ -25,7 +25,7 @@ describe('init command', () => {
 	let tempDir: string
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `resum8-init-test-${Date.now()}`)
+		tempDir = join(tmpdir(), `resumx-init-test-${Date.now()}`)
 		mkdirSync(tempDir, { recursive: true })
 		consoleOutput = []
 		consoleErrorOutput = []
@@ -139,9 +139,9 @@ describe('init command', () => {
 				expect(consoleOutput.some(line => line.includes('Edit my-cv.md'))).toBe(
 					true,
 				)
-				expect(consoleOutput.some(line => line.includes('m8 my-cv.md'))).toBe(
-					true,
-				)
+				expect(
+					consoleOutput.some(line => line.includes('resumx my-cv.md')),
+				).toBe(true)
 			})
 
 			it('should handle file system errors gracefully', async () => {

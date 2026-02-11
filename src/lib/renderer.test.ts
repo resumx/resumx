@@ -714,7 +714,7 @@ Tools
 				// Temp PDF should be cleaned up (not in output dir)
 				const filesInDir = require('fs').readdirSync(dir)
 				const pdfFiles = filesInDir.filter((f: string) =>
-					f.startsWith('resum8-'),
+					f.startsWith('resumx-'),
 				)
 				expect(pdfFiles.length).toBe(0)
 

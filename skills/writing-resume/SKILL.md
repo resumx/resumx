@@ -1,9 +1,9 @@
 ---
 name: writing-resume
-description: Write and format resumes using resum8 markdown syntax. Use when creating resumes, CVs, converting resume content to markdown, or when the user mentions resume, CV, or job application documents.
+description: Write and format resumes using Resumx markdown syntax. Use when creating resumes, CVs, converting resume content to markdown, or when the user mentions resume, CV, or job application documents.
 ---
 
-# Writing Resumes with resum8
+# Writing Resumes with Resumx
 
 A minimal markdown-based resume format. Only ONE custom syntax for positioning (`{.right}` or `(#right)`), everything else is standard markdown.
 
@@ -15,7 +15,7 @@ When the user wants to create a new resume, start an interactive chat session to
 
 Greet the user and explain the process:
 
-"I'll help you create a professional resume in resum8 markdown format. I'll ask you a series of questions to gather all the necessary information. You can skip any section by saying 'skip' or provide as much detail as you'd like."
+"I'll help you create a professional resume in Resumx markdown format. I'll ask you a series of questions to gather all the necessary information. You can skip any section by saying 'skip' or provide as much detail as you'd like."
 
 ### Step 2: Collect Basic Information
 
@@ -135,7 +135,7 @@ Please list which sections you want and provide all details, or say 'skip' to sk
 
 After collecting all information, say:
 
-"Great! I have all the information I need. I'll now generate your resume in resum8 markdown format."
+"Great! I have all the information I need. I'll now generate your resume in Resumx markdown format."
 
 Then create a resume markdown file following these guidelines:
 
@@ -310,38 +310,38 @@ Links to these domains automatically show icons:
 
 ```bash
 # Create resume from template
-m8 init
+resumx init
 
 # Build all formats (PDF, HTML, Word)
-m8 resume.md --all
+resumx resume.md --all
 
 # Build PDF only (default output)
-m8 resume.md --pdf
+resumx resume.md --pdf
 
 # Build HTML only
-m8 resume.md --html
+resumx resume.md --html
 
 # Build DOCX document only
-m8 resume.md --docx
+resumx resume.md --docx
 
 # Use a specific theme
-m8 resume.md --theme formal
-m8 resume.md --theme classic
+resumx resume.md --theme formal
+resumx resume.md --theme classic
 
 # Custom output filename
-m8 resume.md -o john-doe
+resumx resume.md -o john-doe
 
 # Override CSS variables
-m8 resume.md --var primary-color=#2563eb --var font-size=11pt
+resumx resume.md --var primary-color=#2563eb --var font-size=11pt
 
 # Watch mode (auto-rebuild on changes)
-m8 resume.md --watch
+resumx resume.md --watch
 
 # List available themes
-m8 theme
+resumx theme
 
 # Set default theme
-m8 theme --default formal
+resumx theme --default formal
 ```
 
 ## Common Mistakes

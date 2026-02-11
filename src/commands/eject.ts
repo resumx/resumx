@@ -69,7 +69,7 @@ export async function ejectCommand(
 		${chalk.green('✓')} Ejected ${chalk.cyan(name)} theme to ${chalk.cyan(relativePath)}
 
 		The local copy will now be used when you run:
-			${chalk.blue(`m8 resume.md --theme ${name}`)}
+			${chalk.blue(`resumx resume.md --theme ${name}`)}
 
 		Edit the CSS to customize fonts, colors, and layout.
 	`)
