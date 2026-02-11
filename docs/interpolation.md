@@ -37,13 +37,13 @@ All frontmatter properties are accessible inside expressions:
 ```markdown
 ---
 outputName: John_Doe_Resume
-variables:
+style:
   company: Google
 ---
 
 # Resume for {{ outputName }}
 
-Applying to {{ variables.company }}
+Applying to {{ style.company }}
 ```
 
 ## Environment Variables

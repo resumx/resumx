@@ -3,15 +3,15 @@ import { readFileSync } from 'node:fs'
 import { relative } from 'node:path'
 import { listThemes, parseCssVariables, type ThemeInfo } from '../lib/themes.js'
 import { config, type ConfigStore } from '../lib/config.js'
-import { parseVarFlags } from './utils/var-flags.js'
+import { parseStyleFlags } from './utils/style-flags.js'
 import dedent from 'dedent'
 
 export interface ThemeCommandOptions {
 	default?: string
-	var?: string[]
-	set?: string[] // CLI uses --set to avoid conflict with main program's --var
-	reset?: string // Reset a specific theme variable to default
-	resetAll?: boolean // Reset all theme variables to defaults
+	style?: string[]
+	set?: string[] // CLI uses --set to avoid conflict with main program's --style
+	reset?: string // Reset a specific theme style to default
+	resetAll?: boolean // Reset all theme style overrides to defaults
 }
 
 /** Context passed to theme subcommands. */
@@ -75,7 +75,7 @@ export async function themeCommand(
 			)
 			process.exit(1)
 		}
-		await resetAllThemeVarOverrides(themeName, ctx)
+		await resetAllThemeStyleOverrides(themeName, ctx)
 		return
 	}
 
@@ -89,18 +89,21 @@ export async function themeCommand(
 			)
 			process.exit(1)
 		}
-		await resetSingleThemeVarOverride(themeName, options.reset, ctx)
+		await resetSingleThemeStyleOverride(themeName, options.reset, ctx)
 		return
 	}
 
-	if (options.var && options.var.length > 0) {
+	if (options.style && options.style.length > 0) {
 		if (!themeName) {
 			console.error(
-				formatThemeNameRequired('--var', 'resumx theme <name> --var key=value'),
+				formatThemeNameRequired(
+					'--style',
+					'resumx theme <name> --style key=value',
+				),
 			)
 			process.exit(1)
 		}
-		await setThemeVarOverrides(themeName, options.var, ctx)
+		await setThemeStyleOverrides(themeName, options.style, ctx)
 		return
 	}
 
@@ -112,34 +115,34 @@ export async function themeCommand(
 	await listAllThemes(ctx.cwd)
 }
 
-/** Reset all variable overrides for a theme. */
-async function resetAllThemeVarOverrides(
+/** Reset all style overrides for a theme. */
+async function resetAllThemeStyleOverrides(
 	themeName: string,
 	ctx: ThemeContext,
 ): Promise<void> {
 	requireTheme(themeName, ctx)
-	ctx.store.resetThemeVariables(themeName)
+	ctx.store.resetThemeStyles(themeName)
 	console.log(dedent`
-		All variable overrides cleared for ${chalk.cyan(themeName)}
+		All style overrides cleared for ${chalk.cyan(themeName)}
 
 		${chalk.dim('Theme will now use original default values.')}
 	`)
 }
 
-/** Reset a single variable override for a theme. */
-async function resetSingleThemeVarOverride(
+/** Reset a single style override for a theme. */
+async function resetSingleThemeStyleOverride(
 	themeName: string,
-	varName: string,
+	styleName: string,
 	ctx: ThemeContext,
 ): Promise<void> {
 	requireTheme(themeName, ctx)
-	const currentOverrides = ctx.store.getThemeVariables(themeName)
+	const currentOverrides = ctx.store.getThemeStyles(themeName)
 
-	// Check if the variable has an override
-	if (!currentOverrides[varName]) {
+	// Check if the style has an override
+	if (!currentOverrides[styleName]) {
 		const overrideKeys = Object.keys(currentOverrides)
 		console.error(dedent.withOptions({ alignValues: true })`
-			${chalk.red(`Error: No override found for variable '${varName}' in theme '${themeName}'.`)}
+			${chalk.red(`Error: No override found for style '${styleName}' in theme '${themeName}'.`)}
 
 			Current overrides:
 			  ${overrideKeys.length > 0 ? overrideKeys.map(k => chalk.cyan(`--${k}`)).join('\n') : chalk.dim('(none)')}
@@ -147,42 +150,42 @@ async function resetSingleThemeVarOverride(
 		process.exit(1)
 	}
 
-	// Remove the specific variable
+	// Remove the specific style
 	const updatedOverrides = { ...currentOverrides }
-	delete updatedOverrides[varName]
+	delete updatedOverrides[styleName]
 
 	if (Object.keys(updatedOverrides).length === 0) {
-		ctx.store.resetThemeVariables(themeName)
+		ctx.store.resetThemeStyles(themeName)
 	} else {
-		// Get current themeVariables and update just this theme
-		const allThemeVars = ctx.store.store.themeVariables ?? {}
-		const newStore = { ...allThemeVars, [themeName]: updatedOverrides }
+		// Get current themeStyles and update just this theme
+		const allThemeStyles = ctx.store.store.themeStyles ?? {}
+		const newStore = { ...allThemeStyles, [themeName]: updatedOverrides }
 		// Clear and re-set to replace (not merge)
-		ctx.store.resetThemeVariables(themeName)
-		ctx.store.setThemeVariables(themeName, updatedOverrides)
+		ctx.store.resetThemeStyles(themeName)
+		ctx.store.setThemeStyles(themeName, updatedOverrides)
 	}
 
 	console.log(dedent`
-		Variable override ${chalk.cyan(`--${varName}`)} cleared for ${chalk.cyan(themeName)}
+		Style override ${chalk.cyan(`--${styleName}`)} cleared for ${chalk.cyan(themeName)}
 
-		${chalk.dim('Variable will now use its original default value.')}
+		${chalk.dim('Style will now use its original default value.')}
 	`)
 }
 
-/** Set variable overrides for a theme. */
-async function setThemeVarOverrides(
+/** Set style overrides for a theme. */
+async function setThemeStyleOverrides(
 	themeName: string,
-	varFlags: string[],
+	styleFlags: string[],
 	ctx: ThemeContext,
 ): Promise<void> {
 	requireTheme(themeName, ctx)
-	const variables = parseVarFlags(varFlags)
-	ctx.store.setThemeVariables(themeName, variables)
+	const styles = parseStyleFlags(styleFlags)
+	ctx.store.setThemeStyles(themeName, styles)
 
 	console.log(dedent.withOptions({ alignValues: true })`
-		Default variable overrides saved for ${chalk.cyan(themeName)}:
+		Default style overrides saved for ${chalk.cyan(themeName)}:
 
-		  ${Object.entries(variables)
+		  ${Object.entries(styles)
 				.map(([key, value]) => `${chalk.cyan(`--${key}`)}: ${value}`)
 				.join('\n')}
 
@@ -198,7 +201,7 @@ async function showThemeInfo(
 	const theme = requireTheme(themeName, ctx)
 	const css = readFileSync(theme.path, 'utf-8')
 	const variables = parseCssVariables(css)
-	const savedOverrides = ctx.store.getThemeVariables(themeName)
+	const savedOverrides = ctx.store.getThemeStyles(themeName)
 
 	console.log(
 		chalk.bold(
@@ -227,7 +230,7 @@ async function showThemeInfo(
 	console.log('')
 	console.log(dedent`
 		Override with:
-		    ${chalk.blue(`resumx resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+		    ${chalk.blue(`resumx resume.md --style ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
 		Set default override:
 		    ${chalk.blue(`resumx theme ${themeName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}

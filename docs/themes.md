@@ -38,29 +38,29 @@ Or set it per-resume in frontmatter:
 
 ```yaml
 ---
-theme: zurich
+themes: zurich
 ---
 ```
 
-**Priority order:** CLI `--theme` > Frontmatter `theme` > Global default > `zurich`
+**Priority order:** CLI `--theme` > Frontmatter `themes` > Global default > `zurich`
 
 ## CSS Variables
 
-Override any variable to customize a theme.
+Override any style property to customize a theme.
 
 ```markdown
 ---
-theme: zurich
-variables:
+themes: zurich
+style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
   section-border: none
 ---
 ```
 
-You can also override via `--var` on the CLI or set persistent defaults with `resumx theme <name> --set`. See the [CLI Reference](/cli-reference) for details.
+You can also override via `--style` on the CLI or set persistent defaults with `resumx theme <name> --set`. See the [CLI Reference](/cli-reference) for details.
 
-**Priority**: CLI `--var` > Frontmatter > Global defaults > Theme defaults
+**Priority**: CLI `--style` > Frontmatter > Global defaults > Theme defaults
 
 ## Variable Reference
 

@@ -97,7 +97,7 @@ describe('theme command', () => {
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
-		it('shows configurable variables for a theme', async () => {
+		it('shows configurable styles for a theme', async () => {
 			writeMockTheme(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -114,7 +114,7 @@ describe('theme command', () => {
 			expect(output).toContain('section-header-color')
 		})
 
-		it('shows variables for formal theme including section-header-color', async () => {
+		it('shows styles for formal theme including section-header-color', async () => {
 			writeMockTheme(tempDir, 'formal', MOCK_FORMAL_CSS)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -129,7 +129,7 @@ describe('theme command', () => {
 			expect(output).toContain('section-header-color')
 		})
 
-		it('shows usage hint for --var flag', async () => {
+		it('shows usage hint for --style flag', async () => {
 			writeMockTheme(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -140,7 +140,7 @@ describe('theme command', () => {
 			process.cwd = originalCwd
 
 			const output = consoleOutput.join('\n')
-			expect(output).toContain('--var')
+			expect(output).toContain('--style')
 		})
 
 		it('shows error for non-existent theme', async () => {
@@ -161,7 +161,7 @@ describe('theme command', () => {
 		})
 	})
 
-	describe('setting default variables with --var', () => {
+	describe('setting default styles with --style', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
@@ -169,7 +169,7 @@ describe('theme command', () => {
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
-		it('saves variable override for a theme', async () => {
+		it('saves style override for a theme', async () => {
 			writeMockTheme(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -178,17 +178,17 @@ describe('theme command', () => {
 			await themeCommand(
 				'classic',
 				{
-					var: ['font-family=Arial'],
+					style: ['font-family=Arial'],
 				},
 				store,
 			)
 
 			process.cwd = originalCwd
 
-			expect(store.store.themeVariables?.classic?.['font-family']).toBe('Arial')
+			expect(store.store.themeStyles?.classic?.['font-family']).toBe('Arial')
 		})
 
-		it('saves multiple variable overrides', async () => {
+		it('saves multiple style overrides', async () => {
 			writeMockTheme(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -197,20 +197,20 @@ describe('theme command', () => {
 			await themeCommand(
 				'classic',
 				{
-					var: ['font-family=Arial', 'text-color=#000'],
+					style: ['font-family=Arial', 'text-color=#000'],
 				},
 				store,
 			)
 
 			process.cwd = originalCwd
 
-			expect(store.store.themeVariables?.classic).toEqual({
+			expect(store.store.themeStyles?.classic).toEqual({
 				'font-family': 'Arial',
 				'text-color': '#000',
 			})
 		})
 
-		it('shows confirmation after saving variables', async () => {
+		it('shows confirmation after saving styles', async () => {
 			writeMockTheme(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
@@ -219,7 +219,7 @@ describe('theme command', () => {
 			await themeCommand(
 				'classic',
 				{
-					var: ['font-family=Arial'],
+					style: ['font-family=Arial'],
 				},
 				store,
 			)
@@ -231,7 +231,7 @@ describe('theme command', () => {
 			expect(output).toContain('Arial')
 		})
 
-		it('shows error when setting var without theme name', async () => {
+		it('shows error when setting style without theme name', async () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 			const restoreExit = withExitThrowing()
@@ -241,7 +241,7 @@ describe('theme command', () => {
 					themeCommand(
 						undefined,
 						{
-							var: ['font-family=Arial'],
+							style: ['font-family=Arial'],
 						},
 						store,
 					),
@@ -259,9 +259,9 @@ describe('theme command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			// First, set some variables
+			// First, set some styles
 			const store = createConfigStore(globalConfigDir)
-			store.setThemeVariables('classic', {
+			store.setThemeStyles('classic', {
 				'font-family': 'Arial',
 				'text-color': '#333',
 			})
@@ -283,9 +283,9 @@ describe('theme command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			// Set a variable to the same value as its default in MOCK_CLASSIC_CSS
+			// Set a style to the same value as its default in MOCK_CLASSIC_CSS
 			const store = createConfigStore(globalConfigDir)
-			store.setThemeVariables('classic', { 'font-size': '11pt' })
+			store.setThemeStyles('classic', { 'font-size': '11pt' })
 
 			// Then view theme info
 			await themeCommand('classic', {}, store)
@@ -306,7 +306,7 @@ describe('theme command', () => {
 		})
 	})
 
-	describe('resetting variables', () => {
+	describe('resetting styles', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
@@ -315,14 +315,14 @@ describe('theme command', () => {
 		})
 
 		describe('--reset-all', () => {
-			it('clears all variable overrides for a theme', async () => {
+			it('clears all style overrides for a theme', async () => {
 				writeMockTheme(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				// First, set some variables
+				// First, set some styles
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', {
+				store.setThemeStyles('classic', {
 					'font-family': 'Arial',
 					'text-color': '#333',
 				})
@@ -338,17 +338,17 @@ describe('theme command', () => {
 
 				process.cwd = originalCwd
 
-				expect(store.store.themeVariables?.classic).toBeUndefined()
+				expect(store.store.themeStyles?.classic).toBeUndefined()
 			})
 
-			it('shows confirmation after resetting all variables', async () => {
+			it('shows confirmation after resetting all styles', async () => {
 				writeMockTheme(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				// First, set some variables
+				// First, set some styles
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeStyles('classic', { 'font-family': 'Arial' })
 
 				// Then reset them
 				await themeCommand(
@@ -395,10 +395,10 @@ describe('theme command', () => {
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				// Set variables for multiple themes
+				// Set styles for multiple themes
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', { 'font-family': 'Arial' })
-				store.setThemeVariables('formal', { 'font-family': 'Times' })
+				store.setThemeStyles('classic', { 'font-family': 'Arial' })
+				store.setThemeStyles('formal', { 'font-family': 'Times' })
 
 				// Reset only classic
 				await themeCommand(
@@ -411,22 +411,22 @@ describe('theme command', () => {
 
 				process.cwd = originalCwd
 
-				expect(store.store.themeVariables?.classic).toBeUndefined()
-				expect(store.store.themeVariables?.formal).toEqual({
+				expect(store.store.themeStyles?.classic).toBeUndefined()
+				expect(store.store.themeStyles?.formal).toEqual({
 					'font-family': 'Times',
 				})
 			})
 		})
 
-		describe('--reset <variable>', () => {
-			it('clears a specific variable override', async () => {
+		describe('--reset <style>', () => {
+			it('clears a specific style override', async () => {
 				writeMockTheme(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				// First, set multiple variables
+				// First, set multiple styles
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', {
+				store.setThemeStyles('classic', {
 					'font-family': 'Arial',
 					'text-color': '#333',
 					'base-font-size': '12pt',
@@ -443,20 +443,20 @@ describe('theme command', () => {
 
 				process.cwd = originalCwd
 
-				expect(store.store.themeVariables?.classic).toEqual({
+				expect(store.store.themeStyles?.classic).toEqual({
 					'text-color': '#333',
 					'base-font-size': '12pt',
 				})
 			})
 
-			it('removes theme entry when resetting the last variable', async () => {
+			it('removes theme entry when resetting the last style', async () => {
 				writeMockTheme(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				// Set only one variable
+				// Set only one style
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeStyles('classic', { 'font-family': 'Arial' })
 
 				// Reset it
 				await themeCommand(
@@ -469,7 +469,7 @@ describe('theme command', () => {
 
 				process.cwd = originalCwd
 
-				expect(store.store.themeVariables?.classic).toBeUndefined()
+				expect(store.store.themeStyles?.classic).toBeUndefined()
 			})
 
 			it('shows error when resetting non-existent override', async () => {
@@ -479,7 +479,7 @@ describe('theme command', () => {
 				const restoreExit = withExitThrowing()
 				try {
 					const store = createConfigStore(globalConfigDir)
-					store.setThemeVariables('classic', { 'font-family': 'Arial' })
+					store.setThemeStyles('classic', { 'font-family': 'Arial' })
 					await expect(
 						themeCommand(
 							'classic',
@@ -498,13 +498,13 @@ describe('theme command', () => {
 				}
 			})
 
-			it('shows confirmation after resetting specific variable', async () => {
+			it('shows confirmation after resetting specific style', async () => {
 				writeMockTheme(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
 				const store = createConfigStore(globalConfigDir)
-				store.setThemeVariables('classic', {
+				store.setThemeStyles('classic', {
 					'font-family': 'Arial',
 					'text-color': '#333',
 				})

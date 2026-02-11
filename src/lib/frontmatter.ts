@@ -7,11 +7,11 @@ const VALID_FORMATS = ['pdf', 'html', 'docx', 'png'] as const
 export type OutputFormat = (typeof VALID_FORMATS)[number]
 
 export interface FrontmatterConfig {
-	theme?: string[]
+	themes?: string[]
 	outputName?: string
 	outputDir?: string
 	formats?: OutputFormat[]
-	variables?: Record<string, string>
+	style?: Record<string, string>
 	roles?: string[]
 }
 
@@ -23,11 +23,11 @@ export interface ParseResult {
 
 // Known frontmatter fields
 const KNOWN_FIELDS = [
-	'theme',
+	'themes',
 	'outputName',
 	'outputDir',
 	'formats',
-	'variables',
+	'style',
 	'roles',
 ]
 
@@ -65,23 +65,23 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		}
 	}
 
-	// Validate theme (accepts string or array of strings)
-	if (data['theme'] !== undefined) {
+	// Validate themes (accepts string or array of strings)
+	if (data['themes'] !== undefined) {
 		// Normalize string to single-element array
 		const themeValue =
-			typeof data['theme'] === 'string' ? [data['theme']] : data['theme']
+			typeof data['themes'] === 'string' ? [data['themes']] : data['themes']
 
 		if (!Array.isArray(themeValue)) {
-			throw new Error("'theme' must be a string or an array of strings")
+			throw new Error("'themes' must be a string or an array of strings")
 		}
 
 		for (const theme of themeValue as unknown[]) {
 			if (typeof theme !== 'string') {
-				throw new Error("'theme' must contain only strings")
+				throw new Error("'themes' must contain only strings")
 			}
 		}
 
-		config.theme = themeValue as string[]
+		config.themes = themeValue as string[]
 	}
 
 	// Validate outputName
@@ -120,20 +120,20 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		config.formats = data['formats'] as OutputFormat[]
 	}
 
-	// Validate variables (null means declared but empty — treat as no variables)
-	if (data['variables'] !== undefined && data['variables'] !== null) {
-		if (typeof data['variables'] !== 'object') {
-			throw new Error("'variables' must be an object")
+	// Validate style (null means declared but empty — treat as no styles)
+	if (data['style'] !== undefined && data['style'] !== null) {
+		if (typeof data['style'] !== 'object') {
+			throw new Error("'style' must be an object")
 		}
 
-		const vars = data['variables'] as Record<string, unknown>
-		for (const [key, value] of Object.entries(vars)) {
+		const styles = data['style'] as Record<string, unknown>
+		for (const [key, value] of Object.entries(styles)) {
 			if (typeof value !== 'string') {
-				throw new Error(`variable '${key}' must be a string`)
+				throw new Error(`style '${key}' must be a string`)
 			}
 		}
 
-		config.variables = vars as Record<string, string>
+		config.style = styles as Record<string, string>
 	}
 
 	// Validate roles

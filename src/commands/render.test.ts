@@ -524,7 +524,7 @@ describe('render command', () => {
 		it('applies global theme variables to HTML output', async () => {
 			// Set up global theme variables for classic theme
 			const store = createConfigStore(globalConfigDir)
-			store.setThemeVariables('classic', {
+			store.setThemeStyles('classic', {
 				'font-family': 'TestFont, sans-serif',
 			})
 
@@ -540,7 +540,7 @@ describe('render command', () => {
 				'sample.md',
 				{
 					format: ['html'],
-					theme: ['classic'], // Explicitly use classic to match the themeVariables
+					theme: ['classic'], // Explicitly use classic to match the themeStyles
 				},
 				store,
 			)
@@ -556,10 +556,10 @@ describe('render command', () => {
 			expect(htmlContent).toContain('--font-family: TestFont, sans-serif')
 		})
 
-		it('CLI --var overrides global theme variables', async () => {
+		it('CLI --style overrides global theme variables', async () => {
 			// Set up global theme variables for classic theme
 			const store = createConfigStore(globalConfigDir)
-			store.setThemeVariables('classic', { 'font-family': 'GlobalFont, serif' })
+			store.setThemeStyles('classic', { 'font-family': 'GlobalFont, serif' })
 
 			const { renderCommand } = await import('./render.js')
 
@@ -568,13 +568,13 @@ describe('render command', () => {
 			process.cwd = () => tempDir
 			process.exit = (() => {}) as typeof process.exit
 
-			// CLI --var should override global theme variables
+			// CLI --style should override global theme variables
 			await renderCommand(
 				'sample.md',
 				{
 					format: ['html'],
-					theme: ['classic'], // Explicitly use classic to match the themeVariables
-					var: ['font-family=CLIFont, monospace'],
+					theme: ['classic'], // Explicitly use classic to match the themeStyles
+					style: ['font-family=CLIFont, monospace'],
 				},
 				store,
 			)
@@ -594,7 +594,7 @@ describe('render command', () => {
 	describe('frontmatter configuration', () => {
 		it('uses theme from YAML frontmatter', async () => {
 			const mdContent = `---
-theme: formal
+themes: formal
 ---
 # Test Person
 
@@ -673,9 +673,9 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume.docx'))).toBe(false)
 		})
 
-		it('applies variables from frontmatter to CSS', async () => {
+		it('applies style from frontmatter to CSS', async () => {
 			const mdContent = `---
-variables:
+style:
   font-family: "FrontmatterFont, serif"
 ---
 # Test Person
@@ -694,7 +694,7 @@ Test content`
 		it('CLI flags override frontmatter values', async () => {
 			const mdContent = `---
 outputName: frontmatter-name
-theme: modern
+themes: modern
 ---
 # Test Person
 
@@ -727,7 +727,7 @@ Test content`
 
 		it('frontmatter is stripped from HTML output', async () => {
 			const mdContent = `---
-theme: formal
+themes: formal
 outputName: test
 ---
 # Test Person
@@ -742,7 +742,7 @@ Test content`
 			const htmlContent = readFileSync(join(tempDir, 'test.html'), 'utf-8')
 
 			// Frontmatter should not appear in output
-			expect(htmlContent).not.toContain('theme: formal')
+			expect(htmlContent).not.toContain('themes: formal')
 			expect(htmlContent).not.toContain('outputName: test')
 			// But content should be present
 			expect(htmlContent).toContain('Test Person')
@@ -750,7 +750,7 @@ Test content`
 
 		it('parses TOML frontmatter', async () => {
 			const mdContent = `+++
-theme = "formal"
+themes = "formal"
 outputName = "toml-output"
 +++
 # Test Person
@@ -782,9 +782,9 @@ Test content`
 			expect(existsSync(join(tempDir, 'build/output/combined.html'))).toBe(true)
 		})
 
-		it('CLI --var overrides frontmatter variables', async () => {
+		it('CLI --style overrides frontmatter style', async () => {
 			const mdContent = `---
-variables:
+style:
   font-family: "FrontmatterFont, serif"
 ---
 # Test Person
@@ -799,7 +799,7 @@ Test content`
 					'resume.md',
 					'--format',
 					'html',
-					'--var',
+					'--style',
 					'font-family=CLIFont, sans',
 				],
 				{

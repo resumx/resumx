@@ -16,14 +16,14 @@ If no file is specified, defaults to `resume.md`.
 
 ### Options
 
-| Flag                  | Description                                                                  |
-| --------------------- | ---------------------------------------------------------------------------- |
-| `-t, --theme <name>`  | Theme(s) to use. Repeatable, comma-separated.                                |
-| `-o, --output <name>` | Output filename (without extension) or directory path.                       |
-| `-f, --format <name>` | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated. |
-| `--var <name=value>`  | Override a CSS variable. Repeatable.                                         |
-| `--role <name>`       | Generate for specific role(s) only. Repeatable, comma-separated.             |
-| `-w, --watch`         | Watch for changes and auto-rebuild.                                          |
+| Flag                       | Description                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `-t, --theme <name>`       | Theme(s) to use. Repeatable, comma-separated.                                |
+| `-o, --output <name>`      | Output filename (without extension) or directory path.                       |
+| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated. |
+| `-s, --style <name=value>` | Override style property. Repeatable.                                         |
+| `--role <name>`            | Generate for specific role(s) only. Repeatable, comma-separated.             |
+| `-w, --watch`              | Watch for changes and auto-rebuild.                                          |
 
 ### Examples
 
@@ -40,8 +40,8 @@ resumx resume.md --theme zurich,oxford,seattle
 # Custom output name
 resumx resume.md --output John_Doe_Resume
 
-# Override CSS variables
-resumx resume.md --var font-family="Inter, sans-serif" --var accent-color="#2563eb"
+# Override style properties
+resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#2563eb"
 
 # Multiple formats
 resumx resume.md --format pdf,html,docx
@@ -138,12 +138,12 @@ Shows the theme's CSS variables and their current values.
 resumx theme --default zurich
 ```
 
-| Flag                     | Description                                              |
-| ------------------------ | -------------------------------------------------------- |
-| `-d, --default <name>`   | Set the global default theme.                            |
-| `--set <name=value>`     | Set a default variable override for a theme. Repeatable. |
-| `-r, --reset <variable>` | Reset a specific theme variable to its default.          |
-| `--reset-all`            | Reset all theme variable overrides.                      |
+| Flag                   | Description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| `-d, --default <name>` | Set the global default theme.                         |
+| `--set <name=value>`   | Set a default style override for a theme. Repeatable. |
+| `-r, --reset <name>`   | Reset a specific theme style to its default.          |
+| `--reset-all`          | Reset all theme style overrides.                      |
 
 ### Examples
 
@@ -151,11 +151,11 @@ resumx theme --default zurich
 # Set global default
 resumx theme --default zurich
 
-# Set persistent variable overrides
+# Set persistent style overrides
 resumx theme zurich --set font-family="Inter, sans-serif"
 resumx theme zurich --set accent-color="#2563eb"
 
-# Reset a variable
+# Reset a style
 resumx theme zurich --reset font-family
 
 # Reset all overrides
@@ -205,12 +205,12 @@ All CLI options can be set in the resume's YAML frontmatter:
 
 ```yaml
 ---
-theme: zurich # Theme name(s)
+themes: zurich # Theme name(s)
 outputName: John_Doe_Resume # Output filename (no extension)
 outputDir: ./dist # Output directory
 formats: [pdf, html] # Output formats (pdf, html, docx, png)
 roles: [frontend, backend] # Roles to generate
-variables: # CSS variable overrides
+style: # Style property overrides
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
 ---
@@ -220,11 +220,11 @@ TOML frontmatter (`+++` delimited) is also supported:
 
 ```toml
 +++
-theme = "zurich"
+themes = "zurich"
 outputName = "John_Doe_Resume"
 formats = ["pdf", "html"]
 
-[variables]
+[style]
 font-family = "Inter, sans-serif"
 accent-color = "#2563eb"
 +++
@@ -237,7 +237,7 @@ Global settings are stored in `~/.config/resumx/config.json`:
 ```json
 {
 	"defaultTheme": "zurich",
-	"themeVariables": {
+	"themeStyles": {
 		"zurich": {
 			"font-family": "Inter, sans-serif"
 		}

@@ -39,7 +39,7 @@ Choose one or more built-in themes in your frontmatter. Your content stays the s
 
 ```markdown
 ---
-theme: [zurich, oxford, seattle]
+themes: [zurich, oxford, seattle]
 ---
 
 # Jane Doe
@@ -55,12 +55,12 @@ Most resumes look great with just steps 1 and 2. The following steps are optiona
 
 ## 3. Fine-tune the Design
 
-Need to adjust a font, color, or spacing? Override a variable.
+Need to adjust a font, color, or spacing? Override a style property.
 
 ```markdown
 ---
-theme: zurich
-variables:
+themes: zurich
+style:
   font-family: 'Inter, sans-serif'
   font-size: 10pt
   page-margin-x: 0.4in

@@ -7,7 +7,7 @@ import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
 import { resolveTheme } from '../lib/themes.js'
 import { config, type ConfigStore } from '../lib/config.js'
-import { parseVarFlags } from './utils/var-flags.js'
+import { parseStyleFlags } from './utils/style-flags.js'
 import { mergeVariables } from '../lib/themes.js'
 import {
 	renderMultiple,
@@ -44,7 +44,7 @@ function resolveThemes(
 export interface RenderCommandOptions {
 	theme?: string[]
 	output?: string
-	var?: string[]
+	style?: string[]
 	role?: string[]
 	format?: string[]
 	watch?: boolean
@@ -195,7 +195,7 @@ async function runRender(
 	// Resolve themes (CLI > Frontmatter > Global default)
 	const themeNames = resolveThemes(
 		options.theme,
-		fmConfig?.theme,
+		fmConfig?.themes,
 		store.defaultTheme,
 	)
 
@@ -214,13 +214,13 @@ async function runRender(
 			return false
 		}
 
-		// Merge variables (CLI > Frontmatter > Global theme defaults)
-		const globalThemeVars = store.getThemeVariables(themeName)
-		const cliVars = options.var ? parseVarFlags(options.var) : undefined
+		// Merge style overrides (CLI > Frontmatter > Global theme defaults)
+		const globalThemeStyles = store.getThemeStyles(themeName)
+		const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
 		const variables = mergeVariables(
-			globalThemeVars,
-			fmConfig?.variables,
-			cliVars,
+			globalThemeStyles,
+			fmConfig?.style,
+			cliStyles,
 		)
 
 		themes.push({ name: themeName, cssPath, variables })
@@ -414,7 +414,7 @@ export async function renderCommand(
 	const { config: fmConfig } = parseFrontmatter(inputPath)
 	const themeNamesForWatch = resolveThemes(
 		options.theme,
-		fmConfig?.theme,
+		fmConfig?.themes,
 		store.defaultTheme,
 	)
 

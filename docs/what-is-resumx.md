@@ -7,9 +7,9 @@
 ```markdown
 ---
 roles: [backend, frontend, fullstack]
-theme: [zurich, oxford]
+themes: [zurich, oxford]
 formats: [pdf, docx, html]
-variables:
+style:
   font-size: 10pt
   bullet-style: circle
 ---

@@ -137,8 +137,8 @@ program
 	)
 	.option('-o, --output <name>', 'Output filename (without extension)')
 	.option(
-		'--var <name=value>',
-		'Override CSS variable (repeatable)',
+		'-s, --style <name=value>',
+		'Override style property (repeatable)',
 		collect,
 		[],
 	)
@@ -185,16 +185,16 @@ program
 	.option('-d, --default <name>', 'Set the default theme')
 	.option(
 		'--set <name=value>',
-		'Set default variable override for theme (repeatable)',
+		'Set default style override for theme (repeatable)',
 		collect,
 		[],
 	)
-	.option('-r, --reset <variable>', 'Reset specific theme variable to default')
-	.option('--reset-all', 'Reset all theme variable overrides to defaults')
+	.option('-r, --reset <variable>', 'Reset specific theme style to default')
+	.option('--reset-all', 'Reset all theme style overrides to defaults')
 	.action(async (name: string | undefined, options: ThemeCommandOptions) => {
-		// Map 'set' to 'var' for the command handler
+		// Map 'set' to 'style' for the command handler
 		if (options.set && options.set.length > 0) {
-			options.var = options.set
+			options.style = options.set
 		}
 		await themeCommand(name, options)
 	})

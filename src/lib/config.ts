@@ -10,16 +10,16 @@ import { DEFAULT_THEME } from './themes.js'
 
 export interface GlobalConfig {
 	defaultTheme?: string
-	themeVariables?: Record<string, Record<string, string>>
+	themeStyles?: Record<string, Record<string, string>>
 }
 
-type ThemeVariables = Record<string, string>
+type ThemeStyles = Record<string, string>
 
 const schema: Schema<GlobalConfig> = {
 	defaultTheme: {
 		type: 'string',
 	},
-	themeVariables: {
+	themeStyles: {
 		type: 'object',
 		additionalProperties: {
 			type: 'object',
@@ -30,7 +30,7 @@ const schema: Schema<GlobalConfig> = {
 
 const defaults: GlobalConfig = {
 	defaultTheme: DEFAULT_THEME,
-	themeVariables: {},
+	themeStyles: {},
 }
 
 export interface ConfigStore {
@@ -46,14 +46,14 @@ export interface ConfigStore {
 	/** Set default theme back to DEFAULT_THEME (explicit set; conf does not restore defaults on delete). */
 	resetDefaultTheme(): void
 
-	/** Get theme variable overrides */
-	getThemeVariables(theme: string): ThemeVariables
+	/** Get theme style overrides */
+	getThemeStyles(theme: string): ThemeStyles
 
-	/** Set theme variables (merges with existing) */
-	setThemeVariables(theme: string, vars: ThemeVariables): void
+	/** Set theme styles (merges with existing) */
+	setThemeStyles(theme: string, styles: ThemeStyles): void
 
-	/** Clear all variables for a theme */
-	resetThemeVariables(theme: string): void
+	/** Clear all styles for a theme */
+	resetThemeStyles(theme: string): void
 
 	/** Clear entire config */
 	clear(): void
@@ -95,19 +95,19 @@ export function createConfigStore(
 			conf.set('defaultTheme', DEFAULT_THEME)
 		},
 
-		getThemeVariables(theme: string): ThemeVariables {
-			return (conf.get(`themeVariables.${theme}`) as ThemeVariables) ?? {}
+		getThemeStyles(theme: string): ThemeStyles {
+			return (conf.get(`themeStyles.${theme}`) as ThemeStyles) ?? {}
 		},
 
-		setThemeVariables(theme: string, vars: ThemeVariables): void {
-			const existing = this.getThemeVariables(theme)
-			conf.set(`themeVariables.${theme}`, { ...existing, ...vars })
+		setThemeStyles(theme: string, styles: ThemeStyles): void {
+			const existing = this.getThemeStyles(theme)
+			conf.set(`themeStyles.${theme}`, { ...existing, ...styles })
 		},
 
-		resetThemeVariables(theme: string): void {
-			const all = conf.get('themeVariables') ?? {}
+		resetThemeStyles(theme: string): void {
+			const all = conf.get('themeStyles') ?? {}
 			delete all[theme]
-			conf.set('themeVariables', all)
+			conf.set('themeStyles', all)
 		},
 
 		clear(): void {
