@@ -79,18 +79,25 @@ async function renderPdf(html: string, outputPath: string): Promise<void> {
 /**
  * Render HTML to PNG using Playwright (headless Chrome/Chromium)
  * Uses browser pool for parallel rendering
- * Viewport is set to A4 width (794px) for consistent output
+ * Viewport is set to A4 width (794px) with 2x device scale for high-res output
  */
 async function renderPng(html: string, outputPath: string): Promise<void> {
 	const browser = await browserPool.acquire()
 	try {
-		const page = await browser.newPage()
+		const context = await browser.newContext({
+			viewport: { width: 794, height: 1123 },
+			deviceScaleFactor: 2,
+		})
 		try {
-			await page.setViewportSize({ width: 794, height: 1123 })
-			await page.setContent(html, { waitUntil: 'networkidle' })
-			await page.screenshot({ path: outputPath, fullPage: true })
+			const page = await context.newPage()
+			try {
+				await page.setContent(html, { waitUntil: 'networkidle' })
+				await page.screenshot({ path: outputPath, fullPage: true })
+			} finally {
+				await page.close()
+			}
 		} finally {
-			await page.close()
+			await context.close()
 		}
 	} finally {
 		browserPool.release(browser)
