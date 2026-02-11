@@ -240,6 +240,18 @@ export async function renderMultiple(
 }
 
 /**
+ * Extract name from the first H1 heading in a markdown string
+ * Returns underscore-separated name or undefined
+ * e.g. "# Jane Smith" → "Jane_Smith"
+ */
+export function extractNameFromContent(content: string): string | undefined {
+	const match = content.match(/^#\s+(.+)$/m)
+	if (!match?.[1]) return undefined
+
+	return match[1].trim().split(/\s+/).join('_')
+}
+
+/**
  * Extract name from the first H1 heading in markdown
  * Returns PascalCase name or undefined
  */

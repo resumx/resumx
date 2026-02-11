@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { resolve, dirname, relative, basename, join } from 'node:path'
 import { performance } from 'node:perf_hooks'
@@ -12,9 +12,10 @@ import { mergeVariables } from '../lib/themes.js'
 import {
 	renderMultiple,
 	getOutputName,
+	extractNameFromContent,
 	type OutputFormat,
 } from '../lib/renderer.js'
-import { parseFrontmatter } from '../lib/frontmatter.js'
+import { parseFrontmatterFromString } from '../lib/frontmatter.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { extractRoles, resolveRoles } from '../lib/roles.js'
 
@@ -174,18 +175,45 @@ function buildRenderTasks(
 }
 
 /**
+ * Read all of stdin into a string
+ */
+async function readStdin(): Promise<string> {
+	const chunks: Buffer[] = []
+	for await (const chunk of process.stdin) {
+		chunks.push(Buffer.from(chunk as Buffer))
+	}
+	return Buffer.concat(chunks).toString('utf-8')
+}
+
+/**
+ * Context for a render cycle — provides metadata the renderer can't
+ * derive from the raw content alone.
+ */
+interface RenderContext {
+	/** Display label for the log line (e.g. "resume.md" or "stdin") */
+	label: string
+	/** Fallback output name when frontmatter doesn't specify one */
+	defaultOutputName: string
+}
+
+/**
  * Run a single render cycle
  */
 async function runRender(
-	inputFile: string,
-	inputPath: string,
+	rawContent: string,
 	options: RenderCommandOptions,
 	cwd: string,
+	context: RenderContext,
 	store: ConfigStore = config,
 ): Promise<boolean> {
 	const renderStart = performance.now()
-	// Parse frontmatter from input file
-	const { config: fmConfig, content, warnings } = parseFrontmatter(inputPath)
+
+	// Parse frontmatter
+	const {
+		config: fmConfig,
+		content,
+		warnings,
+	} = parseFrontmatterFromString(rawContent)
 
 	// Display warnings for unknown frontmatter fields
 	for (const warning of warnings) {
@@ -230,13 +258,15 @@ async function runRender(
 	let baseOutputName: string
 	let baseOutputDir: string
 
+	const defaultOutputName = fmConfig?.outputName ?? context.defaultOutputName
+
 	if (options.output) {
 		// CLI -o flag takes precedence
 		const endsWithSlash = options.output.endsWith('/')
 
 		if (endsWithSlash) {
-			// Use frontmatter outputName or input filename in specified directory
-			baseOutputName = fmConfig?.outputName ?? getOutputName(inputPath)
+			// Use frontmatter outputName or fallback in specified directory
+			baseOutputName = defaultOutputName
 			baseOutputDir = resolve(cwd, options.output)
 		} else {
 			// Split path into directory and filename
@@ -263,7 +293,7 @@ async function runRender(
 		}
 	} else {
 		// No CLI -o flag: check frontmatter, then defaults
-		baseOutputName = fmConfig?.outputName ?? getOutputName(inputPath)
+		baseOutputName = defaultOutputName
 		baseOutputDir = fmConfig?.outputDir ? resolve(cwd, fmConfig.outputDir) : cwd
 	}
 
@@ -286,8 +316,7 @@ async function runRender(
 		return false
 	}
 
-	const relativeInputPath = relative(cwd, inputPath)
-	console.log(`Building resume from: ${chalk.cyan(relativeInputPath)}\n`)
+	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
 	// Build expression context from frontmatter (all properties directly accessible)
 	const expressionContext: Record<string, unknown> = {
@@ -393,25 +422,72 @@ async function runRender(
 }
 
 /**
+ * Detect whether stdin should be used as input
+ *
+ * stdin is used when:
+ * - The file argument is explicitly `-`
+ * - stdin is piped (!process.stdin.isTTY) and no explicit file argument was given
+ *   (Commander sets file to undefined when no positional arg is provided)
+ */
+function isStdinInput(file: string | undefined): boolean {
+	return file === '-' || (file === undefined && !process.stdin.isTTY)
+}
+
+/**
  * Main render command handler
  */
 export async function renderCommand(
-	inputFile: string,
+	inputFile: string | undefined,
 	options: RenderCommandOptions,
 	store: ConfigStore = config,
 ): Promise<void> {
 	const cwd = process.cwd()
 
-	// Resolve input file path
-	const inputPath = resolve(cwd, inputFile)
+	// Stdin path: read from pipe or explicit `-`
+	if (isStdinInput(inputFile)) {
+		if (options.watch) {
+			console.error(chalk.red('Error: --watch cannot be used with stdin input'))
+			process.exit(1)
+		}
+
+		const rawContent = await readStdin()
+		const nameFromContent = extractNameFromContent(rawContent)
+		const outputOverride = options.output && !options.output.endsWith('/')
+
+		if (!nameFromContent && !outputOverride) {
+			console.error(
+				chalk.red(
+					'Error: Cannot determine output filename from stdin (no h1 heading found). Use -o to specify.',
+				),
+			)
+			process.exit(1)
+		}
+
+		const context: RenderContext = {
+			label: 'stdin',
+			defaultOutputName: nameFromContent ?? '',
+		}
+		const success = await runRender(rawContent, options, cwd, context, store)
+		process.exit(success ? 0 : 1)
+	}
+
+	// File path (existing behavior)
+	const file = inputFile ?? 'resume.md'
+	const inputPath = resolve(cwd, file)
 
 	if (!existsSync(inputPath)) {
 		console.error(chalk.red(`Error: Input file not found: ${inputPath}`))
 		process.exit(1)
 	}
 
-	// Resolve watch paths (needed for both message and watcher setup)
-	const { config: fmConfig } = parseFrontmatter(inputPath)
+	const context: RenderContext = {
+		label: relative(cwd, inputPath),
+		defaultOutputName: getOutputName(inputPath),
+	}
+
+	// Read file content and resolve watch paths
+	const rawContent = readFileSync(inputPath, 'utf-8')
+	const { config: fmConfig } = parseFrontmatterFromString(rawContent)
 	const themeNamesForWatch = resolveThemes(
 		options.theme,
 		fmConfig?.themes,
@@ -444,7 +520,7 @@ export async function renderCommand(
 	}
 
 	// Run initial render
-	const success = await runRender(inputFile, inputPath, options, cwd, store)
+	const success = await runRender(rawContent, options, cwd, context, store)
 
 	if (!options.watch) {
 		process.exit(success ? 0 : 1)
@@ -468,7 +544,8 @@ export async function renderCommand(
 
 		debounceTimer = setTimeout(async () => {
 			console.log(chalk.blue('\nChange detected, rebuilding...'))
-			await runRender(inputFile, inputPath, options, cwd, store)
+			const freshContent = readFileSync(inputPath, 'utf-8')
+			await runRender(freshContent, options, cwd, context, store)
 		}, 150)
 	})
 

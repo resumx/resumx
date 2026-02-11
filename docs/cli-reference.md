@@ -14,6 +14,25 @@ resumx <file>
 
 If no file is specified, defaults to `resume.md`.
 
+### Reading from stdin
+
+Resumx can read Markdown from standard input, enabling piping from other commands:
+
+```bash
+cat resume.md | resumx                          # Auto-detects piped stdin
+cat resume.md | resumx --format html            # Stdin with options
+echo "# Quick Resume" | resumx -               # Explicit - argument
+git show HEAD~3:resume.md | resumx -o old       # Render from a past commit
+```
+
+When reading from stdin, the output filename is derived from:
+
+1. Frontmatter `outputName` (if present)
+2. The first `# H1` heading (e.g. `# Jane Smith` produces `Jane_Smith.pdf`)
+3. If neither exists, use `-o` to specify the output name
+
+`--watch` is not available with stdin input.
+
 ### Options
 
 | Flag                       | Description                                                                  |

@@ -128,7 +128,7 @@ program
 
 // Default action: render
 program
-	.argument('[file]', 'Markdown file to render', 'resume.md')
+	.argument('[file]', 'Markdown file to render (- or pipe for stdin)')
 	.option(
 		'-t, --theme <name>',
 		'Theme(s) to use (name or path, repeatable)',
@@ -155,8 +155,7 @@ program
 		[],
 	)
 	.option('-w, --watch', 'Watch for changes and rebuild')
-	.action(async (file: string, options: RenderCommandOptions) => {
-		// Don't run render if a subcommand was called
+	.action(async (file: string | undefined, options: RenderCommandOptions) => {
 		await renderCommand(file, options)
 	})
 
@@ -227,8 +226,8 @@ function collectWithCommas(value: string, previous: string[]): string[] {
 	return previous.concat(values)
 }
 
-// Show help when no arguments provided
-if (process.argv.length === 2) {
+// Show help when no arguments provided (but not when stdin is piped)
+if (process.argv.length === 2 && process.stdin.isTTY) {
 	program.help()
 }
 

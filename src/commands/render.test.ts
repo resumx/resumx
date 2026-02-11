@@ -1360,4 +1360,162 @@ Test content`
 			expect(existsSync(join(tempDir, 'sample.html'))).toBe(false)
 		})
 	})
+
+	describe('stdin input', () => {
+		const STDIN_CONTENT = `# Jane Smith
+
+> jane@example.com | 555-1234
+
+## Experience
+
+- Built things at Company A
+- Led team at Company B
+`
+
+		it('renders HTML from explicit - argument', async () => {
+			await execa('node', [CLI_PATH, '-', '--format', 'html'], {
+				cwd: tempDir,
+				input: STDIN_CONTENT,
+			})
+
+			// Output name derived from h1: Jane_Smith.html
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(true)
+		})
+
+		it('renders HTML from piped stdin (no file argument)', async () => {
+			await execa('node', [CLI_PATH, '--format', 'html'], {
+				cwd: tempDir,
+				input: STDIN_CONTENT,
+			})
+
+			// Output name derived from h1: Jane_Smith.html
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(true)
+		})
+
+		it('renders PDF from stdin', async () => {
+			await execa('node', [CLI_PATH, '-', '--format', 'pdf'], {
+				cwd: tempDir,
+				input: STDIN_CONTENT,
+			})
+
+			expect(existsSync(join(tempDir, 'Jane_Smith.pdf'))).toBe(true)
+		})
+
+		it('uses -o to override output name from stdin', async () => {
+			await execa('node', [CLI_PATH, '-', '--format', 'html', '-o', 'custom'], {
+				cwd: tempDir,
+				input: STDIN_CONTENT,
+			})
+
+			expect(existsSync(join(tempDir, 'custom.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(false)
+		})
+
+		it('uses frontmatter outputName from stdin content', async () => {
+			const contentWithFrontmatter = `---
+outputName: from-frontmatter
+---
+# Jane Smith
+
+Some content
+`
+			await execa('node', [CLI_PATH, '-', '--format', 'html'], {
+				cwd: tempDir,
+				input: contentWithFrontmatter,
+			})
+
+			expect(existsSync(join(tempDir, 'from-frontmatter.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(false)
+		})
+
+		it('applies theme from stdin frontmatter', async () => {
+			const contentWithTheme = `---
+themes: formal
+---
+# Jane Smith
+
+Some content
+`
+			await execa('node', [CLI_PATH, '-', '--format', 'html'], {
+				cwd: tempDir,
+				input: contentWithTheme,
+			})
+
+			const htmlContent = readFileSync(
+				join(tempDir, 'Jane_Smith.html'),
+				'utf-8',
+			)
+			expect(htmlContent).toContain('Palatino Linotype')
+		})
+
+		it('errors when --watch is used with stdin', async () => {
+			const result = await execa(
+				'node',
+				[CLI_PATH, '-', '--format', 'html', '--watch'],
+				{
+					cwd: tempDir,
+					input: STDIN_CONTENT,
+					reject: false,
+				},
+			)
+
+			expect(result.exitCode).toBe(1)
+			expect(result.stderr).toContain('--watch cannot be used with stdin')
+		})
+
+		it('errors when stdin has no h1 and no -o', async () => {
+			const noH1Content = `Some content without a heading
+
+- Item 1
+- Item 2
+`
+			const result = await execa('node', [CLI_PATH, '-', '--format', 'html'], {
+				cwd: tempDir,
+				input: noH1Content,
+				reject: false,
+			})
+
+			expect(result.exitCode).toBe(1)
+			expect(result.stderr).toContain('Cannot determine output filename')
+		})
+
+		it('explicit file argument takes precedence over piped stdin', async () => {
+			const result = await execa(
+				'node',
+				[CLI_PATH, 'sample.md', '--format', 'html'],
+				{
+					cwd: tempDir,
+					input: STDIN_CONTENT,
+				},
+			)
+
+			// Should use the file, not stdin — output named after the file
+			expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(false)
+			expect(result.exitCode).toBe(0)
+		})
+
+		it('renders multiple formats from stdin', async () => {
+			await execa('node', [CLI_PATH, '-', '--format', 'html,pdf'], {
+				cwd: tempDir,
+				input: STDIN_CONTENT,
+			})
+
+			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'Jane_Smith.pdf'))).toBe(true)
+		})
+
+		it('uses -o with directory path for stdin output', async () => {
+			await execa(
+				'node',
+				[CLI_PATH, '-', '--format', 'html', '-o', 'output/'],
+				{
+					cwd: tempDir,
+					input: STDIN_CONTENT,
+				},
+			)
+
+			expect(existsSync(join(tempDir, 'output/Jane_Smith.html'))).toBe(true)
+		})
+	})
 })
