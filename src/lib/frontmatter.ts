@@ -7,7 +7,7 @@ const VALID_FORMATS = ['pdf', 'html', 'docx', 'png'] as const
 export type OutputFormat = (typeof VALID_FORMATS)[number]
 
 export interface FrontmatterConfig {
-	style?: string[]
+	theme?: string[]
 	outputName?: string
 	outputDir?: string
 	formats?: OutputFormat[]
@@ -23,7 +23,7 @@ export interface ParseResult {
 
 // Known frontmatter fields
 const KNOWN_FIELDS = [
-	'style',
+	'theme',
 	'outputName',
 	'outputDir',
 	'formats',
@@ -65,23 +65,23 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		}
 	}
 
-	// Validate style (accepts string or array of strings)
-	if (data['style'] !== undefined) {
+	// Validate theme (accepts string or array of strings)
+	if (data['theme'] !== undefined) {
 		// Normalize string to single-element array
-		const styleValue =
-			typeof data['style'] === 'string' ? [data['style']] : data['style']
+		const themeValue =
+			typeof data['theme'] === 'string' ? [data['theme']] : data['theme']
 
-		if (!Array.isArray(styleValue)) {
-			throw new Error("'style' must be a string or an array of strings")
+		if (!Array.isArray(themeValue)) {
+			throw new Error("'theme' must be a string or an array of strings")
 		}
 
-		for (const style of styleValue as unknown[]) {
-			if (typeof style !== 'string') {
-				throw new Error("'style' must contain only strings")
+		for (const theme of themeValue as unknown[]) {
+			if (typeof theme !== 'string') {
+				throw new Error("'theme' must contain only strings")
 			}
 		}
 
-		config.style = styleValue as string[]
+		config.theme = themeValue as string[]
 	}
 
 	// Validate outputName

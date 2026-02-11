@@ -10,7 +10,7 @@
 	},
 	"files": [
 		"dist",
-		"styles",
+		"themes",
 		"templates"
 	],
 	"scripts": {

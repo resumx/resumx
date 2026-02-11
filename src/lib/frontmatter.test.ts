@@ -26,7 +26,7 @@ describe('frontmatter', () => {
 		describe('YAML frontmatter', () => {
 			it('parses YAML frontmatter with all fields', () => {
 				const input = `---
-style: formal
+theme: formal
 outputName: john-doe-resume
 outputDir: ./dist
 formats:
@@ -43,7 +43,7 @@ Some content here.`
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: ['formal'],
+					theme: ['formal'],
 					outputName: 'john-doe-resume',
 					outputDir: './dist',
 					formats: ['pdf', 'html'],
@@ -55,15 +55,15 @@ Some content here.`
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')
 			})
 
-			it('parses YAML frontmatter with only style', () => {
+			it('parses YAML frontmatter with only theme', () => {
 				const input = `---
-style: minimal
+theme: minimal
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: ['minimal'] })
+				expect(result.config).toEqual({ theme: ['minimal'] })
 				expect(result.content.trim()).toBe('# Resume')
 			})
 
@@ -133,7 +133,7 @@ roles:
 
 			it('parses YAML frontmatter with all fields including roles', () => {
 				const input = `---
-style: formal
+theme: formal
 roles:
   - frontend
   - fullstack
@@ -143,14 +143,14 @@ roles:
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: ['formal'],
+					theme: ['formal'],
 					roles: ['frontend', 'fullstack'],
 				})
 			})
 
-			it('parses YAML frontmatter with multiple styles', () => {
+			it('parses YAML frontmatter with multiple themes', () => {
 				const input = `---
-style:
+theme:
   - formal
   - minimal
 ---
@@ -158,14 +158,14 @@ style:
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: ['formal', 'minimal'] })
+				expect(result.config).toEqual({ theme: ['formal', 'minimal'] })
 			})
 		})
 
 		describe('TOML frontmatter', () => {
 			it('parses TOML frontmatter with all fields', () => {
 				const input = `+++
-style = "formal"
+theme = "formal"
 outputName = "john-doe-resume"
 outputDir = "./dist"
 formats = ["pdf", "html"]
@@ -181,7 +181,7 @@ Some content here.`
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.config).toEqual({
-					style: ['formal'],
+					theme: ['formal'],
 					outputName: 'john-doe-resume',
 					outputDir: './dist',
 					formats: ['pdf', 'html'],
@@ -193,26 +193,26 @@ Some content here.`
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')
 			})
 
-			it('parses TOML frontmatter with only style', () => {
+			it('parses TOML frontmatter with only theme', () => {
 				const input = `+++
-style = "minimal"
+theme = "minimal"
 +++
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: ['minimal'] })
+				expect(result.config).toEqual({ theme: ['minimal'] })
 			})
 
-			it('parses TOML frontmatter with multiple styles', () => {
+			it('parses TOML frontmatter with multiple themes', () => {
 				const input = `+++
-style = ["formal", "minimal"]
+theme = ["formal", "minimal"]
 +++
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: ['formal', 'minimal'] })
+				expect(result.config).toEqual({ theme: ['formal', 'minimal'] })
 			})
 
 			it('parses TOML frontmatter with only variables', () => {
@@ -264,7 +264,7 @@ Some content here.`
 
 			it('does not parse incomplete YAML delimiters', () => {
 				const input = `---
-style: formal
+theme: formal
 # Missing closing delimiter
 # John Doe`
 
@@ -279,27 +279,27 @@ style: formal
 		describe('stripping frontmatter', () => {
 			it('strips YAML frontmatter completely', () => {
 				const input = `---
-style: formal
+theme: formal
 ---
 # John Doe`
 
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.content).not.toContain('---')
-				expect(result.content).not.toContain('style')
+				expect(result.content).not.toContain('theme')
 				expect(result.content.trim()).toBe('# John Doe')
 			})
 
 			it('strips TOML frontmatter completely', () => {
 				const input = `+++
-style = "formal"
+theme = "formal"
 +++
 # John Doe`
 
 				const result = parseFrontmatterFromString(input)
 
 				expect(result.content).not.toContain('+++')
-				expect(result.content).not.toContain('style')
+				expect(result.content).not.toContain('theme')
 				expect(result.content.trim()).toBe('# John Doe')
 			})
 
@@ -311,7 +311,7 @@ style = "formal"
 - Job 1
 - Job 2`
 				const input = `---
-style: formal
+theme: formal
 ---
 ${content}`
 
@@ -322,39 +322,39 @@ ${content}`
 		})
 
 		describe('validation', () => {
-			it('throws on non-string/array style', () => {
+			it('throws on non-string/array theme', () => {
 				const input = `---
-style: 123
+theme: 123
 ---
 # Resume`
 
 				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'style' must be a string or an array of strings",
+					"'theme' must be a string or an array of strings",
 				)
 			})
 
-			it('throws on non-string style array element', () => {
+			it('throws on non-string theme array element', () => {
 				const input = `---
-style:
+theme:
   - formal
   - 123
 ---
 # Resume`
 
 				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'style' must contain only strings",
+					"'theme' must contain only strings",
 				)
 			})
 
-			it('normalizes string style to single-element array', () => {
+			it('normalizes string theme to single-element array', () => {
 				const input = `---
-style: formal
+theme: formal
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.style).toEqual(['formal'])
+				expect(result.config?.theme).toEqual(['formal'])
 			})
 
 			it('throws on non-string outputName', () => {
@@ -456,7 +456,7 @@ formats:
 
 			it('warns about unknown fields in frontmatter', () => {
 				const input = `---
-style: formal
+theme: formal
 unknownField: some-value
 anotherUnknown: 123
 ---
@@ -464,7 +464,7 @@ anotherUnknown: 123
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ style: ['formal'] })
+				expect(result.config).toEqual({ theme: ['formal'] })
 				expect(result.warnings).toHaveLength(2)
 				expect(result.warnings).toContain(
 					"unknown frontmatter field 'unknownField' will be ignored",
@@ -500,7 +500,7 @@ roles:
 
 			it('returns empty warnings when all fields are known', () => {
 				const input = `---
-style: formal
+theme: formal
 outputName: my-resume
 outputDir: ./dist
 formats:
@@ -519,13 +519,13 @@ variables:
 		describe('edge cases', () => {
 			it('handles frontmatter with empty values', () => {
 				const input = `---
-style: ""
+theme: ""
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.style).toEqual([''])
+				expect(result.config?.theme).toEqual([''])
 			})
 
 			it('handles frontmatter with whitespace in values', () => {
@@ -559,7 +559,7 @@ variables:
 		it('parses YAML frontmatter from file', () => {
 			const filePath = join(tempDir, 'resume.md')
 			const content = `---
-style: formal
+theme: formal
 outputName: test-resume
 ---
 # Test Person`
@@ -569,7 +569,7 @@ outputName: test-resume
 			const result = parseFrontmatter(filePath)
 
 			expect(result.config).toEqual({
-				style: ['formal'],
+				theme: ['formal'],
 				outputName: 'test-resume',
 			})
 			expect(result.content.trim()).toBe('# Test Person')
@@ -578,7 +578,7 @@ outputName: test-resume
 		it('parses TOML frontmatter from file', () => {
 			const filePath = join(tempDir, 'resume.md')
 			const content = `+++
-style = "minimal"
+theme = "minimal"
 formats = ["pdf", "html"]
 +++
 # Test Person`
@@ -588,7 +588,7 @@ formats = ["pdf", "html"]
 			const result = parseFrontmatter(filePath)
 
 			expect(result.config).toEqual({
-				style: ['minimal'],
+				theme: ['minimal'],
 				formats: ['pdf', 'html'],
 			})
 		})

@@ -2,24 +2,24 @@ import Conf from 'conf'
 import type { Schema } from 'conf'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { DEFAULT_STYLE } from './styles.js'
+import { DEFAULT_THEME } from './themes.js'
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface GlobalConfig {
-	defaultStyle?: string
-	styleVariables?: Record<string, Record<string, string>>
+	defaultTheme?: string
+	themeVariables?: Record<string, Record<string, string>>
 }
 
-type StyleVariables = Record<string, string>
+type ThemeVariables = Record<string, string>
 
 const schema: Schema<GlobalConfig> = {
-	defaultStyle: {
+	defaultTheme: {
 		type: 'string',
 	},
-	styleVariables: {
+	themeVariables: {
 		type: 'object',
 		additionalProperties: {
 			type: 'object',
@@ -29,8 +29,8 @@ const schema: Schema<GlobalConfig> = {
 }
 
 const defaults: GlobalConfig = {
-	defaultStyle: DEFAULT_STYLE,
-	styleVariables: {},
+	defaultTheme: DEFAULT_THEME,
+	themeVariables: {},
 }
 
 export interface ConfigStore {
@@ -40,20 +40,20 @@ export interface ConfigStore {
 	/** Raw config object */
 	readonly store: GlobalConfig
 
-	/** Default style name (use resetDefaultStyle to restore default) */
-	defaultStyle: string
+	/** Default theme name (use resetDefaultTheme to restore default) */
+	defaultTheme: string
 
-	/** Set default style back to DEFAULT_STYLE (explicit set; conf does not restore defaults on delete). */
-	resetDefaultStyle(): void
+	/** Set default theme back to DEFAULT_THEME (explicit set; conf does not restore defaults on delete). */
+	resetDefaultTheme(): void
 
-	/** Get style variable overrides */
-	getStyleVariables(style: string): StyleVariables
+	/** Get theme variable overrides */
+	getThemeVariables(theme: string): ThemeVariables
 
-	/** Set style variables (merges with existing) */
-	setStyleVariables(style: string, vars: StyleVariables): void
+	/** Set theme variables (merges with existing) */
+	setThemeVariables(theme: string, vars: ThemeVariables): void
 
-	/** Clear all variables for a style */
-	resetStyleVariables(style: string): void
+	/** Clear all variables for a theme */
+	resetThemeVariables(theme: string): void
 
 	/** Clear entire config */
 	clear(): void
@@ -83,31 +83,31 @@ export function createConfigStore(
 			return conf.store
 		},
 
-		get defaultStyle() {
-			return conf.get('defaultStyle') as string
+		get defaultTheme() {
+			return conf.get('defaultTheme') as string
 		},
 
-		set defaultStyle(value: string) {
-			conf.set('defaultStyle', value)
+		set defaultTheme(value: string) {
+			conf.set('defaultTheme', value)
 		},
 
-		resetDefaultStyle(): void {
-			conf.set('defaultStyle', DEFAULT_STYLE)
+		resetDefaultTheme(): void {
+			conf.set('defaultTheme', DEFAULT_THEME)
 		},
 
-		getStyleVariables(style: string): StyleVariables {
-			return (conf.get(`styleVariables.${style}`) as StyleVariables) ?? {}
+		getThemeVariables(theme: string): ThemeVariables {
+			return (conf.get(`themeVariables.${theme}`) as ThemeVariables) ?? {}
 		},
 
-		setStyleVariables(style: string, vars: StyleVariables): void {
-			const existing = this.getStyleVariables(style)
-			conf.set(`styleVariables.${style}`, { ...existing, ...vars })
+		setThemeVariables(theme: string, vars: ThemeVariables): void {
+			const existing = this.getThemeVariables(theme)
+			conf.set(`themeVariables.${theme}`, { ...existing, ...vars })
 		},
 
-		resetStyleVariables(style: string): void {
-			const all = conf.get('styleVariables') ?? {}
-			delete all[style]
-			conf.set('styleVariables', all)
+		resetThemeVariables(theme: string): void {
+			const all = conf.get('themeVariables') ?? {}
+			delete all[theme]
+			conf.set('themeVariables', all)
 		},
 
 		clear(): void {

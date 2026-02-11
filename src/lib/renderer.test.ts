@@ -14,7 +14,7 @@ import { browserPool } from './browser-pool.js'
 
 // Get project paths
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const STYLES_DIR = join(__dirname, '../../styles')
+const THEMES_DIR = join(__dirname, '../../themes')
 
 // =============================================================================
 // Test Utilities
@@ -1069,16 +1069,16 @@ Tools
 	})
 
 	// =========================================================================
-	// Integration with Bundled Styles
+	// Integration with Bundled Themes
 	// =========================================================================
 
-	describe('integration with bundled styles', () => {
-		it('renders with classic style', async () => {
+	describe('integration with bundled themes', () => {
+		it('renders with classic theme', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# John Doe\n\n> contact@example.com\n\n## Experience'
-				const classicCss = join(STYLES_DIR, 'classic.css')
+				const classicCss = join(THEMES_DIR, 'classic.css')
 
-				// Skip if styles directory doesn't exist (e.g., in CI before build)
+				// Skip if themes directory doesn't exist (e.g., in CI before build)
 				if (!existsSync(classicCss)) {
 					return
 				}
@@ -1096,10 +1096,10 @@ Tools
 			})
 		})
 
-		it('renders with formal style', async () => {
+		it('renders with formal theme', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test Person\n\nContent'
-				const formalCss = join(STYLES_DIR, 'formal.css')
+				const formalCss = join(THEMES_DIR, 'formal.css')
 
 				if (!existsSync(formalCss)) {
 					return
@@ -1118,10 +1118,10 @@ Tools
 			})
 		})
 
-		it('renders with minimal style', async () => {
+		it('renders with minimal theme', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test\n\nContent'
-				const minimalCss = join(STYLES_DIR, 'minimal.css')
+				const minimalCss = join(THEMES_DIR, 'minimal.css')
 
 				if (!existsSync(minimalCss)) {
 					return

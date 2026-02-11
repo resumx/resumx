@@ -191,15 +191,15 @@ describe('expressions', () => {
 
 			it('handles full frontmatter-like context', async () => {
 				const content = `Name: {{ outputName }}
-Style: {{ style }}
+Theme: {{ theme }}
 Color: {{ variables.primaryColor }}`
 				const result = await processExpressions(content, {
 					outputName: 'John_Doe_Resume',
-					style: 'formal',
+					theme: 'formal',
 					variables: { primaryColor: '#2563eb' },
 				})
 				expect(result).toBe(`Name: John_Doe_Resume
-Style: formal
+Theme: formal
 Color: #2563eb`)
 			})
 		})

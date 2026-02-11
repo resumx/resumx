@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  One Markdown file. Every style, role, and format.
+  One Markdown file. Every theme, role, and format.
 </p>
 
 <p align="center">
@@ -17,14 +17,14 @@
 
 ---
 
-Write your resume in Markdown. Configure roles, styles, and output formats in frontmatter. One command renders every combination.
+Write your resume in Markdown. Configure roles, themes, and output formats in frontmatter. One command renders every combination.
 
 ```markdown
 ---
 roles: [backend, frontend, fullstack]
-style: [zurich, oxford]
+themes: [zurich, oxford]
 formats: [pdf, docx, html]
-variables:
+options:
   font-size: 10pt
   bullet-style: circle
 ---
@@ -48,7 +48,7 @@ _Senior Software Engineer_
 resumx resume.md
 ```
 
-That one command produces a file for every combination of **role**, **style**, and **format** (3 roles × 2 styles × 3 formats = 18 files). The content stays the same — only the presentation changes.
+That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same — only the presentation changes.
 
 <!-- TODO: image for side-by-side of the same resume in Zurich, Oxford, and Seattle themes -->
 
@@ -68,7 +68,7 @@ Open `resume.md` in your editor and start writing. Read the full [Quick Start gu
 
 ## Features
 
-- **3 built-in themes** — Zurich, Oxford, Seattle. Switch with `--style` or in frontmatter. [Themes](docs/themes.md)
+- **3 built-in themes** — Zurich, Oxford, Seattle. Switch with `--theme` or in frontmatter. [Themes](docs/themes.md)
 - **40+ CSS variables** — Override fonts, colors, spacing without writing CSS. [Themes > Variables](docs/themes.md#css-variables)
 - **Tailwind CSS v4** — Style any element with utility classes: `[React]{.bg-blue-100 .text-blue-800 .px-2 .rounded}`. [Tailwind CSS](docs/tailwind-css.md)
 - **200,000+ icons** — Auto-icons for links, inline tech logos via `::react::` shorthand or Iconify. [Icons](docs/icons.md)
@@ -84,12 +84,12 @@ Open `resume.md` in your editor and start writing. Read the full [Quick Start gu
 | ------------------------------------- | ------------------------- |
 | `resumx [file]`                       | Render to PDF (default)   |
 | `resumx [file] --watch`               | Live preview              |
-| `resumx [file] --style zurich,oxford` | Multiple styles           |
+| `resumx [file] --theme zurich,oxford` | Multiple themes           |
 | `resumx [file] --role frontend`       | Role-specific output      |
 | `resumx [file] --all`                 | PDF + HTML + DOCX         |
 | `resumx init`                         | Create from template      |
-| `resumx eject [style]`                | Copy theme CSS locally    |
-| `resumx style`                        | List / manage styles      |
+| `resumx eject [theme]`                | Copy theme CSS locally    |
+| `resumx theme`                        | List / manage themes      |
 | `resumx validate`                     | Validate resume structure |
 
 See the full [CLI Reference](docs/cli-reference.md).

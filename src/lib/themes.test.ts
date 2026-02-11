@@ -3,16 +3,16 @@ import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
-	resolveStyle,
-	listStyles,
-	getBundledStylePath,
-	getBundledStyles,
-	getLocalStylePath,
+	resolveTheme,
+	listThemes,
+	getBundledThemePath,
+	getBundledThemes,
+	getLocalThemePath,
 	parseCssVariables,
-	DEFAULT_STYLE,
-} from './styles.js'
+	DEFAULT_THEME,
+} from './themes.js'
 
-describe('styles', () => {
+describe('themes', () => {
 	let tempDir: string
 
 	beforeEach(() => {
@@ -26,60 +26,60 @@ describe('styles', () => {
 		}
 	})
 
-	describe('getBundledStylePath', () => {
-		it('returns path for bundled styles', () => {
-			for (const style of getBundledStyles()) {
-				const path = getBundledStylePath(style)
+	describe('getBundledThemePath', () => {
+		it('returns path for bundled themes', () => {
+			for (const theme of getBundledThemes()) {
+				const path = getBundledThemePath(theme)
 				expect(path).toBeDefined()
 				expect(existsSync(path!)).toBe(true)
 			}
 		})
 
-		it('returns undefined for non-existent style', () => {
-			expect(getBundledStylePath('nonexistent')).toBeUndefined()
+		it('returns undefined for non-existent theme', () => {
+			expect(getBundledThemePath('nonexistent')).toBeUndefined()
 		})
 	})
 
-	describe('getLocalStylePath', () => {
-		it('returns undefined when no local styles exist', () => {
-			expect(getLocalStylePath('nonexistent', tempDir)).toBeUndefined()
+	describe('getLocalThemePath', () => {
+		it('returns undefined when no local themes exist', () => {
+			expect(getLocalThemePath('nonexistent', tempDir)).toBeUndefined()
 		})
 
-		it('returns path when local style exists', () => {
-			const stylesDir = join(tempDir, 'styles')
-			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, 'custom.css'), '/* custom */')
+		it('returns path when local theme exists', () => {
+			const themesDir = join(tempDir, 'themes')
+			mkdirSync(themesDir)
+			writeFileSync(join(themesDir, 'custom.css'), '/* custom */')
 
-			const path = getLocalStylePath('custom', tempDir)
+			const path = getLocalThemePath('custom', tempDir)
 			expect(path).toBeDefined()
 			expect(existsSync(path!)).toBe(true)
 		})
 	})
 
-	describe('resolveStyle', () => {
-		it('resolves bundled default style by name', () => {
+	describe('resolveTheme', () => {
+		it('resolves bundled default theme by name', () => {
 			// Callers are responsible for providing defaults; this verifies the fallback works
-			const path = resolveStyle(DEFAULT_STYLE, tempDir)
-			expect(path).toContain(DEFAULT_STYLE)
+			const path = resolveTheme(DEFAULT_THEME, tempDir)
+			expect(path).toContain(DEFAULT_THEME)
 			expect(existsSync(path)).toBe(true)
 		})
 
-		it('prefers local style over bundled', () => {
-			const bundled = getBundledStyles()[0]!
-			const stylesDir = join(tempDir, 'styles')
-			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, `${bundled}.css`), `/* local ${bundled} */`)
+		it('prefers local theme over bundled', () => {
+			const bundled = getBundledThemes()[0]!
+			const themesDir = join(tempDir, 'themes')
+			mkdirSync(themesDir)
+			writeFileSync(join(themesDir, `${bundled}.css`), `/* local ${bundled} */`)
 
-			const path = resolveStyle(bundled, tempDir)
+			const path = resolveTheme(bundled, tempDir)
 			expect(path).toContain(tempDir)
 		})
 
-		it('resolves bundled style by name', () => {
-			const bundled = getBundledStyles()
+		it('resolves bundled theme by name', () => {
+			const bundled = getBundledThemes()
 			expect(bundled.length).toBeGreaterThanOrEqual(1)
-			for (const style of bundled) {
-				const path = resolveStyle(style, tempDir)
-				expect(path).toContain(`${style}.css`)
+			for (const theme of bundled) {
+				const path = resolveTheme(theme, tempDir)
+				expect(path).toContain(`${theme}.css`)
 				expect(existsSync(path)).toBe(true)
 			}
 		})
@@ -88,7 +88,7 @@ describe('styles', () => {
 			const cssPath = join(tempDir, 'my.css')
 			writeFileSync(cssPath, '/* my css */')
 
-			const path = resolveStyle(cssPath, tempDir)
+			const path = resolveTheme(cssPath, tempDir)
 			expect(path).toBe(cssPath)
 		})
 
@@ -96,57 +96,57 @@ describe('styles', () => {
 			const cssPath = join(tempDir, 'custom.css')
 			writeFileSync(cssPath, '/* custom */')
 
-			const path = resolveStyle('./custom.css', tempDir)
+			const path = resolveTheme('./custom.css', tempDir)
 			expect(path).toBe(cssPath)
 		})
 
-		it('throws for non-existent style name', () => {
-			expect(() => resolveStyle('nonexistent', tempDir)).toThrow(
-				"Style 'nonexistent' not found",
+		it('throws for non-existent theme name', () => {
+			expect(() => resolveTheme('nonexistent', tempDir)).toThrow(
+				"Theme 'nonexistent' not found",
 			)
 		})
 
 		it('throws for non-existent path', () => {
-			expect(() => resolveStyle('./missing.css', tempDir)).toThrow(
-				'Style file not found',
+			expect(() => resolveTheme('./missing.css', tempDir)).toThrow(
+				'Theme file not found',
 			)
 		})
 	})
 
-	describe('listStyles', () => {
-		it('lists bundled styles when no local', () => {
-			const styles = listStyles(tempDir)
-			expect(styles.length).toBe(getBundledStyles().length)
-			expect(styles.every(s => s.isBundled)).toBe(true)
-			expect(styles.every(s => !s.isLocal)).toBe(true)
+	describe('listThemes', () => {
+		it('lists bundled themes when no local', () => {
+			const themes = listThemes(tempDir)
+			expect(themes.length).toBe(getBundledThemes().length)
+			expect(themes.every(s => s.isBundled)).toBe(true)
+			expect(themes.every(s => !s.isLocal)).toBe(true)
 		})
 
-		it('includes local styles', () => {
-			const stylesDir = join(tempDir, 'styles')
-			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, 'custom.css'), '/* custom */')
+		it('includes local themes', () => {
+			const themesDir = join(tempDir, 'themes')
+			mkdirSync(themesDir)
+			writeFileSync(join(themesDir, 'custom.css'), '/* custom */')
 
-			const styles = listStyles(tempDir)
-			const custom = styles.find(s => s.name === 'custom')
+			const themes = listThemes(tempDir)
+			const custom = themes.find(s => s.name === 'custom')
 			expect(custom).toBeDefined()
 			expect(custom!.isLocal).toBe(true)
 			expect(custom!.isBundled).toBe(false)
 		})
 
-		it('marks shadowed bundled styles as local', () => {
-			const bundled = getBundledStyles()[0]!
-			const stylesDir = join(tempDir, 'styles')
-			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, `${bundled}.css`), `/* local ${bundled} */`)
+		it('marks shadowed bundled themes as local', () => {
+			const bundled = getBundledThemes()[0]!
+			const themesDir = join(tempDir, 'themes')
+			mkdirSync(themesDir)
+			writeFileSync(join(themesDir, `${bundled}.css`), `/* local ${bundled} */`)
 
-			const styles = listStyles(tempDir)
-			const shadowed = styles.find(s => s.name === bundled)
+			const themes = listThemes(tempDir)
+			const shadowed = themes.find(s => s.name === bundled)
 			expect(shadowed).toBeDefined()
 			expect(shadowed!.isLocal).toBe(true)
 			expect(shadowed!.isBundled).toBe(true) // Still marked as bundled (shadowed)
 
 			// Should not have duplicate
-			const count = styles.filter(s => s.name === bundled).length
+			const count = themes.filter(s => s.name === bundled).length
 			expect(count).toBe(1)
 		})
 	})
@@ -199,12 +199,12 @@ body { color: var(--text-color); }
 			])
 		})
 
-		it.each(getBundledStyles())(
-			'parses bundled %s style without crashing',
-			style => {
-				const stylePath = getBundledStylePath(style)
-				expect(stylePath).toBeDefined()
-				const css = require('node:fs').readFileSync(stylePath!, 'utf-8')
+		it.each(getBundledThemes())(
+			'parses bundled %s theme without crashing',
+			theme => {
+				const themePath = getBundledThemePath(theme)
+				expect(themePath).toBeDefined()
+				const css = require('node:fs').readFileSync(themePath!, 'utf-8')
 				const vars = parseCssVariables(css)
 
 				// Structural: every returned variable has a valid shape

@@ -18,7 +18,7 @@ const CLI_PATH = join(__dirname, '../../dist/index.js')
 const FIXTURE_PATH = join(__dirname, '../../tests/fixtures/sample.md')
 
 // =============================================================================
-// Mock style helpers — isolate tests from bundled style names
+// Mock theme helpers — isolate tests from bundled theme names
 // =============================================================================
 
 const MOCK_FORMAL_CSS = `
@@ -42,11 +42,11 @@ const MOCK_CLASSIC_CSS = `
 }
 `
 
-/** Write a mock CSS file into tempDir/styles/ so the CLI resolves it as a local style. */
-function writeMockStyle(dir: string, name: string, css: string) {
-	const stylesDir = join(dir, 'styles')
-	mkdirSync(stylesDir, { recursive: true })
-	writeFileSync(join(stylesDir, `${name}.css`), css)
+/** Write a mock CSS file into tempDir/themes/ so the CLI resolves it as a local theme. */
+function writeMockTheme(dir: string, name: string, css: string) {
+	const themesDir = join(dir, 'themes')
+	mkdirSync(themesDir, { recursive: true })
+	writeFileSync(join(themesDir, `${name}.css`), css)
 }
 
 describe('render command', () => {
@@ -81,7 +81,7 @@ describe('render command', () => {
 	 * - Works with --all flag: all formats get correct extensions
 	 *
 	 * Other:
-	 * - Style selection
+	 * - Theme selection
 	 * - Error handling
 	 * - Input filename priority over H1 heading
 	 * - Argument validation
@@ -93,10 +93,10 @@ describe('render command', () => {
 		// Copy fixture to temp dir
 		copyFileSync(FIXTURE_PATH, join(tempDir, 'sample.md'))
 
-		// Write mock styles so tests don't depend on bundled style names
-		writeMockStyle(tempDir, 'formal', MOCK_FORMAL_CSS)
-		writeMockStyle(tempDir, 'modern', MOCK_MODERN_CSS)
-		writeMockStyle(tempDir, 'classic', MOCK_CLASSIC_CSS)
+		// Write mock themes so tests don't depend on bundled theme names
+		writeMockTheme(tempDir, 'formal', MOCK_FORMAL_CSS)
+		writeMockTheme(tempDir, 'modern', MOCK_MODERN_CSS)
+		writeMockTheme(tempDir, 'classic', MOCK_CLASSIC_CSS)
 
 		// Set test config directory to avoid using global config
 		process.env.RESUM8_CONFIG_DIR = join(tempDir, '.config', 'resum8')
@@ -268,10 +268,10 @@ describe('render command', () => {
 		expect(existsSync(join(tempDir, 'build/result.html'))).toBe(true)
 	})
 
-	it('uses specified style', async () => {
+	it('uses specified theme', async () => {
 		await execa(
 			'node',
-			[CLI_PATH, 'sample.md', '--html', '--style', 'formal'],
+			[CLI_PATH, 'sample.md', '--html', '--theme', 'formal'],
 			{ cwd: tempDir },
 		)
 
@@ -445,7 +445,7 @@ describe('render command', () => {
 		it('errors on extra positional argument with options', async () => {
 			const result = await execa(
 				'node',
-				[CLI_PATH, 'sample.md', '-s', 'modern', 'extra.pdf'],
+				[CLI_PATH, 'sample.md', '-t', 'modern', 'extra.pdf'],
 				{
 					cwd: tempDir,
 					reject: false,
@@ -485,7 +485,7 @@ describe('render command', () => {
 		})
 	})
 
-	describe('global style variable overrides', () => {
+	describe('global theme variable overrides', () => {
 		let globalConfigDir: string
 
 		beforeEach(() => {
@@ -493,14 +493,14 @@ describe('render command', () => {
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
-		it('applies global style variables to HTML output', async () => {
-			// Set up global style variables for classic style
+		it('applies global theme variables to HTML output', async () => {
+			// Set up global theme variables for classic theme
 			const store = createConfigStore(globalConfigDir)
-			store.setStyleVariables('classic', {
+			store.setThemeVariables('classic', {
 				'font-family': 'TestFont, sans-serif',
 			})
 
-			// Render using classic style with the test config directory
+			// Render using classic theme with the test config directory
 			const { renderCommand } = await import('./render.js')
 
 			const originalCwd = process.cwd
@@ -512,7 +512,7 @@ describe('render command', () => {
 				'sample.md',
 				{
 					html: true,
-					style: ['classic'], // Explicitly use classic to match the styleVariables
+					theme: ['classic'], // Explicitly use classic to match the themeVariables
 				},
 				store,
 			)
@@ -528,10 +528,10 @@ describe('render command', () => {
 			expect(htmlContent).toContain('--font-family: TestFont, sans-serif')
 		})
 
-		it('CLI --var overrides global style variables', async () => {
-			// Set up global style variables for classic style
+		it('CLI --var overrides global theme variables', async () => {
+			// Set up global theme variables for classic theme
 			const store = createConfigStore(globalConfigDir)
-			store.setStyleVariables('classic', { 'font-family': 'GlobalFont, serif' })
+			store.setThemeVariables('classic', { 'font-family': 'GlobalFont, serif' })
 
 			const { renderCommand } = await import('./render.js')
 
@@ -540,12 +540,12 @@ describe('render command', () => {
 			process.cwd = () => tempDir
 			process.exit = (() => {}) as typeof process.exit
 
-			// CLI --var should override global style variables
+			// CLI --var should override global theme variables
 			await renderCommand(
 				'sample.md',
 				{
 					html: true,
-					style: ['classic'], // Explicitly use classic to match the styleVariables
+					theme: ['classic'], // Explicitly use classic to match the themeVariables
 					var: ['font-family=CLIFont, monospace'],
 				},
 				store,
@@ -564,25 +564,25 @@ describe('render command', () => {
 	})
 
 	describe('frontmatter configuration', () => {
-		it('uses style from YAML frontmatter', async () => {
+		it('uses theme from YAML frontmatter', async () => {
 			const mdContent = `---
-style: formal
+theme: formal
 ---
 # Test Person
 
 Test content`
-			writeFileSync(join(tempDir, 'with-style.md'), mdContent)
+			writeFileSync(join(tempDir, 'with-theme.md'), mdContent)
 
-			await runCLI(['with-style.md', '--html'], {
+			await runCLI(['with-theme.md', '--html'], {
 				cwd: tempDir,
 			})
 
-			// Should render successfully with formal style
+			// Should render successfully with formal theme
 			const htmlContent = readFileSync(
-				join(tempDir, 'with-style.html'),
+				join(tempDir, 'with-theme.html'),
 				'utf-8',
 			)
-			// Verify formal style font is applied (Palatino Linotype is distinctive to formal)
+			// Verify formal theme font is applied (Palatino Linotype is distinctive to formal)
 			expect(htmlContent).toContain('Palatino Linotype')
 		})
 
@@ -666,7 +666,7 @@ Test content`
 		it('CLI flags override frontmatter values', async () => {
 			const mdContent = `---
 outputName: frontmatter-name
-style: modern
+theme: modern
 ---
 # Test Person
 
@@ -676,7 +676,7 @@ Test content`
 			// CLI -o should override frontmatter outputName
 			await execa(
 				'node',
-				[CLI_PATH, 'resume.md', '--html', '-o', 'cli-name', '-s', 'formal'],
+				[CLI_PATH, 'resume.md', '--html', '-o', 'cli-name', '-t', 'formal'],
 				{
 					cwd: tempDir,
 				},
@@ -690,7 +690,7 @@ Test content`
 
 		it('frontmatter is stripped from HTML output', async () => {
 			const mdContent = `---
-style: formal
+theme: formal
 outputName: test
 ---
 # Test Person
@@ -705,7 +705,7 @@ Test content`
 			const htmlContent = readFileSync(join(tempDir, 'test.html'), 'utf-8')
 
 			// Frontmatter should not appear in output
-			expect(htmlContent).not.toContain('style: formal')
+			expect(htmlContent).not.toContain('theme: formal')
 			expect(htmlContent).not.toContain('outputName: test')
 			// But content should be present
 			expect(htmlContent).toContain('Test Person')
@@ -713,7 +713,7 @@ Test content`
 
 		it('parses TOML frontmatter', async () => {
 			const mdContent = `+++
-style = "formal"
+theme = "formal"
 outputName = "toml-output"
 +++
 # Test Person
@@ -1019,32 +1019,32 @@ roles:
 		})
 	})
 
-	describe('multi-style rendering', () => {
-		it('generates multiple style variants with style suffix', async () => {
-			// multi-style, no roles → resume-formal.html, resume-modern.html
-			await runCLI(['sample.md', '--html', '--style', 'formal,modern'], {
+	describe('multi-theme rendering', () => {
+		it('generates multiple theme variants with theme suffix', async () => {
+			// multi-theme, no roles → resume-formal.html, resume-modern.html
+			await runCLI(['sample.md', '--html', '--theme', 'formal,modern'], {
 				cwd: tempDir,
 			})
 
-			// Should generate both style variants
+			// Should generate both theme variants
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'sample-modern.html'))).toBe(true)
 
-			// Verify each uses the correct style
+			// Verify each uses the correct theme
 			const formalHtml = readFileSync(
 				join(tempDir, 'sample-formal.html'),
 				'utf-8',
 			)
-			expect(formalHtml).toContain('Palatino Linotype') // formal style font
+			expect(formalHtml).toContain('Palatino Linotype') // formal theme font
 
 			const modernHtml = readFileSync(
 				join(tempDir, 'sample-modern.html'),
 				'utf-8',
 			)
-			expect(modernHtml).toContain('Helvetica Neue') // modern style font
+			expect(modernHtml).toContain('Helvetica Neue') // modern theme font
 		})
 
-		it('generates role folders with style suffix for multi-style + roles', async () => {
+		it('generates role folders with theme suffix for multi-theme + roles', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -1053,12 +1053,12 @@ roles:
 - Node.js {.role:backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			// multi-style + roles → frontend/resume-formal.html, frontend/resume-modern.html, etc.
+			// multi-theme + roles → frontend/resume-formal.html, frontend/resume-modern.html, etc.
 			await runCLI(
 				[
 					'resume.md',
 					'--html',
-					'--style',
+					'--theme',
 					'formal,modern',
 					'--role',
 					'frontend,backend',
@@ -1068,7 +1068,7 @@ roles:
 				},
 			)
 
-			// Should generate role folders with style-suffixed files
+			// Should generate role folders with theme-suffixed files
 			expect(existsSync(join(tempDir, 'frontend/resume-formal.html'))).toBe(
 				true,
 			)
@@ -1085,7 +1085,7 @@ roles:
 			)
 			expect(frontendFormalHtml).toContain('React')
 			expect(frontendFormalHtml).not.toContain('Node.js')
-			expect(frontendFormalHtml).toContain('Palatino Linotype') // formal style
+			expect(frontendFormalHtml).toContain('Palatino Linotype') // formal theme
 
 			// Verify content filtering in backend variant
 			const backendModernHtml = readFileSync(
@@ -1094,11 +1094,11 @@ roles:
 			)
 			expect(backendModernHtml).toContain('Node.js')
 			expect(backendModernHtml).not.toContain('React')
-			expect(backendModernHtml).toContain('Helvetica Neue') // modern style
+			expect(backendModernHtml).toContain('Helvetica Neue') // modern theme
 		})
 
-		it('single style with no roles produces no suffix', async () => {
-			await runCLI(['sample.md', '--html', '--style', 'formal'], {
+		it('single theme with no roles produces no suffix', async () => {
+			await runCLI(['sample.md', '--html', '--theme', 'formal'], {
 				cwd: tempDir,
 			})
 
@@ -1107,7 +1107,7 @@ roles:
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(false)
 		})
 
-		it('single style with roles produces role suffix only', async () => {
+		it('single theme with roles produces role suffix only', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -1117,13 +1117,13 @@ roles:
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await runCLI(
-				['resume.md', '--html', '--style', 'formal', '--role', 'frontend'],
+				['resume.md', '--html', '--theme', 'formal', '--role', 'frontend'],
 				{
 					cwd: tempDir,
 				},
 			)
 
-			// Should generate file with role suffix, no style suffix
+			// Should generate file with role suffix, no theme suffix
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-formal.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-frontend-formal.html'))).toBe(
@@ -1131,15 +1131,15 @@ roles:
 			)
 		})
 
-		it('supports repeated --style flags', async () => {
+		it('supports repeated --theme flags', async () => {
 			await runCLI(
-				['sample.md', '--html', '--style', 'formal', '--style', 'modern'],
+				['sample.md', '--html', '--theme', 'formal', '--theme', 'modern'],
 				{
 					cwd: tempDir,
 				},
 			)
 
-			// Should generate both style variants
+			// Should generate both theme variants
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'sample-modern.html'))).toBe(true)
 		})

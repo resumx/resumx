@@ -35,11 +35,11 @@ This generates `resume-frontend.pdf` and `resume-backend.pdf` — each with the 
 
 ## 2. Pick a Theme
 
-Choose one or more built-in styles in your frontmatter. Your content stays the same — only the presentation changes. Resumx generates a separate PDF for each style.
+Choose one or more built-in themes in your frontmatter. Your content stays the same — only the presentation changes. Resumx generates a separate PDF for each theme.
 
 ```markdown
 ---
-style: [zurich, oxford, seattle]
+theme: [zurich, oxford, seattle]
 ---
 
 # Jane Doe
@@ -59,7 +59,7 @@ Need to adjust a font, color, or spacing? Override a variable.
 
 ```markdown
 ---
-style: zurich
+theme: zurich
 variables:
   font-family: 'Inter, sans-serif'
   font-size: 10pt
@@ -93,10 +93,10 @@ For broader changes, add a `<style>` block directly in your Markdown:
 
 ## 5. Eject and Fully Customize
 
-When you need complete control — or want different styling per theme — eject a built-in style and edit the CSS directly:
+When you need complete control — or want different styling per theme — eject a built-in theme and edit the CSS directly:
 
 ```bash
-resumx eject zurich    # Creates ./styles/zurich.css
+resumx eject zurich    # Creates ./themes/zurich.css
 ```
 
 The ejected file is yours to modify. You can also create entirely new themes from scratch.

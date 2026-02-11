@@ -5,10 +5,10 @@ import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { resolveStyle } from '../lib/styles.js'
+import { resolveTheme } from '../lib/themes.js'
 import { config, type ConfigStore } from '../lib/config.js'
 import { parseVarFlags } from './utils/var-flags.js'
-import { mergeVariables } from '../lib/styles.js'
+import { mergeVariables } from '../lib/themes.js'
 import {
 	renderMultiple,
 	getOutputName,
@@ -19,30 +19,30 @@ import { renderMarkdown } from '../lib/markdown.js'
 import { extractRoles, resolveRoles } from '../lib/roles.js'
 
 /**
- * Resolve which styles to use (CLI > Frontmatter > Global default)
- * Returns array of style names
+ * Resolve which themes to use (CLI > Frontmatter > Global default)
+ * Returns array of theme names
  */
-function resolveStyles(
-	cliStyles: string[] | undefined,
-	frontmatterStyles: string[] | undefined,
-	defaultStyle: string,
+function resolveThemes(
+	cliThemes: string[] | undefined,
+	frontmatterThemes: string[] | undefined,
+	defaultTheme: string,
 ): string[] {
 	// CLI takes precedence
-	if (cliStyles && cliStyles.length > 0) {
-		return cliStyles
+	if (cliThemes && cliThemes.length > 0) {
+		return cliThemes
 	}
 
-	// Frontmatter styles
-	if (frontmatterStyles && frontmatterStyles.length > 0) {
-		return frontmatterStyles
+	// Frontmatter themes
+	if (frontmatterThemes && frontmatterThemes.length > 0) {
+		return frontmatterThemes
 	}
 
 	// Global default
-	return [defaultStyle]
+	return [defaultTheme]
 }
 
 export interface RenderCommandOptions {
-	style?: string[]
+	theme?: string[]
 	output?: string
 	var?: string[]
 	role?: string[]
@@ -104,10 +104,10 @@ function formatDuration(ms: number): string {
 }
 
 /**
- * Render task representing a single (style, role) combination
+ * Render task representing a single (theme, role) combination
  */
 interface RenderTask {
-	styleName: string
+	themeName: string
 	cssPath: string
 	variables: Record<string, string>
 	outputDir: string
@@ -117,16 +117,16 @@ interface RenderTask {
 }
 
 /**
- * Build render tasks for all style × role combinations
+ * Build render tasks for all theme × role combinations
  *
  * Output naming rules:
- * - 1 style, no roles    → resume.pdf
- * - 1 style, roles       → resume-frontend.pdf
- * - multi-style, no roles → resume-formal.pdf
- * - multi-style + roles   → frontend/resume-formal.pdf
+ * - 1 theme, no roles    → resume.pdf
+ * - 1 theme, roles       → resume-frontend.pdf
+ * - multi-theme, no roles → resume-formal.pdf
+ * - multi-theme + roles   → frontend/resume-formal.pdf
  */
 function buildRenderTasks(
-	styles: Array<{
+	themes: Array<{
 		name: string
 		cssPath: string
 		variables: Record<string, string>
@@ -136,10 +136,10 @@ function buildRenderTasks(
 	baseOutputName: string,
 ): RenderTask[] {
 	const tasks: RenderTask[] = []
-	const hasMultipleStyles = styles.length > 1
+	const hasMultipleThemes = themes.length > 1
 	const hasRoles = roles.length > 0
 
-	for (const style of styles) {
+	for (const theme of themes) {
 		const effectiveRoles = hasRoles ? roles : [undefined]
 
 		for (const role of effectiveRoles) {
@@ -147,26 +147,26 @@ function buildRenderTasks(
 			let outputName = baseOutputName
 			const labelParts: string[] = []
 
-			if (hasMultipleStyles && hasRoles && role) {
-				// multi-style + roles → frontend/resume-formal.pdf
+			if (hasMultipleThemes && hasRoles && role) {
+				// multi-theme + roles → frontend/resume-formal.pdf
 				outputDir = join(baseOutputDir, role)
-				outputName = `${baseOutputName}-${style.name}`
-				labelParts.push(`role: ${role}`, `style: ${style.name}`)
-			} else if (hasMultipleStyles) {
-				// multi-style, no roles → resume-formal.pdf
-				outputName = `${baseOutputName}-${style.name}`
-				labelParts.push(`style: ${style.name}`)
+				outputName = `${baseOutputName}-${theme.name}`
+				labelParts.push(`role: ${role}`, `theme: ${theme.name}`)
+			} else if (hasMultipleThemes) {
+				// multi-theme, no roles → resume-formal.pdf
+				outputName = `${baseOutputName}-${theme.name}`
+				labelParts.push(`theme: ${theme.name}`)
 			} else if (hasRoles && role) {
-				// 1 style, roles → resume-frontend.pdf
+				// 1 theme, roles → resume-frontend.pdf
 				outputName = `${baseOutputName}-${role}`
 				labelParts.push(`role: ${role}`)
 			}
-			// else: 1 style, no roles → resume.pdf (no suffix)
+			// else: 1 theme, no roles → resume.pdf (no suffix)
 
 			tasks.push({
-				styleName: style.name,
-				cssPath: style.cssPath,
-				variables: style.variables,
+				themeName: theme.name,
+				cssPath: theme.cssPath,
+				variables: theme.variables,
 				outputDir,
 				outputName,
 				activeRole: role,
@@ -197,38 +197,38 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve styles (CLI > Frontmatter > Global default)
-	const styleNames = resolveStyles(
-		options.style,
-		fmConfig?.style,
-		store.defaultStyle,
+	// Resolve themes (CLI > Frontmatter > Global default)
+	const themeNames = resolveThemes(
+		options.theme,
+		fmConfig?.theme,
+		store.defaultTheme,
 	)
 
-	// Resolve each style to CSS path and variables
-	const styles: Array<{
+	// Resolve each theme to CSS path and variables
+	const themes: Array<{
 		name: string
 		cssPath: string
 		variables: Record<string, string>
 	}> = []
-	for (const styleName of styleNames) {
+	for (const themeName of themeNames) {
 		let cssPath: string
 		try {
-			cssPath = resolveStyle(styleName, cwd)
+			cssPath = resolveTheme(themeName, cwd)
 		} catch (error) {
 			console.error(chalk.red(`Error: ${(error as Error).message}`))
 			return false
 		}
 
-		// Merge variables (CLI > Frontmatter > Global style defaults)
-		const globalStyleVars = store.getStyleVariables(styleName)
+		// Merge variables (CLI > Frontmatter > Global theme defaults)
+		const globalThemeVars = store.getThemeVariables(themeName)
 		const cliVars = options.var ? parseVarFlags(options.var) : undefined
 		const variables = mergeVariables(
-			globalStyleVars,
+			globalThemeVars,
 			fmConfig?.variables,
 			cliVars,
 		)
 
-		styles.push({ name: styleName, cssPath, variables })
+		themes.push({ name: themeName, cssPath, variables })
 	}
 
 	// Determine base output name and directory (CLI > Frontmatter > defaults)
@@ -326,9 +326,9 @@ async function runRender(
 		return false
 	}
 
-	// Build render tasks for all style × role combinations
+	// Build render tasks for all theme × role combinations
 	const renderTasks = buildRenderTasks(
-		styles,
+		themes,
 		rolesToGenerate,
 		baseOutputDir,
 		baseOutputName,
@@ -411,22 +411,22 @@ export async function renderCommand(
 
 	// Resolve watch paths (needed for both message and watcher setup)
 	const { config: fmConfig } = parseFrontmatter(inputPath)
-	const styleNamesForWatch = resolveStyles(
-		options.style,
-		fmConfig?.style,
-		store.defaultStyle,
+	const themeNamesForWatch = resolveThemes(
+		options.theme,
+		fmConfig?.theme,
+		store.defaultTheme,
 	)
 
-	// Collect CSS paths for all styles
+	// Collect CSS paths for all themes
 	const cssPaths: string[] = []
-	for (const styleName of styleNamesForWatch) {
+	for (const themeName of themeNamesForWatch) {
 		try {
-			const cssPath = resolveStyle(styleName, cwd)
+			const cssPath = resolveTheme(themeName, cwd)
 			if (existsSync(cssPath)) {
 				cssPaths.push(cssPath)
 			}
 		} catch {
-			// Will error during render if style not found
+			// Will error during render if theme not found
 		}
 	}
 

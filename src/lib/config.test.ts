@@ -6,8 +6,8 @@ import { createConfigStore } from './config.js'
 import {
 	mergeVariables,
 	generateVariablesCSS,
-	DEFAULT_STYLE,
-} from './styles.js'
+	DEFAULT_THEME,
+} from './themes.js'
 
 describe('config', () => {
 	let tempDir: string
@@ -74,55 +74,55 @@ describe('config', () => {
 			mkdirSync(configDir, { recursive: true })
 		})
 
-		describe('getStyleVariables', () => {
+		describe('getThemeVariables', () => {
 			it('returns empty object when no config exists', () => {
 				const store = createConfigStore(configDir)
-				expect(store.getStyleVariables('classic')).toEqual({})
+				expect(store.getThemeVariables('classic')).toEqual({})
 			})
 
-			it('returns empty object when style has no variables', () => {
+			it('returns empty object when theme has no variables', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'formal'
-				expect(store.getStyleVariables('classic')).toEqual({})
+				store.defaultTheme = 'formal'
+				expect(store.getThemeVariables('classic')).toEqual({})
 			})
 
-			it('returns variables for a style', () => {
+			it('returns variables for a theme', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', {
+				store.setThemeVariables('classic', {
 					'font-family': 'Arial',
 					'text-color': '#000',
 				})
 
-				expect(store.getStyleVariables('classic')).toEqual({
+				expect(store.getThemeVariables('classic')).toEqual({
 					'font-family': 'Arial',
 					'text-color': '#000',
 				})
 			})
 
-			it('returns empty object for different style', () => {
+			it('returns empty object for different theme', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
 
-				expect(store.getStyleVariables('formal')).toEqual({})
+				expect(store.getThemeVariables('formal')).toEqual({})
 			})
 		})
 
-		describe('setStyleVariables', () => {
-			it('creates config and sets variables for new style', () => {
+		describe('setThemeVariables', () => {
+			it('creates config and sets variables for new theme', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
 
-				expect(store.store.styleVariables?.classic).toEqual({
+				expect(store.store.themeVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
 			})
 
-			it('merges with existing style variables', () => {
+			it('merges with existing theme variables', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
-				store.setStyleVariables('classic', { 'text-color': '#000' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('classic', { 'text-color': '#000' })
 
-				expect(store.store.styleVariables?.classic).toEqual({
+				expect(store.store.themeVariables?.classic).toEqual({
 					'font-family': 'Arial',
 					'text-color': '#000',
 				})
@@ -130,112 +130,112 @@ describe('config', () => {
 
 			it('overwrites existing variable value', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
-				store.setStyleVariables('classic', { 'font-family': 'Helvetica' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('classic', { 'font-family': 'Helvetica' })
 
-				expect(store.store.styleVariables?.classic?.['font-family']).toBe(
+				expect(store.store.themeVariables?.classic?.['font-family']).toBe(
 					'Helvetica',
 				)
 			})
 
-			it('preserves other styles when setting variables', () => {
+			it('preserves other themes when setting variables', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
-				store.setStyleVariables('formal', { 'section-header-color': '#0066cc' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('formal', { 'section-header-color': '#0066cc' })
 
-				expect(store.store.styleVariables?.classic).toEqual({
+				expect(store.store.themeVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
-				expect(store.store.styleVariables?.formal).toEqual({
+				expect(store.store.themeVariables?.formal).toEqual({
 					'section-header-color': '#0066cc',
 				})
 			})
 
 			it('preserves other config settings', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'formal'
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.defaultTheme = 'formal'
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
 
-				expect(store.defaultStyle).toBe('formal')
-				expect(store.store.styleVariables?.classic).toEqual({
+				expect(store.defaultTheme).toBe('formal')
+				expect(store.store.themeVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
 			})
 		})
 
-		describe('resetStyleVariables', () => {
-			it('removes variables for a style', () => {
+		describe('resetThemeVariables', () => {
+			it('removes variables for a theme', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', {
+				store.setThemeVariables('classic', {
 					'font-family': 'Arial',
 					'text-color': '#000',
 				})
-				store.resetStyleVariables('classic')
+				store.resetThemeVariables('classic')
 
-				expect(store.store.styleVariables?.classic).toBeUndefined()
+				expect(store.store.themeVariables?.classic).toBeUndefined()
 			})
 
-			it('preserves other styles when resetting', () => {
+			it('preserves other themes when resetting', () => {
 				const store = createConfigStore(configDir)
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
-				store.setStyleVariables('formal', { 'section-header-color': '#0066cc' })
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
+				store.setThemeVariables('formal', { 'section-header-color': '#0066cc' })
 
-				store.resetStyleVariables('classic')
+				store.resetThemeVariables('classic')
 
-				expect(store.store.styleVariables?.classic).toBeUndefined()
-				expect(store.store.styleVariables?.formal).toEqual({
+				expect(store.store.themeVariables?.classic).toBeUndefined()
+				expect(store.store.themeVariables?.formal).toEqual({
 					'section-header-color': '#0066cc',
 				})
 			})
 
 			it('preserves other config settings when resetting', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'formal'
-				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.defaultTheme = 'formal'
+				store.setThemeVariables('classic', { 'font-family': 'Arial' })
 
-				store.resetStyleVariables('classic')
+				store.resetThemeVariables('classic')
 
-				expect(store.defaultStyle).toBe('formal')
-				expect(store.store.styleVariables?.classic).toBeUndefined()
+				expect(store.defaultTheme).toBe('formal')
+				expect(store.store.themeVariables?.classic).toBeUndefined()
 			})
 
-			it('does nothing if style has no variables', () => {
+			it('does nothing if theme has no variables', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'formal'
+				store.defaultTheme = 'formal'
 
 				// Should not throw
-				store.resetStyleVariables('classic')
+				store.resetThemeVariables('classic')
 
-				expect(store.defaultStyle).toBe('formal')
+				expect(store.defaultTheme).toBe('formal')
 			})
 
 			it('does nothing if config does not exist', () => {
 				const store = createConfigStore(configDir)
 
 				// Should not throw
-				store.resetStyleVariables('classic')
+				store.resetThemeVariables('classic')
 
-				expect(store.getStyleVariables('classic')).toEqual({})
+				expect(store.getThemeVariables('classic')).toEqual({})
 			})
 		})
 
-		describe('defaultStyle', () => {
+		describe('defaultTheme', () => {
 			it('returns default when not set', () => {
 				const store = createConfigStore(configDir)
-				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
+				expect(store.defaultTheme).toBe(DEFAULT_THEME)
 			})
 
 			it('can be set and retrieved', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'modern'
-				expect(store.defaultStyle).toBe('modern')
+				store.defaultTheme = 'modern'
+				expect(store.defaultTheme).toBe('modern')
 			})
 
-			it('can be reset with resetDefaultStyle()', () => {
+			it('can be reset with resetDefaultTheme()', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'modern'
-				store.resetDefaultStyle()
-				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
+				store.defaultTheme = 'modern'
+				store.resetDefaultTheme()
+				expect(store.defaultTheme).toBe(DEFAULT_THEME)
 			})
 		})
 
@@ -250,14 +250,14 @@ describe('config', () => {
 		describe('clear', () => {
 			it('clears all config', () => {
 				const store = createConfigStore(configDir)
-				store.defaultStyle = 'modern'
-				store.setStyleVariables('classic', { color: 'red' })
+				store.defaultTheme = 'modern'
+				store.setThemeVariables('classic', { color: 'red' })
 
 				store.clear()
 
 				// clear() wipes file; conf returns defaults for missing keys
-				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
-				expect(store.getStyleVariables('classic')).toEqual({})
+				expect(store.defaultTheme).toBe(DEFAULT_THEME)
+				expect(store.getThemeVariables('classic')).toEqual({})
 			})
 		})
 	})

@@ -1,5 +1,5 @@
 ---
-name: markdown-to-json-resume
+name: json-resume-to-markdown
 description: Convert between Markdown and JSON Resume formats. Use when the user asks to export/convert a Markdown file to JSON Resume, import a JSON Resume into Markdown, or mentions JSON Resume in the context of a Markdown file.
 ---
 

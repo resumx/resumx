@@ -324,9 +324,9 @@ m8 resume.md --html
 # Build DOCX document only
 m8 resume.md --docx
 
-# Use a specific style
-m8 resume.md --style formal
-m8 resume.md --style classic
+# Use a specific theme
+m8 resume.md --theme formal
+m8 resume.md --theme classic
 
 # Custom output filename
 m8 resume.md -o john-doe
@@ -337,11 +337,11 @@ m8 resume.md --var primary-color=#2563eb --var font-size=11pt
 # Watch mode (auto-rebuild on changes)
 m8 resume.md --watch
 
-# List available styles
-m8 style
+# List available themes
+m8 theme
 
-# Set default style
-m8 style --default formal
+# Set default theme
+m8 theme --default formal
 ```
 
 ## Common Mistakes

@@ -4,31 +4,31 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Bundled styles directory (relative to compiled dist)
-const BUNDLED_STYLES_DIR = resolve(__dirname, '../../styles')
+// Bundled themes directory (relative to compiled dist)
+const BUNDLED_THEMES_DIR = resolve(__dirname, '../../themes')
 
-// Default style name (single source of truth)
-export const DEFAULT_STYLE = 'zurich'
+// Default theme name (single source of truth)
+export const DEFAULT_THEME = 'zurich'
 
 // =============================================================================
 // CSS Variable Utilities
 // =============================================================================
 
-export type StyleVariables = Record<string, string>
+export type ThemeVariables = Record<string, string>
 
 /**
  * Merge variable objects (later wins)
  */
 export function mergeVariables(
-	...sources: (StyleVariables | undefined)[]
-): StyleVariables {
+	...sources: (ThemeVariables | undefined)[]
+): ThemeVariables {
 	return Object.assign({}, ...sources.filter(Boolean))
 }
 
 /**
  * Generate CSS :root block from variables
  */
-export function generateVariablesCSS(variables: StyleVariables): string {
+export function generateVariablesCSS(variables: ThemeVariables): string {
 	const entries = Object.entries(variables)
 	if (entries.length === 0) return ''
 
@@ -40,30 +40,30 @@ export function generateVariablesCSS(variables: StyleVariables): string {
 }
 
 // =============================================================================
-// Style Resolution
+// Theme Resolution
 // =============================================================================
 /**
- * Discover bundled style names from top-level .css files in the styles directory
+ * Discover bundled theme names from top-level .css files in the themes directory
  */
-function discoverBundledStyles(): string[] {
-	if (!existsSync(BUNDLED_STYLES_DIR)) return []
-	return readdirSync(BUNDLED_STYLES_DIR)
+function discoverBundledThemes(): string[] {
+	if (!existsSync(BUNDLED_THEMES_DIR)) return []
+	return readdirSync(BUNDLED_THEMES_DIR)
 		.filter(f => f.endsWith('.css'))
 		.map(f => basename(f, '.css'))
 		.sort()
 }
 
-/** Lazily-cached list of bundled style names */
-let _bundledStylesCache: string[] | null = null
+/** Lazily-cached list of bundled theme names */
+let _bundledThemesCache: string[] | null = null
 
-export function getBundledStyles(): string[] {
-	if (!_bundledStylesCache) {
-		_bundledStylesCache = discoverBundledStyles()
+export function getBundledThemes(): string[] {
+	if (!_bundledThemesCache) {
+		_bundledThemesCache = discoverBundledThemes()
 	}
-	return _bundledStylesCache
+	return _bundledThemesCache
 }
 
-export interface StyleInfo {
+export interface ThemeInfo {
 	name: string
 	path: string
 	isLocal: boolean
@@ -76,111 +76,111 @@ export interface CssVariable {
 }
 
 /**
- * Get path to bundled styles directory
+ * Get path to bundled themes directory
  */
-export function getBundledStylesDir(): string {
-	return BUNDLED_STYLES_DIR
+export function getBundledThemesDir(): string {
+	return BUNDLED_THEMES_DIR
 }
 
 /**
- * Get path to a bundled style
+ * Get path to a bundled theme
  */
-export function getBundledStylePath(name: string): string | undefined {
-	const stylePath = join(BUNDLED_STYLES_DIR, `${name}.css`)
-	return existsSync(stylePath) ? stylePath : undefined
+export function getBundledThemePath(name: string): string | undefined {
+	const themePath = join(BUNDLED_THEMES_DIR, `${name}.css`)
+	return existsSync(themePath) ? themePath : undefined
 }
 
 /**
- * Get path to local styles directory
+ * Get path to local themes directory
  */
-export function getLocalStylesDir(cwd: string = process.cwd()): string {
-	return join(cwd, 'styles')
+export function getLocalThemesDir(cwd: string = process.cwd()): string {
+	return join(cwd, 'themes')
 }
 
 /**
- * Get path to a local style
+ * Get path to a local theme
  */
-export function getLocalStylePath(
+export function getLocalThemePath(
 	name: string,
 	cwd: string = process.cwd(),
 ): string | undefined {
-	const stylePath = join(getLocalStylesDir(cwd), `${name}.css`)
-	return existsSync(stylePath) ? stylePath : undefined
+	const themePath = join(getLocalThemesDir(cwd), `${name}.css`)
+	return existsSync(themePath) ? themePath : undefined
 }
 
 /**
- * List all available styles (local + bundled)
+ * List all available themes (local + bundled)
  */
-export function listStyles(cwd: string = process.cwd()): StyleInfo[] {
-	const styles: StyleInfo[] = []
+export function listThemes(cwd: string = process.cwd()): ThemeInfo[] {
+	const themes: ThemeInfo[] = []
 	const seen = new Set<string>()
 
-	// Local styles first (higher priority)
-	const localDir = getLocalStylesDir(cwd)
+	// Local themes first (higher priority)
+	const localDir = getLocalThemesDir(cwd)
 	if (existsSync(localDir)) {
 		const localFiles = readdirSync(localDir).filter(f => f.endsWith('.css'))
 		for (const file of localFiles) {
 			const name = basename(file, '.css')
-			styles.push({
+			themes.push({
 				name,
 				path: join(localDir, file),
 				isLocal: true,
-				isBundled: getBundledStyles().includes(name),
+				isBundled: getBundledThemes().includes(name),
 			})
 			seen.add(name)
 		}
 	}
 
-	// Bundled styles (not already shadowed by local)
-	for (const name of getBundledStyles()) {
+	// Bundled themes (not already shadowed by local)
+	for (const name of getBundledThemes()) {
 		if (!seen.has(name)) {
-			styles.push({
+			themes.push({
 				name,
-				path: join(BUNDLED_STYLES_DIR, `${name}.css`),
+				path: join(BUNDLED_THEMES_DIR, `${name}.css`),
 				isLocal: false,
 				isBundled: true,
 			})
 		}
 	}
 
-	return styles
+	return themes
 }
 
 /**
- * Resolve a style name or path to an absolute CSS file path
+ * Resolve a theme name or path to an absolute CSS file path
  *
  * Resolution order:
  * 1. If it's a path (contains / or ends with .css), use it directly
- * 2. Check ./styles/<name>.css (local override)
- * 3. Check bundled styles
+ * 2. Check ./themes/<name>.css (local override)
+ * 3. Check bundled themes
  *
- * Callers are responsible for providing a style name (handling defaults).
+ * Callers are responsible for providing a theme name (handling defaults).
  */
-export function resolveStyle(
-	style: string,
+export function resolveTheme(
+	theme: string,
 	cwd: string = process.cwd(),
 ): string {
 	// Path-like input (contains / or \ or ends with .css)
-	if (style.includes('/') || style.includes('\\') || style.endsWith('.css')) {
-		const absolutePath = isAbsolute(style) ? style : resolve(cwd, style)
+	if (theme.includes('/') || theme.includes('\\') || theme.endsWith('.css')) {
+		const absolutePath = isAbsolute(theme) ? theme : resolve(cwd, theme)
 
 		if (!existsSync(absolutePath)) {
-			throw new Error(`Style file not found: ${absolutePath}`)
+			throw new Error(`Theme file not found: ${absolutePath}`)
 		}
 		return absolutePath
 	}
 
 	// Name-based resolution
 	// Check local first
-	const localPath = getLocalStylePath(style, cwd)
+	const localPath = getLocalThemePath(theme, cwd)
 	if (localPath) return localPath
 
 	// Check bundled
-	const bundledPath = getBundledStylePath(style)
+	const bundledPath = getBundledThemePath(theme)
 	if (bundledPath) return bundledPath
 
 	throw new Error(
-		`Style '${style}' not found. Available styles: ${getBundledStyles().join(', ')}`,
+		`Theme '${theme}' not found. Available themes: ${getBundledThemes().join(', ')}`,
 	)
 }
 

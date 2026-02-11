@@ -5,7 +5,7 @@ import chalk from 'chalk'
 import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
 import { ejectCommand, type EjectCommandOptions } from './commands/eject.js'
-import { styleCommand, type StyleCommandOptions } from './commands/style.js'
+import { themeCommand, type ThemeCommandOptions } from './commands/theme.js'
 import {
 	validateCommand,
 	type ValidateCommandOptions,
@@ -130,8 +130,8 @@ program
 program
 	.argument('[file]', 'Markdown file to render', 'resume.md')
 	.option(
-		'-s, --style <name>',
-		'Style(s) to use (name or path, repeatable)',
+		'-t, --theme <name>',
+		'Theme(s) to use (name or path, repeatable)',
 		collectWithCommas,
 		[],
 	)
@@ -170,32 +170,32 @@ program
 
 // eject command
 program
-	.command('eject [style]')
-	.description('Copy a bundled style to ./styles/ for customization')
-	.option('-f, --force', 'Overwrite existing local style')
-	.action(async (style: string | undefined, options: EjectCommandOptions) => {
-		await ejectCommand(style, options)
+	.command('eject [theme]')
+	.description('Copy a bundled theme to ./themes/ for customization')
+	.option('-f, --force', 'Overwrite existing local theme')
+	.action(async (theme: string | undefined, options: EjectCommandOptions) => {
+		await ejectCommand(theme, options)
 	})
 
-// style command
+// theme command
 program
-	.command('style [name]')
-	.description('List styles, show style info, or set defaults')
-	.option('-d, --default <name>', 'Set the default style')
+	.command('theme [name]')
+	.description('List themes, show theme info, or set defaults')
+	.option('-d, --default <name>', 'Set the default theme')
 	.option(
 		'--set <name=value>',
-		'Set default variable override for style (repeatable)',
+		'Set default variable override for theme (repeatable)',
 		collect,
 		[],
 	)
-	.option('-r, --reset <variable>', 'Reset specific style variable to default')
-	.option('--reset-all', 'Reset all style variable overrides to defaults')
-	.action(async (name: string | undefined, options: StyleCommandOptions) => {
+	.option('-r, --reset <variable>', 'Reset specific theme variable to default')
+	.option('--reset-all', 'Reset all theme variable overrides to defaults')
+	.action(async (name: string | undefined, options: ThemeCommandOptions) => {
 		// Map 'set' to 'var' for the command handler
 		if (options.set && options.set.length > 0) {
 			options.var = options.set
 		}
-		await styleCommand(name, options)
+		await themeCommand(name, options)
 	})
 
 // validate command
@@ -217,7 +217,7 @@ function collect(value: string, previous: string[]): string[] {
 	return previous.concat([value])
 }
 
-// Helper to collect repeatable options with comma-separated support (for style/role)
+// Helper to collect repeatable options with comma-separated support (for theme/role)
 function collectWithCommas(value: string, previous: string[]): string[] {
 	const values = value
 		.split(',')

@@ -18,7 +18,7 @@ If no file is specified, defaults to `resume.md`.
 
 | Flag                  | Description                                                      |
 | --------------------- | ---------------------------------------------------------------- |
-| `-s, --style <name>`  | Style(s) to use. Repeatable, comma-separated.                    |
+| `-t, --theme <name>`  | Theme(s) to use. Repeatable, comma-separated.                    |
 | `-o, --output <name>` | Output filename (without extension) or directory path.           |
 | `--var <name=value>`  | Override a CSS variable. Repeatable.                             |
 | `--role <name>`       | Generate for specific role(s) only. Repeatable, comma-separated. |
@@ -35,11 +35,11 @@ If no file is specified, defaults to `resume.md`.
 # Basic render to PDF
 resumx resume.md
 
-# Use a specific style
-resumx resume.md --style zurich
+# Use a specific theme
+resumx resume.md --theme zurich
 
-# Multiple styles (produces separate PDFs)
-resumx resume.md --style zurich,oxford,seattle
+# Multiple themes (produces separate PDFs)
+resumx resume.md --theme zurich,oxford,seattle
 
 # Custom output name
 resumx resume.md --output John_Doe_Resume
@@ -57,7 +57,7 @@ resumx resume.md --watch
 resumx resume.md --role frontend
 
 # Combine options
-resumx resume.md --style zurich --role frontend,backend --all --watch
+resumx resume.md --theme zurich --role frontend,backend --all --watch
 ```
 
 ## init
@@ -86,84 +86,84 @@ resumx init resume.md --force  # Overwrite if exists
 
 ## eject
 
-Copy a bundled style to `./styles/` for local customization.
+Copy a bundled theme to `./themes/` for local customization.
 
 ```bash
-resumx eject [style]
+resumx eject [theme]
 ```
 
 | Argument | Default         | Description                         |
 | -------- | --------------- | ----------------------------------- |
-| `style`  | _(interactive)_ | Name of the bundled style to eject. |
+| `theme`  | _(interactive)_ | Name of the bundled theme to eject. |
 
 | Flag          | Description                     |
 | ------------- | ------------------------------- |
-| `-f, --force` | Overwrite existing local style. |
+| `-f, --force` | Overwrite existing local theme. |
 
-Once ejected, the local copy in `./styles/` takes precedence over the bundled version. Edit it freely.
+Once ejected, the local copy in `./themes/` takes precedence over the bundled version. Edit it freely.
 
 ### Examples
 
 ```bash
-resumx eject zurich         # Copy zurich.css to ./styles/
-resumx eject zurich         # Copy zurich.css to ./styles/
+resumx eject zurich         # Copy zurich.css to ./themes/
+resumx eject zurich         # Copy zurich.css to ./themes/
 resumx eject zurich --force # Overwrite existing local copy
 ```
 
-## style
+## theme
 
-List available styles, view style details, or manage style defaults.
+List available themes, view theme details, or manage theme defaults.
 
 ```bash
-resumx style [name]
+resumx theme [name]
 ```
 
 ### Subcommands
 
-**List all styles:**
+**List all themes:**
 
 ```bash
-resumx style
+resumx theme
 ```
 
-Shows all available styles (bundled and local), indicating which are local overrides.
+Shows all available themes (bundled and local), indicating which are local overrides.
 
-**View style info:**
+**View theme info:**
 
 ```bash
-resumx style zurich
+resumx theme zurich
 ```
 
-Shows the style's CSS variables and their current values.
+Shows the theme's CSS variables and their current values.
 
-**Set default style:**
+**Set default theme:**
 
 ```bash
-resumx style --default zurich
+resumx theme --default zurich
 ```
 
 | Flag                     | Description                                              |
 | ------------------------ | -------------------------------------------------------- |
-| `-d, --default <name>`   | Set the global default style.                            |
-| `--set <name=value>`     | Set a default variable override for a style. Repeatable. |
-| `-r, --reset <variable>` | Reset a specific style variable to its default.          |
-| `--reset-all`            | Reset all style variable overrides.                      |
+| `-d, --default <name>`   | Set the global default theme.                            |
+| `--set <name=value>`     | Set a default variable override for a theme. Repeatable. |
+| `-r, --reset <variable>` | Reset a specific theme variable to its default.          |
+| `--reset-all`            | Reset all theme variable overrides.                      |
 
 ### Examples
 
 ```bash
 # Set global default
-resumx style --default zurich
+resumx theme --default zurich
 
 # Set persistent variable overrides
-resumx style zurich --set font-family="Inter, sans-serif"
-resumx style zurich --set accent-color="#2563eb"
+resumx theme zurich --set font-family="Inter, sans-serif"
+resumx theme zurich --set accent-color="#2563eb"
 
 # Reset a variable
-resumx style zurich --reset font-family
+resumx theme zurich --reset font-family
 
 # Reset all overrides
-resumx style zurich --reset-all
+resumx theme zurich --reset-all
 ```
 
 ## validate
@@ -209,7 +209,7 @@ All CLI options can be set in the resume's YAML frontmatter:
 
 ```yaml
 ---
-style: zurich # Style name(s)
+theme: zurich # Theme name(s)
 outputName: John_Doe_Resume # Output filename (no extension)
 outputDir: ./dist # Output directory
 formats: [pdf, html] # Output formats (pdf, html, docx, png)
@@ -224,7 +224,7 @@ TOML frontmatter (`+++` delimited) is also supported:
 
 ```toml
 +++
-style = "zurich"
+theme = "zurich"
 outputName = "John_Doe_Resume"
 formats = ["pdf", "html"]
 
@@ -240,8 +240,8 @@ Global settings are stored in `~/.config/resum8/config.json`:
 
 ```json
 {
-	"defaultStyle": "zurich",
-	"styleVariables": {
+	"defaultTheme": "zurich",
+	"themeVariables": {
 		"zurich": {
 			"font-family": "Inter, sans-serif"
 		}
@@ -249,7 +249,7 @@ Global settings are stored in `~/.config/resum8/config.json`:
 }
 ```
 
-Manage via the `style` command rather than editing directly.
+Manage via the `theme` command rather than editing directly.
 
 The config directory can be overridden with the `RESUM8_CONFIG_DIR` environment variable.
 
@@ -259,7 +259,7 @@ Output filenames are automatically determined:
 
 | Scenario                  | Output                       |
 | ------------------------- | ---------------------------- |
-| 1 style, no roles         | `resume.pdf`                 |
-| 1 style, with roles       | `resume-frontend.pdf`        |
-| Multiple styles, no roles | `resume-zurich.pdf`          |
-| Multiple styles + roles   | `frontend/resume-zurich.pdf` |
+| 1 theme, no roles         | `resume.pdf`                 |
+| 1 theme, with roles       | `resume-frontend.pdf`        |
+| Multiple themes, no roles | `resume-zurich.pdf`          |
+| Multiple themes + roles   | `frontend/resume-zurich.pdf` |

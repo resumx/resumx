@@ -24,20 +24,20 @@ Inline styles are applied alongside your theme — they don't replace it.
 
 ## Ejecting a Theme
 
-To fully customize a built-in style, eject it to your local `./styles/` directory:
+To fully customize a built-in theme, eject it to your local `./themes/` directory:
 
 ```bash
-resumx eject zurich       # Copies zurich.css to ./styles/zurich.css
+resumx eject zurich       # Copies zurich.css to ./themes/zurich.css
 ```
 
 Once ejected, the local copy takes precedence.
 
 ## Creating a Theme
 
-Create a new CSS file in `./styles/` and import the common base:
+Create a new CSS file in `./themes/` and import the common base:
 
 ```css
-/* styles/my-style.css */
+/* themes/my-theme.css */
 @import 'common/base.css';
 @import 'common/icons.css';
 @import 'common/utilities.css';
@@ -54,7 +54,7 @@ Create a new CSS file in `./styles/` and import the common base:
 Then use it:
 
 ```bash
-resumx resume.md --style my-style
+resumx resume.md --theme my-theme
 ```
 
 ### Common Base Modules
@@ -68,6 +68,6 @@ resumx resume.md --style my-style
 
 ### Import Resolution
 
-`@import` paths resolve first to your local `./styles/` directory, then fall back to the bundled styles. This means you can eject and override individual common files (e.g., just `common/base.css`) without ejecting the entire theme.
+`@import` paths resolve first to your local `./themes/` directory, then fall back to the bundled themes. This means you can eject and override individual common files (e.g., just `common/base.css`) without ejecting the entire theme.
 
 To target specific sections, entries, and header fields, see [Semantic Selectors](/semantic-selectors).

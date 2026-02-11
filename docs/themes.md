@@ -1,48 +1,48 @@
 # Themes
 
-Themes control how your resume looks. Switch styles without changing your Markdown.
+Themes control how your resume looks. Switch themes without changing your Markdown.
 
-## Built-in Styles
+## Built-in Themes
 
-Resumx ships with three styles:
+Resumx ships with three themes:
 
-| Style                | Description                     | Font                     |
+| Theme                | Description                     | Font                     |
 | -------------------- | ------------------------------- | ------------------------ |
 | **zurich** (default) | Traditional, authoritative look | Palatino Linotype, serif |
 | **oxford**           | Clean, timeless design          | Georgia, serif           |
 | **seattle**          | Modern, minimal design          | Arial, sans-serif        |
 
-<!-- TODO: Side-by-side preview of all three built-in styles — Zurich, Oxford, and Seattle — rendering the same resume -->
+<!-- TODO: Side-by-side preview of all three built-in themes — Zurich, Oxford, and Seattle — rendering the same resume -->
 
 ```bash
 resumx resume.md                    # Uses zurich (default)
-resumx resume.md --style oxford
-resumx resume.md --style seattle
+resumx resume.md --theme oxford
+resumx resume.md --theme seattle
 ```
 
-You can render with multiple styles at once to produce separate PDFs:
+You can render with multiple themes at once to produce separate PDFs:
 
 ```bash
-resumx resume.md --style zurich,oxford,seattle
+resumx resume.md --theme zurich,oxford,seattle
 ```
 
-## Setting a Default Style
+## Setting a Default Theme
 
-The default style is `zurich`. To change it globally:
+The default theme is `zurich`. To change it globally:
 
 ```bash
-resumx style --default zurich
+resumx theme --default zurich
 ```
 
 Or set it per-resume in frontmatter:
 
 ```yaml
 ---
-style: zurich
+theme: zurich
 ---
 ```
 
-**Priority order:** CLI `--style` > Frontmatter `style` > Global default > `zurich`
+**Priority order:** CLI `--theme` > Frontmatter `theme` > Global default > `zurich`
 
 ## CSS Variables
 
@@ -50,7 +50,7 @@ Override any variable to customize a theme.
 
 ```markdown
 ---
-style: zurich
+theme: zurich
 variables:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -58,7 +58,7 @@ variables:
 ---
 ```
 
-You can also override via `--var` on the CLI or set persistent defaults with `resumx style <name> --set`. See the [CLI Reference](/cli-reference) for details.
+You can also override via `--var` on the CLI or set persistent defaults with `resumx theme <name> --set`. See the [CLI Reference](/cli-reference) for details.
 
 **Priority**: CLI `--var` > Frontmatter > Global defaults > Theme defaults
 

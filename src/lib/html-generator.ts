@@ -5,7 +5,7 @@
 
 import jsBeautify from 'js-beautify'
 const { html: beautifyHtml } = jsBeautify
-import { generateVariablesCSS, getBundledStylesDir } from './styles.js'
+import { generateVariablesCSS, getBundledThemesDir } from './themes.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
 import { processExpressions } from './interpolation.js'
@@ -34,8 +34,8 @@ function resolveBaseCSS(
 	cssPath: string,
 	variables?: Record<string, string>,
 ): string {
-	// Resolve @import statements (with bundled styles dir as fallback for ejected files)
-	const resolvedCSS = resolveCssImports(cssPath, getBundledStylesDir())
+	// Resolve @import statements (with bundled themes dir as fallback for ejected files)
+	const resolvedCSS = resolveCssImports(cssPath, getBundledThemesDir())
 	const variablesCSS = variables ? generateVariablesCSS(variables) : ''
 
 	// Append variable overrides AFTER resolved CSS so they take precedence

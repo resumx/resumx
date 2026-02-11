@@ -24,8 +24,8 @@ features:
     details: Style with utility classes directly in your Markdown. Full Tailwind support with JIT compilation.
   - title: 10,000+ Icons
     details: Every tech logo inline as SVG. No image files needed, works offline, perfect for PDF output.
-  - title: Multiple Styles
-    details: Three built-in themes. Eject any style and customize it, or create your own from scratch.
+  - title: Multiple Themes
+    details: Three built-in themes. Eject any theme and customize it, or create your own from scratch.
   - title: Role-Based Filtering
     details: Tag content for different roles and generate targeted resumes from a single source file.
   - title: AI Ready

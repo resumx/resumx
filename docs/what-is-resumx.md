@@ -2,12 +2,12 @@
 
 <!-- <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) is a resume-flavored Markdown for building resumes. -->
 
-<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) builds resumes from Markdown — one file, every style and format.
+<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) builds resumes from Markdown — one file, every theme and format.
 
 ```markdown
 ---
 roles: [backend, frontend, fullstack]
-style: [zurich, oxford]
+theme: [zurich, oxford]
 formats: [pdf, docx, html]
 variables:
   font-size: 10pt
@@ -35,9 +35,9 @@ Render with:
 resumx resume.md
 ```
 
-That one command produces a file for every combination of **role**, **style**, and **format** (3 roles × 2 styles × 3 formats = 18 files). The content stays the same, only the presentation changes.
+That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same, only the presentation changes.
 
-<!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle styles -->
+<!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
 
 [Version with git](/git-superpowers). [Edit with AI](/agent-skills).
 
