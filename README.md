@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  One Markdown file. Every theme, role, and format.
+  One Markdown file. Every role, theme, and format.
 </p>
 
 <p align="center">
@@ -68,15 +68,15 @@ Open `resume.md` in your editor and start writing. Read the full [Quick Start gu
 
 ## Features
 
-- **3 built-in themes** — Zurich, Oxford, Seattle. Switch with `--theme` or in frontmatter. [Themes](docs/themes.md)
-- **40+ CSS variables** — Override fonts, colors, spacing without writing CSS. [Themes > Variables](docs/themes.md#css-variables)
-- **Tailwind CSS v4** — Style any element with utility classes: `[React]{.bg-blue-100 .text-blue-800 .px-2 .rounded}`. [Tailwind CSS](docs/tailwind-css.md)
-- **200,000+ icons** — Auto-icons for links, inline tech logos via `::react::` shorthand or Iconify. [Icons](docs/icons.md)
 - **Per-role output** — Tag content with `{.role:frontend}`, get `resume-frontend.pdf` automatically. [Per-Role Output](docs/per-role-output.md)
-- **Interpolation** — Dynamic values like `{{ new Date().getFullYear() - 2018 }}+ years`. [Interpolation](docs/interpolation.md)
-- **Git superpowers** — Render from any commit or tag, auto-validate on commit. [Git Superpowers](docs/git-superpowers.md)
 - **Agent Skills** — AI-ready for Cursor, Claude Code, Copilot. `npx skills add ocmrz/resumx`. [Agent Skills](docs/agent-skills.md)
+- **Git superpowers** — Render from any commit or tag, auto-validate on commit. [Git Superpowers](docs/git-superpowers.md)
+- **Interpolation** — Dynamic values like `{{ new Date().getFullYear() - 2018 }}+ years`. [Interpolation](docs/interpolation.md)
+- **200,000+ icons** — Auto-icons for links, inline tech logos via `::react::` shorthand or Iconify. [Icons](docs/icons.md)
+- **Tailwind CSS v4** — Style any element with utility classes: `[React]{.bg-blue-100 .text-blue-800 .px-2 .rounded}`. [Tailwind CSS](docs/tailwind-css.md)
 - **Full CSS control** — Eject any theme with `resumx eject zurich` and own the CSS. [Custom CSS](docs/custom-css.md)
+- **40+ CSS variables** — Override fonts, colors, spacing without writing CSS. [Themes > Variables](docs/themes.md#css-variables)
+- **3 built-in themes** — Zurich, Oxford, Seattle. Switch with `--theme` or in frontmatter. [Themes](docs/themes.md)
 
 ## CLI at a Glance
 
