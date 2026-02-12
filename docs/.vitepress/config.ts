@@ -7,9 +7,15 @@ import { transformerResumxSyntax } from './theme/transformerResumxSyntax'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+	base: '/guide/',
 	title: 'Resumx',
 	description: 'Markdown-first resume builder for developers',
-	head: [['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }]],
+	head: [
+		['link', { rel: 'icon', type: 'image/png', href: '/guide/favicon.png' }],
+	],
+	rewrites: {
+		'what-is-resumx.md': 'index.md',
+	},
 	markdown: {
 		codeTransformers: [
 			transformerNotationWordHighlight(),
@@ -19,13 +25,13 @@ export default defineConfig({
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
-		nav: [{ text: 'Docs', link: '/what-is-resumx' }],
+		nav: [{ text: 'Guide', link: '/' }],
 
 		sidebar: [
 			{
 				text: 'Getting Started',
 				items: [
-					{ text: 'What is Resumx?', link: '/what-is-resumx' },
+					{ text: 'What is Resumx?', link: '/' },
 					{ text: 'The Resumx Approach', link: '/the-resumx-approach' },
 					{ text: 'Quick Start', link: '/quick-start' },
 				],
