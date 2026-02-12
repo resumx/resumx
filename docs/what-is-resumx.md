@@ -4,9 +4,7 @@
 
 ```markdown
 ---
-roles: [backend, frontend, fullstack]
 themes: [zurich, oxford]
-formats: [pdf, docx, html]
 style:
   font-size: 10pt
   bullet-style: circle
@@ -22,23 +20,21 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day
-- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification{.role:backend .role:fullstack}
+- Built distributed systems serving 1M requests/day {.role:backend .role:fullstack}
 - Built interactive dashboards with ::logos:react:: React {.role:frontend .role:fullstack}
+- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification
 ```
 
 Render with:
 
 ```bash
-resumx resume.md
+resumx resume.md --format pdf,docx,html
 ```
 
 That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same, only the presentation changes.
 
 <!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
 
-[Version with git](/git-superpowers). [Edit with AI](/agent-skills).
-
----
+[Edit with AI](/agent-skills). [Version with git](/git-superpowers).
 
 Ready? [Get started in under a minute →](/quick-start)
