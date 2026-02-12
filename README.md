@@ -24,7 +24,7 @@ Write your resume in Markdown. Configure roles, themes, and output formats in fr
 roles: [backend, frontend, fullstack]
 themes: [zurich, oxford]
 formats: [pdf, docx, html]
-options:
+style:
   font-size: 10pt
   bullet-style: circle
 ---
