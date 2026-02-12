@@ -111,27 +111,24 @@ export function filterByRole(html: string, activeRole: string): string {
 export interface ResolveRolesOptions {
 	/** CLI-specified roles (highest priority, defaults to []) */
 	explicit?: string[]
-	/** Frontmatter-configured roles (defaults to []) */
-	configured?: string[]
 	/** Auto-discovered roles from content */
 	discovered: string[]
 }
 
 /**
  * Determine which roles to generate based on priority.
- * Priority order: explicit > configured > discovered
+ * Priority order: explicit (CLI) > discovered (from content)
  *
- * @param options - Object containing explicit, configured, and discovered roles
+ * @param options - Object containing explicit and discovered roles
  * @returns Array of roles to generate
- * @throws Error if any specified role (explicit or configured) does not exist in discovered roles
+ * @throws Error if any explicit role does not exist in discovered roles
  *
  * @example
  * resolveRoles({ explicit: ['frontend'], discovered: ['frontend'] }) // ['frontend']
- * resolveRoles({ configured: ['a', 'b'], discovered: ['a', 'b', 'c'] }) // ['a', 'b']
  * resolveRoles({ discovered: ['a', 'b'] }) // ['a', 'b']
  */
 export function resolveRoles(options: ResolveRolesOptions): string[] {
-	const { explicit = [], configured = [], discovered } = options
+	const { explicit = [], discovered } = options
 
 	// Helper to format available roles message
 	const formatAvailableRoles = () =>
@@ -157,12 +154,6 @@ export function resolveRoles(options: ResolveRolesOptions): string[] {
 		return explicit
 	}
 
-	// Priority 2: Configured in frontmatter (if non-empty, with validation)
-	if (configured.length > 0) {
-		validateRoles(configured)
-		return configured
-	}
-
-	// Priority 3: Auto-discovered from content
+	// Priority 2: Auto-discovered from content
 	return discovered
 }

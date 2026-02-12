@@ -17,13 +17,11 @@
 
 ---
 
-Write your resume in Markdown. Configure roles, themes, and output formats in frontmatter. One command renders every combination.
+Write your resume in Markdown. Configure themes and styles in frontmatter, choose roles and formats from the CLI. One command renders every combination.
 
 ```markdown
 ---
-roles: [backend, frontend, fullstack]
 themes: [zurich, oxford]
-formats: [pdf, docx, html]
 style:
   font-size: 10pt
   bullet-style: circle
@@ -45,7 +43,7 @@ _Senior Software Engineer_
 ```
 
 ```bash
-resumx resume.md
+resumx resume.md --role backend,frontend,fullstack --format pdf,docx,html
 ```
 
 That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same — only the presentation changes.

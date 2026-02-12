@@ -2,16 +2,10 @@ import { readFileSync } from 'node:fs'
 import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
 
-// Valid output formats
-const VALID_FORMATS = ['pdf', 'html', 'docx', 'png'] as const
-export type OutputFormat = (typeof VALID_FORMATS)[number]
-
 export interface FrontmatterConfig {
 	themes?: string[]
 	output?: string
-	formats?: OutputFormat[]
 	style?: Record<string, string>
-	roles?: string[]
 }
 
 export interface ParseResult {
@@ -21,7 +15,7 @@ export interface ParseResult {
 }
 
 // Known frontmatter fields
-const KNOWN_FIELDS = ['themes', 'output', 'formats', 'style', 'roles']
+const KNOWN_FIELDS = ['themes', 'output', 'style']
 
 /**
  * Detect frontmatter type based on opening delimiter
@@ -84,26 +78,6 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		config.output = data['output']
 	}
 
-	// Validate formats
-	if (data['formats'] !== undefined) {
-		if (!Array.isArray(data['formats'])) {
-			throw new Error("'formats' must be an array")
-		}
-
-		for (const format of data['formats'] as unknown[]) {
-			if (typeof format !== 'string') {
-				throw new Error("'formats' must contain only strings")
-			}
-			if (!VALID_FORMATS.includes(format as OutputFormat)) {
-				throw new Error(
-					`invalid format '${format}'. Valid formats: ${VALID_FORMATS.join(', ')}`,
-				)
-			}
-		}
-
-		config.formats = data['formats'] as OutputFormat[]
-	}
-
 	// Validate style (null means declared but empty — treat as no styles)
 	if (data['style'] !== undefined && data['style'] !== null) {
 		if (typeof data['style'] !== 'object') {
@@ -118,25 +92,6 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		}
 
 		config.style = styles as Record<string, string>
-	}
-
-	// Validate roles
-	if (data['roles'] !== undefined) {
-		// Normalize string to single-element array
-		const rolesValue =
-			typeof data['roles'] === 'string' ? [data['roles']] : data['roles']
-
-		if (!Array.isArray(rolesValue)) {
-			throw new Error("'roles' must be a string or an array of strings")
-		}
-
-		for (const role of rolesValue as unknown[]) {
-			if (typeof role !== 'string') {
-				throw new Error("'roles' must contain only strings")
-			}
-		}
-
-		config.roles = rolesValue as string[]
 	}
 
 	return { config, warnings }

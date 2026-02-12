@@ -202,7 +202,6 @@ describe('roles SDK', () => {
 		it('returns explicit role as highest priority', () => {
 			const result = resolveRoles({
 				explicit: ['frontend'],
-				configured: ['backend', 'fullstack'],
 				discovered: ['frontend', 'backend', 'fullstack'],
 			})
 			expect(result).toEqual(['frontend'])
@@ -211,21 +210,12 @@ describe('roles SDK', () => {
 		it('returns multiple explicit roles', () => {
 			const result = resolveRoles({
 				explicit: ['frontend', 'backend'],
-				configured: ['fullstack'],
 				discovered: ['frontend', 'backend', 'fullstack'],
 			})
 			expect(result).toEqual(['frontend', 'backend'])
 		})
 
-		it('returns configured roles if no explicit role', () => {
-			const result = resolveRoles({
-				configured: ['frontend', 'backend'],
-				discovered: ['frontend', 'backend', 'fullstack'],
-			})
-			expect(result).toEqual(['frontend', 'backend'])
-		})
-
-		it('returns discovered roles if no explicit or configured', () => {
+		it('returns discovered roles if no explicit', () => {
 			const result = resolveRoles({
 				discovered: ['frontend', 'backend', 'fullstack'],
 			})
@@ -239,37 +229,18 @@ describe('roles SDK', () => {
 			expect(result).toEqual([])
 		})
 
-		it('handles empty configured array (falls through to discovered)', () => {
+		it('handles empty explicit array (falls through to discovered)', () => {
 			const result = resolveRoles({
-				configured: [],
+				explicit: [],
 				discovered: ['frontend', 'backend'],
 			})
 			expect(result).toEqual(['frontend', 'backend'])
-		})
-
-		it('handles empty explicit array (falls through to configured)', () => {
-			const result = resolveRoles({
-				explicit: [],
-				configured: ['frontend'],
-				discovered: ['frontend', 'backend'],
-			})
-			expect(result).toEqual(['frontend'])
-		})
-
-		it('explicit overrides even when configured exists', () => {
-			const result = resolveRoles({
-				explicit: ['fullstack'],
-				configured: ['frontend', 'backend'],
-				discovered: ['frontend', 'backend', 'fullstack'],
-			})
-			expect(result).toEqual(['fullstack'])
 		})
 
 		it('throws error when explicit role does not exist in discovered roles', () => {
 			expect(() =>
 				resolveRoles({
 					explicit: ['nonexistent'],
-					configured: ['frontend', 'backend'],
 					discovered: ['frontend', 'backend'],
 				}),
 			).toThrow("role 'nonexistent' does not exist")
@@ -308,61 +279,6 @@ describe('roles SDK', () => {
 				discovered: ['frontend', 'backend'],
 			})
 			expect(result).toEqual(['frontend'])
-		})
-
-		it('allows explicit role in discovered even if not in configured', () => {
-			// User can override configured filter with --role to render any discovered role
-			const result = resolveRoles({
-				explicit: ['fullstack'],
-				configured: ['frontend'], // limited to frontend in frontmatter
-				discovered: ['frontend', 'backend', 'fullstack'], // but fullstack exists in content
-			})
-			expect(result).toEqual(['fullstack'])
-		})
-
-		// Configured role validation tests
-		it('throws error when configured role does not exist in discovered roles', () => {
-			expect(() =>
-				resolveRoles({
-					configured: ['frontend', 'nonexistent'],
-					discovered: ['frontend', 'backend'],
-				}),
-			).toThrow("role 'nonexistent' does not exist")
-		})
-
-		it('throws error when multiple configured roles do not exist', () => {
-			expect(() =>
-				resolveRoles({
-					configured: ['frontend', 'full', 'devops'],
-					discovered: ['frontend', 'backend', 'fullstack'],
-				}),
-			).toThrow("roles 'full', 'devops' does not exist")
-		})
-
-		it('includes available roles in configured error message', () => {
-			expect(() =>
-				resolveRoles({
-					configured: ['typo'],
-					discovered: ['frontend', 'backend'],
-				}),
-			).toThrow('Available roles: frontend, backend')
-		})
-
-		it('allows configured roles that all exist in discovered', () => {
-			const result = resolveRoles({
-				configured: ['frontend', 'backend'],
-				discovered: ['frontend', 'backend', 'fullstack'],
-			})
-			expect(result).toEqual(['frontend', 'backend'])
-		})
-
-		it('throws error for configured role typo (e.g., full vs fullstack)', () => {
-			expect(() =>
-				resolveRoles({
-					configured: ['frontend', 'full'], // typo: should be 'fullstack'
-					discovered: ['frontend', 'backend', 'fullstack'],
-				}),
-			).toThrow("role 'full' does not exist")
 		})
 	})
 })

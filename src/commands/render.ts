@@ -64,16 +64,10 @@ export interface RenderCommandOptions {
 const VALID_FORMATS: OutputFormat[] = ['pdf', 'html', 'docx', 'png']
 
 /**
- * Determine which formats to render based on CLI options and frontmatter
- * CLI flags take precedence over frontmatter
+ * Determine which formats to render based on CLI options
  */
-function resolveFormats(
-	options: RenderCommandOptions,
-	frontmatterFormats?: OutputFormat[],
-): OutputFormat[] {
-	// Check if any CLI --format values are set
+function resolveFormats(options: RenderCommandOptions): OutputFormat[] {
 	if (options.format && options.format.length > 0) {
-		// Validate each format value
 		for (const f of options.format) {
 			if (!VALID_FORMATS.includes(f as OutputFormat)) {
 				throw new Error(
@@ -83,11 +77,6 @@ function resolveFormats(
 		}
 
 		return options.format as OutputFormat[]
-	}
-
-	// If frontmatter specifies formats, use them
-	if (frontmatterFormats && frontmatterFormats.length > 0) {
-		return frontmatterFormats
 	}
 
 	// Default to PDF
@@ -297,10 +286,10 @@ async function runRender(
 		}
 	}
 
-	// Get formats to render (CLI > Frontmatter > default)
+	// Get formats to render (CLI > default)
 	let formats: OutputFormat[]
 	try {
-		formats = resolveFormats(options, fmConfig?.formats)
+		formats = resolveFormats(options)
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false
@@ -344,12 +333,11 @@ async function runRender(
 	const discoveredRoles = extractRoles(html)
 	const discoveredLangs = extractLangs(html)
 
-	// Resolve which roles to generate (priority: CLI > frontmatter > discovered)
+	// Resolve which roles to generate (priority: CLI > discovered)
 	let rolesToGenerate: string[]
 	try {
 		rolesToGenerate = resolveRoles({
 			explicit: options.role,
-			configured: fmConfig?.roles,
 			discovered: discoveredRoles,
 		})
 	} catch (error) {

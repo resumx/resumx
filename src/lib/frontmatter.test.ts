@@ -2,11 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import {
-	parseFrontmatter,
-	parseFrontmatterFromString,
-	type FrontmatterConfig,
-} from './frontmatter.js'
+import { parseFrontmatter, parseFrontmatterFromString } from './frontmatter.js'
 
 describe('frontmatter', () => {
 	let tempDir: string
@@ -28,9 +24,6 @@ describe('frontmatter', () => {
 				const input = `---
 themes: formal
 output: ./dist/john-doe-resume
-formats:
-  - pdf
-  - html
 style:
   font-family: "Inter, sans-serif"
   section-header-color: "#2563eb"
@@ -44,7 +37,6 @@ Some content here.`
 				expect(result.config).toEqual({
 					themes: ['formal'],
 					output: './dist/john-doe-resume',
-					formats: ['pdf', 'html'],
 					style: {
 						'font-family': 'Inter, sans-serif',
 						'section-header-color': '#2563eb',
@@ -100,19 +92,6 @@ output: "build/John_Doe-{theme}-{role}"
 				})
 			})
 
-			it('parses YAML frontmatter with only formats', () => {
-				const input = `---
-formats:
-  - pdf
-  - docx
----
-# Resume`
-
-				const result = parseFrontmatterFromString(input)
-
-				expect(result.config).toEqual({ formats: ['pdf', 'docx'] })
-			})
-
 			it('parses YAML frontmatter with only style', () => {
 				const input = `---
 style:
@@ -124,38 +103,6 @@ style:
 
 				expect(result.config).toEqual({
 					style: { 'primary-color': '#ff0000' },
-				})
-			})
-
-			it('parses YAML frontmatter with roles', () => {
-				const input = `---
-roles:
-  - frontend
-  - backend
----
-# Resume`
-
-				const result = parseFrontmatterFromString(input)
-
-				expect(result.config).toEqual({
-					roles: ['frontend', 'backend'],
-				})
-			})
-
-			it('parses YAML frontmatter with all fields including roles', () => {
-				const input = `---
-themes: formal
-roles:
-  - frontend
-  - fullstack
----
-# Resume`
-
-				const result = parseFrontmatterFromString(input)
-
-				expect(result.config).toEqual({
-					themes: ['formal'],
-					roles: ['frontend', 'fullstack'],
 				})
 			})
 
@@ -178,7 +125,6 @@ themes:
 				const input = `+++
 themes = "formal"
 output = "./dist/john-doe-resume"
-formats = ["pdf", "html"]
 
 [style]
 font-family = "Inter, sans-serif"
@@ -193,7 +139,6 @@ Some content here.`
 				expect(result.config).toEqual({
 					themes: ['formal'],
 					output: './dist/john-doe-resume',
-					formats: ['pdf', 'html'],
 					style: {
 						'font-family': 'Inter, sans-serif',
 						'section-header-color': '#2563eb',
@@ -235,19 +180,6 @@ primary-color = "#ff0000"
 
 				expect(result.config).toEqual({
 					style: { 'primary-color': '#ff0000' },
-				})
-			})
-
-			it('parses TOML frontmatter with roles', () => {
-				const input = `+++
-roles = ["frontend", "backend"]
-+++
-# Resume`
-
-				const result = parseFrontmatterFromString(input)
-
-				expect(result.config).toEqual({
-					roles: ['frontend', 'backend'],
 				})
 			})
 		})
@@ -377,43 +309,6 @@ output: 123
 				)
 			})
 
-			it('throws on non-array formats', () => {
-				const input = `---
-formats: pdf
----
-# Resume`
-
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'formats' must be an array",
-				)
-			})
-
-			it('throws on invalid format value', () => {
-				const input = `---
-formats:
-  - pdf
-  - invalid
----
-# Resume`
-
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"invalid format 'invalid'",
-				)
-			})
-
-			it('throws on non-string format array element', () => {
-				const input = `---
-formats:
-  - pdf
-  - 123
----
-# Resume`
-
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'formats' must contain only strings",
-				)
-			})
-
 			it('throws on non-object style', () => {
 				const input = `---
 style: "not-an-object"
@@ -437,21 +332,6 @@ style:
 				)
 			})
 
-			it('allows valid formats: pdf, html, docx, png', () => {
-				const input = `---
-formats:
-  - pdf
-  - html
-  - docx
-  - png
----
-# Resume`
-
-				const result = parseFrontmatterFromString(input)
-
-				expect(result.config?.formats).toEqual(['pdf', 'html', 'docx', 'png'])
-			})
-
 			it('warns about unknown fields in frontmatter', () => {
 				const input = `---
 themes: formal
@@ -472,7 +352,7 @@ anotherUnknown: 123
 				)
 			})
 
-			it('normalizes string role to single-element array', () => {
+			it('warns when roles is used in frontmatter', () => {
 				const input = `---
 roles: frontend
 ---
@@ -480,19 +360,25 @@ roles: frontend
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.roles).toEqual(['frontend'])
+				expect(result.config).toBeNull()
+				expect(result.warnings).toContain(
+					"unknown frontmatter field 'roles' will be ignored",
+				)
 			})
 
-			it('throws on non-string role array element', () => {
+			it('warns when formats is used in frontmatter', () => {
 				const input = `---
-roles:
-  - frontend
-  - 123
+formats:
+  - pdf
+  - html
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'roles' must contain only strings",
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toBeNull()
+				expect(result.warnings).toContain(
+					"unknown frontmatter field 'formats' will be ignored",
 				)
 			})
 
@@ -500,8 +386,6 @@ roles:
 				const input = `---
 themes: formal
 output: ./dist/my-resume
-formats:
-  - pdf
 style:
   font-family: Arial
 ---
@@ -576,7 +460,6 @@ output: test-resume
 			const filePath = join(tempDir, 'resume.md')
 			const content = `+++
 themes = "minimal"
-formats = ["pdf", "html"]
 +++
 # Test Person`
 
@@ -586,7 +469,6 @@ formats = ["pdf", "html"]
 
 			expect(result.config).toEqual({
 				themes: ['minimal'],
-				formats: ['pdf', 'html'],
 			})
 		})
 

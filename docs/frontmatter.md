@@ -10,8 +10,6 @@ Configure rendering options directly inside your resume using YAML or TOML front
 ---
 themes: zurich
 output: ./dist/John_Doe-{theme}
-formats: [pdf, html]
-roles: [frontend, backend]
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -24,8 +22,6 @@ style:
 +++
 themes = "zurich"
 output = "./dist/John_Doe-{theme}"
-formats = ["pdf", "html"]
-roles = ["frontend", "backend"]
 
 [style]
 font-family = "Inter, sans-serif"
@@ -103,23 +99,6 @@ output: "{role}/John_Doe-{theme}"
 output: ./dist/John_Doe
 ```
 
-### `formats`
-
-Output format(s) to generate.
-
-| Property     | Value                        |
-| ------------ | ---------------------------- |
-| **Type**     | `string[]`                   |
-| **Default**  | `[pdf]`                      |
-| **CLI flag** | `-f, --format <name>`        |
-| **Allowed**  | `pdf`, `html`, `docx`, `png` |
-
-Unlike `themes` and `roles`, `formats` must always be an array — a bare string is not accepted.
-
-```yaml
-formats: [pdf, html, docx]
-```
-
 ### `style`
 
 CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` → `--font-family`).
@@ -140,50 +119,6 @@ style:
 ```
 
 Available variables depend on the theme. Use `resumx theme <name>` to see a theme's CSS variables and their current values.
-
-### `roles`
-
-Which role(s) to generate output for. By default, Resumx discovers all `{.role:name}` classes in your content and generates a separate output for each. Use this field to limit which roles are generated.
-
-| Property     | Value                           |
-| ------------ | ------------------------------- |
-| **Type**     | `string` or `string[]`          |
-| **Default**  | All roles discovered in content |
-| **CLI flag** | `--role <name>`                 |
-
-A single string is automatically normalized to a one-element array.
-
-**Priority:** CLI > frontmatter > discovered roles.
-
-```yaml
-roles: [frontend, backend]
-```
-
-See [Per-Role Output](/per-role-output) for details on tagging content for different roles.
-
-### `langs`
-
-Language(s) to generate output for. When specified, Resumx filters `{lang=xx}` content and produces a separate output for each language.
-
-| Property     | Value                                        |
-| ------------ | -------------------------------------------- |
-| **Type**     | `string` or `string[]`                       |
-| **Default**  | No language filtering (all content included) |
-| **CLI flag** | `--lang <tag>`                               |
-
-Values are [BCP 47](https://www.w3.org/International/articles/language-tags/) language tags — the same standard used by the HTML [`lang`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang) global attribute (e.g. `en`, `zh-TW`, `de`, `fr`, `pt-BR`).
-
-A single string is automatically normalized to a one-element array.
-
-```yaml
-# Single language
-langs: en
-
-# Multiple languages
-langs: [en, fr]
-```
-
-See [Multi-Language](/multi-language) for details on tagging content for different languages.
 
 ## Validate Fields
 
@@ -248,9 +183,6 @@ validate:
 ---
 themes: [zurich, oxford]
 output: ./out/Jane_Smith-{theme}
-formats: [pdf, html]
-roles: [frontend]
-langs: [en, fr]
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -274,7 +206,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any frontmatter key not in the known set (`themes`, `output`, `formats`, `style`, `roles`, `langs`) produces a warning during rendering:
+Any frontmatter key not in the known set (`themes`, `output`, `style`) produces a warning during rendering:
 
 ```
 Warning: unknown frontmatter field 'foo' will be ignored

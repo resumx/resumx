@@ -650,29 +650,6 @@ Test content`
 			expect(existsSync(join(tempDir, 'dist/resume.html'))).toBe(true)
 		})
 
-		it('uses formats from frontmatter', async () => {
-			const mdContent = `---
-formats:
-  - html
-  - pdf
----
-# Test Person
-
-Test content`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			// No explicit format flags - should use frontmatter formats
-			await runCLI(['resume.md'], {
-				cwd: tempDir,
-			})
-
-			// Should create both formats specified in frontmatter
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume.pdf'))).toBe(true)
-			// docx should NOT be created (not in frontmatter)
-			expect(existsSync(join(tempDir, 'resume.docx'))).toBe(false)
-		})
-
 		it('applies style from frontmatter to CSS', async () => {
 			const mdContent = `---
 style:
@@ -884,31 +861,6 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
-		})
-
-		it('uses frontmatter roles to limit generation', async () => {
-			const mdContent = `---
-roles:
-  - frontend
----
-# Test Person
-
-## Skills
-
-- React {.role:frontend}
-- Node.js {.role:backend}
-- Go {.role:devops}`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			await runCLI(['resume.md', '--format', 'html'], {
-				cwd: tempDir,
-			})
-
-			// Single role from frontmatter → no suffix
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
 		})
 
 		it('renders normally when no roles in content', async () => {
@@ -1536,28 +1488,7 @@ roles:
 			expect(result.stderr).toContain("Unknown format: 'HTML'")
 		})
 
-		it('--format overrides frontmatter formats', async () => {
-			const mdContent = `---
-formats:
-  - pdf
-  - docx
----
-# Test Person
-
-Test content`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			await runCLI(['resume.md', '--format', 'html'], {
-				cwd: tempDir,
-			})
-
-			// CLI should win: only HTML, not PDF/DOCX from frontmatter
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume.pdf'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume.docx'))).toBe(false)
-		})
-
-		it('defaults to PDF when no --format and no frontmatter formats', async () => {
+		it('defaults to PDF when no --format flag', async () => {
 			await runCLI(['sample.md'], {
 				cwd: tempDir,
 			})

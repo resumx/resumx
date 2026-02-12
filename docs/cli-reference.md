@@ -223,14 +223,12 @@ Formats can be comma-separated: `--format pdf,html,docx`.
 
 ## Frontmatter Configuration
 
-All CLI options can be set in the resume's YAML or TOML frontmatter. CLI flags always take precedence over frontmatter values.
+Some CLI options can also be set in the resume's YAML or TOML frontmatter. CLI flags always take precedence over frontmatter values. Note that `--format` and `--role` are CLI-only options and cannot be set in frontmatter.
 
 ```yaml
 ---
 themes: zurich
 output: ./dist/John_Doe-{theme}
-formats: [pdf, html]
-roles: [frontend, backend]
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
