@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useData, useRoute } from 'vitepress'
+import { useData, useRoute, withBase } from 'vitepress'
 import type { DefaultTheme } from 'vitepress/theme'
 
 const { theme } = useData()
@@ -15,8 +15,8 @@ const groupText = computed(() => {
 		if (!group.items) continue
 		const match = group.items.some(item => {
 			if (!item.link) return false
-			// Normalize: "/what-is-resumx" matches "/what-is-resumx.html" or "/what-is-resumx"
-			const normalized = item.link.replace(/\.html$/, '')
+			// Normalize: add base and strip .html so "/what-is-resumx" matches route paths like "/guide/what-is-resumx.html"
+			const normalized = withBase(item.link.replace(/\.html$/, ''))
 			return (
 				path === normalized
 				|| path === normalized + '.html'
