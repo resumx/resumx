@@ -614,9 +614,9 @@ Test content`
 			expect(htmlContent).toContain('Palatino Linotype')
 		})
 
-		it('uses outputName from frontmatter', async () => {
+		it('uses output name from frontmatter', async () => {
 			const mdContent = `---
-outputName: custom-output-name
+output: custom-output-name
 ---
 # Test Person
 
@@ -633,9 +633,9 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
 		})
 
-		it('uses outputDir from frontmatter', async () => {
+		it('uses output directory from frontmatter', async () => {
 			const mdContent = `---
-outputDir: ./dist
+output: ./dist/
 ---
 # Test Person
 
@@ -646,7 +646,7 @@ Test content`
 				cwd: tempDir,
 			})
 
-			// Should create file in specified directory
+			// Should create file in specified directory with default name
 			expect(existsSync(join(tempDir, 'dist/resume.html'))).toBe(true)
 		})
 
@@ -693,7 +693,7 @@ Test content`
 
 		it('CLI flags override frontmatter values', async () => {
 			const mdContent = `---
-outputName: frontmatter-name
+output: frontmatter-name
 themes: modern
 ---
 # Test Person
@@ -701,7 +701,7 @@ themes: modern
 Test content`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			// CLI -o should override frontmatter outputName
+			// CLI -o should override frontmatter output
 			await execa(
 				'node',
 				[
@@ -728,7 +728,7 @@ Test content`
 		it('frontmatter is stripped from HTML output', async () => {
 			const mdContent = `---
 themes: formal
-outputName: test
+output: test
 ---
 # Test Person
 
@@ -743,7 +743,7 @@ Test content`
 
 			// Frontmatter should not appear in output
 			expect(htmlContent).not.toContain('themes: formal')
-			expect(htmlContent).not.toContain('outputName: test')
+			expect(htmlContent).not.toContain('output: test')
 			// But content should be present
 			expect(htmlContent).toContain('Test Person')
 		})
@@ -751,7 +751,7 @@ Test content`
 		it('parses TOML frontmatter', async () => {
 			const mdContent = `+++
 themes = "formal"
-outputName = "toml-output"
+output = "toml-output"
 +++
 # Test Person
 
@@ -765,10 +765,9 @@ Test content`
 			expect(existsSync(join(tempDir, 'toml-output.html'))).toBe(true)
 		})
 
-		it('combines outputName and outputDir from frontmatter', async () => {
+		it('uses output with directory and name from frontmatter', async () => {
 			const mdContent = `---
-outputName: combined
-outputDir: ./build/output
+output: ./build/output/combined
 ---
 # Test Person
 
@@ -1411,9 +1410,9 @@ Test content`
 			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(false)
 		})
 
-		it('uses frontmatter outputName from stdin content', async () => {
+		it('uses frontmatter output from stdin content', async () => {
 			const contentWithFrontmatter = `---
-outputName: from-frontmatter
+output: from-frontmatter
 ---
 # Jane Smith
 

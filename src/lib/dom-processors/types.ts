@@ -10,10 +10,6 @@
 export interface PipelineConfig {
 	/** Path to source markdown file */
 	sourcePath?: string
-	/** Output directory */
-	outputDir?: string
-	/** Output filename (without extension) */
-	outputName?: string
 	/** Output formats to generate */
 	formats?: string[]
 	/** Style name or path */
@@ -32,8 +28,6 @@ export interface PipelineConfig {
 export interface PipelineEnv {
 	/** Resolved CSS content */
 	css: string
-	/** Computed final output path */
-	resolvedOutputPath?: string
 }
 
 /**

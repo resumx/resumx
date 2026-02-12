@@ -239,6 +239,38 @@ export async function renderMultiple(
 	return new Map(results)
 }
 
+const DOC_EXTENSIONS = ['.pdf', '.html', '.htm', '.docx', '.doc', '.png']
+
+/**
+ * Strip document extensions (.pdf, .html, etc.) from a filename
+ * to avoid double extensions like resume.pdf.html
+ */
+export function stripDocExtension(name: string): string {
+	for (const ext of DOC_EXTENSIONS) {
+		if (name.endsWith(ext)) return name.slice(0, -ext.length)
+	}
+	return name
+}
+
+/**
+ * Clean up a path after template expansion:
+ * - Collapse repeated separators (-, _) into one
+ * - Trim separators from start/end of each path segment
+ * - Remove empty path segments
+ */
+export function cleanupPath(path: string): string {
+	return path
+		.split('/')
+		.map(s =>
+			s
+				.replace(/-{2,}/g, '-')
+				.replace(/_{2,}/g, '_')
+				.replace(/^[-_]+|[-_]+$/g, ''),
+		)
+		.filter(Boolean)
+		.join('/')
+}
+
 /**
  * Extract name from the first H1 heading in a markdown string
  * Returns underscore-separated name or undefined

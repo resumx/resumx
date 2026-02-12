@@ -27,7 +27,7 @@ git show HEAD~3:resume.md | resumx -o old       # Render from a past commit
 
 When reading from stdin, the output filename is derived from:
 
-1. Frontmatter `outputName` (if present)
+1. Frontmatter `output` (if present)
 2. The first `# H1` heading (e.g. `# Jane Smith` produces `Jane_Smith.pdf`)
 3. If neither exists, use `-o` to specify the output name
 
@@ -35,14 +35,14 @@ When reading from stdin, the output filename is derived from:
 
 ### Options
 
-| Flag                       | Description                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `-t, --theme <name>`       | Theme(s) to use. Repeatable, comma-separated.                                |
-| `-o, --output <name>`      | Output filename (without extension) or directory path.                       |
-| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated. |
-| `-s, --style <name=value>` | Override style property. Repeatable.                                         |
-| `--role <name>`            | Generate for specific role(s) only. Repeatable, comma-separated.             |
-| `-w, --watch`              | Watch for changes and auto-rebuild.                                          |
+| Flag                       | Description                                                                       |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                      |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`. |
+| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.      |
+| `-s, --style <name=value>` | Override style property. Repeatable.                                              |
+| `--role <name>`            | Generate for specific role(s) only. Repeatable, comma-separated.                  |
+| `-w, --watch`              | Watch for changes and auto-rebuild.                                               |
 
 ### Examples
 
@@ -58,6 +58,9 @@ resumx resume.md --theme zurich,oxford,seattle
 
 # Custom output name
 resumx resume.md --output John_Doe_Resume
+
+# Output with template variables
+resumx resume.md --output "dist/John_Doe-{theme}" --theme zurich,oxford
 
 # Override style properties
 resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#2563eb"
@@ -157,12 +160,12 @@ Shows the theme's CSS variables and their current values.
 resumx theme --default zurich
 ```
 
-| Flag                   | Description                                           |
-| ---------------------- | ----------------------------------------------------- |
-| `-d, --default <name>` | Set the global default theme.                         |
-| `--set <name=value>`   | Set a default style override for a theme. Repeatable. |
-| `-r, --reset <name>`   | Reset a specific theme style to its default.          |
-| `--reset-all`          | Reset all theme style overrides.                      |
+| Flag                     | Description                                           |
+| ------------------------ | ----------------------------------------------------- |
+| `-d, --default <name>`   | Set the global default theme.                         |
+| `--set <name=value>`     | Set a default style override for a theme. Repeatable. |
+| `-r, --reset <variable>` | Reset a specific theme style to its default.          |
+| `--reset-all`            | Reset all theme style overrides to defaults.          |
 
 ### Examples
 
@@ -220,34 +223,21 @@ Formats can be comma-separated: `--format pdf,html,docx`.
 
 ## Frontmatter Configuration
 
-All CLI options can be set in the resume's YAML frontmatter:
+All CLI options can be set in the resume's YAML or TOML frontmatter. CLI flags always take precedence over frontmatter values.
 
 ```yaml
 ---
-themes: zurich # Theme name(s)
-outputName: John_Doe_Resume # Output filename (no extension)
-outputDir: ./dist # Output directory
-formats: [pdf, html] # Output formats (pdf, html, docx, png)
-roles: [frontend, backend] # Roles to generate
-style: # Style property overrides
+themes: zurich
+output: ./dist/John_Doe-{theme}
+formats: [pdf, html]
+roles: [frontend, backend]
+style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
 ---
 ```
 
-TOML frontmatter (`+++` delimited) is also supported:
-
-```toml
-+++
-themes = "zurich"
-outputName = "John_Doe_Resume"
-formats = ["pdf", "html"]
-
-[style]
-font-family = "Inter, sans-serif"
-accent-color = "#2563eb"
-+++
-```
+See the [Frontmatter Reference](/frontmatter) for the full list of fields, types, defaults, and validation options.
 
 ## Global Configuration
 
@@ -270,7 +260,7 @@ The config directory can be overridden with the `RESUMX_CONFIG_DIR` environment 
 
 ## Output Naming
 
-Output filenames are automatically determined:
+When no `-o` flag or `output` frontmatter is set, filenames are automatically determined:
 
 | Scenario                  | Output                       |
 | ------------------------- | ---------------------------- |
@@ -278,3 +268,17 @@ Output filenames are automatically determined:
 | 1 theme, with roles       | `resume-frontend.pdf`        |
 | Multiple themes, no roles | `resume-zurich.pdf`          |
 | Multiple themes + roles   | `frontend/resume-zurich.pdf` |
+
+For custom naming, use the `-o` flag with template variables:
+
+```bash
+# Template with theme variable
+resumx resume.md -o "John_Doe-{theme}" --theme zurich,oxford
+# → John_Doe-zurich.pdf, John_Doe-oxford.pdf
+
+# Template with role and theme
+resumx resume.md -o "{role}/John_Doe-{theme}" --theme zurich,oxford --role frontend,backend
+# → frontend/John_Doe-zurich.pdf, backend/John_Doe-oxford.pdf, etc.
+```
+
+See the [Frontmatter Reference](/frontmatter#output) for full details on template variables and modes.

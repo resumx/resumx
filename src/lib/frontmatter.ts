@@ -8,8 +8,7 @@ export type OutputFormat = (typeof VALID_FORMATS)[number]
 
 export interface FrontmatterConfig {
 	themes?: string[]
-	outputName?: string
-	outputDir?: string
+	output?: string
 	formats?: OutputFormat[]
 	style?: Record<string, string>
 	roles?: string[]
@@ -22,14 +21,7 @@ export interface ParseResult {
 }
 
 // Known frontmatter fields
-const KNOWN_FIELDS = [
-	'themes',
-	'outputName',
-	'outputDir',
-	'formats',
-	'style',
-	'roles',
-]
+const KNOWN_FIELDS = ['themes', 'output', 'formats', 'style', 'roles']
 
 /**
  * Detect frontmatter type based on opening delimiter
@@ -84,20 +76,12 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 		config.themes = themeValue as string[]
 	}
 
-	// Validate outputName
-	if (data['outputName'] !== undefined) {
-		if (typeof data['outputName'] !== 'string') {
-			throw new Error("'outputName' must be a string")
+	// Validate output
+	if (data['output'] !== undefined) {
+		if (typeof data['output'] !== 'string') {
+			throw new Error("'output' must be a string")
 		}
-		config.outputName = data['outputName']
-	}
-
-	// Validate outputDir
-	if (data['outputDir'] !== undefined) {
-		if (typeof data['outputDir'] !== 'string') {
-			throw new Error("'outputDir' must be a string")
-		}
-		config.outputDir = data['outputDir']
+		config.output = data['output']
 	}
 
 	// Validate formats

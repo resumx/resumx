@@ -13,11 +13,18 @@ import {
 	renderMultiple,
 	getOutputName,
 	extractNameFromContent,
+	stripDocExtension,
+	cleanupPath,
 	type OutputFormat,
 } from '../lib/renderer.js'
 import { parseFrontmatterFromString } from '../lib/frontmatter.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { extractRoles, resolveRoles } from '../lib/roles.js'
+import {
+	validateTemplateVars,
+	expandTemplate,
+	validateTemplateUniqueness,
+} from '../lib/template.js'
 
 /**
  * Resolve which themes to use (CLI > Frontmatter > Global default)
@@ -254,47 +261,32 @@ async function runRender(
 		themes.push({ name: themeName, cssPath, variables })
 	}
 
-	// Determine base output name and directory (CLI > Frontmatter > defaults)
-	let baseOutputName: string
-	let baseOutputDir: string
+	// Determine output (CLI > Frontmatter > defaults)
+	const outputString = options.output ?? fmConfig?.output
+	let baseOutputName = context.defaultOutputName
+	let baseOutputDir = cwd
+	let outputTemplate: string | undefined
 
-	const defaultOutputName = fmConfig?.outputName ?? context.defaultOutputName
-
-	if (options.output) {
-		// CLI -o flag takes precedence
-		const endsWithSlash = options.output.endsWith('/')
-
-		if (endsWithSlash) {
-			// Use frontmatter outputName or fallback in specified directory
-			baseOutputName = defaultOutputName
-			baseOutputDir = resolve(cwd, options.output)
-		} else {
-			// Split path into directory and filename
-			const resolvedOutput = resolve(cwd, options.output)
-			baseOutputDir = dirname(resolvedOutput)
-
-			// Get basename and strip document extensions
-			let baseName = basename(resolvedOutput)
-			const documentExtensions = [
-				'.pdf',
-				'.html',
-				'.htm',
-				'.docx',
-				'.doc',
-				'.png',
-			]
-			for (const ext of documentExtensions) {
-				if (baseName.endsWith(ext)) {
-					baseName = baseName.slice(0, -ext.length)
-					break
-				}
-			}
-			baseOutputName = baseName
+	if (outputString) {
+		try {
+			validateTemplateVars(outputString, ['theme', 'role'])
+		} catch (error) {
+			console.error(chalk.red(`Error: ${(error as Error).message}`))
+			return false
 		}
-	} else {
-		// No CLI -o flag: check frontmatter, then defaults
-		baseOutputName = defaultOutputName
-		baseOutputDir = fmConfig?.outputDir ? resolve(cwd, fmConfig.outputDir) : cwd
+
+		if (outputString.endsWith('/')) {
+			// Directory: use as output dir, keep default name
+			baseOutputDir = resolve(cwd, outputString.slice(0, -1) || '.')
+		} else if (/\{[^}]+\}/.test(outputString)) {
+			// Template: expand per theme × role combination
+			outputTemplate = outputString
+		} else {
+			// Plain name: split into dir + name
+			const resolved = resolve(cwd, outputString)
+			baseOutputDir = dirname(resolved)
+			baseOutputName = stripDocExtension(basename(resolved))
+		}
 	}
 
 	// Get formats to render (CLI > Frontmatter > default)
@@ -357,12 +349,54 @@ async function runRender(
 	}
 
 	// Build render tasks for all theme × role combinations
-	const renderTasks = buildRenderTasks(
-		themes,
-		rolesToGenerate,
-		baseOutputDir,
-		baseOutputName,
-	)
+	let renderTasks: RenderTask[]
+
+	if (outputTemplate) {
+		try {
+			validateTemplateUniqueness(outputTemplate, {
+				theme: themes.map(t => t.name),
+				role: rolesToGenerate,
+			})
+		} catch (error) {
+			console.error(chalk.red(`Error: ${(error as Error).message}`))
+			return false
+		}
+
+		renderTasks = []
+		const effectiveRoles =
+			rolesToGenerate.length > 0 ? rolesToGenerate : [undefined]
+		for (const theme of themes) {
+			for (const role of effectiveRoles) {
+				const expanded = cleanupPath(
+					expandTemplate(outputTemplate, {
+						theme: theme.name,
+						role: role ?? '',
+					}),
+				)
+				const resolved = resolve(cwd, expanded)
+				const labelParts: string[] = []
+				if (themes.length > 1) labelParts.push(`theme: ${theme.name}`)
+				if (role) labelParts.push(`role: ${role}`)
+
+				renderTasks.push({
+					themeName: theme.name,
+					cssPath: theme.cssPath,
+					variables: theme.variables,
+					outputDir: dirname(resolved),
+					outputName: stripDocExtension(basename(resolved)),
+					activeRole: role,
+					label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
+				})
+			}
+		}
+	} else {
+		renderTasks = buildRenderTasks(
+			themes,
+			rolesToGenerate,
+			baseOutputDir,
+			baseOutputName,
+		)
+	}
 
 	// Render all tasks in parallel
 	const taskResults = await Promise.all(

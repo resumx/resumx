@@ -27,8 +27,7 @@ describe('frontmatter', () => {
 			it('parses YAML frontmatter with all fields', () => {
 				const input = `---
 themes: formal
-outputName: john-doe-resume
-outputDir: ./dist
+output: ./dist/john-doe-resume
 formats:
   - pdf
   - html
@@ -44,8 +43,7 @@ Some content here.`
 
 				expect(result.config).toEqual({
 					themes: ['formal'],
-					outputName: 'john-doe-resume',
-					outputDir: './dist',
+					output: './dist/john-doe-resume',
 					formats: ['pdf', 'html'],
 					style: {
 						'font-family': 'Inter, sans-serif',
@@ -67,26 +65,39 @@ themes: minimal
 				expect(result.content.trim()).toBe('# Resume')
 			})
 
-			it('parses YAML frontmatter with only outputName', () => {
+			it('parses YAML frontmatter with only output (plain name)', () => {
 				const input = `---
-outputName: my-resume
+output: my-resume
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ outputName: 'my-resume' })
+				expect(result.config).toEqual({ output: 'my-resume' })
 			})
 
-			it('parses YAML frontmatter with only outputDir', () => {
+			it('parses YAML frontmatter with output directory', () => {
 				const input = `---
-outputDir: ./build/output
+output: ./build/output/
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config).toEqual({ outputDir: './build/output' })
+				expect(result.config).toEqual({ output: './build/output/' })
+			})
+
+			it('parses YAML frontmatter with output template', () => {
+				const input = `---
+output: "build/John_Doe-{theme}-{role}"
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({
+					output: 'build/John_Doe-{theme}-{role}',
+				})
 			})
 
 			it('parses YAML frontmatter with only formats', () => {
@@ -166,8 +177,7 @@ themes:
 			it('parses TOML frontmatter with all fields', () => {
 				const input = `+++
 themes = "formal"
-outputName = "john-doe-resume"
-outputDir = "./dist"
+output = "./dist/john-doe-resume"
 formats = ["pdf", "html"]
 
 [style]
@@ -182,8 +192,7 @@ Some content here.`
 
 				expect(result.config).toEqual({
 					themes: ['formal'],
-					outputName: 'john-doe-resume',
-					outputDir: './dist',
+					output: './dist/john-doe-resume',
 					formats: ['pdf', 'html'],
 					style: {
 						'font-family': 'Inter, sans-serif',
@@ -357,25 +366,14 @@ themes: formal
 				expect(result.config?.themes).toEqual(['formal'])
 			})
 
-			it('throws on non-string outputName', () => {
+			it('throws on non-string output', () => {
 				const input = `---
-outputName: 123
+output: 123
 ---
 # Resume`
 
 				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'outputName' must be a string",
-				)
-			})
-
-			it('throws on non-string outputDir', () => {
-				const input = `---
-outputDir: 123
----
-# Resume`
-
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'outputDir' must be a string",
+					"'output' must be a string",
 				)
 			})
 
@@ -501,8 +499,7 @@ roles:
 			it('returns empty warnings when all fields are known', () => {
 				const input = `---
 themes: formal
-outputName: my-resume
-outputDir: ./dist
+output: ./dist/my-resume
 formats:
   - pdf
 style:
@@ -530,13 +527,13 @@ themes: ""
 
 			it('handles frontmatter with whitespace in values', () => {
 				const input = `---
-outputName: "my resume file"
+output: "my resume file"
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result.config?.outputName).toBe('my resume file')
+				expect(result.config?.output).toBe('my resume file')
 			})
 
 			it('handles frontmatter with special characters in style', () => {
@@ -560,7 +557,7 @@ style:
 			const filePath = join(tempDir, 'resume.md')
 			const content = `---
 themes: formal
-outputName: test-resume
+output: test-resume
 ---
 # Test Person`
 
@@ -570,7 +567,7 @@ outputName: test-resume
 
 			expect(result.config).toEqual({
 				themes: ['formal'],
-				outputName: 'test-resume',
+				output: 'test-resume',
 			})
 			expect(result.content.trim()).toBe('# Test Person')
 		})

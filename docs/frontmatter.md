@@ -1,0 +1,283 @@
+# Frontmatter Reference
+
+Configure rendering options directly inside your resume using YAML or TOML frontmatter. CLI flags take precedence over frontmatter values.
+
+## Syntax
+
+### YAML
+
+```yaml
+---
+themes: zurich
+output: ./dist/John_Doe-{theme}
+formats: [pdf, html]
+roles: [frontend, backend]
+style:
+  font-family: 'Inter, sans-serif'
+  accent-color: '#2563eb'
+---
+```
+
+### TOML
+
+```toml
++++
+themes = "zurich"
+output = "./dist/John_Doe-{theme}"
+formats = ["pdf", "html"]
+roles = ["frontend", "backend"]
+
+[style]
+font-family = "Inter, sans-serif"
+accent-color = "#2563eb"
++++
+```
+
+YAML uses `---` delimiters; TOML uses `+++`. Both are fully supported — pick whichever you prefer.
+
+## Render Fields
+
+These fields control how `resumx` renders your resume.
+
+### `themes`
+
+Theme(s) to use for rendering. When multiple themes are specified, a separate output is produced for each.
+
+| Property     | Value                                     |
+| ------------ | ----------------------------------------- |
+| **Type**     | `string` or `string[]`                    |
+| **Default**  | Global default theme (initially `zurich`) |
+| **CLI flag** | `-t, --theme <name>`                      |
+
+A single string is automatically normalized to a one-element array.
+
+**Priority:** CLI > frontmatter > global default (set via `resumx theme --default`).
+
+```yaml
+# Single theme
+themes: zurich
+
+# Multiple themes
+themes: [zurich, oxford, seattle]
+```
+
+### `output`
+
+Output path for rendered files. Supports three modes depending on its value:
+
+| Property     | Value                                                        |
+| ------------ | ------------------------------------------------------------ |
+| **Type**     | `string`                                                     |
+| **Default**  | Input filename stem in cwd (e.g. `resume.md` → `resume.pdf`) |
+| **CLI flag** | `-o, --output <value>`                                       |
+
+**Modes:**
+
+| Value                            | Mode       | Behavior                                                                       |
+| -------------------------------- | ---------- | ------------------------------------------------------------------------------ |
+| `./dist/`                        | Directory  | Ends with `/` — output files go into this directory using default naming rules |
+| `John_Doe`                       | Plain name | No `{…}` — used as the base filename, with automatic theme/role suffixes       |
+| `./dist/John_Doe-{theme}-{role}` | Template   | Contains `{theme}` and/or `{role}` — expanded for each combination             |
+
+**Template variables:**
+
+- `{theme}` — the theme name (e.g. `zurich`, `oxford`)
+- `{role}` — the role name (e.g. `frontend`, `backend`). Expands to empty string when no roles exist; orphaned separators are cleaned up automatically.
+
+When using template mode, if the expanded paths would produce duplicate filenames (e.g. multiple themes but no `{theme}` in the template), an error is raised with a suggestion.
+
+```yaml
+# Plain name — produces John_Doe.pdf
+output: John_Doe
+
+# Directory — uses default name in ./dist/
+output: ./dist/
+
+# Template — produces ./dist/John_Doe-zurich.pdf, etc.
+output: ./dist/John_Doe-{theme}
+
+# Template with both — produces frontend/John_Doe-zurich.pdf, etc.
+output: "{role}/John_Doe-{theme}"
+
+# Path with directory and name
+output: ./dist/John_Doe
+```
+
+### `formats`
+
+Output format(s) to generate.
+
+| Property     | Value                        |
+| ------------ | ---------------------------- |
+| **Type**     | `string[]`                   |
+| **Default**  | `[pdf]`                      |
+| **CLI flag** | `-f, --format <name>`        |
+| **Allowed**  | `pdf`, `html`, `docx`, `png` |
+
+Unlike `themes` and `roles`, `formats` must always be an array — a bare string is not accepted.
+
+```yaml
+formats: [pdf, html, docx]
+```
+
+### `style`
+
+CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` → `--font-family`).
+
+| Property     | Value                      |
+| ------------ | -------------------------- |
+| **Type**     | `Record<string, string>`   |
+| **Default**  | No overrides               |
+| **CLI flag** | `-s, --style <name=value>` |
+
+**Priority:** CLI > frontmatter > global theme styles (set via `resumx theme --set`) > theme defaults.
+
+```yaml
+style:
+  font-family: 'Inter, sans-serif'
+  accent-color: '#2563eb'
+  font-size: '10pt'
+```
+
+Available variables depend on the theme. Use `resumx theme <name>` to see a theme's CSS variables and their current values.
+
+### `roles`
+
+Which role(s) to generate output for. By default, Resumx discovers all `{.role:name}` classes in your content and generates a separate output for each. Use this field to limit which roles are generated.
+
+| Property     | Value                           |
+| ------------ | ------------------------------- |
+| **Type**     | `string` or `string[]`          |
+| **Default**  | All roles discovered in content |
+| **CLI flag** | `--role <name>`                 |
+
+A single string is automatically normalized to a one-element array.
+
+**Priority:** CLI > frontmatter > discovered roles.
+
+```yaml
+roles: [frontend, backend]
+```
+
+See [Per-Role Output](/per-role-output) for details on tagging content for different roles.
+
+### `langs`
+
+Language(s) to generate output for. When specified, Resumx filters `{lang=xx}` content and produces a separate output for each language.
+
+| Property     | Value                                        |
+| ------------ | -------------------------------------------- |
+| **Type**     | `string` or `string[]`                       |
+| **Default**  | No language filtering (all content included) |
+| **CLI flag** | `--lang <tag>`                               |
+
+Values are [BCP 47](https://www.w3.org/International/articles/language-tags/) language tags — the same standard used by the HTML [`lang`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang) global attribute (e.g. `en`, `zh-TW`, `de`, `fr`, `pt-BR`).
+
+A single string is automatically normalized to a one-element array.
+
+```yaml
+# Single language
+langs: en
+
+# Multiple languages
+langs: [en, fr]
+```
+
+See [Multi-Language](/multi-language) for details on tagging content for different languages.
+
+## Validate Fields
+
+These fields configure the `resumx validate` command. They are placed under a `validate` key and are separate from the render fields above.
+
+::: info
+The `validate` key is only used by `resumx validate`. The render command ignores it (and will emit a warning about an unknown field — this is expected).
+:::
+
+### `validate.extends`
+
+Base validation preset to use.
+
+| Property    | Value                                      |
+| ----------- | ------------------------------------------ |
+| **Type**    | `string`                                   |
+| **Default** | `recommended`                              |
+| **Allowed** | `recommended`, `minimal`, `strict`, `none` |
+
+**Presets:**
+
+| Preset        | Rules included                                                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `recommended` | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`, `unknown-icon`, `long-bullet`, `single-bullet-section` |
+| `minimal`     | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`                                                         |
+| `strict`      | Same rules as `recommended` (all rules run at their default severities)                                                                |
+| `none`        | No rules — validation is effectively disabled                                                                                          |
+
+### `validate.rules`
+
+Per-rule severity overrides. Set any rule to a severity level or `off` to disable it.
+
+| Property       | Value                                         |
+| -------------- | --------------------------------------------- |
+| **Type**       | `Record<string, Severity \| 'off'>`           |
+| **Severities** | `critical`, `warning`, `note`, `bonus`, `off` |
+
+```yaml
+validate:
+  extends: recommended
+  rules:
+    long-bullet: warning # Downgrade from critical
+    single-bullet-section: off # Disable entirely
+```
+
+### Available Rules
+
+| Rule                    | Default Severity     | Description                                                |
+| ----------------------- | -------------------- | ---------------------------------------------------------- |
+| `missing-name`          | `critical`           | Resume must have an H1 heading (your name).                |
+| `missing-contact`       | `critical`           | Resume must have contact info (email or phone) after name. |
+| `no-sections`           | `critical`           | Resume must have at least one H2 section.                  |
+| `no-entries`            | `warning`            | Resume should have at least one H3 entry.                  |
+| `empty-bullet`          | `critical`           | List items must have text content.                         |
+| `unknown-icon`          | `warning`            | Warn about unrecognized `::icon::` names.                  |
+| `long-bullet`           | `critical`/`warning` | Bullet exceeds character length threshold.                 |
+| `single-bullet-section` | `bonus`              | Section has only one bullet point.                         |
+
+### Full Example
+
+```yaml
+---
+themes: [zurich, oxford]
+output: ./out/Jane_Smith-{theme}
+formats: [pdf, html]
+roles: [frontend]
+langs: [en, fr]
+style:
+  accent-color: '#0ea5e9'
+validate:
+  extends: recommended
+  rules:
+    long-bullet: warning
+    single-bullet-section: off
+---
+```
+
+## Field Precedence
+
+For fields that can be set in multiple places, the resolution order is:
+
+| Priority    | Source                               |
+| ----------- | ------------------------------------ |
+| 1 (highest) | CLI flags                            |
+| 2           | Frontmatter                          |
+| 3           | Global config (`resumx theme --set`) |
+| 4 (lowest)  | Theme defaults                       |
+
+## Unknown Fields
+
+Any frontmatter key not in the known set (`themes`, `output`, `formats`, `style`, `roles`, `langs`) produces a warning during rendering:
+
+```
+Warning: unknown frontmatter field 'foo' will be ignored
+```
+
+This does not prevent rendering — the field is simply ignored. Note that `validate` is a known field for the validate command but not for the render command, so you will see a warning when rendering a file that contains it.
