@@ -18,6 +18,8 @@ export interface PipelineConfig {
 	variables?: Record<string, string>
 	/** Active role for content filtering */
 	activeRole?: string
+	/** Active language for content filtering */
+	activeLang?: string
 	/** Available roles from content */
 	roles?: string[]
 }

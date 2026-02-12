@@ -25,6 +25,8 @@ export interface HtmlGeneratorOptions {
 	expressionContext?: Record<string, unknown>
 	/** Active role for filtering content (if set, only matching role content is included) */
 	activeRole?: string
+	/** Active language for filtering content (if set, only matching language content is included) */
+	activeLang?: string
 }
 
 /**
@@ -98,6 +100,7 @@ export async function generateHtml(
 	const ctx: PipelineContext = {
 		config: {
 			activeRole: options.activeRole,
+			activeLang: options.activeLang,
 			variables: options.variables,
 		},
 		env: {

@@ -827,10 +827,8 @@ Test content`
 				cwd: tempDir,
 			})
 
-			const htmlContent = readFileSync(
-				join(tempDir, 'resume-frontend.html'),
-				'utf-8',
-			)
+			// Single role → no suffix
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
 			expect(htmlContent).toContain('React')
 			expect(htmlContent).not.toContain('Node.js')
 			expect(htmlContent).toContain('Common skill')
@@ -882,9 +880,9 @@ Test content`
 				cwd: tempDir,
 			})
 
-			// Should generate single file (no role suffix when only one)
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			// Single role selected → no suffix needed
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 		})
 
@@ -906,9 +904,9 @@ roles:
 				cwd: tempDir,
 			})
 
-			// Should only generate frontend (configured in frontmatter)
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			// Single role from frontmatter → no suffix
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
 		})
@@ -958,14 +956,224 @@ roles:
 				cwd: tempDir,
 			})
 
-			const htmlContent = readFileSync(
-				join(tempDir, 'resume-backend.html'),
-				'utf-8',
-			)
+			// Single role → no suffix
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
 			expect(htmlContent).not.toContain('Frontend Skills')
 			expect(htmlContent).not.toContain('React')
 			expect(htmlContent).toContain('Backend Skills')
 			expect(htmlContent).toContain('Node.js')
+		})
+	})
+
+	describe('language filtering', () => {
+		it('auto-generates all language variants when langs exist', async () => {
+			const mdContent = `# Test Person
+
+## [Experience]{lang=en} [Expérience]{lang=fr}
+
+- [Reduced API latency by 60%]{lang=en}
+  [Réduction de la latence API de 60%]{lang=fr}
+- React, Node.js, PostgreSQL`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html'], {
+				cwd: tempDir,
+			})
+
+			// Should generate separate files for each language
+			expect(existsSync(join(tempDir, 'resume-en.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-fr.html'))).toBe(true)
+
+			// Check content filtering
+			const enHtml = readFileSync(join(tempDir, 'resume-en.html'), 'utf-8')
+			expect(enHtml).toContain('Experience')
+			expect(enHtml).toContain('Reduced API latency by 60%')
+			expect(enHtml).not.toContain('Expérience')
+			expect(enHtml).not.toContain('Réduction de la latence')
+			expect(enHtml).toContain('React, Node.js, PostgreSQL') // Common content
+
+			const frHtml = readFileSync(join(tempDir, 'resume-fr.html'), 'utf-8')
+			expect(frHtml).toContain('Expérience')
+			expect(frHtml).toContain('Réduction de la latence API de 60%')
+			expect(frHtml).not.toContain('Experience')
+			expect(frHtml).not.toContain('Reduced API latency')
+			expect(frHtml).toContain('React, Node.js, PostgreSQL') // Common content
+		})
+
+		it('filters content with --lang flag', async () => {
+			const mdContent = `# Test Person
+
+## [Experience]{lang=en} [Expérience]{lang=fr}
+
+- [Built REST APIs]{lang=en}
+  [Développé des APIs REST]{lang=fr}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html', '--lang', 'en'], {
+				cwd: tempDir,
+			})
+
+			// --lang en should generate only English
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-fr.html'))).toBe(false)
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('Experience')
+			expect(htmlContent).toContain('Built REST APIs')
+			expect(htmlContent).not.toContain('Expérience')
+			expect(htmlContent).not.toContain('Développé des APIs REST')
+		})
+
+		it('renders normally when no lang attributes in content', async () => {
+			const mdContent = `# Test Person
+
+## Experience
+
+- Built REST APIs
+- React, Node.js`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html'], {
+				cwd: tempDir,
+			})
+
+			// Should generate single file (no lang suffix)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('Built REST APIs')
+		})
+
+		it('single lang discovered produces no suffix', async () => {
+			const mdContent = `# Test Person
+
+## Experience
+
+- [Built REST APIs]{lang=en}
+- React, Node.js`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html'], {
+				cwd: tempDir,
+			})
+
+			// Only one language discovered → no suffix
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-en.html'))).toBe(false)
+		})
+
+		it('combines lang with roles', async () => {
+			const mdContent = `# Test Person
+
+## [Skills]{lang=en} [Compétences]{lang=fr}
+
+- [React]{lang=en} {.role:frontend}
+- [Node.js]{lang=en} {.role:backend}
+- [React]{lang=fr} {.role:frontend}
+- [Node.js]{lang=fr} {.role:backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html'], {
+				cwd: tempDir,
+			})
+
+			// 2 langs × 2 roles = 4 files, flat: {name}-{role}-{lang}.{format}
+			expect(existsSync(join(tempDir, 'resume-frontend-en.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend-fr.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend-en.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend-fr.html'))).toBe(true)
+		})
+
+		it('combines lang with themes', async () => {
+			const mdContent = `# Test Person
+
+## [Experience]{lang=en} [Expérience]{lang=fr}
+
+- [Built APIs]{lang=en}
+  [Développé des APIs]{lang=fr}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(
+				['resume.md', '--format', 'html', '--theme', 'formal,modern'],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// 2 langs × 2 themes = 4 files
+			expect(existsSync(join(tempDir, 'resume-en-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-en-modern.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-fr-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-fr-modern.html'))).toBe(true)
+		})
+
+		it('accepts comma-separated langs', async () => {
+			const mdContent = `# Test Person
+
+## [Experience]{lang=en} [Expérience]{lang=fr} [Erfahrung]{lang=de}
+
+- [Built APIs]{lang=en}
+  [Développé des APIs]{lang=fr}
+  [APIs entwickelt]{lang=de}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html', '--lang', 'en,fr'], {
+				cwd: tempDir,
+			})
+
+			// Should generate only en and fr, not de
+			expect(existsSync(join(tempDir, 'resume-en.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-fr.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-de.html'))).toBe(false)
+		})
+
+		it('errors when --lang specifies non-existent language', async () => {
+			const mdContent = `# Test Person
+
+## [Experience]{lang=en} [Expérience]{lang=fr}
+
+- [Built APIs]{lang=en}
+  [Développé des APIs]{lang=fr}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			const result = await runCLI(
+				['resume.md', '--format', 'html', '--lang', 'de'],
+				{
+					cwd: tempDir,
+					reject: false,
+				},
+			)
+
+			expect(result.exitCode).toBe(1)
+			expect(result.stderr).toContain("language 'de' does not exist")
+			expect(result.stderr).toContain('Available languages: en, fr')
+		})
+
+		it('handles fenced div blocks with lang attribute', async () => {
+			const mdContent = `# Test Person
+
+## Education
+
+::: {lang=fr}
+- Moyenne cumulative : 3.82
+- Cours avancés : Systèmes distribués
+:::
+
+::: {lang=en}
+- GPA: 3.82
+- Advanced courses: Distributed Systems
+:::`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await runCLI(['resume.md', '--format', 'html', '--lang', 'en'], {
+				cwd: tempDir,
+			})
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('GPA: 3.82')
+			expect(htmlContent).toContain('Distributed Systems')
+			expect(htmlContent).not.toContain('Moyenne cumulative')
+			expect(htmlContent).not.toContain('Systèmes distribués')
 		})
 	})
 
@@ -1062,10 +1270,11 @@ roles:
 				cwd: tempDir,
 			})
 
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
-			// Should not create an empty-named file
+			// Single role after trimming → no suffix
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			// Should not create an empty-named or suffixed file
 			expect(existsSync(join(tempDir, 'resume-.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 		})
 	})
 
@@ -1097,7 +1306,7 @@ roles:
 			expect(modernHtml).toContain('Helvetica Neue') // modern theme font
 		})
 
-		it('generates role folders with theme suffix for multi-theme + roles', async () => {
+		it('generates flat filenames for multi-theme + roles', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -1106,7 +1315,7 @@ roles:
 - Node.js {.role:backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			// multi-theme + roles → frontend/resume-formal.html, frontend/resume-modern.html, etc.
+			// multi-theme + roles → resume-frontend-formal.html, etc.
 			await runCLI(
 				[
 					'resume.md',
@@ -1122,28 +1331,28 @@ roles:
 				},
 			)
 
-			// Should generate role folders with theme-suffixed files
-			expect(existsSync(join(tempDir, 'frontend/resume-formal.html'))).toBe(
+			// Flat naming: {name}-{role}-{theme}.{format}
+			expect(existsSync(join(tempDir, 'resume-frontend-formal.html'))).toBe(
 				true,
 			)
-			expect(existsSync(join(tempDir, 'frontend/resume-modern.html'))).toBe(
+			expect(existsSync(join(tempDir, 'resume-frontend-modern.html'))).toBe(
 				true,
 			)
-			expect(existsSync(join(tempDir, 'backend/resume-formal.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'backend/resume-modern.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend-formal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend-modern.html'))).toBe(true)
 
-			// Verify content filtering in frontend variant
+			// Verify content filtering in frontend + formal variant
 			const frontendFormalHtml = readFileSync(
-				join(tempDir, 'frontend/resume-formal.html'),
+				join(tempDir, 'resume-frontend-formal.html'),
 				'utf-8',
 			)
 			expect(frontendFormalHtml).toContain('React')
 			expect(frontendFormalHtml).not.toContain('Node.js')
 			expect(frontendFormalHtml).toContain('Palatino Linotype') // formal theme
 
-			// Verify content filtering in backend variant
+			// Verify content filtering in backend + modern variant
 			const backendModernHtml = readFileSync(
-				join(tempDir, 'backend/resume-modern.html'),
+				join(tempDir, 'resume-backend-modern.html'),
 				'utf-8',
 			)
 			expect(backendModernHtml).toContain('Node.js')
@@ -1161,7 +1370,7 @@ roles:
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(false)
 		})
 
-		it('single theme with roles produces role suffix only', async () => {
+		it('single theme with single role produces no suffix', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -1185,12 +1394,10 @@ roles:
 				},
 			)
 
-			// Should generate file with role suffix, no theme suffix
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			// Single role + single theme → no suffix for either
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-formal.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-frontend-formal.html'))).toBe(
-				false,
-			)
 		})
 
 		it('supports repeated --theme flags', async () => {

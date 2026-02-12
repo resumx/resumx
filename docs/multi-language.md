@@ -105,16 +105,11 @@ Values in `{lang=xx}` are [BCP 47](https://www.w3.org/International/articles/lan
 | `pt-BR` | Portuguese (Brazil)           |
 | `ar`    | Arabic                        |
 
-By default, Resumx discovers all `{lang=xx}` values in your content and generates a separate output for each. Use the `langs` frontmatter field or the `--lang` CLI flag to limit which languages get generated:
-
-```yaml
----
-langs: [en] # Only generate the English version
----
-```
+By default, Resumx discovers all `{lang=xx}` values in your content and generates a separate output for each. Use the `--lang` CLI flag to limit which languages get generated:
 
 ```bash
-resumx render resume.md --lang en
+resumx render resume.md --lang en        # English only
+resumx render resume.md --lang en,fr     # English and French
 ```
 
-Langs combines with roles, themes, and formats. For example, 2 langs × 2 roles × 2 themes = **8 PDFs**. Output files include the language tag: `resume-en-frontend-zurich.pdf`, `resume-fr-backend-oxford.pdf`, etc.
+Languages combine with roles, themes, and formats. For example, 2 langs × 2 roles × 2 themes = **8 PDFs**. Each dimension is included in the filename only when it has multiple values: `resume-frontend-en-zurich.pdf`, `resume-backend-fr-oxford.pdf`, etc.

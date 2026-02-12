@@ -20,6 +20,8 @@ import {
 import { parseFrontmatterFromString } from '../lib/frontmatter.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { extractRoles, resolveRoles } from '../lib/roles.js'
+import { extractLangs, resolveLangs } from '../lib/langs.js'
+import { cartesian } from '../lib/cartesian.js'
 import {
 	validateTemplateVars,
 	expandTemplate,
@@ -54,6 +56,7 @@ export interface RenderCommandOptions {
 	output?: string
 	style?: string[]
 	role?: string[]
+	lang?: string[]
 	format?: string[]
 	watch?: boolean
 }
@@ -107,7 +110,7 @@ function formatDuration(ms: number): string {
 }
 
 /**
- * Render task representing a single (theme, role) combination
+ * Render task representing a single (theme, role, lang) combination
  */
 interface RenderTask {
 	themeName: string
@@ -116,17 +119,16 @@ interface RenderTask {
 	outputDir: string
 	outputName: string
 	activeRole: string | undefined
+	activeLang: string | undefined
 	label: string
 }
 
 /**
- * Build render tasks for all theme × role combinations
+ * Build render tasks for all theme × role × lang combinations
  *
- * Output naming rules:
- * - 1 theme, no roles    → resume.pdf
- * - 1 theme, roles       → resume-frontend.pdf
- * - multi-theme, no roles → resume-formal.pdf
- * - multi-theme + roles   → frontend/resume-formal.pdf
+ * Output filename: {name}-{role}-{lang}-{theme}.{format}
+ * Each dimension is included as a suffix only when it has multiple values.
+ * Suffixes are always in fixed order: role, lang, theme.
  */
 function buildRenderTasks(
 	themes: Array<{
@@ -135,47 +137,53 @@ function buildRenderTasks(
 		variables: Record<string, string>
 	}>,
 	roles: string[],
+	langs: string[],
 	baseOutputDir: string,
 	baseOutputName: string,
 ): RenderTask[] {
 	const tasks: RenderTask[] = []
+	const hasMultipleRoles = roles.length > 1
+	const hasMultipleLangs = langs.length > 1
 	const hasMultipleThemes = themes.length > 1
-	const hasRoles = roles.length > 0
 
-	for (const theme of themes) {
-		const effectiveRoles = hasRoles ? roles : [undefined]
+	const effectiveRoles: Array<string | undefined> =
+		roles.length > 0 ? roles : [undefined]
+	const effectiveLangs: Array<string | undefined> =
+		langs.length > 0 ? langs : [undefined]
 
-		for (const role of effectiveRoles) {
-			let outputDir = baseOutputDir
-			let outputName = baseOutputName
-			const labelParts: string[] = []
+	for (const [theme, role, lang] of cartesian(
+		themes,
+		effectiveRoles,
+		effectiveLangs,
+	)) {
+		// Build suffix in fixed order: role, lang, theme
+		const suffixParts = [
+			hasMultipleRoles && role,
+			hasMultipleLangs && lang,
+			hasMultipleThemes && theme.name,
+		].filter(Boolean) as string[]
 
-			if (hasMultipleThemes && hasRoles && role) {
-				// multi-theme + roles → frontend/resume-formal.pdf
-				outputDir = join(baseOutputDir, role)
-				outputName = `${baseOutputName}-${theme.name}`
-				labelParts.push(`role: ${role}`, `theme: ${theme.name}`)
-			} else if (hasMultipleThemes) {
-				// multi-theme, no roles → resume-formal.pdf
-				outputName = `${baseOutputName}-${theme.name}`
-				labelParts.push(`theme: ${theme.name}`)
-			} else if (hasRoles && role) {
-				// 1 theme, roles → resume-frontend.pdf
-				outputName = `${baseOutputName}-${role}`
-				labelParts.push(`role: ${role}`)
-			}
-			// else: 1 theme, no roles → resume.pdf (no suffix)
+		const labelParts = [
+			hasMultipleRoles && role && `role: ${role}`,
+			hasMultipleLangs && lang && `lang: ${lang}`,
+			hasMultipleThemes && `theme: ${theme.name}`,
+		].filter(Boolean) as string[]
 
-			tasks.push({
-				themeName: theme.name,
-				cssPath: theme.cssPath,
-				variables: theme.variables,
-				outputDir,
-				outputName,
-				activeRole: role,
-				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
-			})
-		}
+		const outputName =
+			suffixParts.length > 0 ?
+				`${baseOutputName}-${suffixParts.join('-')}`
+			:	baseOutputName
+
+		tasks.push({
+			themeName: theme.name,
+			cssPath: theme.cssPath,
+			variables: theme.variables,
+			outputDir: baseOutputDir,
+			outputName,
+			activeRole: role,
+			activeLang: lang,
+			label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
+		})
 	}
 
 	return tasks
@@ -269,7 +277,7 @@ async function runRender(
 
 	if (outputString) {
 		try {
-			validateTemplateVars(outputString, ['theme', 'role'])
+			validateTemplateVars(outputString, ['theme', 'role', 'lang'])
 		} catch (error) {
 			console.error(chalk.red(`Error: ${(error as Error).message}`))
 			return false
@@ -331,9 +339,10 @@ async function runRender(
 		...(fmConfig ?? {}),
 	}
 
-	// Discover roles from content (render markdown first to get HTML)
+	// Discover roles and languages from content (render markdown first to get HTML)
 	const html = renderMarkdown(content)
 	const discoveredRoles = extractRoles(html)
+	const discoveredLangs = extractLangs(html)
 
 	// Resolve which roles to generate (priority: CLI > frontmatter > discovered)
 	let rolesToGenerate: string[]
@@ -348,6 +357,15 @@ async function runRender(
 		return false
 	}
 
+	// Resolve which languages to generate (priority: CLI > discovered)
+	let langsToGenerate: string[]
+	try {
+		langsToGenerate = resolveLangs(options.lang ?? [], discoveredLangs)
+	} catch (error) {
+		console.error(chalk.red(`Error: ${(error as Error).message}`))
+		return false
+	}
+
 	// Build render tasks for all theme × role combinations
 	let renderTasks: RenderTask[]
 
@@ -356,6 +374,7 @@ async function runRender(
 			validateTemplateUniqueness(outputTemplate, {
 				theme: themes.map(t => t.name),
 				role: rolesToGenerate,
+				lang: langsToGenerate,
 			})
 		} catch (error) {
 			console.error(chalk.red(`Error: ${(error as Error).message}`))
@@ -363,36 +382,45 @@ async function runRender(
 		}
 
 		renderTasks = []
-		const effectiveRoles =
+		const effectiveRoles: Array<string | undefined> =
 			rolesToGenerate.length > 0 ? rolesToGenerate : [undefined]
-		for (const theme of themes) {
-			for (const role of effectiveRoles) {
-				const expanded = cleanupPath(
-					expandTemplate(outputTemplate, {
-						theme: theme.name,
-						role: role ?? '',
-					}),
-				)
-				const resolved = resolve(cwd, expanded)
-				const labelParts: string[] = []
-				if (themes.length > 1) labelParts.push(`theme: ${theme.name}`)
-				if (role) labelParts.push(`role: ${role}`)
+		const effectiveLangs: Array<string | undefined> =
+			langsToGenerate.length > 0 ? langsToGenerate : [undefined]
 
-				renderTasks.push({
-					themeName: theme.name,
-					cssPath: theme.cssPath,
-					variables: theme.variables,
-					outputDir: dirname(resolved),
-					outputName: stripDocExtension(basename(resolved)),
-					activeRole: role,
-					label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
-				})
-			}
+		for (const [theme, role, lang] of cartesian(
+			themes,
+			effectiveRoles,
+			effectiveLangs,
+		)) {
+			const expanded = cleanupPath(
+				expandTemplate(outputTemplate, {
+					theme: theme.name,
+					role: role ?? '',
+					lang: lang ?? '',
+				}),
+			)
+			const resolved = resolve(cwd, expanded)
+			const labelParts: string[] = []
+			if (themes.length > 1) labelParts.push(`theme: ${theme.name}`)
+			if (role) labelParts.push(`role: ${role}`)
+			if (lang) labelParts.push(`lang: ${lang}`)
+
+			renderTasks.push({
+				themeName: theme.name,
+				cssPath: theme.cssPath,
+				variables: theme.variables,
+				outputDir: dirname(resolved),
+				outputName: stripDocExtension(basename(resolved)),
+				activeRole: role,
+				activeLang: lang,
+				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
+			})
 		}
 	} else {
 		renderTasks = buildRenderTasks(
 			themes,
 			rolesToGenerate,
+			langsToGenerate,
 			baseOutputDir,
 			baseOutputName,
 		)
@@ -414,6 +442,7 @@ async function runRender(
 						expressionContext
 					:	undefined,
 				activeRole: task.activeRole,
+				activeLang: task.activeLang,
 			})
 			return { label: task.label, results }
 		}),

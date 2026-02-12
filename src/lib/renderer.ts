@@ -22,6 +22,7 @@ export interface RenderOptions {
 	variables?: Record<string, string>
 	expressionContext?: Record<string, unknown>
 	activeRole?: string
+	activeLang?: string
 }
 
 export interface RenderResult {
@@ -133,6 +134,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			variables: options.variables,
 			expressionContext: options.expressionContext,
 			activeRole: options.activeRole,
+			activeLang: options.activeLang,
 		})
 
 		// Ensure output directory exists
@@ -192,6 +194,7 @@ export interface RenderMultipleOptions {
 	variables?: Record<string, string>
 	expressionContext?: Record<string, unknown>
 	activeRole?: string
+	activeLang?: string
 }
 
 /**
@@ -209,6 +212,7 @@ export async function renderMultiple(
 		variables,
 		expressionContext,
 		activeRole,
+		activeLang,
 	} = options
 
 	// Process expressions once before rendering to any format
@@ -229,6 +233,7 @@ export async function renderMultiple(
 			cssPath,
 			variables,
 			activeRole,
+			activeLang,
 		})
 
 		return [format, result] as const

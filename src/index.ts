@@ -149,6 +149,12 @@ program
 		[],
 	)
 	.option(
+		'--lang <tag>',
+		'Generate for specific language(s) only (repeatable, BCP 47 tags)',
+		collectWithCommas,
+		[],
+	)
+	.option(
 		'-f, --format <name>',
 		'Output format(s): pdf, html, docx, png (repeatable, comma-separated)',
 		collectWithCommas,
