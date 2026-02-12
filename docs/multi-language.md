@@ -44,7 +44,7 @@ Unlike roles, `lang` is a [standard HTML global attribute](https://developer.moz
 
 The `lang` attribute works everywhere attributes work in Resumx — [bracketed spans, element attributes, and fenced divs](/classes-and-ids). Bracketed spans handle most cases:
 
-```markdown /{lang=en}/ /{lang=fr}/
+```markdown
 ## [Experience]{lang=en} [Expérience professionnelle]{lang=fr}
 
 ### Google
@@ -57,7 +57,7 @@ The `lang` attribute works everywhere attributes work in Resumx — [bracketed s
 For large blocks where everything differs, use [fenced divs](/classes-and-ids#fenced-divs):
 
 <!-- prettier-ignore -->
-```markdown /{lang=fr}/
+```markdown
 ::: {lang=fr}
 - Moyenne cumulative : 3.82
 - Cours avancés : Systèmes distribués, Algorithmes
@@ -68,13 +68,13 @@ For large blocks where everything differs, use [fenced divs](/classes-and-ids#fe
 
 `{lang=xx}` and `{.role:name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.role:backend}` without brackets is an [element attribute](/classes-and-ids#element-attributes) that applies to the whole bullet.
 
-```markdown /{.role:backend}/ /{lang=en}/ /{lang=fr}/
+```markdown
 - [Designed REST APIs with OpenAPI spec]{lang=en} [Conception d'API REST avec OpenAPI]{lang=fr} {.role:backend}
 ```
 
 Break into multiple lines for readability — Markdown collapses them into the same bullet:
 
-```markdown /{.role:backend}/ /{lang=en}/ /{lang=fr}/
+```markdown
 - [Designed REST APIs with OpenAPI spec]{lang=en}
   [Conception d'API REST avec OpenAPI]{lang=fr}
   {.role:backend}
