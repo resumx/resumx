@@ -1,8 +1,6 @@
 # What is Resumx?
 
-<!-- <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) is a resume-flavored Markdown for building resumes. -->
-
-<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) builds resumes from Markdown — one file, every theme and format.
+<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) builds resumes from Markdown — one file, every theme and format.
 
 ```markdown
 ---

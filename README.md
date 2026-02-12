@@ -3,7 +3,7 @@
 <h1 align="center">Resumx</h1>
 
 <p align="center">
-  <strong>/rɪˈzuːmɪx/</strong> — <strong>Resu</strong>me <strong>M</strong>arkdown e<strong>X</strong>tension
+  <strong>/rɪˈzuːmɪx/</strong> — <strong>Resu</strong>me <strong>M</strong>arkdown e<strong>X</strong>pression
 </p>
 
 <p align="center">
