@@ -6,9 +6,7 @@ pages: 1
 ---
 ```
 
-Declare a target page count. Resumx adjusts the layout to make it fit.
-
-**Shrinks** when content overflows. **Expands** gaps when there's leftover space on a single page. **Stops at readability minimums** so the result doesn't look broken.
+Set a target page count. The layout shrinks to fit if content overflows, expands gaps if there's leftover space on a single page, and stops at readability minimums.
 
 <!-- TODO: side-by-side comparison image — left: 1.1 pages without `pages:`, right: 1 page with `pages: 1` -->
 
@@ -24,19 +22,17 @@ It works for multi-page targets too: `pages: 2` fits a 2.2-page resume into two.
 
 ## What Gets Adjusted
 
-When content overflows, variables are adjusted from least to most noticeable:
+All adjustable variables shrink together by the same proportion:
 
-| Order | Variables                        | Notes             |
-| ----- | -------------------------------- | ----------------- |
-| 1     | `bullet-gap`, `data-row-gap`     | Almost invisible  |
-| 2     | `entry-gap`, `section-gap`       | Barely noticeable |
-| 3     | `line-height`                    | Subtle            |
-| 4     | `font-size`                      | Noticeable        |
-| 5     | `page-margin-x`, `page-margin-y` | Last resort       |
+| Variable                                                 | Type       |
+| -------------------------------------------------------- | ---------- |
+| `bullet-gap`, `data-row-gap`, `entry-gap`, `section-gap` | Spacing    |
+| `font-size`, `line-height`                               | Typography |
+| `page-margin-x`, `page-margin-y`                         | Margins    |
 
-Each phase only activates if the previous one didn't resolve the overflow. For a typical 1.1-page resume, only gaps are touched.
+A small overflow results in a small reduction across all of them. A larger overflow reduces more, but the ratio stays even.
 
-For `pages: 1`, if content is shorter than a full page, gaps **expand** to fill the remaining space (capped at 1.5x their original values). Works across all themes automatically.
+For `pages: 1`, if content is shorter than a full page, gaps expand to fill the remaining space.
 
 ### Minimums
 
