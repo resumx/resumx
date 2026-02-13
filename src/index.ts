@@ -143,7 +143,7 @@ program
 		[],
 	)
 	.option(
-		'--role <name>',
+		'-r, --role <name>',
 		'Generate for specific role(s) only (repeatable)',
 		collectWithCommas,
 		[],

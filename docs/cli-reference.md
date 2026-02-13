@@ -41,7 +41,7 @@ When reading from stdin, the output filename is derived from:
 | `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`. |
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.      |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                              |
-| `--role <name>`            | Generate for specific role(s) only. Repeatable, comma-separated.                  |
+| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                  |
 | `-w, --watch`              | Watch for changes and auto-rebuild.                                               |
 
 ### Examples
