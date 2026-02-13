@@ -45,7 +45,7 @@ You can also tag inline text with [bracketed spans](/classes-and-ids#bracketed-s
 
 **By default, Resumx discovers all `role:*` classes in your content and generates a separate PDF for each — no configuration needed.**
 
-If you don't need every variant, use `--role` to limit which ones get generated:
+If you don't need every variant, use `-r` / `--role` to limit which ones get generated:
 
 ```bash
 resumx resume.md --role frontend
