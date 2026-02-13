@@ -50,6 +50,7 @@ export default defineConfig({
 			{
 				text: 'Styling',
 				items: [
+					{ text: 'Fit to Page', link: '/fit-to-page' },
 					{ text: 'Themes', link: '/themes' },
 					{ text: 'Tailwind CSS', link: '/tailwind-css' },
 					{ text: 'Custom CSS', link: '/custom-css' },

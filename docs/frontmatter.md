@@ -9,6 +9,7 @@ Configure rendering options directly inside your resume using YAML or TOML front
 ```yaml
 ---
 themes: zurich
+pages: 1
 output: ./dist/John_Doe-{theme}
 style:
   font-family: 'Inter, sans-serif'
@@ -21,6 +22,7 @@ style:
 ```toml
 +++
 themes = "zurich"
+pages = 1
 output = "./dist/John_Doe-{theme}"
 
 [style]
@@ -98,6 +100,45 @@ output: "{role}/John_Doe-{theme}"
 # Path with directory and name
 output: ./dist/John_Doe
 ```
+
+### `pages`
+
+Target page count. When set, Resumx automatically adjusts CSS variables (gaps, line-height, font-size, margins) to fit your resume within the specified number of pages.
+
+| Property     | Value              |
+| ------------ | ------------------ |
+| **Type**     | positive integer   |
+| **Default**  | No page clamping   |
+| **CLI flag** | `--pages <number>` |
+
+**Behavior:**
+
+- **Shrink to fit**: Progressively reduces spacing, line-height, font-size, and margins through a four-phase waterfall until content fits within the target page count. Adjustments stop as soon as the target is reached — no more is changed than necessary.
+- **Single-page fill** (`pages: 1` only): If content fits on one page with room to spare, gaps are expanded (up to 1.5× their original value) to fill the page. This only applies to single-page resumes where bottom whitespace looks unintentional.
+- **Readability minimums**: Variables are never reduced below safe minimums (e.g. font-size: 9pt, line-height: 1.15, section-gap: 4px). If content cannot fit even at minimums, the resume renders as-is with a warning.
+
+The shrinking phases apply in order of visual impact (least noticeable first):
+
+1. **Gaps** — bullet-gap, data-row-gap, entry-gap, section-gap
+2. **Line height** — unitless line-height ratio
+3. **Font size** — in points
+4. **Margins** — page-margin-x and page-margin-y (last resort)
+
+**Priority:** CLI > frontmatter.
+
+```yaml
+# Fit resume to exactly 1 page (shrink + fill)
+pages: 1
+
+# Fit resume to at most 2 pages (shrink only)
+pages: 2
+```
+
+::: tip
+`style:` values are treated as **starting points** when `pages:` is set. The clamping engine may reduce them toward global minimums. If you want strict style control without any automatic adjustments, don't use `pages:`.
+:::
+
+See [Fit to Page](/fit-to-page) for the full guide.
 
 ### `style`
 
@@ -182,6 +223,7 @@ validate:
 ```yaml
 ---
 themes: [zurich, oxford]
+pages: 1
 output: ./out/Jane_Smith-{theme}
 style:
   accent-color: '#0ea5e9'
@@ -206,7 +248,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any frontmatter key not in the known set (`themes`, `output`, `style`) produces a warning during rendering:
+Any frontmatter key not in the known set (`themes`, `output`, `style`, `pages`) produces a warning during rendering:
 
 ```
 Warning: unknown frontmatter field 'foo' will be ignored

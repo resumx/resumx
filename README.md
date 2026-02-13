@@ -22,6 +22,7 @@ Write your resume in Markdown. Configure themes and styles in frontmatter, choos
 ```markdown
 ---
 themes: [zurich, oxford]
+pages: 1
 style:
   font-size: 10pt
   bullet-style: circle
@@ -64,6 +65,16 @@ resumx resume.md --watch       # Live preview — rebuilds on every save
 
 Open `resume.md` in your editor and start writing. Read the full [Quick Start guide](docs/quick-start.md).
 
+## Fit to Page
+
+Resume too long? Add one line to your frontmatter:
+
+```yaml
+pages: 1
+```
+
+Resumx shrinks spacing, line-height, font-size, and margins — in that order — until the content fits. When a single-page resume has room to spare, it expands gaps to fill the page. Works with any theme, respects your `style:` overrides. [Read more →](docs/fit-to-page.md)
+
 ## Features
 
 - **Per-role output** — Tag content with `{.role:frontend}`, get `resume-frontend.pdf` automatically. [Per-Role Output](docs/per-role-output.md)
@@ -85,6 +96,7 @@ Open `resume.md` in your editor and start writing. Read the full [Quick Start gu
 | `resumx [file] --theme zurich,oxford`  | Multiple themes           |
 | `resumx [file] --role frontend`        | Role-specific output      |
 | `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX         |
+| `resumx [file] --pages 1`              | Fit to 1 page             |
 | `resumx init`                          | Create from template      |
 | `resumx eject [theme]`                 | Copy theme CSS locally    |
 | `resumx theme`                         | List / manage themes      |

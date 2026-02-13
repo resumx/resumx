@@ -42,6 +42,7 @@ When reading from stdin, the output filename is derived from:
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.      |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                              |
 | `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                  |
+| `--pages <number>`         | Target page count. Shrinks to fit; for `1`, also fills remaining space.           |
 | `-w, --watch`              | Watch for changes and auto-rebuild.                                               |
 
 ### Examples
@@ -67,6 +68,9 @@ resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#
 
 # Multiple formats
 resumx resume.md --format pdf,html,docx
+
+# Fit to 1 page (shrink + fill)
+resumx resume.md --pages 1
 
 # Watch mode
 resumx resume.md --watch
@@ -228,6 +232,7 @@ Some CLI options can also be set in the resume's YAML or TOML frontmatter. CLI f
 ```yaml
 ---
 themes: zurich
+pages: 1
 output: ./dist/John_Doe-{theme}
 style:
   font-family: 'Inter, sans-serif'

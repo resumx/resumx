@@ -5,6 +5,7 @@
 ```markdown
 ---
 themes: [zurich, oxford]
+pages: 1
 style:
   font-size: 10pt
   bullet-style: circle
@@ -35,6 +36,6 @@ That one command produces a file for every combination of **role**, **theme**, a
 
 <!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
 
-[Edit with AI](/agent-skills). [Version with git](/git-superpowers).
+Set `pages: 1` and Resumx [shrinks layout to fit](/fit-to-page). Edit with [AI](/agent-skills). Render from [any commit](/git-superpowers).
 
 Ready? [Get started in under a minute →](/quick-start)
