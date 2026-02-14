@@ -175,7 +175,14 @@ program
 		'bonus',
 	)
 	.action(async (file: string | undefined, options: RenderCommandOptions) => {
-		await renderCommand(file, options)
+		try {
+			await renderCommand(file, options)
+			process.exit(0)
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error)
+			console.error(chalk.red(`Error: ${message}`))
+			process.exit(1)
+		}
 	})
 
 // init command

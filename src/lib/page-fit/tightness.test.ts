@@ -378,7 +378,7 @@ Tools & Other
 		async () => {
 			const results: { removal: number; blank: number; finalPages: number }[] =
 				[]
-			for (let i = 0; i <= 6; i++) {
+			for (let i = 0; i <= 15; i++) {
 				const md = removeContentLines(TEMP_RESUME_MD, i)
 				const html = await generateHtml(md, { cssPath: CSS_PATH })
 				const result = await fitToPages(html, 1)
