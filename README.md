@@ -60,8 +60,6 @@ That produces a file for every combination of **role**, **theme**, and **format*
 
 ## Quick Start
 
-**Requirements:** Node.js 20+
-
 **Install:**
 
 ```bash
@@ -100,11 +98,11 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | `resumx theme`                         | List / manage themes      |
 | `resumx validate`                      | Validate resume structure |
 
-See the full [CLI Reference](docs/cli-reference.md).
+See the full [CLI Reference](https://resumx.dev/guide/cli-reference).
 
 ## Documentation
 
-For full documentation, visit [resumx.dev](https://resumx.dev).
+For full documentation, visit [resumx.dev](https://resumx.dev/guide).
 
 ## License
 
