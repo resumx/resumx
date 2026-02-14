@@ -22,15 +22,15 @@ It works for multi-page targets too: `pages: 2` fits a 2.2-page resume into two.
 
 ## What Gets Adjusted
 
-All adjustable variables shrink together by the same proportion:
+When content overflows, these variables shrink to fit:
 
-| Variable                                                 | Type       |
-| -------------------------------------------------------- | ---------- |
-| `bullet-gap`, `data-row-gap`, `entry-gap`, `section-gap` | Spacing    |
-| `font-size`, `line-height`                               | Typography |
-| `page-margin-x`, `page-margin-y`                         | Margins    |
+| Variable                                                 | Type       | Shrink priority |
+| -------------------------------------------------------- | ---------- | --------------- |
+| `bullet-gap`, `data-row-gap`, `entry-gap`, `section-gap` | Spacing    | First           |
+| `page-margin-x`, `page-margin-y`                         | Margins    | Second          |
+| `font-size`, `line-height`                               | Typography | Last            |
 
-A small overflow results in a small reduction across all of them. A larger overflow reduces more, but the ratio stays even.
+Spacing shrinks fastest, margins next, and font size resists change until the overflow is large. A small overflow (say, 1.05 pages) tightens gaps without touching your font size at all. A larger overflow starts reducing margins, and only a severe overflow shrinks the font.
 
 For `pages: 1`, if content is shorter than a full page, gaps expand to fill the remaining space.
 
@@ -47,7 +47,10 @@ No variable goes below these floors:
 | `page-margin-y` | 0.3in  |
 | `page-margin-x` | 0.35in |
 
-If content can't fit at minimums, it renders at minimums and stops.
+If content still cannot reach your target page count at minimums:
+
+- If minimums reduce page count, they are kept as a best effort.
+- If minimums do not reduce page count, the original layout is kept for readability.
 
 ### Interaction with `style:`
 

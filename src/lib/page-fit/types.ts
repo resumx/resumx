@@ -18,6 +18,14 @@ export interface VariableRange {
 	key: string
 	original: number
 	minimum: number
+	/**
+	 * Shrink curve exponent. Controls how fast this variable responds to the knob.
+	 *   power < 1 → shrinks early (spacing: 0.5)
+	 *   power = 1 → linear (margins: 1.0)
+	 *   power > 1 → resists change (typography: 2.0)
+	 * Defaults to 1.0 if omitted.
+	 */
+	power?: number
 	unit?: 'px' | 'pt' | 'in'
 }
 
@@ -33,8 +41,8 @@ export const MINIMUMS: {
 	readonly 'page-margin-x': number
 	readonly [key: string]: number
 } = {
-	'bullet-gap': 0, // px
-	'data-row-gap': 1, // px
+	'bullet-gap': 2, // px
+	'data-row-gap': 2, // px
 	'entry-gap': 3, // px
 	'section-gap': 2, // px
 	'line-height': 1.1, // unitless

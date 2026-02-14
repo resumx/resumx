@@ -9,6 +9,8 @@
  */
 
 import { describe, it, expect, afterAll } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { generateHtml } from '../html-generator.js'
 import { getBundledThemePath, DEFAULT_THEME } from '../themes.js'
 import { fitToPages } from './index.js'
@@ -21,6 +23,10 @@ import { browserPool } from '../browser-pool.js'
 const REMOVALS = 30
 const MAX_BLANK = 10 // px
 const CSS_PATH = getBundledThemePath(DEFAULT_THEME)!
+const TEMP_RESUME_MD = readFileSync(
+	resolve(process.cwd(), 'tests/fixtures/page-fit-temp-resume.md'),
+	'utf8',
+).trim()
 
 // ── Test resume ────────────────────────────────────────────────────────────
 //
@@ -212,5 +218,194 @@ describe('page-fit heuristic: tightness', () => {
 			}
 		},
 		{ timeout: 300_000 },
+	)
+
+	it(
+		'produces a tight fit with Adrian Sterling resume',
+		async () => {
+			const ADRIAN_RESUME = `---
+themes: [zurich]
+pages: 1
+style:
+    font-size: 10pt
+---
+
+# Adrian Sterling
+
+[+1 555-123-4567](tel:+15551234567) | <adrian.sterling@email.com> | [in/adriansterling](https://linkedin.com/in/adriansterling) | [adriansterling](https://github.com/adriansterling)
+
+## Education{.text-blue-900}
+
+### Stanford University <!----> Sept 2018 - June 2022
+
+***Bachelor of Science in Computer Science, Summa Cum Laude***
+
+- Cumulative GPA: 3.82 |  Dean's List (2019-2022) | Computer Science Excellence Award
+- Advanced coursework: Distributed Systems, Advanced Algorithms, Compiler Design, Applied Cryptography
+- President, Computer Science Student Association (2021-2025) — Led 200+ members, organized FAANG speaker series
+
+## Work Experience
+
+### ::google:: Google <!----> June 2022 - Present
+
+_Senior Software Engineer, Infrastructure Platform Team_ <!----> San Francisco, CA
+
+- Architected distributed microservices orchestration platform with ::devicon:kubernetes:: [Kubernetes]{.text-[#326ce5]} and ::skill-icons:docker:: [Docker]{.text-[#2396ed]}
+- Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services
+- Led cloud-native migration on ::devicon:googlecloud:: [Google Cloud]{.text-[#557ebf]}, improving scalability [300%]{.underline .decoration-dotted} and saving [$2M]{.underline .decoration-dotted} annually
+- Built CI/CD pipeline with Cloud Build, ::logos:terraform-icon:: [Terraform]{.text-[#4040b2]}, GitOps reducing release cycles to 2 days
+
+### PwC [July 2021 - May 2022]{.float-right}
+
+_Software Engineer, Core Infrastructure_ [San Francisco, CA]{.float-right}
+
+- Built full-stack features for social platform (2B+ users) using [::mdi:react:: React]{.text-[#007ACC]}, ::skill-icons:expressjs-dark:: [Express.js]{text-[#242938]}, ::skill-icons:mongodb:: [MongoDB]{.text-[#023430]}
+- Impacted 50M+ monthly active users
+- Designed high-performance APIs with ::logos:nodejs-icon:: Node.js handling 1M+ QPS at 99.99% uptime
+- Developed automated testing with ::logos:jestjs:: Jest and ::logos:cypress-icon:: Cypress, improving coverage from 45% to 85%
+
+## Projects
+
+### CloudTask: Distributed Task Management System _(Team of 4)_
+
+- Built scalable task orchestration with \`React\`, \`FastAPI\`, \`PostgreSQL\`, \`Redis\`
+- Implemented job scheduling with exactly-once processing semantics
+- [Live Demo](https://cloudtask.example.com) | [GitHub](https://github.com/adriansterling/cloudtask) | [Demo Video](https://youtu.be/example123)
+
+### AI Code Assistant _(Individual)_
+
+- Implemented advanced AST analysis with 92% accuracy rate
+- Published to Marketplace: 1,000+ installations, 4.8/5 rating, top trending 3 weeks
+- [Marketplace](https://marketplace.visualstudio.com/items?itemName=adriansterling.ai-assistant) | [GitHub](https://github.com/adriansterling/ai-code-assistant)
+
+### Advanced Weather Intelligence Platform _(Individual)_
+
+[View Site](https://example.com){.after:content-['_↗'] .text-blue-600}
+
+- Responsive design built with [::mdi:react:: **React**]{.text-sky-700} and [**Tailwind CSS**]{.text-sky-700}
+- Implemented geolocation services with predictive analytics and \`Chart.js\` visualizations
+- [Live Demo](https://weather.adriansterling.dev) | [GitHub](https://github.com/adriansterling/weather-dashboard)
+
+## Competitions, Honors and Awards
+
+### Winner — National Collegiate Hackathon [\\[Nov 2021\\]]{.float-right}
+
+- Led team to build cross-platform \`React Native\` app with \`Firebase\` backend in 48-hour sprint
+- Application adopted by 500+ users and featured in TechCrunch
+- Application adopted by 500+ users and featured in TechCrunch
+
+### Finalist — Google Code Jam [\\[Aug 2020\\]]{.float-right}
+
+- Top 500 globally out of 30,000+ competitive programmers in algorithmic competition
+- Solved complex NP-complete problems under time constraints
+
+## Professional Certifications
+
+### AWS Certified Solutions Architect – Associate — Amazon Web Services [\\[Mar 2023\\]]{.float-right}
+
+### AWS Certified Developer – Associate — Amazon Web Services [\\[Jan 2023\\]]{.float-right}
+
+## Technical Skills
+
+Languages
+: TypeScript, JavaScript, Python, Java, SQL, GraphQL, HTML/CSS
+
+Frameworks
+: React, Vue.js, Node.js, Express.js, FastAPI, Flask, Spring Boot, Next.js
+
+Databases
+: PostgreSQL, MongoDB, MySQL, Redis, DynamoDB
+
+Cloud & DevOps
+: AWS (EC2, S3, Lambda, RDS, ECS), Docker, Kubernetes, Terraform, GitHub Actions, CI/CD
+
+Tools & Other
+: Git, Linux, Nginx, WebSocket, REST APIs, Microservices, Jest, Cypress
+`
+
+			const results: {
+				removal: number
+				blank: number
+				finalPages: number
+				marginY?: string
+			}[] = []
+
+			for (let i = 0; i < REMOVALS; i++) {
+				const md = removeContentLines(ADRIAN_RESUME, i)
+				const html = await generateHtml(md, { cssPath: CSS_PATH })
+				const result = await fitToPages(html, 1)
+
+				if (result.finalPages === 1) {
+					const blank = await measureBlank(result.html)
+					results.push({
+						removal: i,
+						blank,
+						finalPages: result.finalPages,
+						marginY: result.adjustments['page-margin-y'],
+					})
+				} else {
+					// Some removals are impossible to fit within one page.
+					expect(result.finalPages).toBeGreaterThan(1)
+					const marginY = result.adjustments['page-margin-y']
+					if (marginY) {
+						expect(parseFloat(marginY)).toBeLessThanOrEqual(0.6)
+					}
+					results.push({
+						removal: i,
+						blank: Number.NaN,
+						finalPages: result.finalPages,
+						marginY,
+					})
+				}
+			}
+
+			// Log all results for debugging before asserting
+			console.table(results)
+
+			for (const { removal, blank, finalPages } of results) {
+				if (finalPages !== 1) continue
+				expect(
+					blank,
+					`removal ${removal}: blank ${blank.toFixed(1)}px exceeds ${MAX_BLANK}px`,
+				).toBeLessThan(MAX_BLANK)
+			}
+		},
+		{ timeout: 300_000 },
+	)
+
+	it(
+		'stays tight around one-line boundary for .temp/resume.md',
+		async () => {
+			const results: { removal: number; blank: number; finalPages: number }[] =
+				[]
+			for (let i = 0; i <= 6; i++) {
+				const md = removeContentLines(TEMP_RESUME_MD, i)
+				const html = await generateHtml(md, { cssPath: CSS_PATH })
+				const result = await fitToPages(html, 1)
+				if (result.finalPages === 1) {
+					const blank = await measureBlank(result.html)
+					results.push({ removal: i, blank, finalPages: result.finalPages })
+				} else {
+					results.push({
+						removal: i,
+						blank: Number.NaN,
+						finalPages: result.finalPages,
+					})
+				}
+			}
+			console.table(results)
+			const hasOverflow = results.some(r => r.finalPages > 1)
+			const hasFit = results.some(r => r.finalPages === 1)
+			expect(hasOverflow).toBe(true)
+			expect(hasFit).toBe(true)
+			for (const { removal, blank, finalPages } of results) {
+				if (finalPages !== 1) continue
+				expect(
+					blank,
+					`temp resume removal ${removal}: blank ${blank.toFixed(1)}px exceeds ${MAX_BLANK}px`,
+				).toBeLessThan(MAX_BLANK)
+			}
+		},
+		{ timeout: 120_000 },
 	)
 })

@@ -84,29 +84,25 @@ export async function fillSinglePage(
 		iter < MAX_ITERATIONS && remaining > TARGET_BLANK;
 		iter++
 	) {
+		// Allow 10% expansion beyond original to compensate for prediction errors
+		// while preventing excessive expansion (was 3x before)
+		const maxExpansion = (val: number) => val * 1.1
+
 		const expandable: Expandable[] = [
 			{
 				key: 'section-gap',
 				current: current['section-gap'] ?? 10,
-				max:
-					originalValues ?
-						Math.max(
-							(current['section-gap'] ?? 10) * MAX_FILL_FACTOR,
-							originalValues['section-gap'] ?? current['section-gap'] ?? 10,
-						)
-					:	(current['section-gap'] ?? 10) * MAX_FILL_FACTOR,
+				max: maxExpansion(
+					originalValues?.['section-gap'] ?? current['section-gap'] ?? 10,
+				),
 				count: counts.sections,
 			},
 			{
 				key: 'entry-gap',
 				current: current['entry-gap'] ?? 5,
-				max:
-					originalValues ?
-						Math.max(
-							(current['entry-gap'] ?? 5) * MAX_FILL_FACTOR,
-							originalValues['entry-gap'] ?? current['entry-gap'] ?? 5,
-						)
-					:	(current['entry-gap'] ?? 5) * MAX_FILL_FACTOR,
+				max: maxExpansion(
+					originalValues?.['entry-gap'] ?? current['entry-gap'] ?? 5,
+				),
 				count: counts.entries,
 			},
 		]

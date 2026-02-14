@@ -147,6 +147,12 @@ export async function measurePage(page: Page): Promise<PageSnapshot> {
 	const textMetrics = await measureTextMetrics(page)
 
 	// Calibrate: model must match actual DOM height at t = 0
+	// ⚠️ FLAGGED: layoutNoise is a single constant calibrated at original values.
+	// With weighted curves, spacing reaches its minimum much earlier than font-size.
+	// Any non-linear CSS effects (margin collapsing, text-wrap: pretty reflow)
+	// that depend on specific gap values will make layoutNoise drift as t increases.
+	// The HTML refinement loop compensates, but a larger layoutNoise drift means
+	// more refinement iterations to converge.
 	const baseTextHeight = predictHeight(
 		textMetrics,
 		textMetrics.baseFontSizePx,
