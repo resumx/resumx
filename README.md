@@ -15,16 +15,21 @@
   <a href="https://github.com/ocmrz/resumx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="license"></a>
 </p>
 
+<p align="center">
+  <a href="https://resumx.dev/guide/"><strong>Documentation</strong></a> | 
+  <a href="https://resumx.dev/guide/quick-start"><strong>Quick Start</strong></a>
+</p>
+
 ---
 
-Write your resume in Markdown. Configure themes and styles in frontmatter, choose roles and formats from the CLI. One command renders every combination.
+<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
 ```markdown
 ---
 themes: [zurich, oxford]
 pages: 1
 style:
-  font-size: 10pt
+  section-title-caps: small-caps
   bullet-style: circle
 ---
 
@@ -38,16 +43,20 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day
-- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification {.role:backend .role:fullstack}
+- Built distributed systems serving 1M requests/day {.role:backend .role:fullstack}
 - Built interactive dashboards with ::logos:react:: React {.role:frontend .role:fullstack}
+- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification
 ```
+
+[**Layout is automatic**](https://resumx.dev/guide/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.
+
+Render with:
 
 ```bash
-resumx resume.md --role backend,frontend,fullstack --format pdf,docx,html
+resumx resume.md --format pdf,docx,html
 ```
 
-That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same — only the presentation changes.
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files).
 
 <!-- TODO: image for side-by-side of the same resume in Zurich, Oxford, and Seattle themes -->
 
@@ -64,16 +73,6 @@ resumx resume.md --watch       # Live preview — rebuilds on every save
 <!-- TODO: image for terminal output of resumx init + render -->
 
 Open `resume.md` in your editor and start writing. Read the full [Quick Start guide](docs/quick-start.md).
-
-## Fit to Page
-
-Resume too long? Add one line to your frontmatter:
-
-```yaml
-pages: 1
-```
-
-Resumx shrinks spacing, line-height, font-size, and margins — in that order — until the content fits. When a single-page resume has room to spare, it expands gaps to fill the page. Works with any theme, respects your `style:` overrides. [Read more →](docs/fit-to-page.md)
 
 ## Features
 
