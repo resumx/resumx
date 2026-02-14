@@ -1,15 +1,24 @@
 /**
  * Empty Bullet Plugin
  *
- * Validates that list items have meaningful content.
- * Catches common authoring mistakes like empty or incomplete bullet points
- * that would render poorly or indicate unfinished work.
+ * Validates that list items have meaningful text content. Catches common
+ * authoring mistakes like empty or placeholder bullet points that would render
+ * as blank list markers. Only the immediate list-item level is checked; nested
+ * sub-lists are not counted as content for the parent item.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code         | Severity | Description                   |
- * |--------------|----------|-------------------------------|
- * | empty-bullet | critical | List item has no text content |
+ * | Slug           | Default severity | Description                   |
+ * |----------------|------------------|-------------------------------|
+ * | `empty-bullet` | critical         | List item has no text content |
+ *
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   empty-bullet: off       # disable this rule
+ *   empty-bullet: warning    # downgrade to warning
+ * ```
  *
  * ## Examples
  *
@@ -20,7 +29,7 @@
  * -                          <- empty-bullet (critical)
  * ```
  *
- * @module validator/plugins/content/empty-bullet
+ * @module validator/plugins/empty-bullet
  */
 
 import type Token from 'markdown-it/lib/token.mjs'
@@ -28,8 +37,8 @@ import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeFromToken } from '../../utils.js'
+} from '../types.js'
+import { rangeFromToken } from '../utils.js'
 
 /**
  * Extract text content from an inline token's children

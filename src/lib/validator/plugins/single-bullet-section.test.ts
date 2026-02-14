@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { singleBulletSectionPlugin } from './single-bullet-section.js'
-import { createMarkdownRenderer } from '../../../markdown.js'
-import type { ValidationContext } from '../../types.js'
+import { createMarkdownRenderer } from '../../markdown.js'
+import type { ValidationContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities

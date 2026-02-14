@@ -93,8 +93,9 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | `resumx [file] --role frontend`        | Role-specific output      |
 | `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX         |
 | `resumx [file] --pages 1`              | Fit to 1 page             |
+| `resumx [file] --check`                | Validate only, no render  |
+| `resumx [file] --strict`               | Fail if validation errors |
 | `resumx init`                          | Create from template      |
-| `resumx validate`                      | Validate resume structure |
 
 See the full [CLI Reference](https://resumx.dev/guide/cli-reference).
 

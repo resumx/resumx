@@ -29,6 +29,17 @@ const FrontmatterSchema = z.object({
 			)
 			.optional(),
 	),
+	validate: z
+		.object({
+			extends: z.enum(['recommended', 'minimal', 'strict', 'none']).optional(),
+			rules: z
+				.record(
+					z.string(),
+					z.enum(['critical', 'warning', 'note', 'bonus', 'off']),
+				)
+				.optional(),
+		})
+		.optional(),
 })
 
 export type FrontmatterConfig = z.infer<typeof FrontmatterSchema>

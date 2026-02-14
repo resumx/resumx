@@ -23,6 +23,8 @@ import {
 	expandTemplate,
 	validateTemplateUniqueness,
 } from '../lib/template.js'
+import { runCheck, printCheckResults } from './check.js'
+import type { Severity } from '../lib/validator/types.js'
 
 /**
  * Resolve which themes to use (CLI > Frontmatter > default)
@@ -55,6 +57,9 @@ export interface RenderCommandOptions {
 	format?: string[]
 	watch?: boolean
 	pages?: number
+	check?: boolean
+	strict?: boolean
+	minSeverity?: Severity
 }
 
 const VALID_FORMATS: OutputFormat[] = ['pdf', 'html', 'docx', 'png']
@@ -462,6 +467,42 @@ function isStdinInput(file: string | undefined): boolean {
 }
 
 /**
+ * Run validation and decide whether to proceed with rendering.
+ *
+ * Returns true if rendering should proceed, false if it should be skipped.
+ * When `--check` is set, this function calls process.exit and never returns.
+ */
+async function handleCheck(
+	rawContent: string,
+	label: string,
+	options: RenderCommandOptions,
+): Promise<boolean> {
+	const { filteredIssues, ok } = await runCheck(rawContent, {
+		strict: options.strict,
+		minSeverity: options.minSeverity,
+	})
+
+	printCheckResults(filteredIssues, label)
+
+	if (options.check) {
+		// --check: validate only, exit with appropriate code
+		process.exit(ok ? 0 : 1)
+	}
+
+	if (options.strict && !ok) {
+		// --strict: block render on validation failure
+		console.error(chalk.red('\nValidation failed, skipping render (--strict)'))
+		return false
+	}
+
+	// Default: warn and continue
+	if (filteredIssues.length > 0) {
+		console.log()
+	}
+	return true
+}
+
+/**
  * Main render command handler
  */
 export async function renderCommand(
@@ -469,6 +510,13 @@ export async function renderCommand(
 	options: RenderCommandOptions,
 ): Promise<void> {
 	const cwd = process.cwd()
+	const skipCheck = options.check === false
+
+	// --check is incompatible with --watch
+	if (options.check && options.watch) {
+		console.error(chalk.red('Error: --check cannot be used with --watch'))
+		process.exit(1)
+	}
 
 	// Stdin path: read from pipe or explicit `-`
 	if (isStdinInput(inputFile)) {
@@ -478,6 +526,16 @@ export async function renderCommand(
 		}
 
 		const rawContent = await readStdin()
+
+		// Validation step (unless --no-check)
+		if (!skipCheck) {
+			const proceed = await handleCheck(rawContent, 'stdin', options)
+			if (!proceed) {
+				process.exit(1)
+			}
+		}
+
+		// --check exits inside handleCheck, so we only reach here for render
 		const nameFromContent = extractNameFromContent(rawContent)
 		const outputOverride = options.output && !options.output.endsWith('/')
 
@@ -514,6 +572,15 @@ export async function renderCommand(
 
 	// Read file content and resolve watch paths
 	const rawContent = readFileSync(inputPath, 'utf-8')
+
+	// Validation step (unless --no-check)
+	if (!skipCheck) {
+		const proceed = await handleCheck(rawContent, context.label, options)
+		if (!proceed) {
+			process.exit(1)
+		}
+	}
+
 	const parsed = parseFrontmatterFromString(rawContent)
 	const fmConfig = parsed.ok ? parsed.config : null
 	const themeNamesForWatch = resolveThemes(options.theme, fmConfig?.themes)
@@ -569,6 +636,16 @@ export async function renderCommand(
 		debounceTimer = setTimeout(async () => {
 			console.log(chalk.blue('\nChange detected, rebuilding...'))
 			const freshContent = readFileSync(inputPath, 'utf-8')
+
+			// Re-validate on each change (unless --no-check)
+			if (!skipCheck) {
+				const proceed = await handleCheck(freshContent, context.label, options)
+				if (!proceed) {
+					console.log(chalk.yellow('Fix validation issues and save again.'))
+					return
+				}
+			}
+
 			await runRender(freshContent, options, cwd, context)
 		}, 150)
 	})

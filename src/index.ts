@@ -4,10 +4,6 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
-import {
-	validateCommand,
-	type ValidateCommandOptions,
-} from './commands/validate.js'
 
 const program = new Command()
 
@@ -170,6 +166,14 @@ program
 			return n
 		},
 	)
+	.option('--check', 'Validate only, do not render')
+	.option('--no-check', 'Skip validation')
+	.option('--strict', 'Fail if validation has errors')
+	.option(
+		'--min-severity <level>',
+		'Minimum severity to display (critical/warning/note/bonus)',
+		'bonus',
+	)
 	.action(async (file: string | undefined, options: RenderCommandOptions) => {
 		await renderCommand(file, options)
 	})
@@ -181,20 +185,6 @@ program
 	.option('--force', 'Overwrite existing file without prompting')
 	.action(async (filename: string | undefined, options: InitCommandOptions) => {
 		await initCommand(filename, options)
-	})
-
-// validate command
-program
-	.command('validate [file]')
-	.description('Validate resume structure and content')
-	.option('--strict', 'Exit with error if any issues exist')
-	.option(
-		'--min-severity <level>',
-		'Minimum severity to display (critical/warning/note/bonus)',
-		'bonus',
-	)
-	.action(async (file: string | undefined, options: ValidateCommandOptions) => {
-		await validateCommand(file ?? 'resume.md', options)
 	})
 
 // Helper to collect repeatable options (no comma splitting - for values that may contain commas)

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { noEntriesPlugin } from './no-entries.js'
-import { createMarkdownRenderer } from '../../../markdown.js'
-import type { ValidationContext } from '../../types.js'
+import { noSectionsPlugin } from './no-sections.js'
+import { createMarkdownRenderer } from '../../markdown.js'
+import type { ValidationContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
@@ -16,36 +16,33 @@ function createContext(content: string): ValidationContext {
 
 async function validate(content: string) {
 	const ctx = createContext(content)
-	return noEntriesPlugin.validate(ctx)
+	return await noSectionsPlugin.validate(ctx)
 }
 
 // =============================================================================
 // Tests
 // =============================================================================
 
-describe('noEntriesPlugin', () => {
+describe('noSectionsPlugin', () => {
 	it('should have correct name', () => {
-		expect(noEntriesPlugin.name).toBe('no-entries')
+		expect(noSectionsPlugin.name).toBe('no-sections')
 	})
 
-	it('should detect missing H3 entries as warning', async () => {
+	it('should detect missing H2 sections', async () => {
 		const content = `# John Doe
 
 > john@example.com
 
-## Skills
-
-Languages
-: TypeScript, Python
+Just some text without sections.
 `
 		const issues = await validate(content)
 
 		expect(issues.length).toBe(1)
-		expect(issues[0].severity).toBe('warning')
-		expect(issues[0].code).toBe('no-entries')
+		expect(issues[0].severity).toBe('critical')
+		expect(issues[0].code).toBe('no-sections')
 	})
 
-	it('should not flag when H3 exists', async () => {
+	it('should not flag when H2 exists', async () => {
 		const content = `# John Doe
 
 > john@example.com
@@ -66,10 +63,7 @@ Languages
 
 > john@example.com
 
-## Skills
-
-Languages
-: TypeScript, Python
+Just some text without sections.
 `
 		const issues = await validate(content)
 
@@ -82,6 +76,6 @@ Languages
 		const issues = await validate('')
 
 		expect(issues.length).toBe(1)
-		expect(issues[0].code).toBe('no-entries')
+		expect(issues[0].code).toBe('no-sections')
 	})
 })

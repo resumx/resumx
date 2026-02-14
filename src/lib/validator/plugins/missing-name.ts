@@ -1,30 +1,41 @@
 /**
  * Missing Name Plugin
  *
- * Validates that the resume has an H1 heading which represents the applicant's name.
+ * Validates that the resume has an H1 heading which represents the applicant's
+ * name. Every resume must begin with a top-level heading; without one the
+ * renderer cannot identify the applicant and the output will be structurally
+ * broken.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code         | Severity | Description                                   |
- * |--------------|----------|-----------------------------------------------|
- * | missing-name | critical | No H1 heading found (resume must have a name) |
+ * | Slug           | Default severity | Description                                   |
+ * |----------------|------------------|-----------------------------------------------|
+ * | `missing-name` | critical         | No H1 heading found (resume must have a name) |
  *
- * ## Expected Structure
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   missing-name: off      # disable this rule
+ *   missing-name: warning   # downgrade to warning
+ * ```
+ *
+ * ## Expected structure
  *
  * ```markdown
  * # John Doe                    <- H1 (required)
  * > email@example.com
  * ```
  *
- * @module validator/plugins/structure/missing-name
+ * @module validator/plugins/missing-name
  */
 
 import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeAtStart } from '../../utils.js'
+} from '../types.js'
+import { rangeAtStart } from '../utils.js'
 
 /**
  * Missing Name plugin - validates that resume has an H1 heading

@@ -1,22 +1,35 @@
 /**
  * Missing Contact Plugin
  *
- * Validates that the resume has contact information (email or phone) after the H1 heading.
+ * Validates that the resume has contact information (email or phone) somewhere
+ * between the H1 heading and the first H2 section. Contact info is detected by
+ * scanning visible text for email/phone patterns and by inspecting link hrefs
+ * for `mailto:` / `tel:` schemes. Resumes commonly place a job-title paragraph
+ * before the actual contact lines, so the entire header area is scanned rather
+ * than just the first paragraph.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code            | Severity | Description                                   |
- * |-----------------|----------|-----------------------------------------------|
- * | missing-contact | critical | No email or phone number after the H1 heading |
+ * | Slug              | Default severity | Description                                         |
+ * |-------------------|------------------|-----------------------------------------------------|
+ * | `missing-contact` | critical         | No email or phone number found after the H1 heading |
  *
- * ## Expected Structure
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   missing-contact: off      # disable this rule
+ *   missing-contact: warning   # downgrade to warning
+ * ```
+ *
+ * ## Expected structure
  *
  * ```markdown
  * # John Doe
  * > email@example.com       <- Contact info (required)
  * ```
  *
- * @module validator/plugins/structure/missing-contact
+ * @module validator/plugins/missing-contact
  */
 
 import type Token from 'markdown-it/lib/token.mjs'
@@ -24,8 +37,8 @@ import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeFromToken, rangeAtStart } from '../../utils.js'
+} from '../types.js'
+import { rangeFromToken, rangeAtStart } from '../utils.js'
 
 /** Email regex pattern */
 const EMAIL_PATTERN = /[^\s@]+@[^\s@]+\.[^\s@]+/

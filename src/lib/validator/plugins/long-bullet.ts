@@ -1,29 +1,32 @@
 /**
  * Long Bullet Plugin
  *
- * Detects bullet points that exceed configured character limits.
- * Supports two-tier thresholds: warning and critical.
+ * Detects bullet points that exceed character-length limits. Uses two tiers:
+ * a warning threshold (default 140 chars) and a critical threshold (default
+ * 200 chars). Only the immediate text of each list item is measured; nested
+ * sub-lists are excluded.
  *
- * ## Checks
+ * Recruiters spend ~6 seconds scanning a resume. Long bullets are harder to
+ * parse at a glance and often indicate content that should be split, condensed,
+ * or promoted to its own entry.
  *
- * | Code        | Severity | Description                              |
- * |-------------|----------|------------------------------------------|
- * | long-bullet | warning  | Bullet exceeds warning threshold         |
- * | long-bullet | critical | Bullet exceeds critical threshold        |
+ * ## Rule
  *
- * ## Configuration
+ * | Slug          | Default severity | Description                       |
+ * |---------------|------------------|-----------------------------------|
+ * | `long-bullet` | warning / critical | Bullet exceeds character threshold |
  *
- * ```typescript
- * createLongBulletPlugin({
- *   warnThreshold: 140,  // warning when length > 140
- *   errorThreshold: 200, // error when length > 200
- * })
+ * The severity depends on which threshold is exceeded:
+ * - `> 140` chars (default) -> warning
+ * - `> 200` chars (default) -> critical
+ *
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   long-bullet: off       # disable this rule
+ *   long-bullet: note       # downgrade both tiers to note
  * ```
- *
- * ## Rationale
- *
- * Recruiters spend ~6 seconds scanning a resume. Long bullets are harder
- * to scan quickly and may indicate content that should be split or condensed.
  *
  * ## Examples
  *
@@ -34,7 +37,7 @@
  *   but stays under 200...  <- long-bullet (warning)
  *
  * - This is a very long bullet point that exceeds the maximum of 200
- *   characters and goes on and on...  <- long-bullet (error)
+ *   characters and goes on and on...  <- long-bullet (critical)
  * ```
  *
  * @module validator/plugins/long-bullet
@@ -45,8 +48,8 @@ import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeFromToken } from '../../utils.js'
+} from '../types.js'
+import { rangeFromToken } from '../utils.js'
 
 /** Configuration options for the long bullet plugin */
 export interface LongBulletOptions {

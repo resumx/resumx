@@ -1,15 +1,27 @@
 /**
  * No Entries Plugin
  *
- * Validates that the resume has H3 headings representing entries (jobs, education, etc.).
+ * Validates that the resume has at least one H3 heading representing an entry
+ * (job, degree, project, etc.). While a resume can technically render without
+ * entries, their absence usually means the content is unstructured or
+ * incomplete. This is a warning rather than critical because some resume
+ * formats (e.g. skills-only) may legitimately omit H3 headings.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code       | Severity | Description                                     |
- * |------------|----------|-------------------------------------------------|
- * | no-entries | warning  | No H3 headings found (no job/education entries) |
+ * | Slug          | Default severity | Description                                     |
+ * |---------------|------------------|-------------------------------------------------|
+ * | `no-entries`  | warning          | No H3 headings found (no job/education entries) |
  *
- * ## Expected Structure
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   no-entries: off       # disable this rule
+ *   no-entries: critical   # upgrade to critical
+ * ```
+ *
+ * ## Expected structure
  *
  * ```markdown
  * # John Doe
@@ -20,15 +32,15 @@
  * - Built things
  * ```
  *
- * @module validator/plugins/structure/no-entries
+ * @module validator/plugins/no-entries
  */
 
 import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeAtStart } from '../../utils.js'
+} from '../types.js'
+import { rangeAtStart } from '../utils.js'
 
 /**
  * No Entries plugin - validates that resume has H3 entries

@@ -1571,4 +1571,131 @@ Some content
 			expect(existsSync(join(tempDir, 'output/Jane_Smith.html'))).toBe(true)
 		})
 	})
+
+	// =========================================================================
+	// --check, --strict, --no-check
+	// =========================================================================
+
+	describe('--check flag', () => {
+		it('exits 0 for valid resume with --check', async () => {
+			const result = await runCLI(['sample.md', '--check'], {
+				cwd: tempDir,
+				reject: false,
+			})
+
+			expect(result.exitCode).toBe(0)
+			// Should NOT produce output files
+			expect(existsSync(join(tempDir, 'sample.pdf'))).toBe(false)
+		})
+
+		it('exits 1 for invalid resume with --check', async () => {
+			const invalidResume = `## Education\n\n### University\n\n- Some content\n`
+			writeFileSync(join(tempDir, 'invalid.md'), invalidResume)
+
+			const result = await runCLI(['invalid.md', '--check'], {
+				cwd: tempDir,
+				reject: false,
+			})
+
+			expect(result.exitCode).toBe(1)
+			expect(existsSync(join(tempDir, 'invalid.pdf'))).toBe(false)
+		})
+
+		it('errors when combined with --watch', async () => {
+			const result = await runCLI(['sample.md', '--check', '--watch'], {
+				cwd: tempDir,
+				reject: false,
+			})
+
+			expect(result.exitCode).toBe(1)
+			expect(result.stderr).toContain('--check cannot be used with --watch')
+		})
+	})
+
+	describe('--strict flag', () => {
+		it('renders valid resume with --strict', async () => {
+			// sample.md has bonus-level issues (single-bullet sections),
+			// use --min-severity warning to exclude them
+			const result = await runCLI(
+				[
+					'sample.md',
+					'--strict',
+					'--min-severity',
+					'warning',
+					'--format',
+					'html',
+				],
+				{ cwd: tempDir, reject: false },
+			)
+
+			expect(result.exitCode).toBe(0)
+			expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
+		})
+
+		it('blocks render for resume with warnings in --strict mode', async () => {
+			// Resume with warnings (no-entries) but no critical issues
+			const warningResume = `# John Doe\n\n> john@example.com\n\n## Skills\n\nLanguages\n: TypeScript\n`
+			writeFileSync(join(tempDir, 'warning.md'), warningResume)
+
+			const result = await runCLI(
+				['warning.md', '--strict', '--format', 'html'],
+				{ cwd: tempDir, reject: false },
+			)
+
+			expect(result.exitCode).toBe(1)
+			expect(existsSync(join(tempDir, 'warning.html'))).toBe(false)
+		})
+	})
+
+	describe('--no-check flag', () => {
+		it('renders without validation output', async () => {
+			const result = await runCLI(
+				['sample.md', '--no-check', '--format', 'html'],
+				{ cwd: tempDir },
+			)
+
+			expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
+			// Validation output should not appear
+			expect(result.stdout).not.toContain('No issues found')
+		})
+
+		it('renders invalid resume without blocking', async () => {
+			// Resume with critical validation issues
+			const invalidResume = `## Education\n\n### University\n\n- Some content\n`
+			writeFileSync(join(tempDir, 'invalid.md'), invalidResume)
+
+			const result = await runCLI(
+				['invalid.md', '--no-check', '--format', 'html'],
+				{ cwd: tempDir, reject: false },
+			)
+
+			// Should still render despite validation issues
+			expect(existsSync(join(tempDir, 'invalid.html'))).toBe(true)
+		})
+	})
+
+	describe('--check with --strict', () => {
+		it('exits 1 for resume with warnings', async () => {
+			const warningResume = `# John Doe\n\n> john@example.com\n\n## Skills\n\nLanguages\n: TypeScript\n`
+			writeFileSync(join(tempDir, 'warning.md'), warningResume)
+
+			const result = await runCLI(['warning.md', '--check', '--strict'], {
+				cwd: tempDir,
+				reject: false,
+			})
+
+			expect(result.exitCode).toBe(1)
+			expect(existsSync(join(tempDir, 'warning.pdf'))).toBe(false)
+		})
+
+		it('exits 0 for clean resume', async () => {
+			// sample.md has bonus-level issues, use --min-severity warning to exclude them
+			const result = await runCLI(
+				['sample.md', '--check', '--strict', '--min-severity', 'warning'],
+				{ cwd: tempDir, reject: false },
+			)
+
+			expect(result.exitCode).toBe(0)
+		})
+	})
 })

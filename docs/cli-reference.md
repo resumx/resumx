@@ -35,16 +35,20 @@ When reading from stdin, the output filename is derived from:
 
 ### Options
 
-| Flag                       | Description                                                                        |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                       |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`.  |
-| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.       |
-| `-s, --style <name=value>` | Override style property. Repeatable.                                               |
-| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                   |
-| `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags). |
-| `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.            |
-| `-w, --watch`              | Watch for changes and auto-rebuild.                                                |
+| Flag                       | Description                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                           |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`.      |
+| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.           |
+| `-s, --style <name=value>` | Override style property. Repeatable.                                                   |
+| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                       |
+| `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).     |
+| `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.                |
+| `-w, --watch`              | Watch for changes and auto-rebuild.                                                    |
+| `--check`                  | Validate only, do not render. Exit code 1 if critical issues found.                    |
+| `--no-check`               | Skip validation entirely.                                                              |
+| `--strict`                 | Fail if validation has any errors. Blocks render (or exit 1 with `--check`).           |
+| `--min-severity <level>`   | Minimum severity to display: `critical`, `warning`, `note`, `bonus`. Default: `bonus`. |
 
 ### Examples
 
@@ -81,6 +85,18 @@ resumx resume.md --role frontend
 
 # Combine options
 resumx resume.md --theme zurich --role frontend,backend --format pdf,html,docx --watch
+
+# Validate only (no render)
+resumx resume.md --check
+
+# Render without validation
+resumx resume.md --no-check
+
+# Strict mode: validate, render only if clean
+resumx resume.md --strict
+
+# Filter validation output
+resumx resume.md --check --min-severity warning
 ```
 
 ## init
@@ -105,32 +121,6 @@ resumx init [filename]
 resumx init                    # Creates resume.md
 resumx init my-resume.md       # Creates my-resume.md
 resumx init resume.md --force  # Overwrite if exists
-```
-
-## validate
-
-Validate resume structure and content.
-
-```bash
-resumx validate [file]
-```
-
-| Argument | Default     | Description              |
-| -------- | ----------- | ------------------------ |
-| `file`   | `resume.md` | Resume file to validate. |
-
-| Flag                     | Description                                                                            |
-| ------------------------ | -------------------------------------------------------------------------------------- |
-| `--strict`               | Exit with error code if any issues are found.                                          |
-| `--min-severity <level>` | Minimum severity to display: `critical`, `warning`, `note`, `bonus`. Default: `bonus`. |
-
-### Examples
-
-```bash
-resumx validate                           # Validate resume.md
-resumx validate my-resume.md              # Validate specific file
-resumx validate --strict                  # Fail on any issue (for CI)
-resumx validate --min-severity warning    # Hide notes and bonuses
 ```
 
 ## Output Formats

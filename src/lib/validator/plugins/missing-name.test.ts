@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { noSectionsPlugin } from './no-sections.js'
-import { createMarkdownRenderer } from '../../../markdown.js'
-import type { ValidationContext } from '../../types.js'
+import { missingNamePlugin } from './missing-name.js'
+import { createMarkdownRenderer } from '../../markdown.js'
+import type { ValidationContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
@@ -16,33 +16,34 @@ function createContext(content: string): ValidationContext {
 
 async function validate(content: string) {
 	const ctx = createContext(content)
-	return await noSectionsPlugin.validate(ctx)
+	return await missingNamePlugin.validate(ctx)
 }
 
 // =============================================================================
 // Tests
 // =============================================================================
 
-describe('noSectionsPlugin', () => {
+describe('missingNamePlugin', () => {
 	it('should have correct name', () => {
-		expect(noSectionsPlugin.name).toBe('no-sections')
+		expect(missingNamePlugin.name).toBe('missing-name')
 	})
 
-	it('should detect missing H2 sections', async () => {
-		const content = `# John Doe
+	it('should detect missing H1 heading', async () => {
+		const content = `## Education
 
-> john@example.com
+### University
 
-Just some text without sections.
+- Some content
 `
 		const issues = await validate(content)
 
 		expect(issues.length).toBe(1)
 		expect(issues[0].severity).toBe('critical')
-		expect(issues[0].code).toBe('no-sections')
+		expect(issues[0].code).toBe('missing-name')
+		expect(issues[0].message).toContain('name')
 	})
 
-	it('should not flag when H2 exists', async () => {
+	it('should not flag when H1 exists', async () => {
 		const content = `# John Doe
 
 > john@example.com
@@ -59,11 +60,11 @@ Just some text without sections.
 	})
 
 	it('should provide range at start for document-level issues', async () => {
-		const content = `# John Doe
+		const content = `## Education
 
-> john@example.com
+### University
 
-Just some text without sections.
+- Some content
 `
 		const issues = await validate(content)
 
@@ -76,6 +77,6 @@ Just some text without sections.
 		const issues = await validate('')
 
 		expect(issues.length).toBe(1)
-		expect(issues[0].code).toBe('no-sections')
+		expect(issues[0].code).toBe('missing-name')
 	})
 })

@@ -9,19 +9,17 @@ import type {
 	Severity,
 } from './types.js'
 
-// Built-in plugins from subfolders
+// Built-in plugins
 import {
 	missingNamePlugin,
 	missingContactPlugin,
 	noSectionsPlugin,
 	noEntriesPlugin,
-} from './plugins/structure/index.js'
-import { emptyBulletPlugin } from './plugins/content/index.js'
-import { unknownIconPlugin } from './plugins/style/index.js'
-import {
+	emptyBulletPlugin,
+	unknownIconPlugin,
 	longBulletPlugin,
 	singleBulletSectionPlugin,
-} from './plugins/best-practice/index.js'
+} from './plugins/index.js'
 
 /** Named presets - plugin collections */
 export const presets: Record<PresetName, ValidatorPlugin[]> = {
@@ -127,24 +125,16 @@ export async function validate(
 export * from './types.js'
 export * from './utils.js'
 
-// Structure plugins
+// Re-export all plugins
 export {
 	missingNamePlugin,
 	missingContactPlugin,
 	noSectionsPlugin,
 	noEntriesPlugin,
-} from './plugins/structure/index.js'
-
-// Content plugins
-export { emptyBulletPlugin } from './plugins/content/index.js'
-
-// Style plugins
-export { unknownIconPlugin } from './plugins/style/index.js'
-
-// Best practice plugins
-export {
+	emptyBulletPlugin,
+	unknownIconPlugin,
 	createLongBulletPlugin,
 	longBulletPlugin,
 	singleBulletSectionPlugin,
 	type LongBulletOptions,
-} from './plugins/best-practice/index.js'
+} from './plugins/index.js'

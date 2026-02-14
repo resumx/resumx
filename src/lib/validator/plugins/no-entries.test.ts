@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { missingNamePlugin } from './missing-name.js'
-import { createMarkdownRenderer } from '../../../markdown.js'
-import type { ValidationContext } from '../../types.js'
+import { noEntriesPlugin } from './no-entries.js'
+import { createMarkdownRenderer } from '../../markdown.js'
+import type { ValidationContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
@@ -16,34 +16,36 @@ function createContext(content: string): ValidationContext {
 
 async function validate(content: string) {
 	const ctx = createContext(content)
-	return await missingNamePlugin.validate(ctx)
+	return noEntriesPlugin.validate(ctx)
 }
 
 // =============================================================================
 // Tests
 // =============================================================================
 
-describe('missingNamePlugin', () => {
+describe('noEntriesPlugin', () => {
 	it('should have correct name', () => {
-		expect(missingNamePlugin.name).toBe('missing-name')
+		expect(noEntriesPlugin.name).toBe('no-entries')
 	})
 
-	it('should detect missing H1 heading', async () => {
-		const content = `## Education
+	it('should detect missing H3 entries as warning', async () => {
+		const content = `# John Doe
 
-### University
+> john@example.com
 
-- Some content
+## Skills
+
+Languages
+: TypeScript, Python
 `
 		const issues = await validate(content)
 
 		expect(issues.length).toBe(1)
-		expect(issues[0].severity).toBe('critical')
-		expect(issues[0].code).toBe('missing-name')
-		expect(issues[0].message).toContain('name')
+		expect(issues[0].severity).toBe('warning')
+		expect(issues[0].code).toBe('no-entries')
 	})
 
-	it('should not flag when H1 exists', async () => {
+	it('should not flag when H3 exists', async () => {
 		const content = `# John Doe
 
 > john@example.com
@@ -60,11 +62,14 @@ describe('missingNamePlugin', () => {
 	})
 
 	it('should provide range at start for document-level issues', async () => {
-		const content = `## Education
+		const content = `# John Doe
 
-### University
+> john@example.com
 
-- Some content
+## Skills
+
+Languages
+: TypeScript, Python
 `
 		const issues = await validate(content)
 
@@ -77,6 +82,6 @@ describe('missingNamePlugin', () => {
 		const issues = await validate('')
 
 		expect(issues.length).toBe(1)
-		expect(issues[0].code).toBe('missing-name')
+		expect(issues[0].code).toBe('no-entries')
 	})
 })

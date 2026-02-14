@@ -1,5 +1,3 @@
-import { readFileSync, existsSync } from 'node:fs'
-import { resolve } from 'node:path'
 import chalk from 'chalk'
 import matter from 'gray-matter'
 import { validate } from '../lib/validator/index.js'
@@ -8,15 +6,23 @@ import type {
 	PresetName,
 	RuleOverrides,
 	ValidationIssue,
+	ValidationResult,
 } from '../lib/validator/types.js'
 
-export interface ValidateCommandOptions {
-	strict?: boolean // Exit with error if any issues exist
-	minSeverity?: Severity // Minimum severity to display (default: 'bonus')
+export interface CheckOptions {
+	strict?: boolean
+	minSeverity?: Severity
+}
+
+export interface CheckResult {
+	result: ValidationResult
+	filteredIssues: ValidationIssue[]
+	/** true when rendering should proceed */
+	ok: boolean
 }
 
 /** Severity order for filtering */
-const severityOrder: Record<Severity, number> = {
+export const severityOrder: Record<Severity, number> = {
 	critical: 0,
 	warning: 1,
 	note: 2,
@@ -39,7 +45,7 @@ interface ValidateConfig {
 	rules?: RuleOverrides
 }
 
-function extractValidateConfig(content: string): ValidateConfig {
+export function extractValidateConfig(content: string): ValidateConfig {
 	try {
 		const result = matter(content)
 		const data = result.data as Record<string, unknown>
@@ -90,7 +96,7 @@ function extractValidateConfig(content: string): ValidateConfig {
 /**
  * Format an issue for display
  */
-function formatIssue(issue: ValidationIssue, filename: string): string {
+export function formatIssue(issue: ValidationIssue): string {
 	const { line, column } = issue.range.start
 	const location = `${line + 1}:${column}`.padEnd(6)
 	const severity = issue.severity.padEnd(7)
@@ -103,7 +109,7 @@ function formatIssue(issue: ValidationIssue, filename: string): string {
 /**
  * Format the summary line
  */
-function formatSummary(counts: Record<Severity, number>): string {
+export function formatSummary(counts: Record<Severity, number>): string {
 	const parts: string[] = []
 
 	if (counts.critical > 0) {
@@ -129,37 +135,18 @@ function formatSummary(counts: Record<Severity, number>): string {
 }
 
 /**
- * Validate command - validates resume markdown files
+ * Run validation on raw content and return structured results.
+ *
+ * This is the core check logic used by both `--check` (validate-only)
+ * and the default validate-then-render flow.
  */
-export async function validateCommand(
-	file: string,
-	options: ValidateCommandOptions,
-): Promise<void> {
-	const cwd = process.cwd()
-	const inputPath = resolve(cwd, file)
+export async function runCheck(
+	rawContent: string,
+	options: CheckOptions = {},
+): Promise<CheckResult> {
+	const validateConfig = extractValidateConfig(rawContent)
 
-	// Check if file exists
-	if (!existsSync(inputPath)) {
-		console.error(chalk.red(`Error: File not found: ${file}`))
-		process.exit(1)
-	}
-
-	// Read file content
-	let content: string
-	try {
-		content = readFileSync(inputPath, 'utf-8')
-	} catch (error) {
-		console.error(
-			chalk.red(`Error: Could not read file: ${(error as Error).message}`),
-		)
-		process.exit(1)
-	}
-
-	// Extract validation config from frontmatter
-	const validateConfig = extractValidateConfig(content)
-
-	// Run validation
-	const result = await validate(content, {
+	const result = await validate(rawContent, {
 		extends: validateConfig.extends,
 		rules: validateConfig.rules,
 	})
@@ -171,34 +158,37 @@ export async function validateCommand(
 		issue => severityOrder[issue.severity] <= minSeverityLevel,
 	)
 
-	// Display results
+	// Determine whether rendering should proceed
+	let ok: boolean
+	if (options.strict) {
+		ok = filteredIssues.length === 0
+	} else {
+		ok = result.counts.critical === 0
+	}
+
+	return { result, filteredIssues, ok }
+}
+
+/**
+ * Print validation issues and summary to stdout.
+ */
+export function printCheckResults(
+	filteredIssues: ValidationIssue[],
+	label: string,
+): void {
 	if (filteredIssues.length > 0) {
-		console.log(chalk.underline(file))
+		console.log(chalk.underline(label))
 		for (const issue of filteredIssues) {
-			console.log(formatIssue(issue, file))
+			console.log(formatIssue(issue))
 		}
 		console.log()
 	}
 
-	// Display summary
-	const displayedCounts = {
+	const displayedCounts: Record<Severity, number> = {
 		critical: filteredIssues.filter(i => i.severity === 'critical').length,
 		warning: filteredIssues.filter(i => i.severity === 'warning').length,
 		note: filteredIssues.filter(i => i.severity === 'note').length,
 		bonus: filteredIssues.filter(i => i.severity === 'bonus').length,
 	}
 	console.log(formatSummary(displayedCounts))
-
-	// Determine exit code
-	if (options.strict) {
-		// In strict mode, exit with error if any issues exist
-		if (filteredIssues.length > 0) {
-			process.exit(1)
-		}
-	} else {
-		// Normal mode: exit with error only if there are critical issues
-		if (result.counts.critical > 0) {
-			process.exit(1)
-		}
-	}
 }

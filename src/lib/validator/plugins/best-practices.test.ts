@@ -1,11 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import {
-	createLongBulletPlugin,
-	longBulletPlugin,
-	singleBulletSectionPlugin,
-} from './index.js'
-import { createMarkdownRenderer } from '../../../markdown.js'
-import type { ValidationContext, ValidationIssue } from '../../types.js'
+import { createLongBulletPlugin, longBulletPlugin } from './long-bullet.js'
+import { singleBulletSectionPlugin } from './single-bullet-section.js'
+import { createMarkdownRenderer } from '../../markdown.js'
+import type { ValidationContext, ValidationIssue } from '../types.js'
 
 // =============================================================================
 // Test Utilities

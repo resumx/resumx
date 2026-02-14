@@ -35,7 +35,7 @@ git show :resume.md | resumx -o resume-staged
 Add a pre-commit hook to catch issues before they land in your history:
 
 ```bash
-echo 'resumx validate --strict' > .git/hooks/pre-commit
+echo 'resumx --check' > .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
 

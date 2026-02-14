@@ -1,15 +1,26 @@
 /**
  * No Sections Plugin
  *
- * Validates that the resume has at least one H2 heading representing a section.
+ * Validates that the resume has at least one H2 heading representing a section
+ * (e.g. Experience, Education, Skills). Without sections the resume is just a
+ * wall of text with no semantic structure, which breaks both rendering and
+ * readability.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code        | Severity | Description                               |
- * |-------------|----------|-------------------------------------------|
- * | no-sections | critical | No H2 headings found (no resume sections) |
+ * | Slug           | Default severity | Description                               |
+ * |----------------|------------------|-------------------------------------------|
+ * | `no-sections`  | critical         | No H2 headings found (no resume sections) |
  *
- * ## Expected Structure
+ * ## Frontmatter override
+ *
+ * ```yaml
+ * check:
+ *   no-sections: off      # disable this rule
+ *   no-sections: warning   # downgrade to warning
+ * ```
+ *
+ * ## Expected structure
  *
  * ```markdown
  * # John Doe
@@ -18,15 +29,15 @@
  * ## Experience               <- H2 (at least one required)
  * ```
  *
- * @module validator/plugins/structure/no-sections
+ * @module validator/plugins/no-sections
  */
 
 import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeAtStart } from '../../utils.js'
+} from '../types.js'
+import { rangeAtStart } from '../utils.js'
 
 /**
  * No Sections plugin - validates that resume has at least one H2 section

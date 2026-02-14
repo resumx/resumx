@@ -23,7 +23,7 @@ The fastest way to tailor a resume for a specific job:
 2. The agent extracts must-have requirements and keywords
 3. It maps each requirement to your existing bullets (covered, weak, or missing)
 4. It proposes minimal edits -- rewords weak bullets, adds missing ones
-5. Run `resumx validate --strict` and render to verify
+5. Run `resumx resume.md` to validate and render to verify
 
 ::: info Why you don't need to worry about layout
 With [`pages: 1`](/fit-to-page), Resumx automatically adjusts spacing and font size after every edit. The agent can add, remove, or rewrite bullets freely, the content will always fill exactly one page.

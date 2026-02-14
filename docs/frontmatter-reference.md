@@ -163,11 +163,7 @@ Available variables depend on the theme. See the [Theme Variable Reference](/the
 
 ## Validate Fields
 
-These fields configure the `resumx validate` command. They are placed under a `validate` key and are separate from the render fields above.
-
-::: info
-The `validate` key is only used by `resumx validate`. The render command ignores it (and will emit a warning about an unknown field — this is expected).
-:::
+These fields configure validation (run by default before rendering, or standalone with `--check`). They are placed under a `validate` key and are separate from the render fields above.
 
 ### `validate.extends`
 
@@ -253,4 +249,4 @@ Any frontmatter key not in the known set (`themes`, `output`, `style`, `pages`) 
 Warning: unknown frontmatter field 'foo' will be ignored
 ```
 
-This does not prevent rendering — the field is simply ignored. Note that `validate` is a known field for the validate command but not for the render command, so you will see a warning when rendering a file that contains it.
+This does not prevent rendering — the field is simply ignored.

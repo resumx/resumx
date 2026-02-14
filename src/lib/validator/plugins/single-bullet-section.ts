@@ -1,20 +1,25 @@
 /**
  * Single Bullet Section Plugin
  *
- * Detects H2 sections that contain only one bullet point, which may indicate
- * incomplete content or a section that could be merged with another.
+ * Detects H2 sections that contain only one bullet point across all their
+ * entries. A lone bullet often indicates incomplete content or a section that
+ * could be merged with another. This is a bonus-level suggestion rather than a
+ * real problem; some sections (like a brief Summary or Certifications list)
+ * are perfectly fine with a single item.
  *
- * ## Checks
+ * ## Rule
  *
- * | Code                  | Severity | Description                              |
- * |-----------------------|----------|------------------------------------------|
- * | single-bullet-section | bonus    | H2 section contains only one bullet      |
+ * | Slug                    | Default severity | Description                         |
+ * |-------------------------|------------------|-------------------------------------|
+ * | `single-bullet-section` | bonus            | H2 section contains only one bullet |
  *
- * ## Rationale
+ * ## Frontmatter override
  *
- * A section with only one bullet might indicate incomplete content or could
- * be merged with another section. This is just a bonus tip—some sections (like
- * a brief Summary) are fine with one item.
+ * ```yaml
+ * check:
+ *   single-bullet-section: off       # disable this rule
+ *   single-bullet-section: warning    # upgrade to warning
+ * ```
  *
  * ## Examples
  *
@@ -32,8 +37,8 @@ import type {
 	ValidationContext,
 	ValidationIssue,
 	ValidatorPlugin,
-} from '../../types.js'
-import { rangeFromToken } from '../../utils.js'
+} from '../types.js'
+import { rangeFromToken } from '../utils.js'
 
 /**
  * Extract text content from an inline token's children
