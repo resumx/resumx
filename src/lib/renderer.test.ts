@@ -285,31 +285,6 @@ describe('renderer', () => {
 			})
 		})
 
-		it('processes expressions when context provided', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# {{ name }}\n\nYear: {{ year }}'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const result = await render({
-					content: mdContent,
-					output: join(dir, 'output.html'),
-					format: 'html',
-					cssPath: join(dir, 'style.css'),
-					expressionContext: {
-						name: 'Dynamic Name',
-						year: 2026,
-					},
-				})
-
-				expect(result.success).toBe(true)
-				const html = readFileSync(result.outputPath, 'utf-8')
-				expect(html).toContain('<h1>Dynamic Name</h1>')
-				expect(html).toContain('Year: 2026')
-			})
-		})
-
 		it('creates output directory if it does not exist', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test'
@@ -514,30 +489,6 @@ Tools
 				} else {
 					expect(result.error).toContain('Chromium')
 				}
-			})
-		})
-
-		it('processes expressions in PDF content', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# {{ title }}'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const result = await render({
-					content: mdContent,
-					output: join(dir, 'output.pdf'),
-					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
-					expressionContext: {
-						title: 'Dynamic PDF Title',
-					},
-				})
-
-				// May fail if Chromium is not installed
-				expect(
-					result.success || result.error?.includes('Chromium'),
-				).toBeTruthy()
 			})
 		})
 
@@ -889,59 +840,6 @@ Tools
 				expect(results.get('html')?.success).toBe(true)
 				const html = readFileSync(join(dir, 'with-vars.html'), 'utf-8')
 				expect(html).toContain('--custom-var: custom-value')
-			})
-		})
-
-		it('applies expression context to all formats', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# {{ title }}'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const results = await renderMultiple({
-					content: mdContent,
-					outputDir: dir,
-					outputName: 'with-ctx',
-					formats: ['html'],
-					cssPath: join(dir, 'style.css'),
-					expressionContext: { title: 'Dynamic Title' },
-				})
-
-				expect(results.get('html')?.success).toBe(true)
-				const html = readFileSync(join(dir, 'with-ctx.html'), 'utf-8')
-				expect(html).toContain('<h1>Dynamic Title</h1>')
-			})
-		})
-
-		it('processes expressions only once (before format loop)', async () => {
-			await withTempDirAsync(async dir => {
-				// Use Date.now() to verify expression is evaluated once
-				const mdContent = '# {{ timestamp }}'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const timestamp = Date.now()
-				const results = await renderMultiple({
-					content: mdContent,
-					outputDir: dir,
-					outputName: 'expr-once',
-					formats: ['html', 'pdf'],
-					cssPath: join(dir, 'style.css'),
-					expressionContext: { timestamp },
-				})
-
-				expect(results.get('html')?.success).toBe(true)
-				// PDF may fail without Chromium
-				const pdfResult = results.get('pdf')
-				expect(
-					pdfResult?.success || pdfResult?.error?.includes('Chromium'),
-				).toBeTruthy()
-
-				// HTML should contain the timestamp
-				const html = readFileSync(join(dir, 'expr-once.html'), 'utf-8')
-				expect(html).toContain(`<h1>${timestamp}</h1>`)
 			})
 		})
 

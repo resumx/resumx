@@ -162,24 +162,7 @@ describe('html-generator', () => {
 			})
 		})
 
-		it('processes expressions when context provided', async () => {
-			await withTempDir(async dir => {
-				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
-
-				const html = await generateHtml('# {{ name }}\n\nYear: {{ year }}', {
-					cssPath: join(dir, 'style.css'),
-					expressionContext: {
-						name: 'Dynamic Title',
-						year: 2026,
-					},
-				})
-
-				expect(html).toContain('<h1>Dynamic Title</h1>')
-				expect(html).toContain('Year: 2026')
-			})
-		})
-
-		it('leaves expressions unchanged when no context', async () => {
+		it('leaves double-brace syntax unchanged', async () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 

@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { execSync } from 'node:child_process'
 import { resolve, dirname, relative, basename, join } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
@@ -311,27 +310,6 @@ async function runRender(
 
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
-	// Build expression context from frontmatter (all properties directly accessible)
-	const expressionContext: Record<string, unknown> = {
-		// Expose environment variables as `env`
-		env: process.env,
-		// Expose shell execution helper
-		exec: (cmd: string) => {
-			try {
-				return execSync(cmd, { encoding: 'utf-8', cwd, stdio: 'pipe' }).trim()
-			} catch (error) {
-				// Extract stderr and throw it for evaluateExpression to handle
-				const stderr =
-					error instanceof Error && 'stderr' in error ?
-						String((error as { stderr: Buffer }).stderr).trim()
-					:	String(error)
-				throw new Error(`exec failed: ${stderr}`)
-			}
-		},
-		// Spread all frontmatter properties into the context
-		...(fmConfig ?? {}),
-	}
-
 	// Discover roles and languages from content (render markdown first to get HTML)
 	const html = renderMarkdown(content)
 	const discoveredRoles = extractRoles(html)
@@ -429,10 +407,6 @@ async function runRender(
 				formats,
 				cssPath: task.cssPath,
 				variables: hasVariables ? task.variables : undefined,
-				expressionContext:
-					Object.keys(expressionContext).length > 0 ?
-						expressionContext
-					:	undefined,
 				activeRole: task.activeRole,
 				activeLang: task.activeLang,
 				targetPages,

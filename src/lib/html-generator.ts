@@ -8,7 +8,6 @@ const { html: beautifyHtml } = jsBeautify
 import { generateVariablesCSS, getBundledThemesDir } from './themes.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
-import { processExpressions } from './interpolation.js'
 import { renderMarkdown } from './markdown.js'
 import { runPipeline } from './dom-processors/index.js'
 import type { PipelineContext } from './dom-processors/index.js'
@@ -21,8 +20,6 @@ export interface HtmlGeneratorOptions {
 	cssPath: string
 	/** Optional CSS variable overrides */
 	variables?: Record<string, string>
-	/** Optional expression evaluation context */
-	expressionContext?: Record<string, unknown>
 	/** Active role for filtering content (if set, only matching role content is included) */
 	activeRole?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
@@ -84,14 +81,8 @@ export async function generateHtml(
 	content: string,
 	options: HtmlGeneratorOptions,
 ): Promise<string> {
-	// Process {{ }} expressions before markdown rendering
-	const processedContent =
-		options.expressionContext ?
-			await processExpressions(content, options.expressionContext)
-		:	content
-
 	// Render markdown to HTML body
-	const rawBody = renderMarkdown(processedContent)
+	const rawBody = renderMarkdown(content)
 
 	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)

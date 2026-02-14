@@ -10,7 +10,6 @@ import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { browserPool } from './browser-pool.js'
 import { generateHtml } from './html-generator.js'
-import { processExpressions } from './interpolation.js'
 import { fitToPages } from './page-fit/index.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx' | 'png'
@@ -21,7 +20,6 @@ export interface RenderOptions {
 	format: OutputFormat
 	cssPath: string
 	variables?: Record<string, string>
-	expressionContext?: Record<string, unknown>
 	activeRole?: string
 	activeLang?: string
 	targetPages?: number
@@ -134,7 +132,6 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 		let html = await generateHtml(options.content, {
 			cssPath: options.cssPath,
 			variables: options.variables,
-			expressionContext: options.expressionContext,
 			activeRole: options.activeRole,
 			activeLang: options.activeLang,
 		})
@@ -200,7 +197,6 @@ export interface RenderMultipleOptions {
 	formats: OutputFormat[]
 	cssPath: string
 	variables?: Record<string, string>
-	expressionContext?: Record<string, unknown>
 	activeRole?: string
 	activeLang?: string
 	targetPages?: number
@@ -219,17 +215,10 @@ export async function renderMultiple(
 		formats,
 		cssPath,
 		variables,
-		expressionContext,
 		activeRole,
 		activeLang,
 		targetPages,
 	} = options
-
-	// Process expressions once before rendering to any format
-	const processedContent =
-		expressionContext ?
-			await processExpressions(content, expressionContext)
-		:	content
 
 	// Render all formats in parallel
 	const renderPromises = formats.map(async format => {
@@ -237,7 +226,7 @@ export async function renderMultiple(
 		const output = join(outputDir, `${outputName}.${ext}`)
 
 		const result = await render({
-			content: processedContent,
+			content,
 			output,
 			format,
 			cssPath,
