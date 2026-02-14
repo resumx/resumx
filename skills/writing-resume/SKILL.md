@@ -5,7 +5,7 @@ description: Write and format resumes using Resumx markdown syntax. Use when cre
 
 # Writing Resumes with Resumx
 
-A minimal markdown-based resume format. Only ONE custom syntax for positioning (`{.right}` or `(#right)`), everything else is standard markdown.
+A markdown-based resume format. Only ONE custom syntax for positioning (`{.right}` or `(#right)`), everything else is standard markdown.
 
 ## Interactive Resume Creation
 

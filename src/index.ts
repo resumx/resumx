@@ -122,13 +122,13 @@ program.configureHelp({
 
 program
 	.name('resumx')
-	.description('Minimal markdown resume builder')
+	.description('Markdown resume builder')
 	.version('0.1.0')
 	.allowExcessArguments(false)
 
 // Default action: render
 program
-	.argument('[file]', 'Markdown file to render (- or pipe for stdin)')
+	.argument('[resume.md]', 'Markdown file to render (- or pipe for stdin)')
 	.option(
 		'-t, --theme <name>',
 		'Theme(s) to use (name or path, repeatable)',

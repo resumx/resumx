@@ -1,7 +1,7 @@
 {
 	"name": "resumx",
 	"version": "0.1.0",
-	"description": "Minimal markdown resume builder with beautiful PDF output",
+	"description": "Markdown resume builder",
 	"type": "module",
 	"main": "dist/index.js",
 	"bin": {
