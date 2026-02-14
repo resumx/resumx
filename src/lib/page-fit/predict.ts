@@ -94,18 +94,18 @@ export function predictTotalHeight(
 	const textHeight = predictHeight(textMetrics, fsPx, lh, mxIn)
 
 	// 2. Gaps: each gap type * how many of that element exist
+	// ⚠️ FLAGGED: assumes gap savings are linear. With margin collapsing in CSS,
+	// reducing a gap below the collapsing neighbor's margin has zero effect.
+	// Switching to CSS gap (flex/grid) in base.css eliminates this, but
+	// section-gap still uses margins. The layoutNoise calibration absorbs
+	// the error at t=0, but diverges as gaps shrink toward minimums.
 	let gapHeight = 0
 	for (const { key, countKey } of GAP_ENTRIES) {
 		gapHeight += values[key] * counts[countKey]
 	}
 
 	// 3. Layout noise covers rounding, borders, padding, etc.
-	const rawHeight = textHeight + gapHeight + layoutNoise
-
-	// Apply 5% safety factor: prediction should be slightly pessimistic (predict taller)
-	// to avoid over-shrinking. Better to shrink slightly less and use fill to expand
-	// than to shrink too much and leave un-recoverable blank space.
-	return rawHeight * 1.05
+	return textHeight + gapHeight + layoutNoise
 }
 
 /**
