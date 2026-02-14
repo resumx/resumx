@@ -209,14 +209,13 @@ async function runRender(
 	options: RenderCommandOptions,
 	cwd: string,
 	context: RenderContext,
-): Promise<boolean> {
+): Promise<void> {
 	const renderStart = performance.now()
 
 	// Parse frontmatter
 	const parsed = parseFrontmatterFromString(rawContent)
 	if (!parsed.ok) {
-		console.error(chalk.red(`Error: ${parsed.error}`))
-		return false
+		throw new Error(parsed.error)
 	}
 
 	const { config: fmConfig, content, warnings } = parsed
@@ -234,13 +233,7 @@ async function runRender(
 		variables: Record<string, string>
 	}> = []
 	for (const themeName of themeNames) {
-		let cssPath: string
-		try {
-			cssPath = resolveTheme(themeName, cwd)
-		} catch (error) {
-			console.error(chalk.red(`Error: ${(error as Error).message}`))
-			return false
-		}
+		const cssPath = resolveTheme(themeName, cwd)
 
 		// Merge style overrides (CLI > Frontmatter > Theme defaults)
 		const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
@@ -256,12 +249,7 @@ async function runRender(
 	let outputTemplate: string | undefined
 
 	if (outputString) {
-		try {
-			validateTemplateVars(outputString, ['theme', 'role', 'lang'])
-		} catch (error) {
-			console.error(chalk.red(`Error: ${(error as Error).message}`))
-			return false
-		}
+		validateTemplateVars(outputString, ['theme', 'role', 'lang'])
 
 		if (outputString.endsWith('/')) {
 			// Directory: use as output dir, keep default name
@@ -278,23 +266,12 @@ async function runRender(
 	}
 
 	// Get formats to render (CLI > default)
-	let formats: OutputFormat[]
-	try {
-		formats = resolveFormats(options)
-	} catch (error) {
-		console.error(chalk.red(`Error: ${(error as Error).message}`))
-		return false
-	}
+	const formats = resolveFormats(options)
 
 	// Check dependencies
 	// Only pdf2docx is required for DOCX output (PDF uses bundled Playwright Chromium)
 	const needsDocx = formats.includes('docx')
-	try {
-		requireDependencies({ docx: needsDocx })
-	} catch (error) {
-		console.error(chalk.red(`Error: ${(error as Error).message}`))
-		return false
-	}
+	requireDependencies({ docx: needsDocx })
 
 	// Resolve target pages (CLI > Frontmatter)
 	const targetPages = options.pages ?? fmConfig?.pages
@@ -318,41 +295,28 @@ async function runRender(
 	})
 
 	// Resolve which roles to generate (priority: CLI > discovered)
-	let rolesToGenerate: string[]
-	try {
-		rolesToGenerate = resolveValues(options.role ?? [], discoveredRoles, 'role')
-	} catch (error) {
-		console.error(chalk.red(`Error: ${(error as Error).message}`))
-		return false
-	}
+	const rolesToGenerate = resolveValues(
+		options.role ?? [],
+		discoveredRoles,
+		'role',
+	)
 
 	// Resolve which languages to generate (priority: CLI > discovered)
-	let langsToGenerate: string[]
-	try {
-		langsToGenerate = resolveValues(
-			options.lang ?? [],
-			discoveredLangs,
-			'language',
-		)
-	} catch (error) {
-		console.error(chalk.red(`Error: ${(error as Error).message}`))
-		return false
-	}
+	const langsToGenerate = resolveValues(
+		options.lang ?? [],
+		discoveredLangs,
+		'language',
+	)
 
 	// Build render tasks for all theme × role combinations
 	let renderTasks: RenderTask[]
 
 	if (outputTemplate) {
-		try {
-			validateTemplateUniqueness(outputTemplate, {
-				theme: themes.map(t => t.name),
-				role: rolesToGenerate,
-				lang: langsToGenerate,
-			})
-		} catch (error) {
-			console.error(chalk.red(`Error: ${(error as Error).message}`))
-			return false
-		}
+		validateTemplateUniqueness(outputTemplate, {
+			theme: themes.map(t => t.name),
+			role: rolesToGenerate,
+			lang: langsToGenerate,
+		})
 
 		renderTasks = []
 		const effectiveRoles: Array<string | undefined> =
@@ -449,9 +413,8 @@ async function runRender(
 		console.log(
 			`${chalk.red('Some formats failed to render. ')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
 		)
+		throw new Error('Some formats failed to render')
 	}
-
-	return allSuccess
 }
 
 /**
@@ -469,8 +432,8 @@ function isStdinInput(file: string | undefined): boolean {
 /**
  * Run validation and decide whether to proceed with rendering.
  *
- * Returns true if rendering should proceed, false if it should be skipped.
- * When `--check` is set, this function calls process.exit and never returns.
+ * Returns true if rendering should proceed, false for --check mode (done).
+ * Throws on validation failure in --check or --strict mode.
  */
 async function handleCheck(
 	rawContent: string,
@@ -485,14 +448,14 @@ async function handleCheck(
 	printCheckResults(filteredIssues, label)
 
 	if (options.check) {
-		// --check: validate only, exit with appropriate code
-		process.exit(ok ? 0 : 1)
+		// --check: validate only, signal result
+		if (!ok) throw new Error('Validation failed')
+		return false // check-only mode passed, don't render
 	}
 
 	if (options.strict && !ok) {
 		// --strict: block render on validation failure
-		console.error(chalk.red('\nValidation failed, skipping render (--strict)'))
-		return false
+		throw new Error('Validation failed, skipping render (--strict)')
 	}
 
 	// Default: warn and continue
@@ -503,26 +466,27 @@ async function handleCheck(
 }
 
 /**
- * Main render command handler
+ * Main render command handler.
+ *
+ * Returns normally on success, throws on any failure.
+ * The CLI wrapper in index.ts handles process.exit().
  */
 export async function renderCommand(
 	inputFile: string | undefined,
 	options: RenderCommandOptions,
+	cwd: string = process.cwd(),
 ): Promise<void> {
-	const cwd = process.cwd()
 	const skipCheck = options.check === false
 
 	// --check is incompatible with --watch
 	if (options.check && options.watch) {
-		console.error(chalk.red('Error: --check cannot be used with --watch'))
-		process.exit(1)
+		throw new Error('--check cannot be used with --watch')
 	}
 
 	// Stdin path: read from pipe or explicit `-`
 	if (isStdinInput(inputFile)) {
 		if (options.watch) {
-			console.error(chalk.red('Error: --watch cannot be used with stdin input'))
-			process.exit(1)
+			throw new Error('--watch cannot be used with stdin input')
 		}
 
 		const rawContent = await readStdin()
@@ -530,30 +494,25 @@ export async function renderCommand(
 		// Validation step (unless --no-check)
 		if (!skipCheck) {
 			const proceed = await handleCheck(rawContent, 'stdin', options)
-			if (!proceed) {
-				process.exit(1)
-			}
+			if (!proceed) return // --check passed, done
 		}
 
-		// --check exits inside handleCheck, so we only reach here for render
+		// --check returns above, so we only reach here for render
 		const nameFromContent = extractNameFromContent(rawContent)
 		const outputOverride = options.output && !options.output.endsWith('/')
 
 		if (!nameFromContent && !outputOverride) {
-			console.error(
-				chalk.red(
-					'Error: Cannot determine output filename from stdin (no h1 heading found). Use -o to specify.',
-				),
+			throw new Error(
+				'Cannot determine output filename from stdin (no h1 heading found). Use -o to specify.',
 			)
-			process.exit(1)
 		}
 
 		const context: RenderContext = {
 			label: 'stdin',
 			defaultOutputName: nameFromContent ?? '',
 		}
-		const success = await runRender(rawContent, options, cwd, context)
-		process.exit(success ? 0 : 1)
+		await runRender(rawContent, options, cwd, context)
+		return
 	}
 
 	// File path (existing behavior)
@@ -561,8 +520,7 @@ export async function renderCommand(
 	const inputPath = resolve(cwd, file)
 
 	if (!existsSync(inputPath)) {
-		console.error(chalk.red(`Error: Input file not found: ${inputPath}`))
-		process.exit(1)
+		throw new Error(`Input file not found: ${inputPath}`)
 	}
 
 	const context: RenderContext = {
@@ -576,9 +534,7 @@ export async function renderCommand(
 	// Validation step (unless --no-check)
 	if (!skipCheck) {
 		const proceed = await handleCheck(rawContent, context.label, options)
-		if (!proceed) {
-			process.exit(1)
-		}
+		if (!proceed) return // --check passed, done
 	}
 
 	const parsed = parseFrontmatterFromString(rawContent)
@@ -602,7 +558,7 @@ export async function renderCommand(
 
 	// Print watch message before initial render
 	if (options.watch) {
-		const relativeWatchPaths = watchPaths.map(p => relative(process.cwd(), p))
+		const relativeWatchPaths = watchPaths.map(p => relative(cwd, p))
 		console.log(
 			chalk.blue(`Watching for changes...`)
 				+ ` (${relativeWatchPaths.join(', ')})`,
@@ -611,11 +567,9 @@ export async function renderCommand(
 	}
 
 	// Run initial render
-	const success = await runRender(rawContent, options, cwd, context)
+	await runRender(rawContent, options, cwd, context)
 
-	if (!options.watch) {
-		process.exit(success ? 0 : 1)
-	}
+	if (!options.watch) return
 
 	// Debounce rapid changes
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -634,19 +588,25 @@ export async function renderCommand(
 		}
 
 		debounceTimer = setTimeout(async () => {
-			console.log(chalk.blue('\nChange detected, rebuilding...'))
-			const freshContent = readFileSync(inputPath, 'utf-8')
+			try {
+				console.log(chalk.blue('\nChange detected, rebuilding...'))
+				const freshContent = readFileSync(inputPath, 'utf-8')
 
-			// Re-validate on each change (unless --no-check)
-			if (!skipCheck) {
-				const proceed = await handleCheck(freshContent, context.label, options)
-				if (!proceed) {
-					console.log(chalk.yellow('Fix validation issues and save again.'))
-					return
+				// Re-validate on each change (unless --no-check)
+				if (!skipCheck) {
+					const proceed = await handleCheck(
+						freshContent,
+						context.label,
+						options,
+					)
+					if (!proceed) return
 				}
-			}
 
-			await runRender(freshContent, options, cwd, context)
+				await runRender(freshContent, options, cwd, context)
+			} catch (error) {
+				console.log(chalk.yellow((error as Error).message ?? 'Unknown error'))
+				console.log(chalk.yellow('Fix issues and save again.'))
+			}
 		}, 150)
 	})
 
