@@ -209,13 +209,13 @@ async function runRender(
 	const renderStart = performance.now()
 
 	// Parse frontmatter
-	const {
-		config: fmConfig,
-		content,
-		warnings,
-	} = parseFrontmatterFromString(rawContent)
+	const parsed = parseFrontmatterFromString(rawContent)
+	if (!parsed.ok) {
+		console.error(chalk.red(`Error: ${parsed.error}`))
+		return false
+	}
 
-	// Display warnings for unknown frontmatter fields
+	const { config: fmConfig, content, warnings } = parsed
 	for (const warning of warnings) {
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
@@ -503,7 +503,8 @@ export async function renderCommand(
 
 	// Read file content and resolve watch paths
 	const rawContent = readFileSync(inputPath, 'utf-8')
-	const { config: fmConfig } = parseFrontmatterFromString(rawContent)
+	const parsed = parseFrontmatterFromString(rawContent)
+	const fmConfig = parsed.ok ? parsed.config : null
 	const themeNamesForWatch = resolveThemes(options.theme, fmConfig?.themes)
 
 	// Collect CSS paths for all themes

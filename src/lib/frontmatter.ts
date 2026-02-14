@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { closest, distance } from 'fastest-levenshtein'
 import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
 import { z } from 'zod'
@@ -32,11 +33,14 @@ const FrontmatterSchema = z.object({
 
 export type FrontmatterConfig = z.infer<typeof FrontmatterSchema>
 
-export interface ParseResult {
-	config: FrontmatterConfig | null
-	content: string
-	warnings: string[]
-}
+export type ParseResult =
+	| {
+			ok: true
+			config: FrontmatterConfig | null
+			content: string
+			warnings: string[]
+	  }
+	| { ok: false; error: string }
 
 /**
  * Detect frontmatter type based on opening delimiter
@@ -52,51 +56,40 @@ function detectFrontmatterType(input: string): 'yaml' | 'toml' | null {
 	return null
 }
 
-interface ValidationResult {
-	config: FrontmatterConfig
-	warnings: string[]
-}
+/** Max edit distance to consider a field name a likely typo */
+const MAX_TYPO_DISTANCE = 2
 
 /**
- * Validate and extract only known fields from parsed frontmatter data
- * Returns warnings for any unknown fields
+ * Find a likely typo among the data keys.
+ * Returns [unknown key, closest known key] if found, null otherwise.
  */
-function validateAndExtract(data: Record<string, unknown>): ValidationResult {
-	// Get known fields from the schema
-	const knownKeys = new Set(Object.keys(FrontmatterSchema.shape))
+function detectTypo(
+	data: Record<string, unknown>,
+): [field: string, suggestion: string] | null {
+	const knownKeys = Object.keys(FrontmatterSchema.shape)
 
-	// Collect warnings for unknown fields
-	const warnings: string[] = Object.keys(data)
-		.filter(k => !knownKeys.has(k))
-		.map(k => `unknown frontmatter field '${k}' will be ignored`)
+	for (const key of Object.keys(data)) {
+		if (knownKeys.includes(key)) continue
 
-	// Validate with Zod schema (throws on invalid values)
-	const config = FrontmatterSchema.parse(data)
+		const match = closest(key, knownKeys)
+		if (distance(key, match) <= MAX_TYPO_DISTANCE) {
+			return [key, match]
+		}
+	}
 
-	return { config, warnings }
+	return null
 }
 
 /**
- * Check if the config has any meaningful values
- */
-function hasConfig(config: FrontmatterConfig): boolean {
-	return Object.keys(config).length > 0
-}
-
-/**
- * Parse frontmatter from a markdown string
- * Supports YAML (--- delimited) and TOML (+++ delimited)
+ * Parse frontmatter from a markdown string.
+ * Supports YAML (--- delimited) and TOML (+++ delimited).
  */
 export function parseFrontmatterFromString(input: string): ParseResult {
 	const frontmatterType = detectFrontmatterType(input)
 
 	// No frontmatter detected
 	if (frontmatterType === null) {
-		return {
-			config: null,
-			content: input,
-			warnings: [],
-		}
+		return { ok: true, config: null, content: input, warnings: [] }
 	}
 
 	// Parse based on frontmatter type
@@ -120,18 +113,37 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 	const data = result.data as Record<string, unknown>
 
 	if (Object.keys(data).length === 0) {
+		return { ok: true, config: null, content: input, warnings: [] }
+	}
+
+	// Check for typos
+	const typo = detectTypo(data)
+	if (typo) {
+		const [field, suggestion] = typo
 		return {
-			config: null,
-			content: input,
-			warnings: [],
+			ok: false,
+			error: `Unknown frontmatter field '${field}'. Did you mean '${suggestion}'?`,
 		}
 	}
 
-	// Validate and extract config
-	const { config, warnings } = validateAndExtract(data)
+	// Validate with Zod
+	const parsed = FrontmatterSchema.safeParse(data)
+	if (!parsed.success) {
+		return {
+			ok: false,
+			error: parsed.error.issues[0]?.message ?? 'Invalid frontmatter',
+		}
+	}
+
+	const warnings = Object.keys(data)
+		.filter(k => !Object.keys(FrontmatterSchema.shape).includes(k))
+		.map(k => `unknown frontmatter field '${k}' will be ignored`)
+
+	const config = parsed.data
 
 	return {
-		config: hasConfig(config) ? config : null,
+		ok: true,
+		config: Object.keys(config).length > 0 ? config : null,
 		content: result.content,
 		warnings,
 	}
@@ -142,6 +154,6 @@ export function parseFrontmatterFromString(input: string): ParseResult {
  * Supports YAML (--- delimited) and TOML (+++ delimited)
  */
 export function parseFrontmatter(filePath: string): ParseResult {
-	const content = readFileSync(filePath, 'utf-8')
-	return parseFrontmatterFromString(content)
+	const input = readFileSync(filePath, 'utf-8')
+	return parseFrontmatterFromString(input)
 }
