@@ -1,4 +1,4 @@
-<!-- TODO: image for banner/og-image -->
+![Resumx Banner](assets/resumx-banner-dark.png)
 
 <h1 align="center">Resumx</h1>
 
