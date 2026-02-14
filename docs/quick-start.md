@@ -8,24 +8,18 @@ Get from zero to a rendered resume in under a minute.
 npm install -g resumx
 ```
 
-**Requirements:** Node.js 20+
-
 PDF rendering uses [Playwright](https://playwright.dev/) with a bundled Chromium browser, installed automatically during `npm install`.
 
 ## 2. Create and Render
 
 ```bash
-resumx init resume.md       # Generate a template resume
-resumx resume.md            # Render to PDF
+resumx init resume.md  # Generate a template resume
+resumx resume.md       # Render to PDF
 ```
 
 <!-- TODO: Terminal screenshot showing the output of resumx init and resumx resume.md commands -->
 
 ## 3. Edit
-
-::: tip Using an AI assistant?
-Resumx ships with [Agent Skills](/agent-skills) — structured instructions that help Cursor, Copilot, and other AI agents edit your resume correctly.
-:::
 
 Open `resume.md` in your editor. The template looks like this:
 

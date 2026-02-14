@@ -38,4 +38,4 @@ That produces a file for every combination of **role**, **theme**, and **format*
 
 <!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
 
-Edit with [AI](/agent-skills). Render from [any commit](/git-superpowers). [Multi-language](/multi-language) from one source. [Get started in under a minute →](/quick-start)
+Edit with [AI](/using-ai). Render from [any commit](/git-superpowers). [Multi-language](/multi-language) from one source. [Get started in under a minute →](/quick-start)
