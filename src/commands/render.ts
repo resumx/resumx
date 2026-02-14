@@ -16,8 +16,7 @@ import {
 } from '../lib/renderer.js'
 import { parseFrontmatterFromString } from '../lib/frontmatter.js'
 import { renderMarkdown } from '../lib/markdown.js'
-import { extractRoles, resolveRoles } from '../lib/roles.js'
-import { extractLangs, resolveLangs } from '../lib/langs.js'
+import { extractBySelector, resolveValues } from '../lib/content-filter.js'
 import { cartesian } from '../lib/cartesian.js'
 import {
 	validateTemplateVars,
@@ -299,16 +298,24 @@ async function runRender(
 
 	// Discover roles and languages from content (render markdown first to get HTML)
 	const html = renderMarkdown(content)
-	const discoveredRoles = extractRoles(html)
-	const discoveredLangs = extractLangs(html)
+	const ROLE_CLASS_RE = /\brole:([^\s"']+)/g
+	const discoveredRoles = extractBySelector(html, '[class*="role:"]', el => {
+		const cls = el.getAttribute('class') ?? ''
+		ROLE_CLASS_RE.lastIndex = 0
+		const roles: string[] = []
+		let m
+		while ((m = ROLE_CLASS_RE.exec(cls))) roles.push(m[1]!)
+		return roles
+	})
+	const discoveredLangs = extractBySelector(html, '[lang]', el => {
+		const v = el.getAttribute('lang')
+		return v ? [v] : []
+	})
 
 	// Resolve which roles to generate (priority: CLI > discovered)
 	let rolesToGenerate: string[]
 	try {
-		rolesToGenerate = resolveRoles({
-			explicit: options.role,
-			discovered: discoveredRoles,
-		})
+		rolesToGenerate = resolveValues(options.role ?? [], discoveredRoles, 'role')
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false
@@ -317,7 +324,11 @@ async function runRender(
 	// Resolve which languages to generate (priority: CLI > discovered)
 	let langsToGenerate: string[]
 	try {
-		langsToGenerate = resolveLangs(options.lang ?? [], discoveredLangs)
+		langsToGenerate = resolveValues(
+			options.lang ?? [],
+			discoveredLangs,
+			'language',
+		)
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false

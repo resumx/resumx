@@ -2,10 +2,10 @@
  * Filter By Lang Processor
  *
  * Filters HTML content based on the active language.
- * Wraps the existing filterByLang function from langs.ts.
+ * Uses generic selector-based filtering with [lang] attribute selectors.
  */
 
-import { filterByLang as filterByLangImpl } from '../../langs.js'
+import { filterBySelector } from '../../content-filter.js'
 import type { PipelineContext } from '../types.js'
 
 /**
@@ -27,5 +27,5 @@ export function filterByLang(html: string, ctx: PipelineContext): string {
 		return html
 	}
 
-	return filterByLangImpl(html, activeLang)
+	return filterBySelector(html, `[lang]:not([lang="${activeLang}"])`)
 }

@@ -2,10 +2,10 @@
  * Filter By Role Processor
  *
  * Filters HTML content based on the active role.
- * Wraps the existing filterByRole function from roles.ts.
+ * Uses generic selector-based filtering with class attribute selectors.
  */
 
-import { filterByRole as filterByRoleImpl } from '../../roles.js'
+import { filterBySelector } from '../../content-filter.js'
 import type { PipelineContext } from '../types.js'
 
 /**
@@ -27,5 +27,8 @@ export function filterByRole(html: string, ctx: PipelineContext): string {
 		return html
 	}
 
-	return filterByRoleImpl(html, activeRole)
+	return filterBySelector(
+		html,
+		`[class*="role:"]:not([class*="role:${activeRole}"])`,
+	)
 }
