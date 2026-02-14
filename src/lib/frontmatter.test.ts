@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import assert from 'node:assert'
 import { parseFrontmatter, parseFrontmatterFromString } from './frontmatter.js'
 
 describe('frontmatter', () => {
@@ -33,6 +34,7 @@ style:
 Some content here.`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					themes: ['formal'],
@@ -52,6 +54,7 @@ themes: minimal
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ themes: ['minimal'] })
 				expect(result.content.trim()).toBe('# Resume')
@@ -64,6 +67,7 @@ output: my-resume
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ output: 'my-resume' })
 			})
@@ -75,6 +79,7 @@ output: ./build/output/
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ output: './build/output/' })
 			})
@@ -86,6 +91,7 @@ output: "build/John_Doe-{theme}-{role}"
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					output: 'build/John_Doe-{theme}-{role}',
@@ -100,6 +106,7 @@ style:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					style: { 'primary-color': '#ff0000' },
@@ -115,6 +122,7 @@ themes:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ themes: ['formal', 'minimal'] })
 			})
@@ -135,6 +143,7 @@ section-header-color = "#2563eb"
 Some content here.`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					themes: ['formal'],
@@ -154,6 +163,7 @@ themes = "minimal"
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ themes: ['minimal'] })
 			})
@@ -165,6 +175,7 @@ themes = ["formal", "minimal"]
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ themes: ['formal', 'minimal'] })
 			})
@@ -177,6 +188,7 @@ primary-color = "#ff0000"
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					style: { 'primary-color': '#ff0000' },
@@ -191,6 +203,7 @@ primary-color = "#ff0000"
 Some content here.`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toBeNull()
 				expect(result.content).toBe(input)
@@ -198,6 +211,7 @@ Some content here.`
 
 			it('returns null config for empty content', () => {
 				const result = parseFrontmatterFromString('')
+				assert(result.ok)
 
 				expect(result.config).toBeNull()
 				expect(result.content).toBe('')
@@ -213,7 +227,9 @@ themes: formal
 
 				// gray-matter should handle this gracefully
 				// The exact behavior depends on gray-matter, but it shouldn't crash
-				expect(result.content).toBeDefined()
+				if (result.ok) {
+					expect(result.content).toBeDefined()
+				}
 			})
 		})
 
@@ -225,6 +241,7 @@ themes: formal
 # John Doe`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.content).not.toContain('---')
 				expect(result.content).not.toContain('themes')
@@ -238,6 +255,7 @@ themes = "formal"
 # John Doe`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.content).not.toContain('+++')
 				expect(result.content).not.toContain('themes')
@@ -257,24 +275,28 @@ themes: formal
 ${content}`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.content.trim()).toBe(content)
 			})
 		})
 
 		describe('validation', () => {
-			it('throws on non-string/array themes', () => {
+			it('rejects non-string/array themes', () => {
 				const input = `---
 themes: 123
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'themes' must be a string or an array of strings",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'themes' must be a string or an array of strings",
+				})
 			})
 
-			it('throws on non-string themes array element', () => {
+			it('rejects non-string themes array element', () => {
 				const input = `---
 themes:
   - formal
@@ -282,9 +304,12 @@ themes:
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'themes' must contain only strings",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'themes' must contain only strings",
+				})
 			})
 
 			it('normalizes string themes to single-element array', () => {
@@ -294,30 +319,37 @@ themes: formal
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.themes).toEqual(['formal'])
 			})
 
-			it('throws on non-string output', () => {
+			it('rejects non-string output', () => {
 				const input = `---
 output: 123
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'output' must be a string",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'output' must be a string",
+				})
 			})
 
-			it('throws on non-object style', () => {
+			it('rejects non-object style', () => {
 				const input = `---
 style: "not-an-object"
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'style' must be an object",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'style' must be an object",
+				})
 			})
 
 			it('coerces numeric style values to strings', () => {
@@ -328,6 +360,7 @@ style:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.style?.['line-height']).toBe('1.35')
 			})
@@ -341,6 +374,7 @@ anotherUnknown: 123
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({ themes: ['formal'] })
 				expect(result.warnings).toHaveLength(2)
@@ -359,6 +393,7 @@ roles: frontend
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toBeNull()
 				expect(result.warnings).toContain(
@@ -375,10 +410,84 @@ formats:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toBeNull()
 				expect(result.warnings).toContain(
 					"unknown frontmatter field 'formats' will be ignored",
+				)
+			})
+
+			it('rejects likely typo: page instead of pages', () => {
+				const input = `---
+page: 2
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "Unknown frontmatter field 'page'. Did you mean 'pages'?",
+				})
+			})
+
+			it('rejects likely typo: theme instead of themes', () => {
+				const input = `---
+theme: formal
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "Unknown frontmatter field 'theme'. Did you mean 'themes'?",
+				})
+			})
+
+			it('rejects likely typo: styles instead of style', () => {
+				const input = `---
+styles:
+  font-family: Arial
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "Unknown frontmatter field 'styles'. Did you mean 'style'?",
+				})
+			})
+
+			it('rejects likely typo: outputs instead of output', () => {
+				const input = `---
+outputs: ./dist/resume
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "Unknown frontmatter field 'outputs'. Did you mean 'output'?",
+				})
+			})
+
+			it('still warns about genuinely unknown fields (not typos)', () => {
+				const input = `---
+themes: formal
+variables: some-value
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config).toEqual({ themes: ['formal'] })
+				expect(result.warnings).toContain(
+					"unknown frontmatter field 'variables' will be ignored",
 				)
 			})
 
@@ -392,6 +501,7 @@ style:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.warnings).toEqual([])
 			})
@@ -405,6 +515,7 @@ pages: 1
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.pages).toBe(1)
 				expect(result.warnings).toEqual([])
@@ -417,6 +528,7 @@ pages: 2
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.pages).toBe(2)
 			})
@@ -428,6 +540,7 @@ pages = 1
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.pages).toBe(1)
 			})
@@ -442,6 +555,7 @@ style:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config).toEqual({
 					themes: ['zurich'],
@@ -450,48 +564,60 @@ style:
 				})
 			})
 
-			it('throws on pages: 0', () => {
+			it('rejects pages: 0', () => {
 				const input = `---
 pages: 0
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'pages' must be a positive integer (>= 1)",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'pages' must be a positive integer (>= 1)",
+				})
 			})
 
-			it('throws on negative pages', () => {
+			it('rejects negative pages', () => {
 				const input = `---
 pages: -1
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'pages' must be a positive integer (>= 1)",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'pages' must be a positive integer (>= 1)",
+				})
 			})
 
-			it('throws on non-integer pages', () => {
+			it('rejects non-integer pages', () => {
 				const input = `---
 pages: 1.5
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'pages' must be a positive integer (>= 1)",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'pages' must be a positive integer (>= 1)",
+				})
 			})
 
-			it('throws on non-number pages', () => {
+			it('rejects non-number pages', () => {
 				const input = `---
 pages: "one"
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"'pages' must be a positive integer (>= 1)",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "'pages' must be a positive integer (>= 1)",
+				})
 			})
 		})
 
@@ -503,6 +629,7 @@ themes: ""
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.themes).toEqual([''])
 			})
@@ -514,6 +641,7 @@ output: "my resume file"
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.output).toBe('my resume file')
 			})
@@ -526,6 +654,7 @@ style:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
 
 				expect(result.config?.style?.['font-family']).toBe(
 					"Arial, 'Helvetica Neue', sans-serif",
@@ -546,6 +675,7 @@ output: test-resume
 			writeFileSync(filePath, content)
 
 			const result = parseFrontmatter(filePath)
+			assert(result.ok)
 
 			expect(result.config).toEqual({
 				themes: ['formal'],
@@ -564,6 +694,7 @@ themes = "minimal"
 			writeFileSync(filePath, content)
 
 			const result = parseFrontmatter(filePath)
+			assert(result.ok)
 
 			expect(result.config).toEqual({
 				themes: ['minimal'],
@@ -579,6 +710,7 @@ No frontmatter here.`
 			writeFileSync(filePath, content)
 
 			const result = parseFrontmatter(filePath)
+			assert(result.ok)
 
 			expect(result.config).toBeNull()
 			expect(result.content).toBe(content)
