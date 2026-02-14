@@ -1,10 +1,26 @@
+---
+theme: zurich # (default), oxford, seattle
+output: output/
+pages: 1 # Adjusts layout to fit within target page count
+style:
+  font-size: 11pt
+  # font-family: 'Georgia', serif
+  # header-text-align: center
+  # name-caps: normal
+  # More options: https://resumx.dev/guide/themes#variable-reference
+---
+
+<!-- Docs: https://resumx.dev/guide/ -->
+
 # Your Name
 
-> [your@email.com](mailto:your@email.com) | [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile) | [github.com/yourusername](https://github.com/yourusername)
+[your@email.com](mailto:your@email.com) | [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile) | [github.com/yourusername](https://github.com/yourusername)
 
 ## Education
 
-### University Name [Month Year – Month Year]{.right}
+<!-- {.float-right} right-aligns text, see: https://resumx.dev/guide/tailwind-css -->
+
+### University Name [Month Year - Month Year]{.float-right}
 
 _Degree, Major_
 
@@ -13,7 +29,7 @@ _Degree, Major_
 
 ## Work Experience
 
-### Company Name [Month Year – Present]{.right}
+### Company Name [Month Year - Present]{.float-right}
 
 _Job Title_
 
@@ -21,7 +37,7 @@ _Job Title_
 - Led team of Z people to deliver project on time
 - Applied knowledge in `Skill 1`, `Skill 2`, `Skill 3`
 
-### Previous Company [Month Year – Month Year]{.right}
+### Previous Company [Month Year - Month Year]{.float-right}
 
 _Previous Role_
 
