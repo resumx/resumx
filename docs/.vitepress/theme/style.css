@@ -186,18 +186,24 @@ footer nav {
 	counter-increment: toc-group;
 }
 
-/* Reset item counter within each group */
-.VPSidebarItem.level-0 > .items {
+/* Reset item counter within each group (except the last one without title) */
+.VPSidebar .nav > .group:not(:last-child) .VPSidebarItem.level-0 > .items {
 	counter-reset: toc-item;
 }
 
-/* Each level-1 item increments the item counter */
-.VPSidebarItem.level-1 {
+/* Each level-1 item increments the item counter (except in last group) */
+.VPSidebar .nav > .group:not(:last-child) .VPSidebarItem.level-1 {
 	counter-increment: toc-item;
 }
 
-/* Display roman numeral prefix before each link text */
-.VPSidebarItem.level-1 > .item .link .text::before {
+/* Display roman numeral prefix before each link text (except in last group) */
+.VPSidebar
+	.nav
+	> .group:not(:last-child)
+	.VPSidebarItem.level-1
+	> .item
+	.link
+	.text::before {
 	content: counter(toc-item, lower-roman) '. ';
 	color: var(--vp-c-text-3);
 	font-size: 0.85em;

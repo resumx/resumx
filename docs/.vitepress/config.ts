@@ -70,6 +70,12 @@ export default defineConfig({
 					},
 				],
 			},
+			{
+				items: [
+					{ text: 'CLI Reference', link: '/cli-reference' },
+					{ text: 'Frontmatter Reference', link: '/frontmatter-reference' },
+				],
+			},
 		],
 
 		search: {
