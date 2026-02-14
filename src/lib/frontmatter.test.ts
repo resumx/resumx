@@ -320,16 +320,16 @@ style: "not-an-object"
 				)
 			})
 
-			it('throws on non-string style value', () => {
+			it('coerces numeric style values to strings', () => {
 				const input = `---
 style:
-  size: 12
+  line-height: 1.35
 ---
 # Resume`
 
-				expect(() => parseFrontmatterFromString(input)).toThrow(
-					"style 'size' must be a string",
-				)
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.style?.['line-height']).toBe('1.35')
 			})
 
 			it('warns about unknown fields in frontmatter', () => {
