@@ -1,22 +1,42 @@
 import { readFileSync } from 'node:fs'
 import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
+import { z } from 'zod'
 
-export interface FrontmatterConfig {
-	themes?: string[]
-	output?: string
-	style?: Record<string, string>
-	pages?: number
-}
+const FrontmatterSchema = z.object({
+	themes: z
+		.preprocess(
+			val => (typeof val === 'string' ? [val] : val),
+			z.array(z.string({ error: "'themes' must contain only strings" }), {
+				error: "'themes' must be a string or an array of strings",
+			}),
+		)
+		.optional(),
+	output: z.string({ error: "'output' must be a string" }).optional(),
+	pages: z
+		.number({ error: "'pages' must be a positive integer (>= 1)" })
+		.int({ error: "'pages' must be a positive integer (>= 1)" })
+		.min(1, { error: "'pages' must be a positive integer (>= 1)" })
+		.optional(),
+	style: z.preprocess(
+		val => (val === null ? undefined : val),
+		z
+			.record(
+				z.string(),
+				z.coerce.string({ error: "'style' values must be strings or numbers" }),
+				{ error: "'style' must be an object" },
+			)
+			.optional(),
+	),
+})
+
+export type FrontmatterConfig = z.infer<typeof FrontmatterSchema>
 
 export interface ParseResult {
 	config: FrontmatterConfig | null
 	content: string
 	warnings: string[]
 }
-
-// Known frontmatter fields
-const KNOWN_FIELDS = ['themes', 'output', 'style', 'pages']
 
 /**
  * Detect frontmatter type based on opening delimiter
@@ -42,67 +62,16 @@ interface ValidationResult {
  * Returns warnings for any unknown fields
  */
 function validateAndExtract(data: Record<string, unknown>): ValidationResult {
-	const config: FrontmatterConfig = {}
-	const warnings: string[] = []
+	// Get known fields from the schema
+	const knownKeys = new Set(Object.keys(FrontmatterSchema.shape))
 
-	// Check for unknown fields
-	for (const key of Object.keys(data)) {
-		if (!KNOWN_FIELDS.includes(key)) {
-			warnings.push(`unknown frontmatter field '${key}' will be ignored`)
-		}
-	}
+	// Collect warnings for unknown fields
+	const warnings: string[] = Object.keys(data)
+		.filter(k => !knownKeys.has(k))
+		.map(k => `unknown frontmatter field '${k}' will be ignored`)
 
-	// Validate themes (accepts string or array of strings)
-	if (data['themes'] !== undefined) {
-		// Normalize string to single-element array
-		const themeValue =
-			typeof data['themes'] === 'string' ? [data['themes']] : data['themes']
-
-		if (!Array.isArray(themeValue)) {
-			throw new Error("'themes' must be a string or an array of strings")
-		}
-
-		for (const theme of themeValue as unknown[]) {
-			if (typeof theme !== 'string') {
-				throw new Error("'themes' must contain only strings")
-			}
-		}
-
-		config.themes = themeValue as string[]
-	}
-
-	// Validate output
-	if (data['output'] !== undefined) {
-		if (typeof data['output'] !== 'string') {
-			throw new Error("'output' must be a string")
-		}
-		config.output = data['output']
-	}
-
-	// Validate pages (positive integer >= 1)
-	if (data['pages'] !== undefined) {
-		const pages = data['pages']
-		if (typeof pages !== 'number' || !Number.isInteger(pages) || pages < 1) {
-			throw new Error("'pages' must be a positive integer (>= 1)")
-		}
-		config.pages = pages
-	}
-
-	// Validate style (null means declared but empty — treat as no styles)
-	if (data['style'] !== undefined && data['style'] !== null) {
-		if (typeof data['style'] !== 'object') {
-			throw new Error("'style' must be an object")
-		}
-
-		const styles = data['style'] as Record<string, unknown>
-		for (const [key, value] of Object.entries(styles)) {
-			if (typeof value !== 'string') {
-				throw new Error(`style '${key}' must be a string`)
-			}
-		}
-
-		config.style = styles as Record<string, string>
-	}
+	// Validate with Zod schema (throws on invalid values)
+	const config = FrontmatterSchema.parse(data)
 
 	return { config, warnings }
 }
