@@ -4,6 +4,9 @@
 	"description": "Markdown resume builder",
 	"type": "module",
 	"main": "dist/index.js",
+	"exports": {
+		".": "./dist/index.js"
+	},
 	"bin": {
 		"rmx": "dist/index.js",
 		"resumx": "dist/index.js"
@@ -37,10 +40,14 @@
 		"cv",
 		"markdown",
 		"pdf",
-		"cli"
+		"html",
+		"docx",
+		"cli",
+		"resume-builder",
+		"tailwindcss"
 	],
 	"author": "",
-	"license": "MIT",
+	"license": "Apache-2.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/yatfuchan/resumx"
