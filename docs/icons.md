@@ -1,5 +1,9 @@
 # Icons
 
+::: info
+Icons require an internet connection. Resumx fetches icon assets from remote sources (such as the Iconify API) during rendering.
+:::
+
 Resumx supports two kinds of icons: **auto-icons** for links and **inline icons** for technology logos.
 
 ## Auto-Icons {#auto-icons}
