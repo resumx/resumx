@@ -83,19 +83,6 @@ describe('html-generator', () => {
 				)
 			})
 		})
-
-		it('includes Iconify script', async () => {
-			await withTempDir(async dir => {
-				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
-
-				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
-				})
-
-				expect(html).toContain('iconify.min.js')
-			})
-		})
-
 		it('embeds CSS in style tag', async () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })

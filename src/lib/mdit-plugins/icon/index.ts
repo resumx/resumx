@@ -4,11 +4,13 @@
 export {
 	icon,
 	createCustomResolver,
+	type MarkdownItWithAsyncIcon,
 	type MarkdownItIconOptions,
 	type IconResolver,
+	type IconResolverInput,
+	type IconResolverSpec,
 } from './plugin.js'
 
-export { resumxIconResolver } from './renderer.js'
 export { iconifyResolver } from './renderer.js'
 export { wikiCommonsResolver } from './renderer.js'
 export { githubResolver } from './renderer.js'

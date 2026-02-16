@@ -2,17 +2,34 @@
  * Markdown-it plugin: inline icons via ::icon-name::
  */
 
+import type MarkdownIt from 'markdown-it'
 import type { PluginWithOptions } from 'markdown-it'
 
 import {
 	type IconResolver,
+	type IconResolverInput,
+	type IconResolverSpec,
 	type MarkdownItIconOptions,
 	buildRender,
 	createIconRenderRule,
+	normalizeResolverInputs,
 } from './renderer.js'
 import { iconParserRule } from './parser.js'
+import type { AsyncIconResolver } from './prepare.js'
+import { prepareIcons } from './prepare.js'
+import { iconCache } from './utils.js'
 
-export type { IconResolver, MarkdownItIconOptions }
+export interface MarkdownItWithAsyncIcon extends MarkdownIt {
+	renderAsync(src: string, env?: unknown): Promise<string>
+	renderInlineAsync(src: string, env?: unknown): Promise<string>
+}
+
+export type {
+	IconResolver,
+	IconResolverInput,
+	IconResolverSpec,
+	MarkdownItIconOptions,
+}
 export { createCustomResolver } from './renderer.js'
 
 /**
@@ -26,8 +43,29 @@ export const icon: PluginWithOptions<MarkdownItIconOptions> = (
 	md,
 	options = {},
 ) => {
-	const render = buildRender(options)
-
+	const normalizedResolvers = normalizeResolverInputs(options.resolvers ?? [])
+	const render = buildRender({ resolvers: normalizedResolvers })
+	const prepareResolvers = normalizedResolvers
+		.map(resolver => resolver.prepare)
+		.filter((resolver): resolver is AsyncIconResolver => resolver != null)
 	md.inline.ruler.before('link', 'icon', iconParserRule)
 	md.renderer.rules['icon'] = createIconRenderRule(render)
+
+	const mdWithAsync = md as MarkdownItWithAsyncIcon
+	mdWithAsync.renderAsync = async (src: string, env?: unknown) => {
+		await prepareIconsIfNeeded(src, prepareResolvers)
+		return md.render(src, env as object)
+	}
+	mdWithAsync.renderInlineAsync = async (src: string, env?: unknown) => {
+		await prepareIconsIfNeeded(src, prepareResolvers)
+		return md.renderInline(src, env as object)
+	}
+}
+
+async function prepareIconsIfNeeded(
+	content: string,
+	resolvers: AsyncIconResolver[],
+): Promise<void> {
+	if (resolvers.length === 0) return
+	await prepareIcons(content, iconCache, resolvers)
 }

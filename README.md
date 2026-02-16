@@ -85,17 +85,15 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 
 ## CLI
 
-| Command                                | Description               |
-| -------------------------------------- | ------------------------- |
-| `resumx [file]`                        | Render to PDF (default)   |
-| `resumx [file] --watch`                | Live preview              |
-| `resumx [file] --theme zurich,oxford`  | Multiple themes           |
-| `resumx [file] --role frontend`        | Role-specific output      |
-| `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX         |
-| `resumx [file] --pages 1`              | Fit to 1 page             |
-| `resumx [file] --check`                | Validate only, no render  |
-| `resumx [file] --strict`               | Fail if validation errors |
-| `resumx init`                          | Create from template      |
+| Command                                | Description             |
+| -------------------------------------- | ----------------------- |
+| `resumx [file]`                        | Render to PDF (default) |
+| `resumx [file] --watch`                | Live preview            |
+| `resumx [file] --theme zurich,oxford`  | Multiple themes         |
+| `resumx [file] --role frontend`        | Role-specific output    |
+| `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX       |
+| `resumx [file] --pages 1`              | Fit to 1 page           |
+| `resumx init`                          | Create from template    |
 
 See the full [CLI Reference](https://resumx.dev/guide/cli-reference).
 

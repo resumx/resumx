@@ -56,6 +56,8 @@
 		"node": ">=20"
 	},
 	"dependencies": {
+		"@iconify/types": "^2.0.0",
+		"@iconify/utils": "^3.1.0",
 		"@mdit/plugin-dl": "^0.22.3",
 		"@mdit/plugin-mark": "^0.22.2",
 		"@mdit/plugin-sub": "^0.23.1",
@@ -69,7 +71,6 @@
 		"dedent": "^1.7.1",
 		"fastest-levenshtein": "^1.0.16",
 		"gray-matter": "^4.0.3",
-		"iconify-icon": "^3.0.2",
 		"js-beautify": "^1.15.4",
 		"linkedom": "^0.18.12",
 		"markdown-it": "^14.1.0",

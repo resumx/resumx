@@ -171,7 +171,7 @@ async function measureBlank(html: string): Promise<number> {
 		const page = await browser.newPage()
 		try {
 			await page.setViewportSize({ width: A4_WIDTH_PX, height: A4_HEIGHT_PX })
-			await page.setContent(html, { waitUntil: 'networkidle' })
+			await page.setContent(html, { waitUntil: 'domcontentloaded' })
 			const contentHeight = await getContentHeight(page)
 			const values = await readComputedValues(page)
 			const capacity = A4_HEIGHT_PX - 2 * values['page-margin-y'] * IN_TO_PX

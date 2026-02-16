@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
 	iconifyResolver,
 	createCustomResolver,
-	resumxIconResolver,
 	wikiCommonsResolver,
 	githubResolver,
 } from './index.js'
+import { iconCache } from './utils.js'
 import { buildRender, createIconRenderRule } from './renderer.js'
 
 describe('buildRender', () => {
@@ -13,16 +13,9 @@ describe('buildRender', () => {
 		const render = buildRender({
 			resolvers: [
 				createCustomResolver({ star: '<span class="star">★</span>' }),
-				iconifyResolver,
 			],
 		})
 		expect(render('star')).toBe('<span class="star">★</span>')
-		expect(render('mdi:home')).toBe(
-			'<span class="iconify" data-icon="mdi:home" style="display: inline-block;"></span>',
-		)
-		expect(render('react')).toBe(
-			'<span class="iconify" data-icon="react" style="display: inline-block;"></span>',
-		)
 	})
 
 	it('falls back to ::name:: when no resolver matches', () => {
@@ -44,6 +37,14 @@ describe('buildRender', () => {
 		)
 		expect(render('a&quot;b&c')).toBe('::a&amp;quot;b&amp;c::')
 	})
+
+	it('iconifyResolver returns cached SVG when cache is primed', () => {
+		iconCache.set('mdi:home', '<svg class="iconify">home</svg>')
+		const render = buildRender({
+			resolvers: [iconifyResolver],
+		})
+		expect(render('mdi:home')).toBe('<svg class="iconify">home</svg>')
+	})
 })
 
 describe('createIconRenderRule', () => {
@@ -63,22 +64,17 @@ describe('createIconRenderRule', () => {
 })
 
 describe('iconifyResolver', () => {
-	it('renders with alignment styles', () => {
-		expect(iconifyResolver('mdi:home')).toBe(
-			'<span class="iconify" data-icon="mdi:home" style="display: inline-block;"></span>',
-		)
+	beforeEach(() => {
+		iconCache.clear()
 	})
 
-	it('escapes HTML in icon name', () => {
-		expect(iconifyResolver('mdi:foo<script>')).toBe(
-			'<span class="iconify" data-icon="mdi:foo&lt;script&gt;" style="display: inline-block;"></span>',
-		)
+	it('returns cached SVG for known icon', () => {
+		iconCache.set('mdi:home', '<svg class="iconify">home</svg>')
+		expect(iconifyResolver('mdi:home')).toBe('<svg class="iconify">home</svg>')
 	})
 
-	it('escapes " in icon name', () => {
-		expect(iconifyResolver('mdi:foo" onclick="alert(1)')).toBe(
-			'<span class="iconify" data-icon="mdi:foo&quot; onclick=&quot;alert(1)" style="display: inline-block;"></span>',
-		)
+	it('returns null for uncached icon', () => {
+		expect(iconifyResolver('mdi:home')).toBeNull()
 	})
 })
 
@@ -91,45 +87,21 @@ describe('createCustomResolver', () => {
 	})
 })
 
-describe('resumxIconResolver', () => {
-	it('resolves devicon names to HTML with devicon: prefix', () => {
-		const html = resumxIconResolver('react')
-		expect(html).toContain('devicon:react')
-		expect(html).toContain('class="iconify"')
-	})
-
-	it('uses override for aws (amazonwebservices)', () => {
-		const html = resumxIconResolver('aws')
-		expect(html).toContain('devicon:amazonwebservices')
-	})
-
-	it('uses override for nodejs (logos set)', () => {
-		const html = resumxIconResolver('nodejs')
-		expect(html).toContain('logos:nodejs-icon')
-	})
-
-	it.each([
-		{ name: 'netflix', expected: 'logos:netflix-icon' },
-		{ name: 'firefox', expected: 'logos:firefox' },
-		{ name: 'browserstack', expected: 'logos:browserstack' },
-	] as const)(
-		'resolves logos name $name to HTML with logos prefix',
-		({ name, expected }) => {
-			const html = resumxIconResolver(name)
-			if (html === null) {
-				throw new Error(`Expected ${name} to resolve`)
-			}
-			expect(html).toContain(expected)
-		},
-	)
-
-	it('returns null for unknown name', () => {
-		expect(resumxIconResolver('unknown-icon-name')).toBeNull()
-	})
-})
-
 describe('wikiCommonsResolver', () => {
-	it('resolves wiki: prefix to Wikimedia Commons img tag', () => {
+	beforeEach(() => {
+		iconCache.clear()
+	})
+
+	it('returns cached data URI when cache is primed', () => {
+		iconCache.set(
+			'wiki:f/f1/PwC_2025_Logo.svg',
+			'<img src="data:image/svg+xml;base64,abc" alt="" class="icon wiki-icon" style="display: inline-block;">',
+		)
+		const html = wikiCommonsResolver('wiki:f/f1/PwC_2025_Logo.svg')
+		expect(html).toContain('data:image/svg+xml;base64,')
+	})
+
+	it('falls back to external URL when not cached', () => {
 		const html = wikiCommonsResolver('wiki:f/f1/PwC_2025_Logo.svg')
 		expect(html).toBe(
 			'<img src="https://upload.wikimedia.org/wikipedia/commons/f/f1/PwC_2025_Logo.svg" alt="" class="icon wiki-icon" style="display: inline-block;">',
@@ -161,7 +133,7 @@ describe('wikiCommonsResolver', () => {
 		expect(wikiCommonsResolver('wikimedia-commons:')).toBeNull()
 	})
 
-	it('escapes HTML in path', () => {
+	it('escapes HTML in path for fallback URL', () => {
 		const html = wikiCommonsResolver('wiki:a/b/<script>.svg')
 		expect(html).toContain('&lt;script&gt;')
 		expect(html).not.toContain('<script>')
@@ -169,7 +141,20 @@ describe('wikiCommonsResolver', () => {
 })
 
 describe('ghResolver', () => {
-	it('resolves gh:owner to GitHub avatar', () => {
+	beforeEach(() => {
+		iconCache.clear()
+	})
+
+	it('returns cached data URI when cache is primed', () => {
+		iconCache.set(
+			'gh:facebook',
+			'<img src="data:image/png;base64,abc" alt="" class="icon gh-icon" style="display: inline-block;">',
+		)
+		const html = githubResolver('gh:facebook')
+		expect(html).toContain('data:image/png;base64,')
+	})
+
+	it('falls back to external URL when not cached', () => {
 		const html = githubResolver('gh:facebook')
 		expect(html).toBe(
 			'<img src="https://github.com/facebook.png" alt="" class="icon gh-icon" style="display: inline-block;">',
@@ -219,7 +204,7 @@ describe('ghResolver', () => {
 		expect(githubResolver('github:')).toBeNull()
 	})
 
-	it('escapes HTML in path', () => {
+	it('escapes HTML in path for fallback URL', () => {
 		const html = githubResolver('gh:<script>')
 		expect(html).toContain('&lt;script&gt;')
 		expect(html).not.toContain('<script>')

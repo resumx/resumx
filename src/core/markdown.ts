@@ -12,7 +12,7 @@ import { sup } from '@mdit/plugin-sup'
 import {
 	icon,
 	iconifyResolver,
-	resumxIconResolver,
+	type MarkdownItWithAsyncIcon,
 	wikiCommonsResolver,
 	githubResolver,
 } from '../lib/mdit-plugins/icon/index.js'
@@ -30,7 +30,7 @@ import { fixAttrsListSoftbreak } from '../lib/mdit-plugins/fix-attrs-list-softbr
  * - fixAttrsListSoftbreak MUST come AFTER attrs (registers a core rule before
  *   attrs' curly_attributes rule, which only exists after attrs is loaded)
  */
-export function createMarkdownRenderer(): MarkdownIt {
+export function createMarkdownRenderer(): MarkdownItWithAsyncIcon {
 	return new MarkdownIt({
 		html: true,
 		linkify: true,
@@ -39,12 +39,7 @@ export function createMarkdownRenderer(): MarkdownIt {
 		.use(fencedDiv)
 		.use(bracketedSpans)
 		.use(icon, {
-			resolvers: [
-				resumxIconResolver,
-				wikiCommonsResolver,
-				githubResolver,
-				iconifyResolver,
-			],
+			resolvers: [wikiCommonsResolver, githubResolver, iconifyResolver],
 		})
 		.use(dl)
 		.use(mark)
@@ -52,7 +47,7 @@ export function createMarkdownRenderer(): MarkdownIt {
 		.use(fixAttrsListSoftbreak)
 		.use(sub)
 		.use(sup)
-		.use(timePlugin)
+		.use(timePlugin) as MarkdownItWithAsyncIcon
 }
 
 /**

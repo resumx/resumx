@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import {
 	createMarkdownRenderer,
 	markdownRenderer,
@@ -6,11 +6,17 @@ import {
 } from './markdown.js'
 
 describe('markdown', () => {
+	afterEach(() => {
+		vi.restoreAllMocks()
+	})
+
 	describe('createMarkdownRenderer', () => {
 		it('creates a markdown-it instance', () => {
 			const md = createMarkdownRenderer()
 			expect(md).toBeDefined()
 			expect(typeof md.render).toBe('function')
+			expect(typeof md.renderAsync).toBe('function')
+			expect(typeof md.renderInlineAsync).toBe('function')
 		})
 
 		it('creates independent instances', () => {
@@ -24,6 +30,7 @@ describe('markdown', () => {
 		it('is a valid markdown-it instance', () => {
 			expect(markdownRenderer).toBeDefined()
 			expect(typeof markdownRenderer.render).toBe('function')
+			expect(typeof markdownRenderer.renderAsync).toBe('function')
 		})
 	})
 
@@ -111,6 +118,32 @@ describe('markdown', () => {
 			const html = renderMarkdown('text -- more --- even more')
 			expect(html).toContain('–') // en-dash
 			expect(html).toContain('—') // em-dash
+		})
+	})
+
+	describe('renderMarkdownAsync', () => {
+		it('renders markdown through plugin managed async path', async () => {
+			const html = await markdownRenderer.renderAsync('# Async Title')
+			expect(html).toContain('<h1>Async Title</h1>')
+		})
+
+		it('auto-prepares icons through plugin async resolvers', async () => {
+			vi.stubGlobal(
+				'fetch',
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => ({
+						prefix: 'mdi',
+						icons: {
+							home: { body: '<path d="home"/>', width: 24, height: 24 },
+						},
+					}),
+				}),
+			)
+
+			const html = await markdownRenderer.renderAsync('::mdi:home::')
+			expect(html).toContain('<svg')
+			expect(html).toContain('iconify')
 		})
 	})
 })

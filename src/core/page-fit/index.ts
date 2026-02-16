@@ -53,7 +53,7 @@ export async function fitToPages(
 		const page = await browser.newPage()
 		try {
 			await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
-			await page.setContent(html, { waitUntil: 'networkidle' })
+			await page.setContent(html, { waitUntil: 'domcontentloaded' })
 
 			// ── 1. Measure ──
 			const originalPages = await getPdfPageCount(page)

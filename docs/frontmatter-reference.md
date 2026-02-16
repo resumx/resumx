@@ -150,7 +150,7 @@ CSS variable overrides applied on top of the theme's defaults. Keys map to `--ke
 | **Default**  | No overrides               |
 | **CLI flag** | `-s, --style <name=value>` |
 
-**Priority:** CLI > frontmatter > theme defaults.
+**Priority:** CLI > frontmatter
 
 ```yaml
 style:
@@ -177,12 +177,12 @@ Base validation preset to use.
 
 **Presets:**
 
-| Preset        | Rules included                                                                                                                         |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `recommended` | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`, `unknown-icon`, `long-bullet`, `single-bullet-section` |
-| `minimal`     | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`                                                         |
-| `strict`      | Same rules as `recommended` (all rules run at their default severities)                                                                |
-| `none`        | No rules — validation is effectively disabled                                                                                          |
+| Preset        | Rules included                                                                                                         |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `recommended` | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`, `long-bullet`, `single-bullet-section` |
+| `minimal`     | `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`                                         |
+| `strict`      | Same rules as `recommended` (all rules run at their default severities)                                                |
+| `none`        | No rules — validation is effectively disabled                                                                          |
 
 ### `validate.rules`
 
@@ -210,7 +210,6 @@ validate:
 | `no-sections`           | `critical`           | Resume must have at least one H2 section.                  |
 | `no-entries`            | `warning`            | Resume should have at least one H3 entry.                  |
 | `empty-bullet`          | `critical`           | List items must have text content.                         |
-| `unknown-icon`          | `warning`            | Warn about unrecognized `::icon::` names.                  |
 | `long-bullet`           | `critical`/`warning` | Bullet exceeds character length threshold.                 |
 | `single-bullet-section` | `bonus`              | Section has only one bullet point.                         |
 

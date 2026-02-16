@@ -1,7 +1,7 @@
 # Icons
 
 ::: info
-Icons require an internet connection. Resumx fetches icon assets from remote sources (such as the Iconify API) during rendering.
+Some icons may need **internet access** the first time you use them. Resumx caches fetched icons, so later renders usually work without network access.
 :::
 
 Resumx supports two kinds of icons: **auto-icons** for links and **inline icons** for technology logos.
@@ -57,34 +57,9 @@ resumx resume.md --style icons=none
 
 Use the `::icon-name::` syntax to embed icons inline in your text. Browse and search 200,000+ available icons at [icon-sets.iconify.design](https://icon-sets.iconify.design/).
 
-```markdown
-- Built APIs with ::nodejs:: `Node.js` and ::postgresql:: `PostgreSQL`
-- Deployed on ::kubernetes:: `Kubernetes` and ::googlecloud:: `GCP`
-- Frontend with ::react:: `React` and ::typescript:: `TypeScript`
-```
-
-![add an example image of rendered resume with inline icons]()
-
-### Shorthand Names
-
-![Example of inline tech icons rendered in a resume — React, Node.js, TypeScript, Docker logos appearing inline with text]()
-
-Resumx provides friendly shorthand names for the most common technology icons. Just use the technology name:
-
-```markdown
-::react:: → React logo
-::nodejs:: → Node.js logo
-::python:: → Python logo
-::docker:: → Docker logo
-::aws:: → AWS logo
-::typescript:: → TypeScript logo
-```
-
-These shorthands resolve automatically through the built-in devicon and logos icon maps (500+ devicon icons, 1,000+ logos icons).
-
 ### Iconify Format
 
-For the full catalog of 200,000+ icons, use the [Iconify](https://iconify.design/) format with `set:name` syntax:
+Use the [Iconify](https://iconify.design/) format with `set:name` syntax:
 
 ```markdown
 ::devicon:react:: → React (devicon set)
@@ -136,3 +111,48 @@ Load icons from Wikimedia Commons using the `wiki:` prefix:
 ```
 
 This loads the SVG from `https://upload.wikimedia.org/wikipedia/commons/`.
+
+## Plugin Integration {#plugin-integration}
+
+If you use the markdown-it icon plugin directly, setup is:
+
+```ts
+import MarkdownIt from 'markdown-it'
+import {
+	icon,
+	wikiCommonsResolver,
+	githubResolver,
+	iconifyResolver,
+} from '../src/lib/mdit-plugins/icon/index.js'
+
+const md = new MarkdownIt().use(icon, {
+	resolvers: [wikiCommonsResolver, githubResolver, iconifyResolver],
+})
+```
+
+### Sync and Async Rendering
+
+- `md.render()` and `md.renderInline()` are sync and read from cache only.
+- `md.renderAsync()` and `md.renderInlineAsync()` run icon preparation inside the plugin, then render.
+- For standalone app usage, call async render methods so users do not need extra icon setup code.
+
+### Custom Resolver Specs
+
+Resolvers can be plain functions or objects with `render` and optional `prepare`:
+
+```ts
+const brandResolver = {
+	render: (name: string) =>
+		name === 'brand' ? '<svg class="iconify">...</svg>' : null,
+	prepare: async (name: string) => {
+		if (name !== 'brand') return null
+		return '<svg class="iconify">...</svg>'
+	},
+}
+
+const md = new MarkdownIt().use(icon, {
+	resolvers: [brandResolver, iconifyResolver],
+})
+```
+
+`prepare` runs only in async render methods, and the returned HTML is cached before sync render executes.

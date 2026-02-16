@@ -9,7 +9,7 @@ import { generateVariablesCSS } from '../lib/css-engine/css-variables.js'
 import { getBundledThemesDir } from './themes.js'
 import { resolveCssImports } from '../lib/css-engine/css-resolver.js'
 import { compileTailwindCSS } from '../lib/css-engine/tailwind.js'
-import { renderMarkdown } from './markdown.js'
+import { markdownRenderer } from './markdown.js'
 import { runPipeline } from './dom-processors/index.js'
 import type { PipelineContext } from './dom-processors/index.js'
 
@@ -51,7 +51,6 @@ function assembleHtml(body: string, css: string): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 <style>
 ${css}
 </style>
@@ -82,8 +81,8 @@ export async function generateHtml(
 	content: string,
 	options: HtmlGeneratorOptions,
 ): Promise<string> {
-	// Render markdown to HTML body
-	const rawBody = renderMarkdown(content)
+	// Render markdown to HTML body (icons are prepared inside icon plugin async path)
+	const rawBody = await markdownRenderer.renderAsync(content)
 
 	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)

@@ -63,7 +63,7 @@ async function renderPdf(html: string, outputPath: string): Promise<void> {
 	try {
 		const page = await browser.newPage()
 		try {
-			await page.setContent(html, { waitUntil: 'networkidle' })
+			await page.setContent(html, { waitUntil: 'domcontentloaded' })
 			await page.pdf({
 				path: outputPath,
 				printBackground: true,
@@ -92,7 +92,7 @@ async function renderPng(html: string, outputPath: string): Promise<void> {
 		try {
 			const page = await context.newPage()
 			try {
-				await page.setContent(html, { waitUntil: 'networkidle' })
+				await page.setContent(html, { waitUntil: 'domcontentloaded' })
 				await page.screenshot({ path: outputPath, fullPage: true })
 			} finally {
 				await page.close()
