@@ -25,6 +25,11 @@ export default defineConfig({
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
+		logo: {
+			light: '/resumx-logo-lockup-light.svg',
+			dark: '/resumx-logo-lockup-dark.svg',
+		},
+		siteTitle: false,
 		nav: [{ text: 'Guide', link: '/' }],
 
 		sidebar: [

@@ -112,6 +112,11 @@
  * Component: Navbar
  * -------------------------------------------------------------------------- */
 
+.VPNavBarTitle .logo {
+	height: 16px;
+	width: auto;
+}
+
 .VPNavBar .divider-line {
 	--vp-c-gutter: transparent;
 	position: relative;
