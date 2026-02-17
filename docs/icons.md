@@ -61,13 +61,10 @@ Use the `::icon-name::` syntax to embed icons inline in your text. Browse and se
 
 Use the [Iconify](https://iconify.design/) format with `set:name` syntax:
 
-```markdown
-::devicon:react:: → React (devicon set)
-::logos:kubernetes:: → Kubernetes (logos set)
-::simple-icons:docker:: → Docker (simple-icons set)
-::mdi:home:: → Home icon (Material Design)
-::fa6-brands:github:: → GitHub (Font Awesome 6)
-```
+- `::devicon:react::` → <img src="/icons/devicon:react.svg" alt="devicon:react" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `::logos:kubernetes::` → <img src="/icons/logos:kubernetes.svg" alt="logos:kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `::simple-icons:docker::` → <img src="/icons/simple-icons:docker.svg" alt="logos:kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `::mdi:work::` → <img src="/icons/mdi:work.svg" alt="mdi:work" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
 
 Browse all available icons at [icon-sets.iconify.design](https://icon-sets.iconify.design/).
 
@@ -90,11 +87,8 @@ Load images directly from GitHub using the `gh:` prefix:
 
 **Examples:**
 
-```markdown
-::gh:google:: → Google's GitHub avatar
-::gh:microsoft:: → Microsoft's GitHub avatar
-::gh:ocmrz/resumx/main/assets/logo.svg:: → File from a repo
-```
+- `::gh:google::` → <img src="/icons/gh:google.png" alt="gh:google" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `::gh:ocmrz/resumx/main/docs/public/resumx-logo-lockup-light.svg::`
 
 ### Wikimedia Commons Icons
 
@@ -112,47 +106,27 @@ Load icons from Wikimedia Commons using the `wiki:` prefix:
 
 This loads the SVG from `https://upload.wikimedia.org/wikipedia/commons/`.
 
-## Plugin Integration {#plugin-integration}
+#### Full URL vs Icon Path
 
-If you use the markdown-it icon plugin directly, setup is:
+The `wiki:` prefix replaces the base URL, so you only need the path portion:
 
-```ts
-import MarkdownIt from 'markdown-it'
-import {
-	icon,
-	wikiCommonsResolver,
-	githubResolver,
-	iconifyResolver,
-} from '../src/lib/mdit-plugins/icon/index.js'
+| Full Wikimedia URL                                                         | `wiki:` path                         |
+| -------------------------------------------------------------------------- | ------------------------------------ |
+| `https://upload.wikimedia.org/wikipedia/commons/f/f1/PwC_2025_Logo.svg`    | `::wiki:f/f1/PwC_2025_Logo.svg::`    |
+| `https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg` | `::wiki:2/2f/Google_2015_logo.svg::` |
 
-const md = new MarkdownIt().use(icon, {
-	resolvers: [wikiCommonsResolver, githubResolver, iconifyResolver],
-})
-```
+#### Finding the Icon Path
 
-### Sync and Async Rendering
+1. Go to [Wikimedia Commons](https://commons.wikimedia.org/) and search for the logo.
+2. On the file page, **right-click the image** and select **"Copy image address"** (or "Copy image link").
+3. You should get a URL like:
+   `https://upload.wikimedia.org/wikipedia/commons/f/f1/PwC_2025_Logo.svg`
+4. Remove the `https://upload.wikimedia.org/wikipedia/commons/` prefix. The remaining part (`f/f1/PwC_2025_Logo.svg`) is your icon path.
 
-- `md.render()` and `md.renderInline()` are sync and read from cache only.
-- `md.renderAsync()` and `md.renderInlineAsync()` run icon preparation inside the plugin, then render.
-- For standalone app usage, call async render methods so users do not need extra icon setup code.
+::: warning Common Mistake
+Do **not** use the image description page URL. The description page looks like:
 
-### Custom Resolver Specs
+`https://commons.wikimedia.org/wiki/File:PwC_2025_Logo.svg`
 
-Resolvers can be plain functions or objects with `render` and optional `prepare`:
-
-```ts
-const brandResolver = {
-	render: (name: string) =>
-		name === 'brand' ? '<svg class="iconify">...</svg>' : null,
-	prepare: async (name: string) => {
-		if (name !== 'brand') return null
-		return '<svg class="iconify">...</svg>'
-	},
-}
-
-const md = new MarkdownIt().use(icon, {
-	resolvers: [brandResolver, iconifyResolver],
-})
-```
-
-`prepare` runs only in async render methods, and the returned HTML is cached before sync render executes.
+This is the **wiki page about the file**, not the file itself. You need the **direct image URL** from `upload.wikimedia.org`, which contains the hash path (e.g. `f/f1/`).
+:::
