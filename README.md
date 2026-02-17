@@ -11,6 +11,11 @@
 </p>
 
 <p align="center">
+  AI can rewrite your resume in seconds. Fixing the layout takes longer.<br>
+  Resumx adapts layout to every edit, and renders position-specific resumes from one source.
+</p>
+
+<p align="center">
   <a href="https://www.npmjs.com/package/resumx"><img src="https://img.shields.io/npm/v/resumx?color=blue" alt="npm version"></a>
   <a href="https://github.com/ocmrz/resumx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="license"></a>
 </p>
