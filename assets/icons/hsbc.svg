@@ -1,12 +1,1 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1516 759" width="1516" height="759">
-	<title>hsbc-logo-200x25-svg</title>
-	<style>
-		.s0 { fill: #ffffff } 
-		.s1 { fill: #db0011 } 
-	</style>
-	<path id="Layer" class="s0" d="m379.5 0h757.1v757.1h-757.1z"/>
-	<path id="Layer" class="s1" d="m1136.6 758v-758l378.6 379.5z"/>
-	<path id="Layer" class="s1" d="m379.5 0h757.1l-378.5 379.5z"/>
-	<path id="Layer" class="s1" d="m379.5 0v758l-379.5-378.5z"/>
-	<path id="Layer" class="s1" d="m1136.6 758h-757.1l378.6-378.5z"/>
-</svg>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1516 759"><title>hsbc-logo-200x25-svg</title><path id="Layer" d="m379.5 0h757.1v757.1h-757.1z" fill="#ffffff"/><path id="Layer" d="m1136.6 758v-758l378.6 379.5z" fill="#db0011"/><path id="Layer" d="m379.5 0h757.1l-378.5 379.5z" fill="#db0011"/><path id="Layer" d="m379.5 0v758l-379.5-378.5z" fill="#db0011"/><path id="Layer" d="m1136.6 758h-757.1l378.6-378.5z" fill="#db0011"/></svg>

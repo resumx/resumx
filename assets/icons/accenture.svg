@@ -1,10 +1,1 @@
-<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1649 1740" width="1649" height="1740">
-	<title>Accenture-svg</title>
-	<style>
-		tspan { white-space:pre }
-		.shp0 { fill: #a100ff } 
-	</style>
-	<g id="Layer">
-		<path id="Layer" class="shp0" d="M0.25 1228L962.68 869.83L0.25 501.43L0.25 0L1648.67 665.17L1648.67 1074.5L0.25 1739.66L0.25 1228Z" />
-	</g>
-</svg>
+<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1649 1740"><title>Accenture-svg</title><g id="Layer"><path id="Layer" d="M0.25 1228L962.68 869.83L0.25 501.43L0.25 0L1648.67 665.17L1648.67 1074.5L0.25 1739.66L0.25 1228Z" fill="#a100ff"/></g></svg>
