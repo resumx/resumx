@@ -1,0 +1,42 @@
+<svg version="1.1" id="Layer_1" xmlns:x="ns_extend;" xmlns:i="ns_ai;" xmlns:graph="ns_graphs;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 150.8 76.9" style="enable-background:new 0 0 150.8 76.9;" xml:space="preserve">
+ <style type="text/css">
+  .st0{fill:#08225A;}
+	.st1{opacity:0;fill:none;stroke:#FFFFFF;stroke-width:0.2481;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+ </style>
+ <metadata>
+  <sfw xmlns="ns_sfw;">
+   <slices>
+   </slices>
+   <sliceSourceBounds bottomLeftOrigin="true" height="76.9" width="150.8" x="-921.9" y="-197.8">
+   </sliceSourceBounds>
+  </sfw>
+ </metadata>
+ <g>
+  <g>
+   <rect x="0.1" y="54.8" class="st0" width="150.6" height="22.1">
+   </rect>
+   <rect x="0.1" y="54.8" class="st1" width="150.6" height="22.1">
+   </rect>
+   <rect x="0.1" y="0.1" class="st0" width="30.2" height="22.1">
+   </rect>
+   <rect x="0.1" y="0.1" class="st1" width="30.2" height="22.1">
+   </rect>
+   <rect x="60.3" y="0.1" class="st0" width="30.2" height="22.1">
+   </rect>
+   <rect x="60.3" y="0.1" class="st1" width="30.2" height="22.1">
+   </rect>
+   <rect x="120.7" y="0.1" class="st0" width="30" height="22.1">
+   </rect>
+   <rect x="120.7" y="0.1" class="st1" width="30" height="22.1">
+   </rect>
+   <rect x="0.1" y="27.4" class="st0" width="72.7" height="22.1">
+   </rect>
+   <rect x="0.1" y="27.4" class="st1" width="72.7" height="22.1">
+   </rect>
+   <rect x="78" y="27.4" class="st0" width="72.7" height="22.1">
+   </rect>
+   <rect x="78" y="27.4" class="st1" width="72.7" height="22.1">
+   </rect>
+  </g>
+ </g>
+</svg>
