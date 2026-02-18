@@ -5,6 +5,7 @@ import DefaultTheme from 'vitepress/theme'
 import './style.css'
 import SidebarGroupLabel from './SidebarGroupLabel.vue'
 import DocActions from './DocActions.vue'
+import IconGallery from './IconGallery.vue'
 
 export default {
 	extends: DefaultTheme,
@@ -15,6 +16,6 @@ export default {
 		})
 	},
 	enhanceApp({ app, router, siteData }) {
-		// ...
+		app.component('IconGallery', IconGallery)
 	},
 } satisfies Theme

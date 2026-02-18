@@ -140,9 +140,29 @@ pages: 2
 
 See [Fit to Page](/fit-to-page) for the full guide.
 
+### `icons`
+
+Custom icon definitions. Keys are icon slugs usable with `::slug::` syntax; values are SVG strings, URLs, or base64 data URIs.
+
+| Property    | Value                    |
+| ----------- | ------------------------ |
+| **Type**    | `Record<string, string>` |
+| **Default** | No custom icons          |
+
+Frontmatter icons override built-in and Iconify icons with the same slug.
+
+```yaml
+icons:
+  mycompany: '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>'
+  partner: 'https://example.com/partner-logo.svg'
+  badge: 'data:image/svg+xml;base64,PHN2Zz4uLi48L3N2Zz4='
+```
+
+See [Icons](/icons#custom-icons) for details.
+
 ### `style`
 
-CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` → `--font-family`).
+CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` -> `--font-family`).
 
 | Property     | Value                      |
 | ------------ | -------------------------- |
@@ -242,7 +262,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any frontmatter key not in the known set (`themes`, `output`, `style`, `pages`) produces a warning during rendering:
+Any frontmatter key not in the known set (`themes`, `output`, `style`, `pages`, `icons`) produces a warning during rendering:
 
 ```
 Warning: unknown frontmatter field 'foo' will be ignored
