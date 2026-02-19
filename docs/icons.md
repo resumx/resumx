@@ -4,28 +4,28 @@
 Some icons may need **internet access** the first time you use them. Resumx caches fetched icons, so later renders usually work without network access.
 :::
 
-Resumx supports three kinds of icons: **built-in icons** for companies, tools, and technologies, **custom icons** via frontmatter, and **auto-icons** for links.
+Use the `:icon:` and `:emoji:` syntax to add icons and emoji inline.
 
 ## Built-in Icons {#built-in-icons}
 
-Use the `::icon-name::` syntax to embed icons inline in your text. Resumx ships with 200+ built-in icons for popular companies, tools, and technologies. Use them by slug name:
+Use the `:icon-name:` syntax to embed icons inline in your text. Resumx ships with built-in icons for popular companies, tools, and technologies. Use them by slug name:
 
 ```markdown
-::react:: ::docker:: ::aws:: ::python:: ::openai::
+:react: :docker: :aws: :python: :openai:
 ```
 
-The slug is the filename without extension from the bundled [`assets/icons/`](https://github.com/ocmrz/resumx/tree/main/assets/icons) directory. Click any icon below to copy its `::slug::` syntax.
+Click any icon below to copy its `:slug:` syntax.
 
 <IconGallery />
 
 ## Iconify Icons {#iconify-icons}
 
-Use the [Iconify](https://iconify.design/) format with `set:name` syntax for access to 200,000+ icons:
+Use the [Iconify](https://iconify.design/) format with `set/name` syntax for access to 200,000+ icons:
 
-- `::devicon:react::` -- <img src="/icons/devicon:react.svg" alt="devicon:react" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `::logos:kubernetes::` -- <img src="/icons/logos:kubernetes.svg" alt="logos:kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `::simple-icons:docker::` -- <img src="/icons/simple-icons:docker.svg" alt="logos:kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `::mdi:work::` -- <img src="/icons/mdi:work.svg" alt="mdi:work" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:devicon/react:` -- <img src="/icons/devicon:react.svg" alt="devicon/react" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:logos/kubernetes:` -- <img src="/icons/logos:kubernetes.svg" alt="logos/kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:simple-icons/docker:` -- <img src="/icons/simple-icons:docker.svg" alt="simple-icons/docker" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:mdi/work:` -- <img src="/icons/mdi:work.svg" alt="mdi/work" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
 
 Browse all available icons at [icon-sets.iconify.design](https://icon-sets.iconify.design/).
 
@@ -43,9 +43,9 @@ icons:
 
 # Jane Smith
 
-Worked at ::mycompany:: in partnership with ::partner::
+Worked at :mycompany: in partnership with :partner:
 
-Certified ::badge:: holder
+Certified :badge: holder
 ```
 
 ### Value formats
@@ -66,16 +66,27 @@ icons:
   react: '<svg xmlns="http://www.w3.org/2000/svg"><circle fill="red" r="10"/></svg>'
 ---
 
-::react:: <!-- uses your custom SVG instead of the built-in React icon -->
+:react: <!-- uses your custom SVG instead of the built-in React icon -->
 ```
 
 ### Resolver Order
 
-When resolving `::name::`, Resumx checks these sources in order:
+When resolving `:name:`, Resumx checks these sources in order:
 
 1. **Frontmatter icons** -- custom `icons` from your document's frontmatter
-2. **Built-in icons** -- bundled SVGs from `assets/icons/`
-3. **Iconify** -- remote icons via the Iconify API (for `prefix:name` format)
+2. **Built-in icons** -- bundled SVGs shipped with Resumx
+3. **Iconify** -- remote icons via the Iconify API (for `prefix/name` format)
+4. **Emoji** -- standard emoji shortcodes (e.g., `:rocket:`, `:star:`)
+
+## Emoji {#emoji}
+
+The `:name:` syntax doubles as emoji shortcode support. If no icon matches, Resumx falls back to standard emoji shortcodes:
+
+```markdown
+:rocket: :star: :fire: :100:
+```
+
+This means `:rocket:` renders as the rocket emoji when there is no icon named `rocket`. If a built-in or custom icon shares the same name as an emoji shortcode, the icon takes priority.
 
 ## Auto-Icons {#auto-icons}
 

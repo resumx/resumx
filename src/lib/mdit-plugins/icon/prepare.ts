@@ -1,7 +1,7 @@
 /**
  * Pre-resolve all icons in a markdown string and populate the cache.
  *
- * This module is resolver-agnostic: it scans for ::name:: patterns,
+ * This module is resolver-agnostic: it scans for :name: patterns,
  * filters out cached entries, and runs an async resolver chain.
  * Each resolver owns its own resolution logic.
  */
@@ -9,18 +9,19 @@
 import type { IconCache } from './cache.js'
 
 /**
- * Match ::name:: patterns in markdown content.
- * Allows colons in the name (e.g. ::mdi:home::, ::gh:facebook::).
- * Must not start with space/colon, must not end with space.
- * Uses non-greedy match to find the closest `::` pair.
+ * Match :name: or :prefix/name: patterns in markdown content.
+ * Name segments are [a-zA-Z0-9_-]+. An optional `/` separates
+ * prefix from name (Iconify format).
+ * The (?!:) negative lookahead prevents matching inside ::text::.
  */
-const ICON_PATTERN = /::([^\s:][^\s]*?)::/g
+const ICON_PATTERN =
+	/:([a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)?):(?!:)/g
 
 /** Async resolver: resolves an icon name to self-contained HTML, or null. */
 export type AsyncIconResolver = (name: string) => Promise<string | null>
 
 /**
- * Scan markdown content for ::icon:: patterns, resolve uncached icons
+ * Scan markdown content for :icon: patterns, resolve uncached icons
  * via the async resolver chain, and store results in the cache.
  *
  * The prepare layer does not know how icons are resolved. It just
@@ -31,7 +32,6 @@ export async function prepareIcons(
 	cache: IconCache,
 	resolvers: AsyncIconResolver[],
 ): Promise<void> {
-	// 1. Extract all unique icon names
 	const names = new Set<string>()
 	let match
 	ICON_PATTERN.lastIndex = 0
@@ -42,7 +42,6 @@ export async function prepareIcons(
 
 	if (names.size === 0) return
 
-	// 2. Filter out already-cached names
 	const uncached: string[] = []
 	for (const name of names) {
 		if (!cache.has(name)) {
@@ -52,7 +51,6 @@ export async function prepareIcons(
 
 	if (uncached.length === 0) return
 
-	// 3. Resolve each uncached name via the async resolver chain
 	await Promise.all(
 		uncached.map(async name => {
 			for (const resolve of resolvers) {
@@ -62,7 +60,6 @@ export async function prepareIcons(
 					return
 				}
 			}
-			// No resolver matched - leave uncached (will fall through to ::name:: at render time)
 		}),
 	)
 }

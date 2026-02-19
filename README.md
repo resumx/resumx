@@ -42,13 +42,13 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### ::logos:google-icon:: Google [2022 - Present]{.float-right}
+### :logos/google-icon: Google [2022 - Present]{.float-right}
 
 _Senior Software Engineer_
 
 - Built distributed systems serving 1M requests/day {.role:backend .role:fullstack}
-- Built interactive dashboards with ::logos:react:: React {.role:frontend .role:fullstack}
-- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification
+- Built interactive dashboards with :logos/react: React {.role:frontend .role:fullstack}
+- Designed REST APIs with :logos/openapi-icon: OpenAPI specification
 ```
 
 [**Layout is automatic**](https://resumx.dev/guide/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.

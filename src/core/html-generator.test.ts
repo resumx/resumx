@@ -234,7 +234,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml('### ::myicon:: Company', {
+					const html = await generateHtml('### :myicon: Company', {
 						cssPath: join(dir, 'style.css'),
 						icons: {
 							myicon:
@@ -265,7 +265,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml('### ::logo:: Company', {
+					const html = await generateHtml('### :logo: Company', {
 						cssPath: join(dir, 'style.css'),
 						icons: {
 							logo: 'https://example.com/logo.svg',
@@ -288,7 +288,7 @@ Languages
 						'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle r="10"/></svg>',
 					).toString('base64')
 
-					const html = await generateHtml('### ::badge:: Award', {
+					const html = await generateHtml('### :badge: Award', {
 						cssPath: join(dir, 'style.css'),
 						icons: {
 							badge: `data:image/svg+xml;base64,${svgB64}`,
@@ -305,7 +305,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml('::react::', {
+					const html = await generateHtml(':react:', {
 						cssPath: join(dir, 'style.css'),
 						icons: {
 							react:
@@ -323,7 +323,7 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					// First render with icons
-					await generateHtml('::myicon::', {
+					await generateHtml(':myicon:', {
 						cssPath: join(dir, 'style.css'),
 						icons: {
 							myicon:
@@ -331,12 +331,12 @@ Languages
 						},
 					})
 
-					// Second render without icons - should NOT resolve ::myicon::
-					const html2 = await generateHtml('::myicon::', {
+					// Second render without icons - should NOT resolve :myicon:
+					const html2 = await generateHtml(':myicon:', {
 						cssPath: join(dir, 'style.css'),
 					})
 
-					expect(html2).toContain('::myicon::')
+					expect(html2).toContain(':myicon:')
 				})
 			})
 		})

@@ -1,5 +1,5 @@
 /**
- * Markdown-it plugin: inline icons via ::icon-name::
+ * Markdown-it plugin: inline icons via :icon-name:
  */
 
 import type MarkdownIt from 'markdown-it'
@@ -35,7 +35,7 @@ export type {
 export { createCustomResolver } from './renderer.js'
 
 /**
- * Markdown-it plugin that parses `::icon-name::` and renders icons via resolvers.
+ * Markdown-it plugin that parses `:icon-name:` and renders icons via resolvers.
  *
  * @param md - Markdown-it instance.
  * @param options - Optional. Resolvers to try in order.
