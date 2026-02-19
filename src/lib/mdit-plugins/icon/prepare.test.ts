@@ -55,20 +55,20 @@ describe('prepareIcons', () => {
 			}),
 		)
 
-		await prepareIcons('::mdi:home:: icon', cache, asyncResolvers)
+		await prepareIcons(':mdi/home: icon', cache, asyncResolvers)
 
-		const svg = cache.get('mdi:home')
+		const svg = cache.get('mdi/home')
 		expect(svg).not.toBeNull()
 		expect(svg).toContain('<path d="home"')
 	})
 
 	it('skips icons already in cache', async () => {
-		cache.set('mdi:home', '<svg>cached</svg>')
+		cache.set('mdi/home', '<svg>cached</svg>')
 
-		await prepareIcons('::mdi:home::', cache, asyncResolvers)
+		await prepareIcons(':mdi/home:', cache, asyncResolvers)
 
 		expect(mockFetch).not.toHaveBeenCalled()
-		expect(cache.get('mdi:home')).toBe('<svg>cached</svg>')
+		expect(cache.get('mdi/home')).toBe('<svg>cached</svg>')
 	})
 
 	it('handles multiple icons in one document', async () => {
@@ -84,14 +84,10 @@ describe('prepareIcons', () => {
 				}),
 			)
 
-		await prepareIcons(
-			'::mdi:home:: and ::mdi:star:: icons',
-			cache,
-			asyncResolvers,
-		)
+		await prepareIcons(':mdi/home: and :mdi/star: icons', cache, asyncResolvers)
 
-		expect(cache.get('mdi:home')).toContain('<circle')
-		expect(cache.get('mdi:star')).toContain('<rect')
+		expect(cache.get('mdi/home')).toContain('<circle')
+		expect(cache.get('mdi/star')).toContain('<rect')
 	})
 
 	it('handles content with no icons', async () => {
@@ -103,7 +99,7 @@ describe('prepareIcons', () => {
 		const customResolver = async (name: string) =>
 			name === 'star' ? '<span class="star">★</span>' : null
 
-		await prepareIcons('::star:: ::unknown::', cache, [customResolver])
+		await prepareIcons(':star: :unknown:', cache, [customResolver])
 
 		expect(cache.get('star')).toBe('<span class="star">★</span>')
 		expect(cache.has('unknown')).toBe(false)

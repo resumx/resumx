@@ -10,6 +10,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { escapeHtml } from '@mdit/helper'
 import { optimize, type Config } from 'svgo'
+import emojiData from 'markdown-it-emoji/lib/data/full.mjs'
 import { iconifyHtml } from './utils.js'
 import type { AsyncIconResolver } from './prepare.js'
 import { fetchIconifySvgs } from './fetch.js'
@@ -152,8 +153,8 @@ export function createAssetsResolver(dir: string): IconResolver {
 	return (name: string): string | null => {
 		const trimmed = name.trim()
 
-		// Skip names with colons (those are for Iconify prefix:name format)
-		if (trimmed.includes(':')) return null
+		// Skip names with slash (Iconify prefix/name format)
+		if (trimmed.includes('/')) return null
 
 		const svgPath = join(dir, `${trimmed}.svg`)
 		if (!existsSync(svgPath)) return null
@@ -167,21 +168,30 @@ export function createAssetsResolver(dir: string): IconResolver {
 
 /**
  * Catch-all Iconify resolver. Returns cached inline SVG or null.
- * Only matches names with a colon (prefix:name format).
+ * Only matches names with a slash (prefix/name format).
  */
 export function iconifyResolver(name: string): string | null {
 	return iconifyHtml(name)
+}
+
+/**
+ * Emoji resolver: maps shortcode names to unicode emoji characters.
+ * Used as a fallback after icon resolvers, so :rocket: renders as the emoji
+ * when no icon named "rocket" exists.
+ */
+export function emojiResolver(name: string): string | null {
+	return emojiData[name.trim()] ?? null
 }
 
 // ── Async resolvers (fetch and produce self-contained HTML) ─────────────────
 
 /**
  * Async catch-all Iconify resolver.
- * Fetches SVG from the Iconify API for any prefix:name format.
+ * Fetches SVG from the Iconify API for any prefix/name format.
  */
 export function createAsyncIconifyResolver(): AsyncIconResolver {
 	return async (name: string): Promise<string | null> => {
-		if (!name.includes(':')) return null
+		if (!name.includes('/')) return null
 		const svgs = await fetchIconifySvgs([name])
 		return svgs.get(name) ?? null
 	}
@@ -253,7 +263,7 @@ export function createCustomResolver(
 
 /** Options for the icon plugin. */
 export interface MarkdownItIconOptions {
-	/** Resolvers tried in order; first non-null wins. Falls back to `::name::` if none match. */
+	/** Resolvers tried in order; first non-null wins. Falls back to `:name:` if none match. */
 	resolvers?: IconResolverInput[]
 }
 
@@ -279,7 +289,7 @@ export function buildRender(
 			const html = resolve(name)
 			if (html != null) return html
 		}
-		return `::${escapeHtml(name)}::`
+		return `:${escapeHtml(name)}:`
 	}
 }
 

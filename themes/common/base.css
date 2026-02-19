@@ -76,7 +76,8 @@
 	--bullet-style: disc; /* disc | circle | square | none */
 
 	/* ---- Features ---- */
-	--icons: inline; /* inline | none */
+	--auto-icons: inline; /* inline | none */
+	--icon-size: 0.8em; /* any length */
 }
 
 /*

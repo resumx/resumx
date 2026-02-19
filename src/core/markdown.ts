@@ -14,6 +14,7 @@ import { sup } from '@mdit/plugin-sup'
 import {
 	icon,
 	iconifyResolver,
+	emojiResolver,
 	createAssetsResolver,
 	type MarkdownItWithAsyncIcon,
 } from '../lib/mdit-plugins/icon/index.js'
@@ -49,7 +50,11 @@ export function createMarkdownRenderer(
 		.use(fencedDiv)
 		.use(bracketedSpans)
 		.use(icon, {
-			resolvers: [createAssetsResolver(iconsDir), iconifyResolver],
+			resolvers: [
+				createAssetsResolver(iconsDir),
+				iconifyResolver,
+				emojiResolver,
+			],
 		})
 		.use(dl)
 		.use(mark)

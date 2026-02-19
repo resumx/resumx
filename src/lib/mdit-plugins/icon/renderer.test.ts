@@ -8,6 +8,7 @@ import {
 	buildRender,
 	createIconRenderRule,
 	createAssetsResolver,
+	emojiResolver,
 	processFrontmatterIcons,
 	wrapIconSvg,
 } from './renderer.js'
@@ -22,32 +23,46 @@ describe('buildRender', () => {
 		expect(render('star')).toBe('<span class="star">★</span>')
 	})
 
-	it('falls back to ::name:: when no resolver matches', () => {
+	it('falls back to :name: when no resolver matches', () => {
 		const render = buildRender({
 			resolvers: [name => (name === 'known' ? '<b>known</b>' : null)],
 		})
-		expect(render('unknown')).toBe('::unknown::')
+		expect(render('unknown')).toBe(':unknown:')
 	})
 
-	it('falls back to ::name:: when no options provided', () => {
+	it('falls back to :name: when no options provided', () => {
 		const render = buildRender({})
-		expect(render('any')).toBe('::any::')
+		expect(render('any')).toBe(':any:')
 	})
 
 	it('escapes dangerous names in fallback', () => {
 		const render = buildRender({})
 		expect(render('foo<script>alert(1)</script>')).toBe(
-			'::foo&lt;script&gt;alert(1)&lt;/script&gt;::',
+			':foo&lt;script&gt;alert(1)&lt;/script&gt;:',
 		)
-		expect(render('a&quot;b&c')).toBe('::a&amp;quot;b&amp;c::')
+		expect(render('a&quot;b&c')).toBe(':a&amp;quot;b&amp;c:')
 	})
 
 	it('iconifyResolver returns cached SVG when cache is primed', () => {
-		iconCache.set('mdi:home', '<svg class="iconify">home</svg>')
+		iconCache.set('mdi/home', '<svg class="iconify">home</svg>')
 		const render = buildRender({
 			resolvers: [iconifyResolver],
 		})
-		expect(render('mdi:home')).toBe('<svg class="iconify">home</svg>')
+		expect(render('mdi/home')).toBe('<svg class="iconify">home</svg>')
+	})
+})
+
+describe('emojiResolver', () => {
+	it('returns the emoji unicode character for a known shortcode', () => {
+		expect(emojiResolver('rocket')).toBe('🚀')
+	})
+
+	it('returns null for an unknown name', () => {
+		expect(emojiResolver('not-an-emoji-xyz')).toBeNull()
+	})
+
+	it('trims whitespace', () => {
+		expect(emojiResolver('  rocket  ')).toBe('🚀')
 	})
 })
 
@@ -73,12 +88,12 @@ describe('iconifyResolver', () => {
 	})
 
 	it('returns cached SVG for known icon', () => {
-		iconCache.set('mdi:home', '<svg class="iconify">home</svg>')
-		expect(iconifyResolver('mdi:home')).toBe('<svg class="iconify">home</svg>')
+		iconCache.set('mdi/home', '<svg class="iconify">home</svg>')
+		expect(iconifyResolver('mdi/home')).toBe('<svg class="iconify">home</svg>')
 	})
 
 	it('returns null for uncached icon', () => {
-		expect(iconifyResolver('mdi:home')).toBeNull()
+		expect(iconifyResolver('mdi/home')).toBeNull()
 	})
 })
 
@@ -137,10 +152,10 @@ describe('createAssetsResolver', () => {
 		expect(resolve('nonexistent')).toBeNull()
 	})
 
-	it('skips names with colons (Iconify format)', () => {
-		writeFileSync(join(tempDir, 'mdi:home.svg'), '<svg/>')
+	it('skips names with slash (Iconify format)', () => {
+		writeFileSync(join(tempDir, 'mdi_home.svg'), '<svg/>')
 		const resolve = createAssetsResolver(tempDir)
-		expect(resolve('mdi:home')).toBeNull()
+		expect(resolve('mdi/home')).toBeNull()
 	})
 
 	it('trims whitespace around name', () => {

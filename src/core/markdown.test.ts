@@ -141,7 +141,7 @@ describe('markdown', () => {
 				}),
 			)
 
-			const html = await markdownRenderer.renderAsync('::mdi:home::')
+			const html = await markdownRenderer.renderAsync(':mdi/home:')
 			expect(html).toContain('<svg')
 			expect(html).toContain('iconify')
 		})

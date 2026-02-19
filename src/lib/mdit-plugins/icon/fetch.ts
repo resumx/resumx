@@ -25,10 +25,10 @@ export async function fetchIconifySvgs(
 	// Group by prefix
 	const groups = new Map<string, string[]>()
 	for (const id of iconIds) {
-		const colonIdx = id.indexOf(':')
-		if (colonIdx === -1) continue // skip invalid format
-		const prefix = id.slice(0, colonIdx)
-		const name = id.slice(colonIdx + 1)
+		const slashIdx = id.indexOf('/')
+		if (slashIdx === -1) continue // skip invalid format
+		const prefix = id.slice(0, slashIdx)
+		const name = id.slice(slashIdx + 1)
 		if (!prefix || !name) continue
 		const names = groups.get(prefix) ?? []
 		names.push(name)
@@ -51,9 +51,9 @@ export async function fetchIconifySvgs(
 				const svg = iconToHTML(body, {
 					...attributes,
 					class: 'icon iconify',
-					'data-icon': `${prefix}:${name}`,
+					'data-icon': `${prefix}/${name}`,
 				})
-				result.set(`${prefix}:${name}`, svg)
+				result.set(`${prefix}/${name}`, svg)
 			}
 		} catch {
 			// Silently skip failed fetches

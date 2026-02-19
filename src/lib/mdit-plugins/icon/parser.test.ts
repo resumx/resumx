@@ -12,51 +12,89 @@ function getInlineTokens(src: string): { type: string; content?: string }[] {
 }
 
 describe('icon parser', () => {
-	it('parses ::name:: as icon token', () => {
-		const tokens = getInlineTokens('::foo::')
+	it(':foo: parses as icon token with content foo', () => {
+		const tokens = getInlineTokens(':foo:')
 		const iconToken = tokens.find(t => t.type === 'icon')
 		expect(iconToken).toBeDefined()
 		expect(iconToken?.content).toBe('foo')
 	})
 
-	it('does not match single colon :one:', () => {
-		const tokens = getInlineTokens(':one:')
-		expect(tokens.some(t => t.type === 'icon')).toBe(false)
-	})
-
-	it('does not match :: :: (space after opening)', () => {
-		const tokens = getInlineTokens(':: ::')
-		expect(tokens.some(t => t.type === 'icon')).toBe(false)
-	})
-
-	it('reserves :::text::: (no icon token; triple-colon syntax preserved for future use)', () => {
-		const tokens = getInlineTokens(':::three:::')
-		expect(tokens.some(t => t.type === 'icon')).toBe(false)
-		const textContent = tokens.map(t => t.content ?? '').join('')
-		expect(textContent).toBe(':::three:::')
-	})
-
-	it.each([4, 5, 6, 7, 8, 9, 10])(
-		'reserves %s colons each side (preserved as text)',
-		n => {
-			const delims = ':'.repeat(n)
-			const src = `${delims}test${delims}`
-			const tokens = getInlineTokens(src)
-			expect(tokens.some(t => t.type === 'icon')).toBe(false)
-			const textContent = tokens.map(t => t.content ?? '').join('')
-			expect(textContent).toBe(src)
-		},
-	)
-
-	it('matches minimum length ::x::', () => {
-		const tokens = getInlineTokens('::x::')
+	it(':x: matches minimum length', () => {
+		const tokens = getInlineTokens(':x:')
 		const iconToken = tokens.find(t => t.type === 'icon')
 		expect(iconToken?.content).toBe('x')
 	})
 
-	it('parses icon in middle of text', () => {
-		const tokens = getInlineTokens('hello ::react:: world')
+	it(':react: parses icon in middle of text', () => {
+		const tokens = getInlineTokens('hello :react: world')
 		const iconToken = tokens.find(t => t.type === 'icon')
 		expect(iconToken?.content).toBe('react')
+	})
+
+	it(':devicon/react: parses as icon token with content devicon/react', () => {
+		const tokens = getInlineTokens(':devicon/react:')
+		const iconToken = tokens.find(t => t.type === 'icon')
+		expect(iconToken?.content).toBe('devicon/react')
+	})
+
+	it(':mdi/home: parses as icon token with content mdi/home', () => {
+		const tokens = getInlineTokens(':mdi/home:')
+		const iconToken = tokens.find(t => t.type === 'icon')
+		expect(iconToken?.content).toBe('mdi/home')
+	})
+
+	it(':simple-icons/docker: parses as icon with content simple-icons/docker', () => {
+		const tokens = getInlineTokens(':simple-icons/docker:')
+		const iconToken = tokens.find(t => t.type === 'icon')
+		expect(iconToken?.content).toBe('simple-icons/docker')
+	})
+
+	it(':meta: followed by text does not greedily consume as namespace', () => {
+		const tokens = getInlineTokens(':meta:Meta is great')
+		const iconToken = tokens.find(t => t.type === 'icon')
+		expect(iconToken?.content).toBe('meta')
+	})
+
+	it('does not match :foo/: (slash with no name after)', () => {
+		const tokens = getInlineTokens(':foo/:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('does not match :/foo: (slash at start)', () => {
+		const tokens = getInlineTokens(':/foo:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('allows only one slash (namespace)', () => {
+		const tokens = getInlineTokens(':a/b/c:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('adjacent icons :smile::react: produces two icon tokens', () => {
+		const tokens = getInlineTokens(':smile::react:')
+		const iconTokens = tokens.filter(t => t.type === 'icon')
+		expect(iconTokens).toHaveLength(2)
+		expect(iconTokens[0]?.content).toBe('smile')
+		expect(iconTokens[1]?.content).toBe('react')
+	})
+
+	it('does not match : space: (space after opening colon)', () => {
+		const tokens = getInlineTokens(': space:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('does not match :: (empty)', () => {
+		const tokens = getInlineTokens('::')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('does not match names with invalid chars like :foo bar: (space in name)', () => {
+		const tokens = getInlineTokens(':foo bar:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
+	})
+
+	it('does not match :foo.bar: (period not a valid name char)', () => {
+		const tokens = getInlineTokens(':foo.bar:')
+		expect(tokens.some(t => t.type === 'icon')).toBe(false)
 	})
 })

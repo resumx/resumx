@@ -11,6 +11,6 @@ export {
 	type IconResolverSpec,
 } from './plugin.js'
 
-export { iconifyResolver } from './renderer.js'
+export { iconifyResolver, emojiResolver } from './renderer.js'
 export { createAssetsResolver } from './renderer.js'
 export { type IconEnv } from './renderer.js'

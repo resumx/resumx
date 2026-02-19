@@ -143,22 +143,24 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 3) ::icon:: — dim delimiters, color the name
-			for (const m of code.matchAll(/::[^\s]+?::/g)) {
+			// 3) :icon: or :prefix/name: — dim delimiters, color the name
+			for (const m of code.matchAll(
+				/:([a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)?):(?!:)/g,
+			)) {
 				if (matched.has(String(m.index))) continue
-				const name = m[0].slice(2, -2)
+				const name = m[1]!
 				options.decorations.push({
 					start: m.index,
-					end: m.index + 2,
+					end: m.index + 1,
 					properties: { class: 'resumx-delim' },
 				})
 				options.decorations.push({
-					start: m.index + 2,
-					end: m.index + 2 + name.length,
+					start: m.index + 1,
+					end: m.index + 1 + name.length,
 					properties: { class: 'resumx-icon' },
 				})
 				options.decorations.push({
-					start: m.index + 2 + name.length,
+					start: m.index + 1 + name.length,
 					end: m.index + m[0].length,
 					properties: { class: 'resumx-delim' },
 				})

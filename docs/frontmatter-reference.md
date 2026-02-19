@@ -142,7 +142,7 @@ See [Fit to Page](/fit-to-page) for the full guide.
 
 ### `icons`
 
-Custom icon definitions. Keys are icon slugs usable with `::slug::` syntax; values are SVG strings, URLs, or base64 data URIs.
+Custom icon definitions. Keys are icon slugs usable with `:slug:` syntax; values are SVG strings, URLs, or base64 data URIs.
 
 | Property    | Value                    |
 | ----------- | ------------------------ |
