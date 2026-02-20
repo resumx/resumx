@@ -14,8 +14,6 @@ Resumx uses standard [Markdown](https://www.markdownguide.org/basic-syntax/) wit
 ### Google
 ```
 
-<!-- TODO: Screenshot of a rendered resume header showing the h1 name, h2 section titles, and h3 entry headings -->
-
 ## Inline Formatting
 
 | Syntax                  | Result                               |
@@ -31,24 +29,6 @@ Resumx uses standard [Markdown](https://www.markdownguide.org/basic-syntax/) wit
 | `---`                   | — (em-dash)                          |
 | `"text"`                | "text" (smart quotes)                |
 | `...`                   | … (ellipsis)                         |
-
-## Links
-
-```markdown
-[View Site](https://example.com)
-[email@example.com](mailto:email@example.com)
-```
-
-Bare URLs and emails are auto-linked. Links to recognized domains get platform icons automatically — see [Auto-Icons](/icons#auto-icons).
-
-## Lists
-
-Unordered lists describe achievements and responsibilities:
-
-```markdown
-- Built feature X using `Technology`, resulting in Y% improvement
-- Led team of Z engineers to deliver project on time
-```
 
 ## Definition Lists
 
@@ -74,14 +54,14 @@ Senior Software Engineer
 
 ## Tables
 
+Use `:` in the separator row to align columns: `:---` left (default), `:---:` center, `---:` right.
+
 ```markdown
 | Category   |           Technologies |
 | :--------- | ---------------------: |
 | Languages  | Python, TypeScript, Go |
 | Frameworks | React, FastAPI, Django |
 ```
-
-Use `:` in the separator row to align columns: `:---` left (default), `:---:` center, `---:` right.
 
 ## Comments
 
