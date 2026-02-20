@@ -37,11 +37,7 @@ When `{...}` appears at the end of a block element without `[...]`, it applies t
 
 ## Fenced Divs
 
-Use `:::` to apply attributes to block content. Fenced divs come in two forms:
-
-### Unnamed (Transparent)
-
-When no tag name is given, the fenced div is transparent and attributes fall through to the single child element:
+Use `:::` to apply attributes to block content. With a single child, attributes apply directly to it:
 
 <!-- prettier-ignore-start -->
 :::: code-group
@@ -100,44 +96,4 @@ Some paragraph
 ::::
 <!-- prettier-ignore-end -->
 
-### Named (Wrapper)
-
-Add a tag name before `{...}` to create a wrapper element:
-
-<!-- prettier-ignore-start -->
-:::: code-group
-```markdown
-::: aside {.sidebar}
-## Related Links
-
-Check out these resources
-
-- [Link one](#)
-:::
-```
-
-```html
-<aside class="sidebar">
-	<h2>Related Links</h2>
-
-	<p>Check out these resources</p>
-
-	<ul><li><a href="#">Link one</a></li></ul>
-</aside>
-```
-::::
-<!-- prettier-ignore-end -->
-
-Any HTML block-level tag works: `div`, `nav`, `article`, `aside`, `section`, `footer`, `header`, `main`, etc.
-
-### Nesting
-
-Fenced divs can be nested. Using more colons for outer divs is optional but improves readability:
-
-```markdown
-:::: div {.outer}
-::: div {.inner}
-Content
-:::
-::::
-```
+You can also prefix a tag name (e.g., `::: footer {.text-center}`) to emit a specific HTML element instead of `<div>`.
