@@ -695,14 +695,14 @@ Test content`
 		it('filters fenced div blocks with role class', async () => {
 			const mdContent = `# Test Person
 
-::: {.role:frontend}
+::: div {.role:frontend}
 ## Frontend Skills
 
 - React
 - TypeScript
 :::
 
-::: {.role:backend}
+::: div {.role:backend}
 ## Backend Skills
 
 - Node.js
@@ -901,12 +901,12 @@ Test content`
 
 ## Education
 
-::: {lang=fr}
+::: div {lang=fr}
 - Moyenne cumulative : 3.82
 - Cours avancés : Systèmes distribués
 :::
 
-::: {lang=en}
+::: div {lang=en}
 - GPA: 3.82
 - Advanced courses: Distributed Systems
 :::`

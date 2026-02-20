@@ -37,31 +37,106 @@ When `{...}` appears at the end of a block element without `[...]`, it applies t
 
 ## Fenced Divs
 
-Use `:::` to wrap block content in a `<div>` with attributes — the block-level counterpart to bracketed spans:
+Use `:::` to apply attributes to block content. Fenced divs come in two forms:
 
+### Unnamed (Transparent)
+
+When no tag name is given, the fenced div is transparent and attributes fall through to the single child element:
+
+<!-- prettier-ignore-start -->
+:::: code-group
 ```markdown
-::: {.custom-class}
-Content here
+## Technical Skills
+
+::: {.grid .grid-cols-3}
+- JavaScript
+- TypeScript
+- Python
+- React
+- Node.js
+- PostgreSQL
 :::
 ```
 
-Produces:
+```html
+<h2>Technical Skills</h2>
+
+<ul class="grid grid-cols-3">
+	<li>JavaScript</li>
+	<li>TypeScript</li>
+	<li>Python</li>
+	<li>React</li>
+	<li>Node.js</li>
+	<li>PostgreSQL</li>
+</ul>
+```
+::::
+<!-- prettier-ignore-end -->
+
+![Fenced div with unnamed form](/grid-bullet-with-fence.png)
+
+No wrapper `<div>` is emitted. This is the primary way to style block elements like lists, blockquotes, and tables without adding extra nesting.
+
+If the fenced div contains multiple children, it auto-promotes to a `<div>` wrapper with the attributes:
+
+<!-- prettier-ignore-start -->
+:::: code-group
+```markdown
+::: {.flex .gap-4}
+## Title
+
+Some paragraph
+:::
+```
 
 ```html
-<div class="custom-class">
-	<p>Content here</p>
+<div class="flex gap-4">
+	<h2>Title</h2>
+
+	<p>Some paragraph</p>
 </div>
 ```
 
-Useful for applying Tailwind or custom CSS to a group of elements.
+::::
+<!-- prettier-ignore-end -->
+
+### Named (Wrapper)
+
+Add a tag name before `{...}` to create a wrapper element:
+
+<!-- prettier-ignore-start -->
+:::: code-group
+```markdown
+::: aside {.sidebar}
+## Related Links
+
+Check out these resources
+
+- [Link one](#)
+:::
+```
+
+```html
+<aside class="sidebar">
+	<h2>Related Links</h2>
+
+	<p>Check out these resources</p>
+
+	<ul><li><a href="#">Link one</a></li></ul>
+</aside>
+```
+::::
+<!-- prettier-ignore-end -->
+
+Any HTML block-level tag works: `div`, `nav`, `article`, `aside`, `section`, `footer`, `header`, `main`, etc.
 
 ### Nesting
 
 Fenced divs can be nested. Using more colons for outer divs is optional but improves readability:
 
 ```markdown
-:::: {.outer}
-::: {.inner}
+:::: div {.outer}
+::: div {.inner}
 Content
 :::
 ::::

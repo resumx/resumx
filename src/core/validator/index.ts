@@ -18,6 +18,7 @@ import {
 	emptyBulletPlugin,
 	longBulletPlugin,
 	singleBulletSectionPlugin,
+	unknownFencedDivTagPlugin,
 } from './plugins/index.js'
 
 /** Named presets - plugin collections */
@@ -30,6 +31,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		emptyBulletPlugin,
 		longBulletPlugin,
 		singleBulletSectionPlugin,
+		unknownFencedDivTagPlugin,
 	],
 	minimal: [
 		missingNamePlugin,
@@ -37,6 +39,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		noSectionsPlugin,
 		noEntriesPlugin,
 		emptyBulletPlugin,
+		unknownFencedDivTagPlugin,
 	],
 	strict: [
 		missingNamePlugin,
@@ -46,6 +49,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		emptyBulletPlugin,
 		longBulletPlugin,
 		singleBulletSectionPlugin,
+		unknownFencedDivTagPlugin,
 	],
 	none: [],
 }
@@ -132,5 +136,6 @@ export {
 	createLongBulletPlugin,
 	longBulletPlugin,
 	singleBulletSectionPlugin,
+	unknownFencedDivTagPlugin,
 	type LongBulletOptions,
 } from './plugins/index.js'

@@ -1,7 +1,6 @@
 # Fenced Div Plugin for markdown-it
 
-An implementation of the `fenced_divs` extension for markdown-it.
-Creates native HTML `<div>` elements with support for classes, IDs, and custom attributes.
+An implementation of the `fenced_divs` extension for markdown-it with attribute fallthrough support.
 
 ## Syntax Overview
 
@@ -9,17 +8,50 @@ A fenced div starts with a fence containing at least three consecutive colons (`
 plus optional attributes. The div ends with another line containing at least three
 consecutive colons (without attributes).
 
-### Basic Forms
+### Named vs Unnamed
+
+Fenced divs come in two forms:
+
+- **Named** (has a tag name before `{...}`): Always creates a wrapper element.
+- **Unnamed** (no tag name, just `{...}`): Transparent. Attributes fall through to the single child element. No wrapper `<div>` is emitted.
 
 ```markdown
-::: {.class} → <div class="class">
-::: {#id} → <div id="id">
-::: {.class #id} → <div class="class" id="id">
-::: {.class attr="value"} → <div class="class" attr="value">
-::: component-name → <component-name>
-::: component-name {.class} → <component-name class="class">
-::: → <div> (plain div, no attributes)
+::: div {.class} → <div class="class">...</div> (named, wrapper)
+::: nav {.sidebar} → <nav class="sidebar">...</nav> (named, wrapper)
+::: article → <article>...</article> (named, wrapper)
+::: {.class} → attrs applied to single child (unnamed, transparent)
+::: → no output, children passed through (unnamed, transparent)
 ```
+
+### Named Forms
+
+```markdown
+::: div {.class} → <div class="class">
+::: div {#id} → <div id="id">
+::: div {.class #id} → <div class="class" id="id">
+::: nav {.class attr="v"} → <nav class="class" attr="v">
+::: component-name → <component-name>
+::: callout {.class} → <callout class="class">
+```
+
+### Unnamed Forms (Attribute Fallthrough)
+
+When no tag name is given, the fenced div is transparent:
+
+```markdown
+::: {.grid .grid-cols-3}
+
+- JavaScript
+- TypeScript
+- Python
+  :::
+```
+
+Produces `<ul class="grid grid-cols-3">...</ul>` (no wrapper `<div>`).
+
+**Single child:** Attributes are forwarded to the child element.
+**Multiple children:** Auto-promotes to a `<div>` wrapper with the attributes.
+**Empty:** No output.
 
 ## Attribute Syntax
 
@@ -42,20 +74,9 @@ Attributes follow the same syntax as Pandoc fenced code blocks:
 - Numeric suffix: `.class123` → `class="class123"`
 - Duplicates preserved: `.dup .dup` → `class="dup dup"` (no deduplication)
 
-### Unbraced Word as Component Name
+### Tag Names
 
-A single unbraced word is treated as a **custom element/component tag name**
-(designed for future component compatibility):
-
-```markdown
-::: Warning ::::::
-This is a warning.
-::::::::::::::::::
-```
-
-Renders as: `<Warning>...</Warning>`
-
-The unbraced word can be combined with additional attributes in braces:
+A word before `{...}` is treated as the HTML tag name:
 
 ```markdown
 ::: callout {.warning #important}
@@ -65,8 +86,15 @@ Content
 
 Renders as: `<callout class="warning" id="important">...</callout>`
 
-Note: The unbraced word becomes the tag name, and attributes from braces become
-the element's classes/id/attributes.
+### Tag Name Allowlist
+
+Named fenced divs are validated against an allowlist of HTML block-level elements by the `unknown-fenced-div-tag` validator plugin (runs during linting, not compilation). Unrecognized names still render but produce a lint warning:
+
+**Allowed:** `address`, `article`, `aside`, `blockquote`, `details`, `dialog`, `dd`, `div`, `dl`, `dt`, `fieldset`, `figcaption`, `figure`, `footer`, `form`, `header`, `hr`, `li`, `main`, `nav`, `ol`, `p`, `pre`, `section`, `summary`, `table`, `ul`
+
+**Unknown names** (e.g., `::: banana`) render as `<banana>...</banana>` with a lint warning.
+
+**Inline tags** (e.g., `span`, `em`, `a`) are not in the allowlist. Use `[text]{.class}` for inline styling.
 
 ### Trailing Colons (Pandoc Style)
 
@@ -77,7 +105,7 @@ Trailing colons after attributes are supported for visual clarity in nested divs
 Content here
 :::
 
-::::: {#special .sidebar} :::::
+::::: div {#special .sidebar} :::::
 More content
 :::::
 ```
@@ -110,8 +138,8 @@ This is a warning within a warning.
 ### Visual Clarity Pattern
 
 ```markdown
-:::: {.outer}
-::: {.inner}
+:::: div {.outer}
+::: div {.inner}
 Content
 :::
 ::::
@@ -140,17 +168,20 @@ NOT as content. Content must begin on the next line.
 
 ## Edge Cases
 
-| Input                           | Behavior                                   |
-| ------------------------------- | ------------------------------------------ |
-| `::` (2 colons)                 | Not matched (minimum 3 required)           |
-| `::: {.class` (unclosed brace)  | Not matched as fenced div                  |
-| `:::` inside code block         | Treated as literal text (not parsed)       |
-| `:::` in inline code            | Treated as literal text                    |
-| `Some text ::: {.class}`        | Not matched (must start line)              |
-| `::: {}`                        | Plain `<div>` (empty attributes)           |
-| `::: {   }`                     | Plain `<div>` (whitespace-only attributes) |
-| Unclosed div at EOF             | Auto-closed with `</div>`                  |
-| `::: extra` (text after closer) | Not treated as closer                      |
+| Input                           | Behavior                                    |
+| ------------------------------- | ------------------------------------------- |
+| `::` (2 colons)                 | Not matched (minimum 3 required)            |
+| `::: {.class` (unclosed brace)  | Not matched as fenced div                   |
+| `:::` inside code block         | Treated as literal text (not parsed)        |
+| `:::` in inline code            | Treated as literal text                     |
+| `Some text ::: {.class}`        | Not matched (must start line)               |
+| `::: div {}`                    | Plain `<div>` (empty attributes)            |
+| `::: div {   }`                 | Plain `<div>` (whitespace-only attributes)  |
+| `::: {.class}` (single child)   | Attrs forwarded to child, no wrapper        |
+| `::: {.class}` (multi children) | Auto-promotes to `<div>` wrapper with attrs |
+| `:::` (empty, unnamed)          | No output                                   |
+| Unclosed div at EOF             | Auto-closed                                 |
+| `::: extra` (text after closer) | Not treated as closer                       |
 
 ## Differences from Pandoc
 
@@ -158,9 +189,11 @@ NOT as content. Content must begin on the next line.
    (`::: Warning` → `<div class="Warning">`), but this implementation treats them
    as component/tag names (`::: Warning` → `<Warning>`). This is designed for future
    component compatibility.
-2. **Blank line separation**: Pandoc recommends blank lines before/after fenced divs.
+2. **Unnamed fenced divs are transparent**: Pandoc always wraps in `<div>`. This
+   implementation uses attribute fallthrough for unnamed fenced divs (no wrapper).
+3. **Blank line separation**: Pandoc recommends blank lines before/after fenced divs.
    This implementation does not require them but handles them correctly.
-3. **No sanitization**: Class names and IDs are NOT sanitized. Invalid characters
+4. **No sanitization**: Class names and IDs are NOT sanitized. Invalid characters
    that match the regex pattern are preserved as-is.
 
 ## Examples
@@ -168,12 +201,28 @@ NOT as content. Content must begin on the next line.
 ### Role-based Sections (Resume Use Case)
 
 ```markdown
-::: {.role:frontend .role:fullstack}
+::: div {.role:frontend .role:fullstack}
 
 - Built React components with TypeScript
 - Implemented responsive design
   :::
 ```
+
+### Styling a List (Attribute Fallthrough)
+
+```markdown
+::: {.grid .grid-cols-3 .gap-x-4 .list-none}
+
+- JavaScript
+- TypeScript
+- Python
+- React
+- Node.js
+- PostgreSQL
+  :::
+```
+
+Produces `<ul class="grid grid-cols-3 gap-x-4 list-none">...</ul>` with no wrapper.
 
 ### Callout with Warning
 
@@ -188,15 +237,15 @@ Renders as: `<callout class="warning" id="important-note">...</callout>`
 ### Complex Nested Layout
 
 ```markdown
-::: {.container}
+::: div {.container}
 
 ## Section Title
 
-::: {.row}
-::: {.col}
+::: div {.row}
+::: div {.col}
 Left column
 :::
-::: {.col}
+::: div {.col}
 Right column
 :::
 :::
@@ -207,7 +256,7 @@ Right column
 
 The plugin generates the following markdown-it tokens:
 
-- `fenced_div_open`: Opening tag (uses component name if provided, otherwise `<div>`)
+- `fenced_div_open`: Opening tag (uses component name if provided, otherwise `div`)
 - `fenced_div_close`: Closing tag (matches opening tag)
 
 Token properties:
@@ -217,3 +266,6 @@ Token properties:
 - `info`: The raw info string after the opening fence
 - `map`: Line range `[startLine, endLine]`
 - `block`: `true` (this is a block-level element)
+- `meta.named`: `true` if a tag name was given, `false` for unnamed
+
+For unnamed fenced divs, the `fenced_div_fallthrough` core rule removes the open/close tokens and forwards attributes to the single child element. With multiple children, the tokens are kept as a `<div>` wrapper.

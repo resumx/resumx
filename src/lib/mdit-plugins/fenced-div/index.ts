@@ -1,5 +1,7 @@
 import type MarkdownIt from 'markdown-it'
+import type Token from 'markdown-it/lib/token.mjs'
 import type StateBlock from 'markdown-it/lib/rules_block/state_block.mjs'
+import type StateCore from 'markdown-it/lib/rules_core/state_core.mjs'
 
 interface ParsedAttributes {
 	classes: string[]
@@ -221,6 +223,7 @@ export function fencedDiv(md: MarkdownIt): void {
 		tokenOpen.block = true
 		tokenOpen.info = params
 		tokenOpen.map = [startLine, nextLine]
+		tokenOpen.meta = { named: componentName !== null }
 
 		// Parse and set attributes (component name is the tag, not a class)
 		const parsed = parseAttributes(attrString ?? '')
@@ -258,4 +261,78 @@ export function fencedDiv(md: MarkdownIt): void {
 	md.block.ruler.before('fence', 'fenced_div', container, {
 		alt: ['paragraph', 'reference', 'blockquote', 'list'],
 	})
+
+	md.core.ruler.push('fenced_div_fallthrough', fallthroughRule)
+}
+
+function findMatchingClose(tokens: Token[], openIdx: number): number {
+	let depth = 1
+	for (let i = openIdx + 1; i < tokens.length; i++) {
+		const t = tokens[i]!
+		if (t.type === 'fenced_div_open') depth++
+		if (t.type === 'fenced_div_close') {
+			depth--
+			if (depth === 0) return i
+		}
+	}
+	return tokens.length - 1
+}
+
+function countDirectChildren(
+	tokens: Token[],
+	openIdx: number,
+	closeIdx: number,
+): { count: number; firstOpenIdx: number | null } {
+	let depth = 0
+	let count = 0
+	let firstOpenIdx: number | null = null
+	for (let i = openIdx + 1; i < closeIdx; i++) {
+		const t = tokens[i]!
+		const isBlockOpener = t.nesting === 1 && depth === 0
+		const isSelfContainedBlock = t.nesting === 0 && t.block && depth === 0
+		if (isBlockOpener || isSelfContainedBlock) {
+			count++
+			if (count === 1) firstOpenIdx = i
+		}
+		depth += t.nesting
+	}
+	return { count, firstOpenIdx }
+}
+
+function mergeAttrsOnto(target: Token, source: Token): void {
+	if (!source.attrs) return
+	for (const [key, value] of source.attrs) {
+		const existing = target.attrGet(key)
+		if ((key === 'class' || key === 'style') && existing) {
+			const sep = key === 'class' ? ' ' : '; '
+			target.attrSet(key, `${existing}${sep}${value}`)
+		} else {
+			target.attrSet(key, value)
+		}
+	}
+}
+
+function fallthroughRule(state: StateCore): void {
+	const tokens = state.tokens
+
+	for (let i = tokens.length - 1; i >= 0; i--) {
+		const token = tokens[i]!
+		if (token.type !== 'fenced_div_open') continue
+
+		const isNamed = (token.meta as { named?: boolean })?.named === true
+		if (isNamed) continue
+
+		const closeIdx = findMatchingClose(tokens, i)
+		const { count, firstOpenIdx } = countDirectChildren(tokens, i, closeIdx)
+
+		if (count === 0) {
+			tokens.splice(closeIdx, 1)
+			tokens.splice(i, 1)
+		} else if (count === 1 && firstOpenIdx !== null) {
+			mergeAttrsOnto(tokens[firstOpenIdx]!, token)
+			tokens.splice(closeIdx, 1)
+			tokens.splice(i, 1)
+		}
+		// 2+ children: keep as <div> wrapper
+	}
 }

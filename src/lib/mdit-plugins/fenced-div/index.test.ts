@@ -17,9 +17,9 @@ describe('fencedDiv plugin', () => {
 	}
 
 	describe('basic fenced div syntax', () => {
-		it('renders ::: {.class} ... ::: as div with class', () => {
+		it('renders ::: div {.class} ... ::: as div with class', () => {
 			const md = createMd()
-			const result = md.render('::: {.highlight}\nContent here\n:::')
+			const result = md.render('::: div {.highlight}\nContent here\n:::')
 			expect(normalizeHtml(result)).toBe(
 				'<div class="highlight">\n<p>Content here</p>\n</div>',
 			)
@@ -27,7 +27,9 @@ describe('fencedDiv plugin', () => {
 
 		it('renders multiple classes in order', () => {
 			const md = createMd()
-			const result = md.render('::: {.class1 .class2 .class3}\nContent\n:::')
+			const result = md.render(
+				'::: div {.class1 .class2 .class3}\nContent\n:::',
+			)
 			expect(normalizeHtml(result)).toBe(
 				'<div class="class1 class2 class3">\n<p>Content</p>\n</div>',
 			)
@@ -35,7 +37,7 @@ describe('fencedDiv plugin', () => {
 
 		it('renders id attribute', () => {
 			const md = createMd()
-			const result = md.render('::: {#my-id}\nContent\n:::')
+			const result = md.render('::: div {#my-id}\nContent\n:::')
 			expect(normalizeHtml(result)).toBe(
 				'<div id="my-id">\n<p>Content</p>\n</div>',
 			)
@@ -44,9 +46,8 @@ describe('fencedDiv plugin', () => {
 		it('renders mixed attributes with correct order (class before id before custom)', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.highlight #section data-test="value"}\nContent\n:::',
+				'::: div {.highlight #section data-test="value"}\nContent\n:::',
 			)
-			// markdown-it sets attributes in order they're added
 			expect(result).toMatch(
 				/<div class="highlight" id="section" data-test="value">/,
 			)
@@ -58,16 +59,14 @@ describe('fencedDiv plugin', () => {
 		it('renders multiple custom attributes', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {data-x="1" data-y="2" aria-label="test"}\nContent\n:::',
+				'::: div {data-x="1" data-y="2" aria-label="test"}\nContent\n:::',
 			)
-			// Extract the opening div tag and verify exact attributes
 			const divMatch = result.match(/<div([^>]*)>/)
 			expect(divMatch).not.toBeNull()
 			const attrs = divMatch![1]
 			expect(attrs).toContain(' data-x="1"')
 			expect(attrs).toContain(' data-y="2"')
 			expect(attrs).toContain(' aria-label="test"')
-			// Verify these are the only attributes (no class or id)
 			expect(attrs.trim()).not.toMatch(/^class=/)
 			expect(attrs.trim()).not.toMatch(/^id=/)
 		})
@@ -76,7 +75,9 @@ describe('fencedDiv plugin', () => {
 	describe('role namespace classes', () => {
 		it('renders role:frontend class exactly', () => {
 			const md = createMd()
-			const result = md.render('::: {.role:frontend}\n- Item 1\n- Item 2\n:::')
+			const result = md.render(
+				'::: div {.role:frontend}\n- Item 1\n- Item 2\n:::',
+			)
 			expect(result).toMatch(/<div class="role:frontend">/)
 			expect(result).toMatch(/<ul>\n<li>Item 1<\/li>\n<li>Item 2<\/li>\n<\/ul>/)
 		})
@@ -84,7 +85,7 @@ describe('fencedDiv plugin', () => {
 		it('renders multiple role classes preserving order', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.role:frontend .role:fullstack .role:backend}\nContent\n:::',
+				'::: div {.role:frontend .role:fullstack .role:backend}\nContent\n:::',
 			)
 			expect(result).toMatch(
 				/<div class="role:frontend role:fullstack role:backend">/,
@@ -94,7 +95,7 @@ describe('fencedDiv plugin', () => {
 		it('renders mixed role and regular classes', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.highlight .role:frontend .warning}\nContent\n:::',
+				'::: div {.highlight .role:frontend .warning}\nContent\n:::',
 			)
 			expect(result).toMatch(/<div class="highlight role:frontend warning">/)
 		})
@@ -139,11 +140,11 @@ describe('fencedDiv plugin', () => {
 			expect(result).toMatch(/<\/my_component>/)
 		})
 
-		it('renders div when only attributes provided (no component name)', () => {
+		it('unnamed fenced div with single child forwards attrs (no wrapper)', () => {
 			const md = createMd()
 			const result = md.render('::: {.highlight}\nContent\n:::')
-			expect(result).toMatch(/<div class="highlight">/)
-			expect(result).toMatch(/<\/div>/)
+			expect(result).toMatch(/<p class="highlight">Content<\/p>/)
+			expect(result).not.toMatch(/<div/)
 		})
 	})
 
@@ -158,7 +159,9 @@ describe('fencedDiv plugin', () => {
 
 		it('allows trailing colons after attribute block', () => {
 			const md = createMd()
-			const result = md.render('::::: {#special .sidebar} :::::\nContent\n:::')
+			const result = md.render(
+				'::::: div {#special .sidebar} :::::\nContent\n:::',
+			)
 			expect(result).toMatch(/<div class="sidebar" id="special">/)
 			expect(result).toMatch(/<\/div>/)
 		})
@@ -184,7 +187,7 @@ describe('fencedDiv plugin', () => {
 		it('renders inline markdown correctly', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.highlight}\n**Bold**, *italic*, and `code`\n:::',
+				'::: div {.highlight}\n**Bold**, *italic*, and `code`\n:::',
 			)
 			expect(result).toMatch(/<strong>Bold<\/strong>/)
 			expect(result).toMatch(/<em>italic<\/em>/)
@@ -193,7 +196,9 @@ describe('fencedDiv plugin', () => {
 
 		it('renders unordered lists correctly', () => {
 			const md = createMd()
-			const result = md.render('::: {.list}\n- Item 1\n- Item 2\n- Item 3\n:::')
+			const result = md.render(
+				'::: div {.list}\n- Item 1\n- Item 2\n- Item 3\n:::',
+			)
 			const expected = `<div class="list">
 <ul>
 <li>Item 1</li>
@@ -207,7 +212,7 @@ describe('fencedDiv plugin', () => {
 		it('renders ordered lists correctly', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.steps}\n1. First\n2. Second\n3. Third\n:::',
+				'::: div {.steps}\n1. First\n2. Second\n3. Third\n:::',
 			)
 			expect(result).toMatch(/<ol>/)
 			expect(result).toMatch(/<li>First<\/li>/)
@@ -218,7 +223,7 @@ describe('fencedDiv plugin', () => {
 
 		it('renders headings inside the div', () => {
 			const md = createMd()
-			const result = md.render('::: {.section}\n## Heading\nParagraph\n:::')
+			const result = md.render('::: div {.section}\n## Heading\nParagraph\n:::')
 			expect(normalizeHtml(result)).toBe(
 				'<div class="section">\n<h2>Heading</h2>\n<p>Paragraph</p>\n</div>',
 			)
@@ -227,7 +232,7 @@ describe('fencedDiv plugin', () => {
 		it('renders code blocks inside the div', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.example}\n```javascript\nconst x = 1;\n```\n:::',
+				'::: div {.example}\n```javascript\nconst x = 1;\n```\n:::',
 			)
 			expect(result).toMatch(/<div class="example">/)
 			expect(result).toMatch(/<pre><code class="language-javascript">/)
@@ -236,7 +241,9 @@ describe('fencedDiv plugin', () => {
 
 		it('renders blockquotes inside the div', () => {
 			const md = createMd()
-			const result = md.render('::: {.quote}\n> Quoted text\n> More quote\n:::')
+			const result = md.render(
+				'::: div {.quote}\n> Quoted text\n> More quote\n:::',
+			)
 			expect(result).toMatch(/<blockquote>/)
 			expect(result).toMatch(/Quoted text/)
 		})
@@ -244,14 +251,14 @@ describe('fencedDiv plugin', () => {
 		it('renders links correctly', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.links}\n[Link text](https://example.com)\n:::',
+				'::: div {.links}\n[Link text](https://example.com)\n:::',
 			)
 			expect(result).toMatch(/<a href="https:\/\/example.com">Link text<\/a>/)
 		})
 
 		it('renders images correctly', () => {
 			const md = createMd()
-			const result = md.render('::: {.media}\n![Alt text](image.png)\n:::')
+			const result = md.render('::: div {.media}\n![Alt text](image.png)\n:::')
 			expect(result).toMatch(/<img src="image.png" alt="Alt text"/)
 		})
 	})
@@ -260,12 +267,11 @@ describe('fencedDiv plugin', () => {
 		it('renders single level nesting', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: {.outer}\n::: {.inner}\nNested content\n:::\n:::',
+				'::: div {.outer}\n::: div {.inner}\nNested content\n:::\n:::',
 			)
 			expect(result).toMatch(/<div class="outer">/)
 			expect(result).toMatch(/<div class="inner">/)
 			expect(result).toMatch(/<p>Nested content<\/p>/)
-			// Check proper closing order
 			expect(result.indexOf('</div>')).toBeLessThan(
 				result.lastIndexOf('</div>'),
 			)
@@ -273,9 +279,9 @@ describe('fencedDiv plugin', () => {
 
 		it('renders deep nesting (3 levels)', () => {
 			const md = createMd()
-			const input = `::: {.level1}
-::: {.level2}
-::: {.level3}
+			const input = `::: div {.level1}
+::: div {.level2}
+::: div {.level3}
 Deep content
 :::
 :::
@@ -285,17 +291,16 @@ Deep content
 			expect(result).toMatch(/<div class="level2">/)
 			expect(result).toMatch(/<div class="level3">/)
 			expect(result).toMatch(/<p>Deep content<\/p>/)
-			// Should have exactly 3 closing divs
 			expect((result.match(/<\/div>/g) || []).length).toBe(3)
 		})
 
 		it('renders sibling nested divs', () => {
 			const md = createMd()
-			const input = `::: {.parent}
-::: {.child1}
+			const input = `::: div {.parent}
+::: div {.child1}
 First child
 :::
-::: {.child2}
+::: div {.child2}
 Second child
 :::
 :::`
@@ -309,8 +314,8 @@ Second child
 
 		it('renders nested divs with different marker lengths', () => {
 			const md = createMd()
-			const input = `:::: {.outer}
-::: {.inner}
+			const input = `:::: div {.outer}
+::: div {.inner}
 Content
 :::
 ::::`
@@ -321,15 +326,13 @@ Content
 
 		it('closing fence does not need to match opening fence count (Pandoc behavior)', () => {
 			const md = createMd()
-			// 5 colons opening, 3 colons closing should still close
-			const input = `::::: {.class}
+			const input = `::::: div {.class}
 Content
 :::`
 			const result = md.render(input)
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<p>Content<\/p>/)
 			expect(result).toMatch(/<\/div>/)
-			// Should only have one div
 			expect((result.match(/<div[^>]*>/g) || []).length).toBe(1)
 		})
 
@@ -343,7 +346,6 @@ This is a warning within a warning.
 :::
 ::::::::::::::::::`
 			const result = md.render(input)
-			// Should have two custom elements: Warning and Danger
 			expect(result).toMatch(/<Warning>/)
 			expect(result).toMatch(/<Danger>/)
 			expect(result).toMatch(/<\/Danger>/)
@@ -368,49 +370,47 @@ Content
 	describe('whitespace and linebreak preservation', () => {
 		it('preserves single linebreak between paragraphs', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nPara 1\n\nPara 2\n:::')
+			const result = md.render('::: div {.box}\nPara 1\n\nPara 2\n:::')
 			expect(result).toMatch(/<p>Para 1<\/p>/)
 			expect(result).toMatch(/<p>Para 2<\/p>/)
 		})
 
 		it('handles multiple blank lines between content', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nPara 1\n\n\n\nPara 2\n:::')
-			// Multiple blank lines still create two paragraphs
+			const result = md.render('::: div {.box}\nPara 1\n\n\n\nPara 2\n:::')
 			expect(result).toMatch(/<p>Para 1<\/p>/)
 			expect(result).toMatch(/<p>Para 2<\/p>/)
 		})
 
 		it('handles blank line after opening fence', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\n\nContent after blank\n:::')
+			const result = md.render('::: div {.box}\n\nContent after blank\n:::')
 			expect(result).toMatch(/<div class="box">/)
 			expect(result).toMatch(/<p>Content after blank<\/p>/)
 		})
 
 		it('handles blank line before closing fence', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nContent\n\n:::')
+			const result = md.render('::: div {.box}\nContent\n\n:::')
 			expect(result).toMatch(/<p>Content<\/p>/)
 			expect(result).toMatch(/<\/div>/)
 		})
 
 		it('handles extra spaces around opening fence attributes', () => {
 			const md = createMd()
-			const result = md.render(':::   {.class}   \nContent\n:::')
+			const result = md.render(':::   div {.class}   \nContent\n:::')
 			expect(result).toMatch(/<div class="class">/)
 		})
 
 		it('handles tabs in content', () => {
 			const md = createMd()
-			const result = md.render('::: {.code}\n\tTabbed line\n:::')
-			// Tabs are treated as indentation
+			const result = md.render('::: div {.code}\n\tTabbed line\n:::')
 			expect(result).toMatch(/Tabbed line/)
 		})
 
 		it('preserves indentation in code blocks inside div', () => {
 			const md = createMd()
-			const input = `::: {.example}
+			const input = `::: div {.example}
 \`\`\`python
 def foo():
     return bar
@@ -423,40 +423,38 @@ def foo():
 
 		it('handles content starting immediately after opening fence', () => {
 			const md = createMd()
-			// Content on same line as fence is treated as info string, not content
-			const result = md.render('::: {.box}\nFirst line\n:::')
+			const result = md.render('::: div {.box}\nFirst line\n:::')
 			expect(result).toMatch(/<div class="box">/)
 			expect(result).toMatch(/<p>First line<\/p>/)
 		})
 	})
 
 	describe('edge cases and boundary conditions', () => {
-		it('auto-closes unclosed fenced div at EOF', () => {
+		it('auto-closes unclosed named fenced div at EOF', () => {
 			const md = createMd()
-			const result = md.render('::: {.class}\nContent without closing')
+			const result = md.render('::: div {.class}\nContent without closing')
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<p>Content without closing<\/p>/)
 			expect(result).toMatch(/<\/div>/)
 		})
 
-		it('handles empty fenced div', () => {
+		it('handles empty named fenced div', () => {
 			const md = createMd()
-			const result = md.render('::: {.empty}\n:::')
-			// Empty div has no newline between open and close tags
+			const result = md.render('::: div {.empty}\n:::')
 			expect(result.trim()).toBe('<div class="empty"></div>')
 		})
 
-		it('handles fenced div with only whitespace content', () => {
+		it('handles named fenced div with only whitespace content', () => {
 			const md = createMd()
-			const result = md.render('::: {.whitespace}\n   \n\n   \n:::')
+			const result = md.render('::: div {.whitespace}\n   \n\n   \n:::')
 			expect(result).toMatch(/<div class="whitespace">/)
 			expect(result).toMatch(/<\/div>/)
 		})
 
-		it('renders ::: without attributes as plain div', () => {
+		it('unnamed ::: without attributes is transparent (no output)', () => {
 			const md = createMd()
 			const result = md.render(':::\nContent\n:::')
-			expect(result).toMatch(/<div>/)
+			expect(result).not.toMatch(/<div/)
 			expect(result).toMatch(/<p>Content<\/p>/)
 		})
 
@@ -473,38 +471,36 @@ def foo():
 			expect(result).not.toMatch(/<div/)
 		})
 
-		it('handles more than 3 colons', () => {
+		it('handles more than 3 colons with named div', () => {
 			const md = createMd()
-			const result = md.render(':::: {.class}\nContent\n::::')
+			const result = md.render(':::: div {.class}\nContent\n::::')
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<p>Content<\/p>/)
 		})
 
-		it('handles 5 colons', () => {
+		it('handles 5 colons with named div', () => {
 			const md = createMd()
-			const result = md.render('::::: {.class}\nContent\n:::::')
+			const result = md.render('::::: div {.class}\nContent\n:::::')
 			expect(result).toMatch(/<div class="class">/)
 		})
 
 		it('closing fence with fewer colons still closes (Pandoc behavior)', () => {
 			const md = createMd()
-			// 4 colons opening, 3 colons closing should close (Pandoc: any fence without attrs is closer)
-			const result = md.render(':::: {.class}\nContent\n:::')
+			const result = md.render(':::: div {.class}\nContent\n:::')
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<p>Content<\/p>/)
 			expect(result).toMatch(/<\/div>/)
-			// Should only have one div (properly closed)
 			expect((result.match(/<div[^>]*>/g) || []).length).toBe(1)
 			expect((result.match(/<\/div>/g) || []).length).toBe(1)
 		})
 
-		it('handles multiple fenced divs in sequence', () => {
+		it('handles multiple named fenced divs in sequence', () => {
 			const md = createMd()
-			const input = `::: {.first}
+			const input = `::: div {.first}
 First content
 :::
 
-::: {.second}
+::: div {.second}
 Second content
 :::`
 			const result = md.render(input)
@@ -515,12 +511,12 @@ Second content
 			expect((result.match(/<\/div>/g) || []).length).toBe(2)
 		})
 
-		it('handles immediately adjacent fenced divs', () => {
+		it('handles immediately adjacent named fenced divs', () => {
 			const md = createMd()
-			const input = `::: {.first}
+			const input = `::: div {.first}
 First
 :::
-::: {.second}
+::: div {.second}
 Second
 :::`
 			const result = md.render(input)
@@ -532,59 +528,55 @@ Second
 	describe('attribute parsing edge cases', () => {
 		it('handles single-quoted attribute values', () => {
 			const md = createMd()
-			const result = md.render("::: {data-value='single'}\nContent\n:::")
-			// Verify the div tag contains the attribute with normalized double quotes
+			const result = md.render("::: div {data-value='single'}\nContent\n:::")
 			expect(result).toMatch(/<div data-value="single">/)
 		})
 
 		it('handles unquoted attribute values', () => {
 			const md = createMd()
-			const result = md.render('::: {data-value=unquoted}\nContent\n:::')
-			// Verify the div tag contains the attribute with added quotes
+			const result = md.render('::: div {data-value=unquoted}\nContent\n:::')
 			expect(result).toMatch(/<div data-value="unquoted">/)
 		})
 
 		it('handles class with special characters (colon)', () => {
 			const md = createMd()
-			const result = md.render('::: {.ns:class}\nContent\n:::')
+			const result = md.render('::: div {.ns:class}\nContent\n:::')
 			expect(result).toMatch(/<div class="ns:class">/)
 		})
 
 		it('handles class with numbers', () => {
 			const md = createMd()
-			const result = md.render('::: {.class123}\nContent\n:::')
+			const result = md.render('::: div {.class123}\nContent\n:::')
 			expect(result).toMatch(/<div class="class123">/)
 		})
 
 		it('handles id with hyphen', () => {
 			const md = createMd()
-			const result = md.render('::: {#my-long-id}\nContent\n:::')
-			// Verify the div tag has only the id attribute
+			const result = md.render('::: div {#my-long-id}\nContent\n:::')
 			expect(result).toMatch(/<div id="my-long-id">/)
 		})
 
 		it('handles empty attribute block', () => {
 			const md = createMd()
-			const result = md.render('::: {}\nContent\n:::')
+			const result = md.render('::: div {}\nContent\n:::')
 			expect(result).toMatch(/<div>/)
 		})
 
 		it('handles attribute block with only whitespace', () => {
 			const md = createMd()
-			const result = md.render('::: {   }\nContent\n:::')
+			const result = md.render('::: div {   }\nContent\n:::')
 			expect(result).toMatch(/<div>/)
 		})
 
 		it('ignores duplicate classes (keeps all)', () => {
 			const md = createMd()
-			const result = md.render('::: {.dup .dup .dup}\nContent\n:::')
-			// The plugin keeps all classes as-is
+			const result = md.render('::: div {.dup .dup .dup}\nContent\n:::')
 			expect(result).toMatch(/<div class="dup dup dup">/)
 		})
 
 		it('handles both id and classes', () => {
 			const md = createMd()
-			const result = md.render('::: {#myid .class1 .class2}\nContent\n:::')
+			const result = md.render('::: div {#myid .class1 .class2}\nContent\n:::')
 			expect(result).toMatch(/<div class="class1 class2" id="myid">/)
 		})
 	})
@@ -592,7 +584,7 @@ Second
 	describe('escaping and special content', () => {
 		it('handles HTML entities in content', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\n&amp; &lt; &gt;\n:::')
+			const result = md.render('::: div {.box}\n&amp; &lt; &gt;\n:::')
 			expect(result).toMatch(/&amp;/)
 			expect(result).toMatch(/&lt;/)
 			expect(result).toMatch(/&gt;/)
@@ -600,14 +592,14 @@ Second
 
 		it('escapes raw < and > in content', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nif (a < b && c > d)\n:::')
+			const result = md.render('::: div {.box}\nif (a < b && c > d)\n:::')
 			expect(result).toMatch(/&lt;/)
 			expect(result).toMatch(/&gt;/)
 		})
 
 		it('handles ::: inside code block (not parsed as fence)', () => {
 			const md = createMd()
-			const input = `::: {.outer}
+			const input = `::: div {.outer}
 \`\`\`
 ::: {.inner}
 This is not a div
@@ -616,33 +608,31 @@ This is not a div
 :::`
 			const result = md.render(input)
 			expect(result).toMatch(/<div class="outer">/)
-			// The inner ::: should be treated as literal text in code block
 			expect(result).toMatch(/::: \{\.inner\}/)
-			// Should only have one opening div (the outer one)
 			expect((result.match(/<div[^>]*>/g) || []).length).toBe(1)
 		})
 
 		it('handles ::: inside inline code', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nUse `:::` for fenced divs\n:::')
+			const result = md.render('::: div {.box}\nUse `:::` for fenced divs\n:::')
 			expect(result).toMatch(/<code>:::<\/code>/)
 		})
 
 		it('handles backslash in content', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nPath: C:\\Users\\test\n:::')
+			const result = md.render('::: div {.box}\nPath: C:\\Users\\test\n:::')
 			expect(result).toMatch(/C:\\Users\\test/)
 		})
 
 		it('handles curly braces in content', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\n{ key: "value" }\n:::')
+			const result = md.render('::: div {.box}\n{ key: "value" }\n:::')
 			expect(result).toMatch(/\{ key: &quot;value&quot; \}/)
 		})
 
 		it('handles markdown special chars that should not be parsed', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\n\\*not italic\\*\n:::')
+			const result = md.render('::: div {.box}\n\\*not italic\\*\n:::')
 			expect(result).toMatch(/\*not italic\*/)
 			expect(result).not.toMatch(/<em>/)
 		})
@@ -651,13 +641,13 @@ This is not a div
 	describe('interaction with other markdown features', () => {
 		it('handles horizontal rule inside div', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nBefore\n\n---\n\nAfter\n:::')
+			const result = md.render('::: div {.box}\nBefore\n\n---\n\nAfter\n:::')
 			expect(result).toMatch(/<hr/)
 		})
 
 		it('handles table inside div', () => {
 			const md = createMd()
-			const input = `::: {.table-wrapper}
+			const input = `::: div {.table-wrapper}
 | Col1 | Col2 |
 |------|------|
 | A    | B    |
@@ -669,7 +659,7 @@ This is not a div
 
 		it('handles definition list behavior (standard md)', () => {
 			const md = createMd()
-			const input = `::: {.definitions}
+			const input = `::: div {.definitions}
 Term 1
 : Definition 1
 
@@ -677,29 +667,25 @@ Term 2
 : Definition 2
 :::`
 			const result = md.render(input)
-			// Standard markdown-it doesn't support definition lists by default
-			// Content should still be rendered
 			expect(result).toMatch(/Term 1/)
 			expect(result).toMatch(/Definition 1/)
 		})
 
-		it('content before fenced div is separate', () => {
+		it('content before named fenced div is separate', () => {
 			const md = createMd()
-			const result = md.render('Before content\n\n::: {.box}\nInside\n:::')
+			const result = md.render('Before content\n\n::: div {.box}\nInside\n:::')
 			expect(result).toMatch(/<p>Before content<\/p>/)
 			expect(result).toMatch(/<div class="box">/)
-			// Before content should be outside the div
 			expect(result.indexOf('<p>Before content</p>')).toBeLessThan(
 				result.indexOf('<div class="box">'),
 			)
 		})
 
-		it('content after fenced div is separate', () => {
+		it('content after named fenced div is separate', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nInside\n:::\n\nAfter content')
+			const result = md.render('::: div {.box}\nInside\n:::\n\nAfter content')
 			expect(result).toMatch(/<\/div>/)
 			expect(result).toMatch(/<p>After content<\/p>/)
-			// After content should be after closing div
 			expect(result.indexOf('</div>')).toBeLessThan(
 				result.indexOf('<p>After content</p>'),
 			)
@@ -710,22 +696,18 @@ Term 2
 		it('ignores malformed attribute block (no closing brace)', () => {
 			const md = createMd()
 			const result = md.render('::: {.class\nContent\n:::')
-			// Should not create a div with the malformed attributes
 			expect(result).not.toMatch(/<div class="class">/)
 		})
 
 		it('passes through invalid characters in class names (no sanitization)', () => {
 			const md = createMd()
-			const result = md.render('::: {.class!@#}\nContent\n:::')
-			// The plugin does NOT sanitize class names - it extracts what regex matches
-			// The class regex [^\s.#=]+ will match class!@ (# is excluded)
+			const result = md.render('::: div {.class!@#}\nContent\n:::')
 			expect(result).toMatch(/<div class="class!@">/)
 		})
 
-		it('handles missing closing fence gracefully', () => {
+		it('handles missing closing fence gracefully (named)', () => {
 			const md = createMd()
-			const result = md.render('::: {.open}\nLine 1\nLine 2\nLine 3')
-			// Auto-closed at EOF
+			const result = md.render('::: div {.open}\nLine 1\nLine 2\nLine 3')
 			expect(result).toMatch(/<div class="open">/)
 			expect(result).toMatch(/<\/div>/)
 			expect(result).toMatch(/Line 1/)
@@ -735,8 +717,7 @@ Term 2
 
 		it('handles closing fence with extra content after', () => {
 			const md = createMd()
-			const result = md.render('::: {.box}\nContent\n::: extra')
-			// ::: extra is not a valid closer, treated as content
+			const result = md.render('::: div {.box}\nContent\n::: extra')
 			expect(result).toMatch(/extra/)
 		})
 	})
@@ -744,20 +725,20 @@ Term 2
 	describe('arbitrary colon counts', () => {
 		it('handles 3 colons (minimum)', () => {
 			const md = createMd()
-			const result = md.render('::: {.class}\nContent\n:::')
+			const result = md.render('::: div {.class}\nContent\n:::')
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<\/div>/)
 		})
 
 		it('handles 4 colons', () => {
 			const md = createMd()
-			const result = md.render(':::: {.class}\nContent\n::::')
+			const result = md.render(':::: div {.class}\nContent\n::::')
 			expect(result).toMatch(/<div class="class">/)
 		})
 
 		it('handles 10 colons', () => {
 			const md = createMd()
-			const result = md.render(':::::::::: {.class}\nContent\n::::::::::')
+			const result = md.render(':::::::::: div {.class}\nContent\n::::::::::')
 			expect(result).toMatch(/<div class="class">/)
 		})
 
@@ -772,38 +753,29 @@ Term 2
 
 		it('mismatched colon counts still work (Pandoc behavior)', () => {
 			const md = createMd()
-			// Opening with 10, closing with 3
-			const result = md.render(':::::::::: {.class}\nContent\n:::')
+			const result = md.render(':::::::::: div {.class}\nContent\n:::')
 			expect(result).toMatch(/<div class="class">/)
 			expect(result).toMatch(/<\/div>/)
 		})
 	})
 
 	describe('Pandoc-style syntax edge cases', () => {
-		it('plain ::: without attributes renders as plain div', () => {
+		it('plain ::: without attributes is transparent', () => {
 			const md = createMd()
 			const result = md.render(':::\nContent\n:::')
-			expect(result).toMatch(/<div>/)
+			expect(result).not.toMatch(/<div/)
 			expect(result).toMatch(/<p>Content<\/p>/)
-			expect(result).toMatch(/<\/div>/)
 		})
 
 		it('opening fence requires attributes to be an opener', () => {
 			const md = createMd()
-			// First ::: has no attributes, so it's NOT an opener
-			// This should not create a fenced div
 			const result = md.render(':::\n::: {.inner}\nContent\n:::\n:::')
-			// The first ::: becomes a closer for... nothing (edge case)
-			// The behavior here depends on implementation - let's verify it doesn't break
 			expect(result).toBeDefined()
 		})
 
 		it('trailing colons must be separated by whitespace', () => {
 			const md = createMd()
-			// No space between attributes and trailing colons - should still work
 			const result = md.render('::: warning:::::\nContent\n:::')
-			// This might not parse as valid since "warning:::::" is not a valid component name
-			// Let's verify it doesn't crash
 			expect(result).toBeDefined()
 		})
 
@@ -814,9 +786,9 @@ Term 2
 			expect(result).toMatch(/<\/warning>/)
 		})
 
-		it('complex nested Pandoc example', () => {
+		it('complex nested Pandoc example with named div', () => {
 			const md = createMd()
-			const input = `::::: {#special .sidebar}
+			const input = `::::: div {#special .sidebar}
 Here is a paragraph.
 
 And another.
@@ -830,9 +802,9 @@ And another.
 	})
 
 	describe('complex real-world scenarios', () => {
-		it('renders resume-style role-based sections', () => {
+		it('renders resume-style role-based sections with named div', () => {
 			const md = createMd()
-			const input = `::: {.role:frontend .role:fullstack}
+			const input = `::: div {.role:frontend .role:fullstack}
 - Built React components with TypeScript
 - Implemented responsive design
 - Optimized bundle size by 40%
@@ -859,14 +831,14 @@ Please review carefully before proceeding.
 
 		it('renders complex nested layout', () => {
 			const md = createMd()
-			const input = `::: {.container}
+			const input = `::: div {.container}
 ## Section Title
 
-::: {.row}
-::: {.col}
+::: div {.row}
+::: div {.col}
 Left column content
 :::
-::: {.col}
+::: div {.col}
 Right column content
 :::
 :::
@@ -881,6 +853,304 @@ Footer text
 			expect(result).toMatch(/Left column content/)
 			expect(result).toMatch(/Right column content/)
 			expect(result).toMatch(/Footer text/)
+		})
+	})
+
+	describe('attribute fallthrough (unnamed fenced divs)', () => {
+		describe('single child: attrs forwarded to child element', () => {
+			it('forwards class to a paragraph child', () => {
+				const md = createMd()
+				const result = md.render('::: {.text-sm}\nContent here\n:::')
+				expect(normalizeHtml(result)).toBe(
+					'<p class="text-sm">Content here</p>',
+				)
+			})
+
+			it('forwards class to an unordered list child', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.grid .grid-cols-3}\n- JavaScript\n- TypeScript\n- Python\n:::',
+				)
+				expect(result).toMatch(/<ul class="grid grid-cols-3">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards class to an ordered list child', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.list-decimal}\n1. First\n2. Second\n:::',
+				)
+				expect(result).toMatch(/<ol class="list-decimal">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards class to a blockquote child', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.border-l-2 .italic}\n> Quoted text\n:::',
+				)
+				expect(result).toMatch(/<blockquote class="border-l-2 italic">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards class to a table child', () => {
+				const md = createMd()
+				const input = `::: {.table-auto .text-sm}
+| Col1 | Col2 |
+|------|------|
+| A    | B    |
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/<table class="table-auto text-sm">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards class to a heading child', () => {
+				const md = createMd()
+				const result = md.render('::: {.text-lg}\n## My Heading\n:::')
+				expect(result).toMatch(/<h2 class="text-lg">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards id attribute to child', () => {
+				const md = createMd()
+				const result = md.render('::: {#skills}\n- JavaScript\n- Python\n:::')
+				expect(result).toMatch(/<ul id="skills">/)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards mixed attributes (class, id, data-*) to child', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.highlight #section data-test="value"}\nContent\n:::',
+				)
+				expect(result).toMatch(
+					/<p class="highlight" id="section" data-test="value">/,
+				)
+				expect(result).not.toMatch(/<div/)
+			})
+
+			it('forwards role classes to single child', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.role:frontend}\n- Built React components\n- Implemented responsive design\n:::',
+				)
+				expect(result).toMatch(/<ul class="role:frontend">/)
+				expect(result).not.toMatch(/<div/)
+			})
+		})
+
+		describe('multiple children: auto-promote to div wrapper', () => {
+			it('wraps two children (paragraph + list) in div with attrs', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.grid .grid-cols-3}\nIntro text\n\n- Item 1\n- Item 2\n:::',
+				)
+				expect(result).toMatch(/<div class="grid grid-cols-3">/)
+				expect(result).toMatch(/<p>Intro text<\/p>/)
+				expect(result).toMatch(/<ul>/)
+				expect(result).toMatch(/<\/div>/)
+			})
+
+			it('wraps two paragraphs in div with attrs', () => {
+				const md = createMd()
+				const result = md.render(
+					'::: {.text-sm}\nParagraph 1\n\nParagraph 2\n:::',
+				)
+				expect(result).toMatch(/<div class="text-sm">/)
+				expect(result).toMatch(/<p>Paragraph 1<\/p>/)
+				expect(result).toMatch(/<p>Paragraph 2<\/p>/)
+				expect(result).toMatch(/<\/div>/)
+			})
+
+			it('wraps multiple children in plain div when no attrs', () => {
+				const md = createMd()
+				const result = md.render(':::\nParagraph 1\n\nParagraph 2\n:::')
+				expect(result).toMatch(/<div>/)
+				expect(result).toMatch(/<p>Paragraph 1<\/p>/)
+				expect(result).toMatch(/<p>Paragraph 2<\/p>/)
+				expect(result).toMatch(/<\/div>/)
+			})
+		})
+
+		describe('empty unnamed fenced div: removed entirely', () => {
+			it('produces no output for empty unnamed fenced div with attrs', () => {
+				const md = createMd()
+				const result = md.render('::: {.class}\n:::')
+				expect(result.trim()).toBe('')
+			})
+
+			it('produces no output for empty unnamed fenced div without attrs', () => {
+				const md = createMd()
+				const result = md.render(':::\n:::')
+				expect(result.trim()).toBe('')
+			})
+		})
+
+		describe('named fenced divs: always create wrapper (unchanged)', () => {
+			it('::: div creates a div wrapper', () => {
+				const md = createMd()
+				const result = md.render('::: div {.container}\nContent\n:::')
+				expect(normalizeHtml(result)).toBe(
+					'<div class="container">\n<p>Content</p>\n</div>',
+				)
+			})
+
+			it('::: nav creates a nav wrapper', () => {
+				const md = createMd()
+				const result = md.render('::: nav {.main-nav}\nContent\n:::')
+				expect(result).toMatch(/<nav class="main-nav">/)
+				expect(result).toMatch(/<\/nav>/)
+			})
+
+			it('::: article creates an article wrapper', () => {
+				const md = createMd()
+				const result = md.render('::: article\nContent\n:::')
+				expect(result).toMatch(/<article>/)
+				expect(result).toMatch(/<\/article>/)
+			})
+
+			it('::: aside creates an aside wrapper', () => {
+				const md = createMd()
+				const result = md.render('::: aside {.sidebar}\nContent\n:::')
+				expect(result).toMatch(/<aside class="sidebar">/)
+				expect(result).toMatch(/<\/aside>/)
+			})
+
+			it('::: section creates a section wrapper', () => {
+				const md = createMd()
+				const result = md.render('::: section {.skills}\nContent\n:::')
+				expect(result).toMatch(/<section class="skills">/)
+				expect(result).toMatch(/<\/section>/)
+			})
+
+			it('::: div wraps multiple children', () => {
+				const md = createMd()
+				const result = md.render('::: div {.wrapper}\nPara 1\n\nPara 2\n:::')
+				expect(result).toMatch(/<div class="wrapper">/)
+				expect(result).toMatch(/<p>Para 1<\/p>/)
+				expect(result).toMatch(/<p>Para 2<\/p>/)
+				expect(result).toMatch(/<\/div>/)
+			})
+		})
+
+		describe('nested unnamed fenced divs', () => {
+			it('handles named outer with unnamed inner', () => {
+				const md = createMd()
+				const input = `::: div {.outer}
+::: {.inner}
+- Item 1
+- Item 2
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/<div class="outer">/)
+				expect(result).toMatch(/<ul class="inner">/)
+				expect(result).toMatch(/<\/div>/)
+			})
+		})
+
+		describe('attr merging (Vue-style fallthrough)', () => {
+			it('appends classes from outer and inner onto child', () => {
+				const md = createMd()
+				const input = `::: {.outer-class}
+::: {.inner-class}
+Content
+:::
+:::`
+				const result = md.render(input)
+				expect(result).not.toMatch(/<div/)
+				expect(result).toMatch(
+					/<p class="inner-class outer-class">Content<\/p>/,
+				)
+			})
+
+			it('outer id overrides inner id', () => {
+				const md = createMd()
+				const input = `::: {#outer-id}
+::: {#inner-id}
+Content
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/<p id="outer-id">Content<\/p>/)
+			})
+
+			it('outer custom attrs override inner custom attrs', () => {
+				const md = createMd()
+				const input = `::: {data-x="from-outer"}
+::: {data-x="from-inner"}
+Content
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/data-x="from-outer"/)
+				expect(result).not.toMatch(/data-x="from-inner"/)
+			})
+
+			it('non-conflicting attrs from both layers are preserved', () => {
+				const md = createMd()
+				const input = `::: {data-a="outer"}
+::: {data-b="inner"}
+Content
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/data-a="outer"/)
+				expect(result).toMatch(/data-b="inner"/)
+			})
+
+			it('merges classes while overriding id across three layers', () => {
+				const md = createMd()
+				const input = `::: {.a #outermost}
+::: {.b #middle}
+::: {.c #innermost}
+Content
+:::
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/class="c b a"/)
+				expect(result).toMatch(/id="outermost"/)
+			})
+
+			it('merges style from outer and inner', () => {
+				const md = createMd()
+				const input = `::: {style="color:red"}
+::: {style="font-weight:bold"}
+Content
+:::
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(/style="font-weight:bold; color:red"/)
+			})
+
+			it('single layer sets attrs without conflict', () => {
+				const md = createMd()
+				const input = `::: {.cls #myid data-v="val"}
+Content
+:::`
+				const result = md.render(input)
+				expect(result).toMatch(
+					/<p class="cls" id="myid" data-v="val">Content<\/p>/,
+				)
+			})
+		})
+	})
+
+	describe('unknown tag names', () => {
+		it('still renders unknown tags as wrapper elements', () => {
+			const md = createMd()
+			const result = md.render('::: banana\nContent\n:::')
+			expect(result).toMatch(/<banana>/)
+			expect(result).toMatch(/<\/banana>/)
+		})
+
+		it('does not produce warnings in env (warnings moved to validator)', () => {
+			const md = createMd()
+			const env: { warnings?: Array<{ line: number; message: string }> } = {}
+			md.render('::: banana\nContent\n:::', env)
+			expect(env.warnings).toBeUndefined()
 		})
 	})
 })

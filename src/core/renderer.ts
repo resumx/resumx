@@ -129,7 +129,6 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
  */
 export async function render(options: RenderOptions): Promise<RenderResult> {
 	try {
-		// Convert markdown to standalone HTML with Tailwind CSS compilation
 		let html = await generateHtml(options.content, {
 			cssPath: options.cssPath,
 			variables: options.variables,
@@ -138,7 +137,6 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			icons: options.icons,
 		})
 
-		// Fit content to target page count
 		if (options.targetPages) {
 			const fitResult = await fitToPages(html, options.targetPages)
 			html = fitResult.html

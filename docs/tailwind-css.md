@@ -23,9 +23,41 @@ Built with [React]{.bg-blue-100 .text-blue-800 .px-2 .rounded}
 
 ### Block Content
 
+Style a list or other single block element directly (no wrapper needed):
+
 ```markdown
-::: {.bg-gray-50 .p-4 .rounded-lg}
+::: {.grid .grid-cols-3 .gap-x-4 .list-none}
+
+- JavaScript
+- TypeScript
+- Python
+- React
+- Node.js
+- PostgreSQL
+  :::
+```
+
+Wrap multiple elements in a styled container:
+
+```markdown
+::: div {.bg-gray-50 .p-4 .rounded-lg}
+
+## Section Title
+
 Content with a styled container
+:::
+```
+
+### Layout
+
+Combine fenced divs with Tailwind layout utilities. Child elements can use bracketed spans or attribute lists:
+
+```markdown
+::: div {.flex .gap-4}
+
+## Title {.flex-1}
+
+[Button]{.self-end}
 :::
 ```
 
