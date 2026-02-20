@@ -2,13 +2,13 @@
 
 <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
+<!-- prettier-ignore-start -->
 ```markdown
 ---
 themes: [zurich, oxford]
 pages: 1
 style:
   section-title-caps: small-caps
-  bullet-style: circle
 ---
 
 # Jane Doe
@@ -17,23 +17,21 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### :google: Google 2022 - Present
+### :google: Google        2022 - Present
 
 _Senior Software Engineer_
 
 - Built distributed systems serving 1M requests/day {.role:backend}
 - Built interactive dashboards with :react: React {.role:frontend .role:fullstack}
-- Designed REST APIs with :openapi: OpenAPI specification
 
 ## Technical Skills
 
 ::: {.grid .grid-cols-2}
-
 - TypeScript
 - React
 - Node.js
 - PostgreSQL
-  :::
+:::
 ```
 
 [**Layout is automatic**](/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.
@@ -43,6 +41,7 @@ Render with:
 ```bash
 resumx resume.md --format pdf,docx,html
 ```
+<!-- prettier-ignore-end -->
 
 That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files).
 
