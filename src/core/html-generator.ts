@@ -83,9 +83,10 @@ export async function generateHtml(
 	content: string,
 	options: HtmlGeneratorOptions,
 ): Promise<string> {
-	const rawBody = await markdownRenderer.renderAsync(content, {
+	const env: { iconOverrides?: Record<string, string> } = {
 		iconOverrides: options.icons,
-	})
+	}
+	const rawBody = await markdownRenderer.renderAsync(content, env)
 
 	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)
@@ -111,6 +112,5 @@ export async function generateHtml(
 	// Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
 
-	// Assemble final HTML
 	return assembleHtml(body, combinedCSS)
 }

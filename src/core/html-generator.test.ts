@@ -396,12 +396,12 @@ Languages
 					const markdown = `
 # Skills
 
-::: {.role:frontend}
+::: div {.role:frontend}
 - React
 - TypeScript
 :::
 
-::: {.role:backend}
+::: div {.role:backend}
 - Node.js
 - PostgreSQL
 :::

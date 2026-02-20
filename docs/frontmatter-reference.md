@@ -223,15 +223,16 @@ validate:
 
 ### Available Rules
 
-| Rule                    | Default Severity     | Description                                                |
-| ----------------------- | -------------------- | ---------------------------------------------------------- |
-| `missing-name`          | `critical`           | Resume must have an H1 heading (your name).                |
-| `missing-contact`       | `critical`           | Resume must have contact info (email or phone) after name. |
-| `no-sections`           | `critical`           | Resume must have at least one H2 section.                  |
-| `no-entries`            | `warning`            | Resume should have at least one H3 entry.                  |
-| `empty-bullet`          | `critical`           | List items must have text content.                         |
-| `long-bullet`           | `critical`/`warning` | Bullet exceeds character length threshold.                 |
-| `single-bullet-section` | `bonus`              | Section has only one bullet point.                         |
+| Rule                     | Default Severity     | Description                                                |
+| ------------------------ | -------------------- | ---------------------------------------------------------- |
+| `missing-name`           | `critical`           | Resume must have an H1 heading (your name).                |
+| `missing-contact`        | `critical`           | Resume must have contact info (email or phone) after name. |
+| `no-sections`            | `critical`           | Resume must have at least one H2 section.                  |
+| `no-entries`             | `warning`            | Resume should have at least one H3 entry.                  |
+| `empty-bullet`           | `critical`           | List items must have text content.                         |
+| `long-bullet`            | `critical`/`warning` | Bullet exceeds character length threshold.                 |
+| `single-bullet-section`  | `bonus`              | Section has only one bullet point.                         |
+| `unknown-fenced-div-tag` | `warning`            | Named fenced div uses an unrecognized HTML tag name.       |
 
 ### Full Example
 

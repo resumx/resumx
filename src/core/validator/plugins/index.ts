@@ -9,3 +9,4 @@ export {
 	type LongBulletOptions,
 } from './long-bullet.js'
 export { singleBulletSectionPlugin } from './single-bullet-section.js'
+export { unknownFencedDivTagPlugin } from './unknown-fenced-div-tag.js'
