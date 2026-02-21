@@ -31,7 +31,7 @@ accent-color = "#2563eb"
 +++
 ```
 
-YAML uses `---` delimiters; TOML uses `+++`. Both are fully supported — pick whichever you prefer.
+YAML uses `---` delimiters; TOML uses `+++`. Both are fully supported, pick whichever you prefer.
 
 ## Render Fields
 
@@ -160,6 +160,33 @@ icons:
 
 See [Icons](/icons#custom-icons) for details.
 
+### `extra`
+
+Arbitrary user-defined data. Use this for any custom fields that aren't part of the built-in schema (e.g. name, target role, company). Values can be strings, numbers, booleans, arrays, or nested objects.
+
+| Property    | Value                     |
+| ----------- | ------------------------- |
+| **Type**    | `Record<string, unknown>` |
+| **Default** | No custom data            |
+
+Unknown top-level fields are rejected with an error. `extra` is the only place for custom data.
+
+```yaml
+extra:
+  name: Jane Smith
+  target-role: Senior SWE
+  companies:
+    - Acme Corp
+    - Globex
+```
+
+```toml
+[extra]
+name = "Jane Smith"
+target-role = "Senior SWE"
+companies = ["Acme Corp", "Globex"]
+```
+
 ### `style`
 
 CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` -> `--font-family`).
@@ -248,6 +275,9 @@ validate:
   rules:
     long-bullet: warning
     single-bullet-section: off
+extra:
+  name: Jane Smith
+  target-role: Senior SWE
 ---
 ```
 
@@ -263,10 +293,16 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any frontmatter key not in the known set (`themes`, `output`, `style`, `pages`, `icons`) produces a warning during rendering:
+Any top-level frontmatter key not in the known set (`themes`, `output`, `pages`, `style`, `icons`, `validate`, `extra`) produces an error:
 
 ```
-Warning: unknown frontmatter field 'foo' will be ignored
+Unknown frontmatter field 'foo'. Use 'extra' for custom fields.
 ```
 
-This does not prevent rendering — the field is simply ignored.
+If the unknown field looks like a typo of a known field, a more specific suggestion is shown:
+
+```
+Unknown frontmatter field 'page'. Did you mean 'pages'?
+```
+
+To store custom data, use the [`extra`](#extra) field.

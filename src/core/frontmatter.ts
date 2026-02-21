@@ -46,6 +46,7 @@ const FrontmatterSchema = z.object({
 				.optional(),
 		})
 		.optional(),
+	extra: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type FrontmatterConfig = z.infer<typeof FrontmatterSchema>
@@ -75,27 +76,6 @@ function detectFrontmatterType(input: string): 'yaml' | 'toml' | null {
 
 /** Max edit distance to consider a field name a likely typo */
 const MAX_TYPO_DISTANCE = 2
-
-/**
- * Find a likely typo among the data keys.
- * Returns [unknown key, closest known key] if found, null otherwise.
- */
-function detectTypo(
-	data: Record<string, unknown>,
-): [field: string, suggestion: string] | null {
-	const knownKeys = Object.keys(FrontmatterSchema.shape)
-
-	for (const key of Object.keys(data)) {
-		if (knownKeys.includes(key)) continue
-
-		const match = closest(key, knownKeys)
-		if (distance(key, match) <= MAX_TYPO_DISTANCE) {
-			return [key, match]
-		}
-	}
-
-	return null
-}
 
 /**
  * Parse frontmatter from a markdown string.
@@ -133,13 +113,22 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 		return { ok: true, config: null, content: input, warnings: [] }
 	}
 
-	// Check for typos
-	const typo = detectTypo(data)
-	if (typo) {
-		const [field, suggestion] = typo
+	const knownKeys = Object.keys(FrontmatterSchema.shape)
+
+	for (const key of Object.keys(data)) {
+		if (knownKeys.includes(key)) continue
+
+		const match = closest(key, knownKeys)
+		if (distance(key, match) <= MAX_TYPO_DISTANCE) {
+			return {
+				ok: false,
+				error: `Unknown frontmatter field '${key}'. Did you mean '${match}'?`,
+			}
+		}
+
 		return {
 			ok: false,
-			error: `Unknown frontmatter field '${field}'. Did you mean '${suggestion}'?`,
+			error: `Unknown frontmatter field '${key}'. Use 'extra' for custom fields.`,
 		}
 	}
 
@@ -152,9 +141,7 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 		}
 	}
 
-	const warnings = Object.keys(data)
-		.filter(k => !Object.keys(FrontmatterSchema.shape).includes(k))
-		.map(k => `unknown frontmatter field '${k}' will be ignored`)
+	const warnings: string[] = []
 
 	const config = parsed.data
 

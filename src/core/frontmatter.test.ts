@@ -365,43 +365,38 @@ style:
 				expect(result.config?.style?.['line-height']).toBe('1.35')
 			})
 
-			it('warns about unknown fields in frontmatter', () => {
+			it('rejects unknown fields with suggestion to use extra', () => {
 				const input = `---
 themes: formal
 variables: some-value
-anotherUnknown: 123
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
-				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['formal'] })
-				expect(result.warnings).toHaveLength(2)
-				expect(result.warnings).toContain(
-					"unknown frontmatter field 'variables' will be ignored",
-				)
-				expect(result.warnings).toContain(
-					"unknown frontmatter field 'anotherUnknown' will be ignored",
-				)
+				expect(result).toEqual({
+					ok: false,
+					error:
+						"Unknown frontmatter field 'variables'. Use 'extra' for custom fields.",
+				})
 			})
 
-			it('warns when roles is used in frontmatter', () => {
+			it('rejects roles as unknown field', () => {
 				const input = `---
 roles: frontend
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
-				assert(result.ok)
 
-				expect(result.config).toBeNull()
-				expect(result.warnings).toContain(
-					"unknown frontmatter field 'roles' will be ignored",
-				)
+				expect(result).toEqual({
+					ok: false,
+					error:
+						"Unknown frontmatter field 'roles'. Use 'extra' for custom fields.",
+				})
 			})
 
-			it('warns when formats is used in frontmatter', () => {
+			it('rejects formats as unknown field', () => {
 				const input = `---
 formats:
   - pdf
@@ -410,12 +405,12 @@ formats:
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
-				assert(result.ok)
 
-				expect(result.config).toBeNull()
-				expect(result.warnings).toContain(
-					"unknown frontmatter field 'formats' will be ignored",
-				)
+				expect(result).toEqual({
+					ok: false,
+					error:
+						"Unknown frontmatter field 'formats'. Use 'extra' for custom fields.",
+				})
 			})
 
 			it('rejects likely typo: page instead of pages', () => {
@@ -475,7 +470,7 @@ outputs: ./dist/resume
 				})
 			})
 
-			it('still warns about genuinely unknown fields (not typos)', () => {
+			it('rejects genuinely unknown fields (not typos) with extra suggestion', () => {
 				const input = `---
 themes: formal
 variables: some-value
@@ -483,12 +478,12 @@ variables: some-value
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
-				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['formal'] })
-				expect(result.warnings).toContain(
-					"unknown frontmatter field 'variables' will be ignored",
-				)
+				expect(result).toEqual({
+					ok: false,
+					error:
+						"Unknown frontmatter field 'variables'. Use 'extra' for custom fields.",
+				})
 			})
 
 			it('returns empty warnings when all fields are known', () => {
@@ -618,6 +613,81 @@ pages: "one"
 					ok: false,
 					error: "'pages' must be a positive integer (>= 1)",
 				})
+			})
+		})
+
+		describe('extra field', () => {
+			it('parses extra with arbitrary key/value pairs', () => {
+				const input = `---
+themes: zurich
+extra:
+  name: Adrian Sterling
+  target-role: Senior SWE
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.extra).toEqual({
+					name: 'Adrian Sterling',
+					'target-role': 'Senior SWE',
+				})
+			})
+
+			it('parses extra with nested objects', () => {
+				const input = `---
+extra:
+  contact:
+    email: test@example.com
+    phone: "555-1234"
+  tags:
+    - typescript
+    - react
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.extra).toEqual({
+					contact: { email: 'test@example.com', phone: '555-1234' },
+					tags: ['typescript', 'react'],
+				})
+			})
+
+			it('parses extra alongside other known fields', () => {
+				const input = `---
+themes: zurich
+pages: 1
+style:
+  font-size: 10pt
+extra:
+  company: Acme Corp
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config).toEqual({
+					themes: ['zurich'],
+					pages: 1,
+					style: { 'font-size': '10pt' },
+					extra: { company: 'Acme Corp' },
+				})
+			})
+
+			it('is optional', () => {
+				const input = `---
+themes: zurich
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.extra).toBeUndefined()
 			})
 		})
 
