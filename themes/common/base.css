@@ -378,6 +378,7 @@ th:empty {
 a {
 	color: var(--link-color);
 	text-decoration: var(--link-underline);
+	font-style: normal;
 }
 
 a:hover {
