@@ -108,18 +108,19 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/cli-ref
 
 ### Spacing
 
-| Variable         | Default   | Description                                |
-| ---------------- | --------- | ------------------------------------------ |
-| `page-margin-x`  | `0.5in`   | Horizontal page margin                     |
-| `page-margin-y`  | `0.5in`   | Vertical page margin                       |
-| `section-gap`    | `10px`    | Gap between sections                       |
-| `entry-gap`      | `5px`     | Gap between entries                        |
-| `bullet-gap`     | `2px`     | Gap between bullet points                  |
-| `data-row-gap`   | `3px`     | Row gap for definition lists and tables    |
-| `data-col-gap`   | `12px`    | Column gap for definition lists and tables |
-| `list-indent`    | `1.2em`   | List indentation                           |
-| `layout-columns` | `2fr 1fr` | Two-column grid template                   |
-| `column-gap`     | `1.5rem`  | Gap between columns                        |
+| Variable           | Default                               | Description                                |
+| ------------------ | ------------------------------------- | ------------------------------------------ |
+| `page-margin-x`    | `0.5in`                               | Horizontal page margin                     |
+| `page-margin-y`    | `0.5in`                               | Vertical page margin                       |
+| `section-gap`      | `10px`                                | Gap between sections                       |
+| `entry-gap`        | `5px`                                 | Gap between entries                        |
+| `bullet-gap`       | `2px`                                 | Gap between bullet points                  |
+| `data-row-gap`     | `3px`                                 | Row gap for definition lists and tables    |
+| `data-col-gap`     | `12px`                                | Column gap for definition lists and tables |
+| `list-indent`      | `1.2em`                               | List indentation                           |
+| `two-col-widths`   | `2fr 1fr`                             | Column widths for two-column layout        |
+| `two-col-gap`      | `1.5rem`                              | Gap between columns in two-column layout   |
+| `two-col-template` | `'header header' 'primary secondary'` | Grid area template for two-column layout   |
 
 ### Lists
 
