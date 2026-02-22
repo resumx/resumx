@@ -15,7 +15,7 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### :meta: Meta        June 2022 - Present
+### :meta: Meta || June 2022 - Present
 _Senior Software Engineer_
 
 - Built distributed systems serving 1M requests/day {.role:backend}

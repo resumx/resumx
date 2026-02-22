@@ -42,7 +42,7 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### :logos/google-icon: Google [2022 - Present]{.float-right}
+### :logos/google-icon: Google || 2022 - Present
 
 _Senior Software Engineer_
 

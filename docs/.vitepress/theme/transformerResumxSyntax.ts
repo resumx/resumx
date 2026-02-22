@@ -164,7 +164,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				options.decorations.push({
 					start: m.index,
 					end: m.index + 1,
-					properties: { class: 'resumx-delim' },
+					properties: { class: 'resumx-icon' },
 				})
 				options.decorations.push({
 					start: m.index + 1,
@@ -174,7 +174,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				options.decorations.push({
 					start: m.index + 1 + name.length,
 					end: m.index + m[0].length,
-					properties: { class: 'resumx-delim' },
+					properties: { class: 'resumx-icon' },
 				})
 			}
 
@@ -218,6 +218,16 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					start: m.index,
 					end: m.index + m[0].length,
 					properties: { class: 'resumx-delim' },
+				})
+			}
+
+			// 6b) || column separator — dim
+			for (const m of code.matchAll(/(?<!\|)\|\|(?!\|)/g)) {
+				if (matched.has(String(m.index))) continue
+				options.decorations.push({
+					start: m.index,
+					end: m.index + 2,
+					properties: { class: 'resumx-col-sep' },
 				})
 			}
 

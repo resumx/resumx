@@ -302,9 +302,13 @@ main a {
 	font-style: italic;
 }
 
-/* icon names — inherit surrounding color, just dimmed */
+/* icon names and || column separator — inherit surrounding color, just dimmed */
 .resumx-icon {
-	opacity: 0.6;
+	opacity: 0.7;
+}
+
+.resumx-col-sep {
+	opacity: 0.4;
 }
 
 .resumx-h3 {

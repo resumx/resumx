@@ -449,6 +449,12 @@
 		background-color: rgba(0, 100, 200, 0.2);
 	}
 
+	:has(> .col) {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+
 	/*
  * Enable smooth transitions between auto/min-content/max-content sizes.
  * Only applies when user hasn't requested reduced motion.

@@ -18,9 +18,7 @@ style:
 
 ## Education
 
-<!-- {.float-right} right-aligns text, see: https://resumx.dev/guide/tailwind-css -->
-
-### University Name [Month Year - Month Year]{.float-right}
+### University Name || Month Year - Month Year
 
 _Degree, Major_
 
@@ -29,7 +27,7 @@ _Degree, Major_
 
 ## Work Experience
 
-### Company Name [Month Year - Present]{.float-right}
+### Company Name || Month Year - Present
 
 _Job Title_
 
@@ -37,7 +35,7 @@ _Job Title_
 - Led team of Z people to deliver project on time
 - Applied knowledge in `Skill 1`, `Skill 2`, `Skill 3`
 
-### Previous Company [Month Year - Month Year]{.float-right}
+### Previous Company || Month Year - Month Year
 
 _Previous Role_
 
