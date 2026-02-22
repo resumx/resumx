@@ -2,6 +2,8 @@
 
 <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
+It automatically [**fits content to the page**](/fit-to-page), shrinking spacing, font size, and margins when content overflows and expanding them when it's short.
+
 <!-- prettier-ignore-start -->
 ```markdown
 ---
@@ -31,6 +33,12 @@ _Senior Software Engineer_
 ```
 <!-- prettier-ignore-end -->
 
+Render with:
+
+```bash
+resumx resume.md --format pdf,docx,html
+```
+
 <figure>
   <img
     src="/resumx-snippet-zurich-frontend.png"
@@ -38,14 +46,6 @@ _Senior Software Engineer_
   />
   <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
 </figure>
-
-Resumx [**fits content to the page**](/fit-to-page), shrinking spacing, font size, and margins when content overflows, and expanding them when it's short.
-
-Render with:
-
-```bash
-resumx resume.md --format pdf,docx,html
-```
 
 That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 
