@@ -1,15 +1,13 @@
 /*
  * Map DOM structure classes to grid areas.
- * Themes define the actual layout (grid-template-columns, grid-template-areas, gap, etc.).
+ * Themes define the actual layout via --two-col-widths, --two-col-template, --two-col-gap.
  * Inert for single-column themes that never use .two-column-layout.
  */
 .two-column-layout {
 	display: grid;
-	grid-template-columns: var(--layout-columns);
-	grid-template-areas:
-		'header header'
-		'primary secondary';
-	gap: var(--column-gap);
+	grid-template-columns: var(--two-col-widths);
+	grid-template-areas: var(--two-col-template);
+	gap: var(--two-col-gap);
 }
 
 .two-column-layout > header {

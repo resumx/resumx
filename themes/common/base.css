@@ -69,8 +69,9 @@
 	--data-row-gap: 3px; /* any length — vertical gap for dl grids and tables */
 	--data-col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
 	--list-indent: 1.2em; /* any length */
-	--layout-columns: 2fr 1fr; /* any grid-template-columns value */
-	--column-gap: 1.5rem; /* any length */
+	--two-col-widths: 2fr 1fr; /* any grid-template-columns value */
+	--two-col-gap: 1.5rem; /* any length */
+	--two-col-template: 'header header' 'primary secondary'; /* any grid-template-areas value */
 
 	/* ---- Lists ---- */
 	--bullet-style: disc; /* disc | circle | square | none */
