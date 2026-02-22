@@ -457,7 +457,3 @@ code {
 		interpolate-size: allow-keywords;
 	}
 }
-
-.entry > :is(h3, h3 + *) .date-range {
-	float: right;
-}
