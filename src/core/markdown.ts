@@ -19,6 +19,7 @@ import {
 	type MarkdownItWithAsyncIcon,
 } from '../lib/mdit-plugins/icon/index.js'
 import { bracketedSpans } from '../lib/mdit-plugins/bracketed-span/index.js'
+import { columnSep } from '../lib/mdit-plugins/column-sep/index.js'
 import { fencedDiv } from '../lib/mdit-plugins/fenced-div/index.js'
 import { timePlugin } from '../lib/mdit-plugins/time/index.js'
 import { fixAttrsListSoftbreak } from '../lib/mdit-plugins/fix-attrs-list-softbreak/index.js'
@@ -49,6 +50,7 @@ export function createMarkdownRenderer(
 	})
 		.use(fencedDiv)
 		.use(bracketedSpans)
+		.use(columnSep)
 		.use(icon, {
 			resolvers: [
 				createAssetsResolver(iconsDir),

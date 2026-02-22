@@ -12,7 +12,7 @@ style:
 
 ## Education{.text-blue-900}
 
-### Stanford University <!----> Sept 2018 - June 2022
+### Stanford University || Sept 2018 - June 2022
 
 **_Bachelor of Science in Computer Science, Summa Cum Laude_**
 
@@ -22,27 +22,27 @@ style:
 
 ## Work Experience
 
-### :google: Google <!----> June 2022 - Present
+### :google: Google || June 2022 - Present
 
-_Senior Software Engineer, Infrastructure Platform Team_ <!----> San Francisco, CA
+_Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 
 - Architected distributed microservices orchestration platform with :devicon/kubernetes: [Kubernetes]{.text-[#326ce5]} and :skill-icons/docker: [Docker]{.text-[#2396ed]}
 - Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services
 - Led cloud-native migration on :devicon/googlecloud: [Google Cloud]{.text-[#557ebf]}, improving scalability [300%]{.underline .decoration-dotted} and saving [$2M]{.underline .decoration-dotted} annually
 - Built CI/CD pipeline with Cloud Build, :logos/terraform-icon: [Terraform]{.text-[#4040b2]}, GitOps reducing release cycles to 2 days
 
-### PwC [July 2021 - May 2022]{.float-right}
+### PwC || July 2021 - May 2022
 
-_Software Engineer, Core Infrastructure_ [San Francisco, CA]{.float-right}
+_Software Engineer, Core Infrastructure_ || San Francisco, CA
 
 - Built full-stack features for social platform (2B+ users) using [:mdi/react: React]{.text-[#007ACC]}, :skill-icons/expressjs-dark: [Express.js]{text-[#242938]}, :skill-icons/mongodb: [MongoDB]{.text-[#023430]}
 - Impacted 50M+ monthly active users
 - Designed high-performance APIs with :logos/nodejs-icon: Node.js handling 1M+ QPS at 99.99% uptime
 - Developed automated testing with :logos/jestjs: Jest and :logos/cypress-icon: Cypress, improving coverage from 45% to 85%
 
-### Meta [July 2020 - June 2021]{.float-right}
+### Meta || July 2020 - June 2021
 
-_Software Engineer, Core Infrastructure_ [San Francisco, CA]{.float-right}
+_Software Engineer, Core Infrastructure_ || San Francisco, CA
 
 - Built full-stack features for social platform (2B+ users) using [:mdi/react: React]{.text-[#007ACC]}, :skill-icons/expressjs-dark: [Express.js]{text-[#242938]}, :skill-icons/mongodb: [MongoDB]{.text-[#023430]}
 - Impacted 50M+ monthly active users
@@ -73,22 +73,22 @@ _Software Engineer, Core Infrastructure_ [San Francisco, CA]{.float-right}
 
 ## Competitions, Honors and Awards
 
-### Winner — National Collegiate Hackathon [\[Nov 2021\]]{.float-right}
+### Winner — National Collegiate Hackathon || \[Nov 2021\]
 
 - Led team to build cross-platform `React Native` app with `Firebase` backend in 48-hour sprint
 - Application adopted by 500+ users and featured in TechCrunch
 - Application adopted by 500+ users and featured in TechCrunch
 
-### Finalist — Google Code Jam [\[Aug 2020\]]{.float-right}
+### Finalist — Google Code Jam || \[Aug 2020\]
 
 - Top 500 globally out of 30,000+ competitive programmers in algorithmic competition
 - Solved complex NP-complete problems under time constraints
 
 ## Professional Certifications
 
-### AWS Certified Solutions Architect – Associate — Amazon Web Services [\[Mar 2023\]]{.float-right}
+### AWS Certified Solutions Architect – Associate — Amazon Web Services || \[Mar 2023\]
 
-### AWS Certified Developer – Associate — Amazon Web Services [\[Jan 2023\]]{.float-right}
+### AWS Certified Developer – Associate — Amazon Web Services || \[Jan 2023\]
 
 ## Technical Skills
 
