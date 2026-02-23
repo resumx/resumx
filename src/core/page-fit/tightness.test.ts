@@ -140,6 +140,13 @@ Testing and Observability
 
 - Received funding for research on Byzantine fault-tolerant consensus in heterogeneous networks
 - Published findings at ACM Symposium on Principles of Distributed Computing
+- Presented research at MIT CSAIL seminar series and received outstanding presentation award
+
+### MIT Undergraduate Research Opportunities Program
+
+- Selected for competitive UROP program researching distributed systems security
+- Developed prototype secure multiparty computation framework for privacy-preserving data analysis
+- Collaborated with PhD students on formal verification of cryptographic protocols
 
 `.trim()
 
@@ -299,11 +306,25 @@ _Software Engineer, Core Infrastructure_ || San Francisco, CA
 - Top 500 globally out of 30,000+ competitive programmers in algorithmic competition
 - Solved complex NP-complete problems under time constraints
 
+### Stanford TreeHacks Best Technical Award || \\[Feb 2021\\]
+
+- Developed real-time collaborative code editor with operational transformation conflict resolution
+- Presented to panel of judges from Google, Apple, and Stripe engineering leadership
+- Featured in Stanford Engineering Magazine as innovative student project
+
+### Google Summer of Code Contributor || \\[Summer 2020\\]
+
+- Selected as one of 1000+ global contributors for Google Summer of Code program
+- Implemented advanced debugging tools for TensorFlow.js runtime environment
+- Mentored by Google engineers and contributed 15K+ lines of production code
+
 ## Professional Certifications
 
 ### AWS Certified Solutions Architect – Associate — Amazon Web Services || \\[Mar 2023\\]
 
 ### AWS Certified Developer – Associate — Amazon Web Services || \\[Jan 2023\\]
+
+### Google Cloud Professional Cloud Architect — Google Cloud || \\[Sep 2023\\]
 
 ## Technical Skills
 
