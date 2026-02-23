@@ -39,13 +39,52 @@ Render with:
 resumx resume.md --format pdf,docx,html
 ```
 
+<script setup>
+function disableLinks(e) {
+  try {
+    const doc = e.target.contentWindow.document;
+    doc.addEventListener('click', event => {
+      if (event.target.closest('a')) {
+        event.preventDefault();
+      }
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+</script>
+
+<style scoped>
+.resume-preview {
+  width: 100%;
+  height: 345px;
+  border: 1px solid var(--vp-c-gray-soft);
+  border-radius: 8px;
+  transition: border-color 0.2s ease-out;
+}
+
+.resume-preview:hover {
+  border-color: var(--vp-c-gray-1);
+}
+</style>
+
 <figure>
+  <iframe
+    src="/samples/resumx-snippet-frontend-zurich.html"
+    class="resume-preview"
+    loading="lazy"
+    @load="disableLinks"
+  ></iframe>
+  <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
+</figure>
+
+<!-- <figure>
   <img
     src="/images/resumx-snippet-zurich-frontend.png"
     alt="Rendered sample of the snippet above, Zurich theme, frontend role"
   />
   <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
-</figure>
+</figure> -->
 
 That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 

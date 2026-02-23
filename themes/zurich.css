@@ -13,7 +13,6 @@
 	:root {
 		--font-family:
 			'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif;
-		--content-font-family: 'Times New Roman', serif;
 		--accent-color: #c43218;
 		--name-caps: small-caps;
 		--section-header-color: var(--accent-color);

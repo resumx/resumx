@@ -52,7 +52,7 @@
 		--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
 		--name-style: normal; /* normal | italic | oblique */
-		--section-title-size: 1.15rem; /* any font-size */
+		--section-title-size: 1.25rem; /* any font-size */
 		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
 		--section-title-style: normal; /* normal | italic | oblique */
