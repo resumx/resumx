@@ -60,13 +60,10 @@ Render with:
 resumx resume.md --format pdf,docx,html
 ```
 
-<figure>
-  <img
-    src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
-    alt="Rendered sample of the snippet above, Zurich theme, frontend role"
-  />
-  <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
-</figure>
+<img
+  src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
+  alt="Rendered sample of the snippet above, Zurich theme, frontend role"
+/>
 
 That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 
