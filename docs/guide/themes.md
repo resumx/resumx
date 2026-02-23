@@ -58,7 +58,7 @@ style:
 ---
 ```
 
-You can also override via `--style` on the CLI. See the [CLI Reference](/cli-reference) for details.
+You can also override via `--style` on the CLI. See the [CLI Reference](/guide/cli-reference) for details.
 
 **Priority:** CLI `--style` > Frontmatter > Theme defaults
 

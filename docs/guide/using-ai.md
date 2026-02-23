@@ -26,7 +26,7 @@ The fastest way to tailor a resume for a specific job:
 5. Run `resumx resume.md` to validate and render to verify
 
 ::: info Why you don't need to worry about layout
-With [`pages: 1`](/fit-to-page), Resumx automatically adjusts spacing and font size after every edit. The agent can add, remove, or rewrite bullets freely, the content will always fill exactly one page.
+With [`pages: 1`](/guide/fit-to-page), Resumx automatically adjusts spacing and font size after every edit. The agent can add, remove, or rewrite bullets freely, the content will always fill exactly one page.
 :::
 
 ### Example Prompt

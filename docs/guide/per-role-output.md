@@ -37,7 +37,7 @@ Use multiple role classes to include an element in several variants:
 - Implemented GraphQL API layer with TypeScript {.role:backend .role:fullstack}
 ```
 
-You can also tag inline text with [bracketed spans](/classes-and-ids#bracketed-spans) or wrap entire sections with [fenced divs](/classes-and-ids#fenced-divs).
+You can also tag inline text with [bracketed spans](/guide/classes-and-ids#bracketed-spans) or wrap entire sections with [fenced divs](/guide/classes-and-ids#fenced-divs).
 
 ![multiple role specific resume side by side in a table]()
 

@@ -1,6 +1,6 @@
 # Multi-Language Output
 
-Write one resume file with content in multiple languages. Tag text with `{lang=xx}` and Resumx generates a separate output for each language — just like [per-role output](/per-role-output), but for languages.
+Write one resume file with content in multiple languages. Tag text with `{lang=xx}` and Resumx generates a separate output for each language — just like [per-role output](/guide/per-role-output), but for languages.
 
 ```markdown /{lang=en}/ /{lang=fr}/
 ## [Experience]{lang=en} [Expérience]{lang=fr}
@@ -42,7 +42,7 @@ Unlike roles, `lang` is a [standard HTML global attribute](https://developer.moz
 
 ## Tagging Content
 
-The `lang` attribute works everywhere attributes work in Resumx — [bracketed spans, element attributes, and fenced divs](/classes-and-ids). Bracketed spans handle most cases:
+The `lang` attribute works everywhere attributes work in Resumx — [bracketed spans, element attributes, and fenced divs](/guide/classes-and-ids). Bracketed spans handle most cases:
 
 ```markdown
 ## [Experience]{lang=en} [Expérience professionnelle]{lang=fr}
@@ -54,7 +54,7 @@ The `lang` attribute works everywhere attributes work in Resumx — [bracketed s
 - React, Node.js, PostgreSQL, Redis, Docker
 ```
 
-For large blocks where everything differs, use [fenced divs](/classes-and-ids#fenced-divs):
+For large blocks where everything differs, use [fenced divs](/guide/classes-and-ids#fenced-divs):
 
 <!-- prettier-ignore -->
 ```markdown
@@ -66,7 +66,7 @@ For large blocks where everything differs, use [fenced divs](/classes-and-ids#fe
 
 ## Combining with Roles
 
-`{lang=xx}` and `{.role:name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.role:backend}` without brackets is an [element attribute](/classes-and-ids#element-attributes) that applies to the whole bullet.
+`{lang=xx}` and `{.role:name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.role:backend}` without brackets is an [element attribute](/guide/classes-and-ids#element-attributes) that applies to the whole bullet.
 
 ```markdown
 - [Designed REST APIs with OpenAPI spec]{lang=en} [Conception d'API REST avec OpenAPI]{lang=fr} {.role:backend}

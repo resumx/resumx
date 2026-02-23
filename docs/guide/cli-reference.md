@@ -149,7 +149,7 @@ style:
 ---
 ```
 
-See the [Frontmatter Reference](/frontmatter) for the full list of fields, types, defaults, and validation options.
+See the [Frontmatter Reference](/guide/frontmatter-reference) for the full list of fields, types, defaults, and validation options.
 
 ## Output Naming
 
@@ -174,4 +174,4 @@ resumx resume.md -o "{role}/John_Doe-{theme}" --theme zurich,oxford --role front
 # → frontend/John_Doe-zurich.pdf, backend/John_Doe-oxford.pdf, etc.
 ```
 
-See the [Frontmatter Reference](/frontmatter#output) for full details on template variables and modes.
+See the [Frontmatter Reference](/guide/frontmatter-reference#output) for full details on template variables and modes.

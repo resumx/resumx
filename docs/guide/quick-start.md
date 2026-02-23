@@ -38,6 +38,6 @@ Open `resume.md` in your editor and customize it with your information. Run `res
 
 ## Next Steps
 
-- Learn how to [Use AI](/using-ai) to tailor your resume to job postings
-- See the [Markdown Syntax](/markdown-syntax) reference for all supported elements
-- Read [Customizing Your Resume](/the-resumx-approach) when you want to go beyond the defaults
+- Learn how to [Use AI](/guide/using-ai) to tailor your resume to job postings
+- See the [Markdown Syntax](/guide/markdown-syntax) reference for all supported elements
+- Read [Customizing Your Resume](/guide/customizing-your-resume) when you want to go beyond the defaults

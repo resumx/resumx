@@ -12,7 +12,7 @@ pages: 1
 ---
 ```
 
-No manual tuning needed in most cases. See [Fit to Page](/fit-to-page) for the full details.
+No manual tuning needed in most cases. See [Fit to Page](/guide/fit-to-page) for the full details.
 
 ## 2. Pick a Theme
 
@@ -28,7 +28,7 @@ themes: [zurich, oxford, seattle]
 <!-- ... -->
 ```
 
-See [Themes](/themes) for all options.
+See [Themes](/guide/themes) for all options.
 
 ## 3. Fine-tune the Design
 
@@ -45,11 +45,11 @@ style:
 ---
 ```
 
-See [Themes > CSS Variables](/themes#css-variables) for the full list.
+See [Themes > CSS Variables](/guide/themes#css-variables) for the full list.
 
 ## 4. Style in Markdown
 
-Apply [Tailwind CSS](/tailwind-css) classes to individual elements for quick one-off styling:
+Apply [Tailwind CSS](/guide/tailwind-css) classes to individual elements for quick one-off styling:
 
 ```markdown
 [React]{.bg-blue-100 .text-blue-800 .px-2 .rounded}
@@ -85,4 +85,4 @@ When you need complete control, create a CSS file with your own imports and vari
 
 Then reference it by path in your frontmatter (`themes: my-theme.css`) or on the command line (`--theme my-theme.css`).
 
-See [Custom CSS](/custom-css) for the full guide.
+See [Custom CSS](/guide/custom-css) for the full guide.

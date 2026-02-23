@@ -1,6 +1,6 @@
 # Custom CSS
 
-For styling beyond [Tailwind utility classes](/tailwind-css) and [theme variables](/themes#css-variables), you can write custom CSS directly.
+For styling beyond [Tailwind utility classes](/guide/tailwind-css) and [theme variables](/guide/themes#css-variables), you can write custom CSS directly.
 
 ## Inline Style Block
 
@@ -65,4 +65,4 @@ Your theme can `@import` any of the bundled common modules. They resolve automat
 | `common/utilities.css`  | Utility classes (`.small-caps`, `.sr-only`)            |
 | `common/two-column.css` | Two-column grid layout (omit to disable `---` columns) |
 
-To target specific sections, entries, and header fields, see [Semantic Selectors](/semantic-selectors).
+To target specific sections, entries, and header fields, see [Semantic Selectors](/guide/semantic-selectors).
