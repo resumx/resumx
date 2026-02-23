@@ -73,6 +73,38 @@ HTML comments are stripped from output:
 - Dean's List (2018-2022)
 ```
 
+## Inline Columns
+
+Use `||` to split a line into columns, pushing them to opposite sides. This is the simplest way to place a date or location on the right side of a heading or paragraph.
+
+<!-- prettier-ignore-start -->
+:::: code-group
+```markdown
+### Google || Jan 2020 - Present
+_Senior Software Engineer_ || San Francisco, CA
+```
+
+```html
+<h3>
+	<span class="col">Google</span>
+	<span class="col">Jan 2020 - Present</span>
+</h3>
+<p>
+	<span class="col"><em>Senior Software Engineer</em></span>
+	<span class="col">San Francisco, CA</span>
+</p>
+```
+::::
+<!-- prettier-ignore-end -->
+
+You can have more than two columns:
+
+```markdown
+A || B || C
+```
+
+To write a literal `||`, escape the first pipe: `\||`.
+
 ## Horizontal Rule
 
 A horizontal rule (`---`) splits the resume into a two-column layout. See [Themes > Spacing](/guide/themes#spacing) for column variables and [Custom CSS](/guide/custom-css#creating-a-theme) for enabling or disabling it.
