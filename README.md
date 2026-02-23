@@ -11,13 +11,7 @@
 </p>
 
 <p align="center">
-  AI can rewrite your resume in seconds. Fixing the layout takes longer.<br>
-  Resumx adapts layout to every edit, and renders position-specific resumes from one source.
-</p>
-
-<p align="center">
   <a href="https://www.npmjs.com/package/resumx"><img src="https://img.shields.io/npm/v/resumx?color=blue" alt="npm version"></a>
-  <a href="https://github.com/ocmrz/resumx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="license"></a>
 </p>
 
 <p align="center">
@@ -27,31 +21,38 @@
 
 ---
 
+Resumx renders resumes from Markdown.
+
+It automatically [fits content to the page](/fit-to-page), shrinking spacing, font size, and margins when content overflows and expanding them when it's short.
+
+<!-- prettier-ignore-start -->
 ```markdown
 ---
 themes: [zurich, oxford]
 pages: 1
 style:
   section-title-caps: small-caps
-  bullet-style: circle
 ---
-
 # Jane Doe
-
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### :logos/google-icon: Google || 2022 - Present
-
+### :meta: Meta || June 2022 - Present
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day {.role:backend .role:fullstack}
-- Built interactive dashboards with :logos/react: React {.role:frontend .role:fullstack}
-- Designed REST APIs with :logos/openapi-icon: OpenAPI specification
-```
+- Built distributed systems serving 1M requests/day {.role:backend}
+- Built interactive dashboards using :ts: TypeScript {.role:frontend .role:fullstack}
 
-[**Layout is automatic**](https://resumx.dev/guide/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.
+## Technical Skills
+::: {.grid .grid-cols-2}
+- TypeScript
+- React
+- Vue
+- PostgreSQL
+:::
+```
+<!-- prettier-ignore-end -->
 
 Render with:
 
@@ -59,9 +60,15 @@ Render with:
 resumx resume.md --format pdf,docx,html
 ```
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats).
+<figure>
+  <img
+    src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
+    alt="Rendered sample of the snippet above, Zurich theme, frontend role"
+  />
+  <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
+</figure>
 
-<!-- TODO: image for side-by-side of the same resume in Zurich, Oxford, and Seattle themes -->
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 
 ## Quick Start
 
