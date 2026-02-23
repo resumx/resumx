@@ -69,7 +69,7 @@ Use `:::` to apply attributes to block content. With a single child, attributes 
 ::::
 <!-- prettier-ignore-end -->
 
-![Fenced div with unnamed form](/grid-bullet-with-fence.png)
+![Fenced div with unnamed form](/images/grid-bullet-with-fence.png)
 
 No wrapper `<div>` is emitted. This is the primary way to style block elements like lists, blockquotes, and tables without adding extra nesting.
 

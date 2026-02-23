@@ -41,7 +41,7 @@ resumx resume.md --format pdf,docx,html
 
 <figure>
   <img
-    src="/resumx-snippet-zurich-frontend.png"
+    src="/images/resumx-snippet-zurich-frontend.png"
     alt="Rendered sample of the snippet above, Zurich theme, frontend role"
   />
   <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>

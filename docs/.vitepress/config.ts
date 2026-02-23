@@ -7,11 +7,30 @@ import { transformerResumxSyntax } from './theme/transformerResumxSyntax'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-	base: '/guide/',
 	title: 'Resumx',
 	description: 'Markdown-first resume builder for developers',
 	head: [
-		['link', { rel: 'icon', type: 'image/png', href: '/guide/favicon.png' }],
+		[
+			'link',
+			{
+				rel: 'icon',
+				type: 'image/png',
+				sizes: '96x96',
+				href: '/favicon-96x96.png',
+			},
+		],
+		['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+		['link', { rel: 'shortcut icon', href: '/favicon.ico' }],
+		[
+			'link',
+			{
+				rel: 'apple-touch-icon',
+				sizes: '180x180',
+				href: '/apple-touch-icon.png',
+			},
+		],
+		['meta', { name: 'apple-mobile-web-app-title', content: 'Resumx' }],
+		['link', { rel: 'manifest', href: '/site.webmanifest' }],
 	],
 	rewrites: {
 		'what-is-resumx.md': 'index.md',
@@ -26,8 +45,8 @@ export default defineConfig({
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
 		logo: {
-			light: '/resumx-wordmark-light.svg',
-			dark: '/resumx-wordmark-dark.svg',
+			light: '/images/resumx-wordmark-light.svg',
+			dark: '/images/resumx-wordmark-dark.svg',
 		},
 		siteTitle: false,
 		nav: [{ text: 'Guide', link: '/' }],
