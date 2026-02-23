@@ -8,7 +8,20 @@ Get from zero to a rendered resume in under a minute.
 npm install -g resumx
 ```
 
-PDF rendering uses [Playwright](https://playwright.dev/) with a bundled Chromium browser, installed automatically during `npm install`.
+### Optional Dependencies
+
+For **DOCX export** (`--format docx`), install pdf2docx:
+
+```bash
+# Using pip
+pip install pdf2docx
+
+# Using pipx
+pipx install pdf2docx
+
+# Using uv
+uv tool install pdf2docx
+```
 
 ## 2. Create and Render
 

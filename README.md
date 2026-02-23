@@ -75,6 +75,21 @@ That produces a file for every combination of **role**, **theme**, and **format*
 npm install -g resumx
 ```
 
+### Optional Dependencies
+
+For **DOCX export** (`--format docx`), install pdf2docx:
+
+```bash
+# Using pip
+pip install pdf2docx
+
+# Using pipx
+pipx install pdf2docx
+
+# Using uv
+uv tool install pdf2docx
+```
+
 **Run:**
 
 ```bash
