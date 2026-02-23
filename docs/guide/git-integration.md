@@ -1,6 +1,6 @@
 # Git Superpowers
 
-A single branch works well for most resume projects. Use [per-role output](/per-role-output) and command flags to tailor each application, and `git tag` to snapshot submissions.
+A single branch works well for most resume projects. Use [per-role output](/guide/per-role-output) and command flags to tailor each application, and `git tag` to snapshot submissions.
 
 ## Render Past Version
 

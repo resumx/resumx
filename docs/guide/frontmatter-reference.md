@@ -138,7 +138,7 @@ pages: 2
 `style:` values are treated as **starting points** when `pages:` is set. The clamping engine may reduce them toward global minimums. If you want strict style control without any automatic adjustments, don't use `pages:`.
 :::
 
-See [Fit to Page](/fit-to-page) for the full guide.
+See [Fit to Page](/guide/fit-to-page) for the full guide.
 
 ### `icons`
 
@@ -158,7 +158,7 @@ icons:
   badge: 'data:image/svg+xml;base64,PHN2Zz4uLi48L3N2Zz4='
 ```
 
-See [Icons](/icons#custom-icons) for details.
+See [Icons](/guide/icons#custom-icons) for details.
 
 ### `extra`
 
@@ -206,7 +206,7 @@ style:
   font-size: '10pt'
 ```
 
-Available variables depend on the theme. See the [Theme Variable Reference](/themes#variable-reference) for the full list.
+Available variables depend on the theme. See the [Theme Variable Reference](/guide/themes#variable-reference) for the full list.
 
 ## Validate Fields
 

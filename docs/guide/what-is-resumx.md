@@ -2,7 +2,7 @@
 
 <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
-It automatically [**fits content to the page**](/fit-to-page), shrinking spacing, font size, and margins when content overflows and expanding them when it's short.
+It automatically [**fits content to the page**](/guide/fit-to-page), shrinking spacing, font size, and margins when content overflows and expanding them when it's short.
 
 <!-- prettier-ignore-start -->
 ```markdown
@@ -32,8 +32,8 @@ _Senior Software Engineer_
 
 <ResumeDemo />
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/guide/themes) gives the same content a different look:
 
 <!-- TODO: Side-by-side comparison of full resumes rendered in the Zurich, Oxford, and Seattle themes -->
 
-Edit with [AI](/using-ai). Render from [any commit](/git-superpowers). [Multi-language](/multi-language) from one source. [Get started in under a minute →](/quick-start)
+Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source. [Get started in under a minute →](/guide/quick-start)

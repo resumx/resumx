@@ -75,4 +75,4 @@ HTML comments are stripped from output:
 
 ## Horizontal Rule
 
-A horizontal rule (`---`) splits the resume into a two-column layout. See [Themes > Spacing](/themes#spacing) for column variables and [Custom CSS](/custom-css#creating-a-theme) for enabling or disabling it.
+A horizontal rule (`---`) splits the resume into a two-column layout. See [Themes > Spacing](/guide/themes#spacing) for column variables and [Custom CSS](/guide/custom-css#creating-a-theme) for enabling or disabling it.

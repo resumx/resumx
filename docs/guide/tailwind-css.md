@@ -4,7 +4,7 @@
 [Tailwind CSS](https://tailwindcss.com/) is a utility-first CSS framework — apply classes like `text-blue-800` or `px-2` directly to elements instead of writing custom CSS. See Tailwind's [Styling with utility classes](https://tailwindcss.com/docs/styling-with-utility-classes) to learn more.
 :::
 
-Resumx compiles [Tailwind CSS v4](https://tailwindcss.com/) on-the-fly. Apply classes to any element using the [Classes & IDs syntax](/classes-and-ids).
+Resumx compiles [Tailwind CSS v4](https://tailwindcss.com/) on-the-fly. Apply classes to any element using the [Classes & IDs syntax](/guide/classes-and-ids).
 
 ## Using Tailwind in Markdown
 
