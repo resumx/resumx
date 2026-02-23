@@ -60,6 +60,17 @@ function disableLinks(e: Event) {
 		const iframe = e.target as HTMLIFrameElement
 		const doc = iframe.contentWindow?.document
 		if (!doc) return
+
+		const style = doc.createElement('style')
+		style.textContent = `
+			@media (max-width: 640px) {
+				html {
+					font-size: 10px !important;
+				}
+			}
+		`
+		doc.head.appendChild(style)
+
 		doc.addEventListener('click', event => {
 			if ((event.target as HTMLElement).closest('a')) {
 				event.preventDefault()
