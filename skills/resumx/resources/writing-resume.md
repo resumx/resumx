@@ -1,8 +1,3 @@
----
-name: writing-resume
-description: Write and format resumes using Resumx markdown syntax. Use when creating resumes, CVs, converting resume content to markdown, or when the user mentions resume, CV, or job application documents.
----
-
 # Writing Resumes with Resumx
 
 A markdown-based resume format. Only ONE custom syntax for positioning (`{.right}` or `(#right)`), everything else is standard markdown.
