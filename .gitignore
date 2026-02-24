@@ -148,3 +148,8 @@ docs/.vitepress/cache
 # Madge dependencies graph
 deps.json
 deps.svg
+
+.agents/
+.claude/
+.cursor/
+.cursorignore
