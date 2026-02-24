@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import {
 	readFileSync,
 	writeFileSync,
@@ -113,7 +113,7 @@ async function renderPng(html: string, outputPath: string): Promise<void> {
  */
 function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 	try {
-		execSync(`pdf2docx convert "${pdfPath}" "${outputPath}"`, {
+		execFileSync('pdf2docx', ['convert', pdfPath, outputPath], {
 			stdio: ['pipe', 'pipe', 'pipe'],
 			encoding: 'utf-8',
 		})

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import whichActual from 'which'
+import * as childProcess from 'node:child_process'
 
 vi.mock('which', () => {
 	const sync = vi.fn(
@@ -10,6 +11,10 @@ vi.mock('which', () => {
 	)
 	return { default: Object.assign(async () => null, { sync }) }
 })
+
+vi.mock('node:child_process', () => ({
+	execFileSync: vi.fn(() => 'fake-tool 1.2.3\n'),
+}))
 
 import { checkDependency, requireDependencies } from './check.js'
 
@@ -43,5 +48,36 @@ describe('checkDependency', () => {
 describe('requireDependencies', () => {
 	it('does not throw when docx is not requested', () => {
 		expect(() => requireDependencies()).not.toThrow()
+	})
+})
+
+describe('getVersion (via checkDependency)', () => {
+	afterEach(() => {
+		vi.clearAllMocks()
+	})
+
+	it('uses execFileSync with argument array instead of string interpolation', () => {
+		const execFileSyncSpy = vi.mocked(childProcess.execFileSync)
+
+		checkDependency('fake-installed-cmd', 'install it')
+
+		expect(execFileSyncSpy).toHaveBeenCalledWith(
+			'fake-installed-cmd',
+			['--version'],
+			expect.objectContaining({ encoding: 'utf-8' }),
+		)
+	})
+
+	it('passes custom version flag as separate array element', () => {
+		const execFileSyncSpy = vi.mocked(childProcess.execFileSync)
+
+		// Access internals by importing a version-checking path
+		// getVersion is internal, but checkDependency calls it for installed cmds
+		checkDependency('fake-installed-cmd', 'install it')
+
+		const call = execFileSyncSpy.mock.calls[0]
+		// First arg is the command, second is args array (not a string with spaces)
+		expect(typeof call?.[1]).not.toBe('string')
+		expect(Array.isArray(call?.[1])).toBe(true)
 	})
 })

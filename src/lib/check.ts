@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import which from 'which'
 
 export interface DependencyStatus {
@@ -17,7 +17,7 @@ function getVersion(
 	versionFlag = '--version',
 ): string | undefined {
 	try {
-		const output = execSync(`${cmd} ${versionFlag}`, {
+		const output = execFileSync(cmd, [versionFlag], {
 			encoding: 'utf-8',
 			stdio: ['pipe', 'pipe', 'pipe'],
 		})
