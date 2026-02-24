@@ -140,6 +140,31 @@ pages: 2
 
 See [Fit to Page](/guide/fit-to-page) for the full guide.
 
+### `roles`
+
+Role composition map. Define composed roles as unions of constituent roles. When rendering for a composed role, content tagged with any constituent is included.
+
+| Property    | Value                      |
+| ----------- | -------------------------- |
+| **Type**    | `Record<string, string[]>` |
+| **Default** | No composed roles          |
+
+Composed role names are added to the auto-discovered set, so they get PDFs even without explicit `{.role:name}` tags in content. Compositions can reference other composed roles (recursive expansion). Circular references produce an error.
+
+```yaml
+# Simple composition
+roles:
+  fullstack: [frontend, backend]
+
+# Multiple composed roles with recursive expansion
+roles:
+  fullstack: [frontend, backend]
+  tech-lead: [backend, leadership]
+  startup-cto: [fullstack, leadership, architecture]
+```
+
+See [Per-Role Output](/guide/per-role-output#role-composition) for the full guide.
+
 ### `icons`
 
 Custom icon definitions. Keys are icon slugs usable with `:slug:` syntax; values are SVG strings, URLs, or base64 data URIs.
@@ -293,7 +318,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any top-level frontmatter key not in the known set (`themes`, `output`, `pages`, `style`, `icons`, `validate`, `extra`) produces an error:
+Any top-level frontmatter key not in the known set (`themes`, `output`, `pages`, `style`, `icons`, `roles`, `validate`, `extra`) produces an error:
 
 ```
 Unknown frontmatter field 'foo'. Use 'extra' for custom fields.

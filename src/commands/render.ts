@@ -297,10 +297,17 @@ async function runRender(
 		return v ? [v] : []
 	})
 
-	// Resolve which roles to generate (priority: CLI > discovered)
+	// Merge composed role names from frontmatter into discovered set
+	const roleMap = fmConfig?.roles
+	const allKnownRoles =
+		roleMap ?
+			[...new Set([...discoveredRoles, ...Object.keys(roleMap)])]
+		:	discoveredRoles
+
+	// Resolve which roles to generate (priority: CLI > discovered + composed)
 	const rolesToGenerate = resolveValues(
 		options.role ?? [],
-		discoveredRoles,
+		allKnownRoles,
 		'role',
 	)
 
@@ -381,6 +388,7 @@ async function runRender(
 				activeLang: task.activeLang,
 				targetPages,
 				icons: fmConfig?.icons,
+				roleMap,
 			})
 			return { label: task.label, results }
 		}),

@@ -134,14 +134,15 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 ### Render Fields
 
-| Field    | Type                      | Default             | Description                                                                 |
-| -------- | ------------------------- | ------------------- | --------------------------------------------------------------------------- |
-| `themes` | `string \| string[]`      | `zurich`            | Theme(s) to render with                                                     |
-| `output` | `string`                  | Input filename stem | Output path (name, directory with `/`, or template with `{theme}`/`{role}`) |
-| `pages`  | `positive integer`        | No clamping         | Target page count                                                           |
-| `style`  | `Record<string, string>`  | No overrides        | CSS variable overrides                                                      |
-| `icons`  | `Record<string, string>`  | No custom icons     | Custom icon definitions (SVG, URL, or base64)                               |
-| `extra`  | `Record<string, unknown>` | No custom data      | Arbitrary user-defined data                                                 |
+| Field    | Type                       | Default             | Description                                                                 |
+| -------- | -------------------------- | ------------------- | --------------------------------------------------------------------------- |
+| `themes` | `string \| string[]`       | `zurich`            | Theme(s) to render with                                                     |
+| `output` | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{theme}`/`{role}`) |
+| `pages`  | `positive integer`         | No clamping         | Target page count                                                           |
+| `style`  | `Record<string, string>`   | No overrides        | CSS variable overrides                                                      |
+| `roles`  | `Record<string, string[]>` | No composed roles   | Role composition map (composed name -> constituent roles)                   |
+| `icons`  | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                               |
+| `extra`  | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                 |
 
 ### Validate Fields
 
@@ -330,6 +331,18 @@ Tag content with `{.role:name}`. Untagged content always included. Tagged conten
 ```
 
 Resumx auto-discovers all roles and generates a PDF for each. Filter with `--role frontend` or `--role frontend,backend`.
+
+### Role Composition
+
+Define composed roles in frontmatter as unions of constituents:
+
+```yaml
+roles:
+  fullstack: [frontend, backend]
+  startup-cto: [fullstack, leadership, architecture]
+```
+
+When rendering for `fullstack`, content tagged `frontend` or `backend` is included. Compositions expand recursively (`startup-cto` includes `frontend` and `backend` via `fullstack`). Composed role names are added to the auto-discovered set.
 
 ## Multi-Language Output
 

@@ -381,7 +381,7 @@ variables: some-value
 				})
 			})
 
-			it('rejects roles as unknown field', () => {
+			it('rejects roles with non-object value', () => {
 				const input = `---
 roles: frontend
 ---
@@ -389,11 +389,7 @@ roles: frontend
 
 				const result = parseFrontmatterFromString(input)
 
-				expect(result).toEqual({
-					ok: false,
-					error:
-						"Unknown frontmatter field 'roles'. Use 'extra' for custom fields.",
-				})
+				expect(result.ok).toBe(false)
 			})
 
 			it('rejects formats as unknown field', () => {
@@ -612,6 +608,118 @@ pages: "one"
 				expect(result).toEqual({
 					ok: false,
 					error: "'pages' must be a positive integer (>= 1)",
+				})
+			})
+		})
+
+		describe('roles field', () => {
+			it('parses roles as a map of string arrays', () => {
+				const input = `---
+roles:
+  fullstack:
+    - frontend
+    - backend
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.roles).toEqual({
+					fullstack: ['frontend', 'backend'],
+				})
+			})
+
+			it('coerces a single string value to a one-element array', () => {
+				const input = `---
+roles:
+  senior: backend
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.roles).toEqual({
+					senior: ['backend'],
+				})
+			})
+
+			it('parses multiple composed roles', () => {
+				const input = `---
+roles:
+  fullstack: [frontend, backend]
+  tech-lead: [backend, leadership]
+  startup-cto: [fullstack, leadership, architecture]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.roles).toEqual({
+					fullstack: ['frontend', 'backend'],
+					'tech-lead': ['backend', 'leadership'],
+					'startup-cto': ['fullstack', 'leadership', 'architecture'],
+				})
+			})
+
+			it('is optional', () => {
+				const input = `---
+themes: zurich
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.roles).toBeUndefined()
+			})
+
+			it('rejects non-string array values', () => {
+				const input = `---
+roles:
+  fullstack:
+    - 123
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.ok).toBe(false)
+			})
+
+			it('parses roles from TOML', () => {
+				const input = `+++
+[roles]
+fullstack = ["frontend", "backend"]
++++
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.roles).toEqual({
+					fullstack: ['frontend', 'backend'],
+				})
+			})
+
+			it('works alongside other frontmatter fields', () => {
+				const input = `---
+themes: zurich
+pages: 1
+roles:
+  fullstack: [frontend, backend]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config).toEqual({
+					themes: ['zurich'],
+					pages: 1,
+					roles: { fullstack: ['frontend', 'backend'] },
 				})
 			})
 		})
