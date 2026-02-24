@@ -73,6 +73,7 @@ That produces a file for every combination of **role**, **theme**, and **format*
 
 ```bash
 npm install -g resumx
+npx playwright install chromium
 ```
 
 ### Optional Dependencies
