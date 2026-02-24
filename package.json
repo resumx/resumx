@@ -35,7 +35,8 @@
 		"docs:build": "vitepress build docs",
 		"docs:preview": "vitepress preview docs",
 		"deps": "madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --image deps.svg src/ && madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --json src/ > deps.json",
-		"optimize-icons": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright npx tsx scripts/optimize-icons.ts"
+		"optimize-icons": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright npx tsx scripts/optimize-icons.ts",
+		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
 	},
 	"keywords": [
 		"resume",
@@ -94,6 +95,7 @@
 		"@types/node": "^22.0.0",
 		"@types/which": "^3.0.4",
 		"@vitest/coverage-v8": "^2.1.9",
+		"conventional-changelog-cli": "^5.0.0",
 		"execa": "^9.5.2",
 		"geist": "^1.7.0",
 		"husky": "^9.1.7",
