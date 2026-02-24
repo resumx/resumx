@@ -6,6 +6,7 @@ import {
 	writeFileSync,
 	existsSync,
 	readFileSync,
+	readdirSync,
 } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -663,7 +664,7 @@ Tools
 				})
 
 				// Temp PDF should be cleaned up (not in output dir)
-				const filesInDir = require('fs').readdirSync(dir)
+				const filesInDir = readdirSync(dir)
 				const pdfFiles = filesInDir.filter((f: string) =>
 					f.startsWith('resumx-'),
 				)
