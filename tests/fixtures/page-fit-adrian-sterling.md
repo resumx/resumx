@@ -1,9 +1,9 @@
 ---
 themes: [zurich]
-output: output/
 pages: 1
 style:
   font-size: 10pt
+  font-family: "'Times New Roman', serif"
 ---
 
 # Adrian Sterling
@@ -12,7 +12,7 @@ style:
 
 ## Education{.text-blue-900}
 
-### Stanford University || Sept 2018 - June 2022
+### Stanford University <!----> Sept 2018 - June 2022
 
 **_Bachelor of Science in Computer Science, Summa Cum Laude_**
 
@@ -22,9 +22,9 @@ style:
 
 ## Work Experience
 
-### :google: Google || June 2022 - Present
+### :google: Google <!----> June 2022 - Present
 
-_Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
+_Senior Software Engineer, Infrastructure Platform Team_ <!----> San Francisco, CA
 
 - Architected distributed microservices orchestration platform with :devicon/kubernetes: [Kubernetes]{.text-[#326ce5]} and :skill-icons/docker: [Docker]{.text-[#2396ed]}
 - Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services Reduced deployment latency by [60%]{.underline .decoration-dotted} across 50+ services
@@ -32,15 +32,6 @@ _Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 - Built CI/CD pipeline with Cloud Build, :logos/terraform-icon: [Terraform]{.text-[#4040b2]}, GitOps reducing release cycles to 2 days
 
 ### PwC || July 2021 - May 2022
-
-_Software Engineer, Core Infrastructure_ || San Francisco, CA
-
-- Built full-stack features for social platform (2B+ users) using [:mdi/react: React]{.text-[#007ACC]}, :skill-icons/expressjs-dark: [Express.js]{text-[#242938]}, :skill-icons/mongodb: [MongoDB]{.text-[#023430]}
-- Impacted 50M+ monthly active users
-- Designed high-performance APIs with :logos/nodejs-icon: Node.js handling 1M+ QPS at 99.99% uptime
-- Developed automated testing with :logos/jestjs: Jest and :logos/cypress-icon: Cypress, improving coverage from 45% to 85%
-
-### Meta || July 2020 - June 2021
 
 _Software Engineer, Core Infrastructure_ || San Francisco, CA
 
@@ -84,12 +75,6 @@ _Software Engineer, Core Infrastructure_ || San Francisco, CA
 - Top 500 globally out of 30,000+ competitive programmers in algorithmic competition
 - Solved complex NP-complete problems under time constraints
 
-## Professional Certifications
-
-### AWS Certified Solutions Architect – Associate — Amazon Web Services || \[Mar 2023\]
-
-### AWS Certified Developer – Associate — Amazon Web Services || \[Jan 2023\]
-
 ### Stanford TreeHacks Best Technical Award || \[Feb 2021\]
 
 - Developed real-time collaborative code editor with operational transformation conflict resolution
@@ -101,6 +86,14 @@ _Software Engineer, Core Infrastructure_ || San Francisco, CA
 - Selected as one of 1000+ global contributors for Google Summer of Code program
 - Implemented advanced debugging tools for TensorFlow.js runtime environment
 - Mentored by Google engineers and contributed 15K+ lines of production code
+
+## Professional Certifications
+
+### AWS Certified Solutions Architect – Associate — Amazon Web Services || \[Mar 2023\]
+
+### AWS Certified Developer – Associate — Amazon Web Services || \[Jan 2023\]
+
+### Google Cloud Professional Cloud Architect — Google Cloud || \[Sep 2023\]
 
 ## Technical Skills
 
