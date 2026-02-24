@@ -25,6 +25,8 @@ export interface HtmlGeneratorOptions {
 	activeRole?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
 	activeLang?: string
+	/** Role composition map from frontmatter (composed role name -> constituent roles) */
+	roleMap?: Record<string, string[]>
 	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
 	icons?: Record<string, string>
 }
@@ -97,6 +99,7 @@ export async function generateHtml(
 			activeRole: options.activeRole,
 			activeLang: options.activeLang,
 			variables: options.variables,
+			roleMap: options.roleMap,
 		},
 		env: {
 			css: baseCSS,

@@ -229,6 +229,95 @@ describe('filterByRole', () => {
 		})
 	})
 
+	describe('composed roles via roleMap', () => {
+		function createContextWithMap(
+			activeRole: string,
+			roleMap: Record<string, string[]>,
+		): PipelineContext {
+			return {
+				config: { activeRole, roleMap },
+				env: { css: '' },
+			}
+		}
+
+		it('keeps frontend-tagged content when active role is composed fullstack', () => {
+			const html =
+				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p><p class="role:devops">DevOps</p>'
+			const ctx = createContextWithMap('fullstack', {
+				fullstack: ['frontend', 'backend'],
+			})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			expect(doc.body.children.length).toBe(2)
+			expect(doc.querySelectorAll('.role\\:frontend').length).toBe(1)
+			expect(doc.querySelectorAll('.role\\:backend').length).toBe(1)
+		})
+
+		it('keeps explicitly tagged fullstack content alongside constituents', () => {
+			const html =
+				'<p class="role:fullstack">Explicit fullstack</p><p class="role:frontend">Frontend</p>'
+			const ctx = createContextWithMap('fullstack', {
+				fullstack: ['frontend', 'backend'],
+			})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			expect(doc.body.children.length).toBe(2)
+		})
+
+		it('keeps common (untagged) content with composed roles', () => {
+			const html =
+				'<p>Common</p><p class="role:frontend">Frontend</p><p class="role:devops">DevOps</p>'
+			const ctx = createContextWithMap('fullstack', {
+				fullstack: ['frontend', 'backend'],
+			})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Common', 'Frontend'])
+		})
+
+		it('expands recursively through nested compositions', () => {
+			const html =
+				'<p class="role:frontend">FE</p><p class="role:backend">BE</p><p class="role:leadership">Lead</p><p class="role:devops">Ops</p>'
+			const ctx = createContextWithMap('startup-cto', {
+				fullstack: ['frontend', 'backend'],
+				'startup-cto': ['fullstack', 'leadership'],
+			})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['FE', 'BE', 'Lead'])
+		})
+
+		it('falls back to simple filtering when roleMap has no entry for active role', () => {
+			const html =
+				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p>'
+			const ctx = createContextWithMap('frontend', {
+				fullstack: ['frontend', 'backend'],
+			})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			expect(doc.body.children.length).toBe(1)
+			expect(doc.body.children[0].textContent).toBe('Frontend')
+		})
+
+		it('handles empty roleMap same as no roleMap', () => {
+			const html =
+				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p>'
+			const ctx = createContextWithMap('frontend', {})
+			const result = filterByRole(html, ctx)
+			const doc = parseHtml(result)
+
+			expect(doc.body.children.length).toBe(1)
+			expect(doc.body.children[0].textContent).toBe('Frontend')
+		})
+	})
+
 	describe('edge cases', () => {
 		it('handles empty input', () => {
 			const result = filterByRole('', createContext('frontend'))

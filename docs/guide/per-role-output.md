@@ -43,7 +43,7 @@ You can also tag inline text with [bracketed spans](/guide/classes-and-ids#brack
 
 ## Generating Role-Specific Resumes
 
-**By default, Resumx discovers all `role:*` classes in your content and generates a separate PDF for each — no configuration needed.**
+**By default, Resumx discovers all `role:*` classes in your content and generates a separate PDF for each, no configuration needed.**
 
 If you don't need every variant, use `-r` / `--role` to limit which ones get generated:
 
@@ -52,12 +52,38 @@ resumx resume.md --role frontend
 resumx resume.md --role frontend,backend
 ```
 
-Or in frontmatter:
+Output files include the role name: `resume-frontend.pdf`, `resume-backend.pdf`, etc.
 
-```markdown
+## Role Composition
+
+Instead of tagging every bullet with multiple roles, define composed roles in frontmatter. A composed role is the **union** of its constituents: when rendering for that role, content tagged with any constituent is included.
+
+```yaml
 ---
-roles: [frontend, backend]
+roles:
+  fullstack: [frontend, backend]
 ---
 ```
 
-Output files include the role name: `resume-frontend.pdf`, `resume-backend.pdf`, etc.
+Now `resumx resume.md --role fullstack` includes all `{.role:frontend}` content, all `{.role:backend}` content, and any explicitly tagged `{.role:fullstack}` content, along with untagged common content.
+
+### Recursive Composition
+
+Compositions can reference other composed roles:
+
+```yaml
+---
+roles:
+  fullstack: [frontend, backend]
+  tech-lead: [backend, leadership]
+  startup-cto: [fullstack, leadership, architecture]
+---
+```
+
+`startup-cto` expands transitively: `fullstack` resolves to `frontend` + `backend`, so the final set is `{startup-cto, fullstack, frontend, backend, leadership, architecture}`.
+
+### How It Works
+
+Composed role names are added to the auto-discovered set. If your content tags `frontend`, `backend`, and `leadership`, and frontmatter declares `fullstack: [frontend, backend]`, Resumx generates PDFs for `frontend`, `backend`, `leadership`, and `fullstack`. Use `--role` to filter if you only want specific ones.
+
+Declaration order does not matter. Circular references (e.g., `a: [b]` and `b: [a]`) are detected and produce an error.

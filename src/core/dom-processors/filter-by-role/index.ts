@@ -6,29 +6,30 @@
  */
 
 import { filterBySelector } from '../../../lib/dom-kit/content-filter.js'
+import { resolveRoleSet } from '../../role-composition.js'
 import type { PipelineContext } from '../types.js'
 
 /**
  * Filter HTML to keep only content matching the active role
  *
- * - Elements with .role:X where X matches activeRole are KEPT
- * - Elements with .role:X where X does NOT match activeRole are REMOVED
+ * - Elements with .role:X where X matches activeRole (or its constituents) are KEPT
+ * - Elements with .role:X where X does NOT match are REMOVED
  * - Elements without any .role:* class are KEPT (common content)
  *
- * @param html - Input HTML string
- * @param ctx - Pipeline context (uses ctx.config.activeRole)
- * @returns Filtered HTML string, or unchanged if no activeRole specified
+ * When a roleMap is provided, the active role is expanded into its full
+ * constituent set (e.g., fullstack -> {fullstack, frontend, backend}).
  */
 export function filterByRole(html: string, ctx: PipelineContext): string {
-	const { activeRole } = ctx.config
+	const { activeRole, roleMap } = ctx.config
 
-	// If no active role, return unchanged
 	if (!activeRole) {
 		return html
 	}
 
-	return filterBySelector(
-		html,
-		`[class*="role:"]:not([class*="role:${activeRole}"])`,
-	)
+	const roleSet = resolveRoleSet(activeRole, roleMap ?? {})
+	const notClauses = [...roleSet]
+		.map(role => `:not([class*="role:${role}"])`)
+		.join('')
+
+	return filterBySelector(html, `[class*="role:"]${notClauses}`)
 }
