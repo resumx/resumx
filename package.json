@@ -52,7 +52,7 @@
 	"license": "Apache-2.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/yatfuchan/resumx"
+		"url": "https://github.com/resumx/resumx"
 	},
 	"engines": {
 		"node": ">=20"
