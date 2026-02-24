@@ -319,15 +319,14 @@ resumx resume.md --html
 # Build DOCX document only
 resumx resume.md --docx
 
-# Use a specific theme
-resumx resume.md --theme formal
-resumx resume.md --theme classic
+# Custom CSS file
+resumx resume.md --css my-styles.css
 
 # Custom output filename
 resumx resume.md -o john-doe
 
-# Override CSS variables
-resumx resume.md --var primary-color=#2563eb --var font-size=11pt
+# Override style options
+resumx resume.md --style accent-color=#2563eb --style font-size=11pt
 
 # Watch mode (auto-rebuild on changes)
 resumx resume.md --watch

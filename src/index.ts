@@ -124,8 +124,8 @@ program
 program
 	.argument('[resume.md]', 'Markdown file to render (- or pipe for stdin)')
 	.option(
-		'-t, --theme <name>',
-		'Theme(s) to use (name or path, repeatable)',
+		'--css <path>',
+		'Custom stylesheet(s) (repeatable, comma-separated)',
 		collectWithCommas,
 		[],
 	)
@@ -199,7 +199,7 @@ function collect(value: string, previous: string[]): string[] {
 	return previous.concat([value])
 }
 
-// Helper to collect repeatable options with comma-separated support (for theme/role)
+// Helper to collect repeatable options with comma-separated support
 function collectWithCommas(value: string, previous: string[]): string[] {
 	const values = value
 		.split(',')

@@ -9,13 +9,13 @@ import {
 // validateTemplateVars
 // =============================================================================
 
-const VALID = ['theme', 'role']
+const VALID = ['role', 'lang']
 
 describe('validateTemplateVars', () => {
 	it('accepts known variables', () => {
-		expect(() => validateTemplateVars('resume-{theme}', VALID)).not.toThrow()
+		expect(() => validateTemplateVars('resume-{role}', VALID)).not.toThrow()
 		expect(() =>
-			validateTemplateVars('{role}/resume-{theme}', VALID),
+			validateTemplateVars('{role}/resume-{lang}', VALID),
 		).not.toThrow()
 	})
 
@@ -26,7 +26,7 @@ describe('validateTemplateVars', () => {
 	})
 
 	it('throws on unknown variable {name}', () => {
-		expect(() => validateTemplateVars('{name}-{theme}', VALID)).toThrow(
+		expect(() => validateTemplateVars('{name}-{role}', VALID)).toThrow(
 			'Unknown template variable(s): {name}',
 		)
 	})
@@ -45,7 +45,7 @@ describe('validateTemplateVars', () => {
 
 	it('mentions valid variables in error', () => {
 		expect(() => validateTemplateVars('{foo}', VALID)).toThrow(
-			'Valid variables: {theme}, {role}',
+			'Valid variables: {role}, {lang}',
 		)
 	})
 
@@ -61,53 +61,53 @@ describe('validateTemplateVars', () => {
 // =============================================================================
 
 describe('expandTemplate', () => {
-	it('expands {theme} variable', () => {
-		expect(expandTemplate('resume-{theme}', { theme: 'zurich' })).toBe(
-			'resume-zurich',
+	it('expands {role} variable', () => {
+		expect(expandTemplate('resume-{role}', { role: 'frontend' })).toBe(
+			'resume-frontend',
 		)
 	})
 
-	it('expands {role} variable', () => {
+	it('expands {lang} variable', () => {
 		expect(
-			expandTemplate('resume-{role}', { theme: 'zurich', role: 'frontend' }),
-		).toBe('resume-frontend')
+			expandTemplate('resume-{lang}', { role: 'frontend', lang: 'en' }),
+		).toBe('resume-en')
 	})
 
-	it('expands both {theme} and {role}', () => {
+	it('expands both {role} and {lang}', () => {
 		expect(
-			expandTemplate('John-{theme}-{role}', {
-				theme: 'zurich',
+			expandTemplate('John-{role}-{lang}', {
 				role: 'frontend',
+				lang: 'en',
 			}),
-		).toBe('John-zurich-frontend')
+		).toBe('John-frontend-en')
 	})
 
 	it('expands {role} as directory prefix', () => {
 		expect(
-			expandTemplate('{role}/John-{theme}', {
-				theme: 'oxford',
+			expandTemplate('{role}/John-{lang}', {
 				role: 'backend',
+				lang: 'en',
 			}),
-		).toBe('backend/John-oxford')
+		).toBe('backend/John-en')
 	})
 
 	it('replaces missing keys with empty string', () => {
-		expect(expandTemplate('resume-{role}', { theme: 'zurich' })).toBe('resume-')
+		expect(expandTemplate('resume-{role}', { lang: 'en' })).toBe('resume-')
 	})
 
 	it('replaces missing keys in the middle with empty string', () => {
-		expect(expandTemplate('resume-{role}-{theme}', { theme: 'zurich' })).toBe(
-			'resume--zurich',
+		expect(expandTemplate('resume-{role}-{lang}', { lang: 'en' })).toBe(
+			'resume--en',
 		)
 	})
 
 	it('handles template with static directory prefix', () => {
 		expect(
-			expandTemplate('build/{role}/John-{theme}', {
-				theme: 'modern',
+			expandTemplate('build/{role}/John-{lang}', {
 				role: 'frontend',
+				lang: 'en',
 			}),
-		).toBe('build/frontend/John-modern')
+		).toBe('build/frontend/John-en')
 	})
 
 	it('works with arbitrary variable names', () => {
@@ -127,16 +127,8 @@ describe('expandTemplate', () => {
 describe('validateTemplateUniqueness', () => {
 	it('passes with single value per dimension', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{theme}', {
-				theme: ['zurich'],
-			}),
-		).not.toThrow()
-	})
-
-	it('passes with multiple themes and {theme} in template', () => {
-		expect(() =>
-			validateTemplateUniqueness('John-{theme}', {
-				theme: ['zurich', 'oxford'],
+			validateTemplateUniqueness('John-{role}', {
+				role: ['frontend'],
 			}),
 		).not.toThrow()
 	})
@@ -144,69 +136,78 @@ describe('validateTemplateUniqueness', () => {
 	it('passes with multiple roles and {role} in template', () => {
 		expect(() =>
 			validateTemplateUniqueness('John-{role}', {
-				theme: ['zurich'],
 				role: ['frontend', 'backend'],
+			}),
+		).not.toThrow()
+	})
+
+	it('passes with multiple langs and {lang} in template', () => {
+		expect(() =>
+			validateTemplateUniqueness('John-{lang}', {
+				role: ['frontend'],
+				lang: ['en', 'fr'],
 			}),
 		).not.toThrow()
 	})
 
 	it('passes with both variables and full matrix', () => {
 		expect(() =>
-			validateTemplateUniqueness('{role}/John-{theme}', {
-				theme: ['zurich', 'oxford'],
+			validateTemplateUniqueness('{role}/John-{lang}', {
 				role: ['frontend', 'backend'],
+				lang: ['en', 'fr'],
 			}),
 		).not.toThrow()
 	})
 
-	it('throws when multiple themes but no {theme}', () => {
-		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				theme: ['zurich', 'oxford'],
-			}),
-		).toThrow('duplicates')
-	})
-
-	it('suggests adding {theme} when themes collide', () => {
-		expect(() =>
-			validateTemplateUniqueness('John', {
-				theme: ['zurich', 'oxford'],
-			}),
-		).toThrow('{theme}')
-	})
-
 	it('throws when multiple roles but no {role}', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{theme}', {
-				theme: ['zurich'],
+			validateTemplateUniqueness('John-{lang}', {
 				role: ['frontend', 'backend'],
+				lang: ['en'],
 			}),
 		).toThrow('duplicates')
 	})
 
 	it('suggests adding {role} when roles collide', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{theme}', {
-				theme: ['zurich'],
+			validateTemplateUniqueness('John', {
 				role: ['frontend', 'backend'],
 			}),
 		).toThrow('{role}')
 	})
 
+	it('throws when multiple langs but no {lang}', () => {
+		expect(() =>
+			validateTemplateUniqueness('John-{role}', {
+				role: ['frontend'],
+				lang: ['en', 'fr'],
+			}),
+		).toThrow('duplicates')
+	})
+
+	it('suggests adding {lang} when langs collide', () => {
+		expect(() =>
+			validateTemplateUniqueness('John-{role}', {
+				role: ['frontend'],
+				lang: ['en', 'fr'],
+			}),
+		).toThrow('{lang}')
+	})
+
 	it('throws on multi-dimension without both variables', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{theme}', {
-				theme: ['zurich', 'oxford'],
+			validateTemplateUniqueness('John-{role}', {
 				role: ['frontend', 'backend'],
+				lang: ['en', 'fr'],
 			}),
-		).toThrow('{role}')
+		).toThrow('{lang}')
 	})
 
 	it('passes when single value in all dimensions', () => {
 		expect(() =>
 			validateTemplateUniqueness('John', {
-				theme: ['zurich'],
 				role: ['frontend'],
+				lang: ['en'],
 			}),
 		).not.toThrow()
 	})
@@ -214,8 +215,8 @@ describe('validateTemplateUniqueness', () => {
 	it('ignores empty dimensions', () => {
 		expect(() =>
 			validateTemplateUniqueness('John', {
-				theme: ['zurich'],
-				role: [],
+				role: ['frontend'],
+				lang: [],
 			}),
 		).not.toThrow()
 	})

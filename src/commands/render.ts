@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { resolve, dirname, relative, basename, join } from 'node:path'
+import { resolve, dirname, relative, basename, isAbsolute } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { resolveTheme, mergeVariables, DEFAULT_THEME } from '../core/themes.js'
+import { mergeVariables, DEFAULT_STYLESHEET } from '../core/styles.js'
 import { parseStyleFlags } from './utils/style-flags.js'
 import {
 	renderMultiple,
@@ -30,29 +30,35 @@ import { runCheck, printCheckResults } from './check.js'
 import type { Severity } from '../core/validator/types.js'
 
 /**
- * Resolve which themes to use (CLI > Frontmatter > default)
- * Returns array of theme names
+ * Resolve CSS file paths (CLI > Frontmatter > default).
+ * The default stylesheet is always included first, user CSS cascades on top.
+ * Paths resolve relative to the markdown file's directory.
  */
-function resolveThemes(
-	cliThemes: string[] | undefined,
-	frontmatterThemes: string[] | undefined,
+function resolveCssPaths(
+	cliCss: string[] | undefined,
+	frontmatterCss: string[] | undefined,
+	baseDir: string,
 ): string[] {
-	// CLI takes precedence
-	if (cliThemes && cliThemes.length > 0) {
-		return cliThemes
-	}
+	const raw =
+		cliCss && cliCss.length > 0 ? cliCss
+		: frontmatterCss && frontmatterCss.length > 0 ? frontmatterCss
+		: null
 
-	// Frontmatter themes
-	if (frontmatterThemes && frontmatterThemes.length > 0) {
-		return frontmatterThemes
-	}
+	if (!raw) return [DEFAULT_STYLESHEET]
 
-	// Default
-	return [DEFAULT_THEME]
+	const userPaths = raw.map(p => {
+		const absolutePath = isAbsolute(p) ? p : resolve(baseDir, p)
+		if (!existsSync(absolutePath)) {
+			throw new Error(`CSS file not found: ${absolutePath}`)
+		}
+		return absolutePath
+	})
+
+	return [DEFAULT_STYLESHEET, ...userPaths]
 }
 
 export interface RenderCommandOptions {
-	theme?: string[]
+	css?: string[]
 	output?: string
 	style?: string[]
 	role?: string[]
@@ -67,9 +73,6 @@ export interface RenderCommandOptions {
 
 const VALID_FORMATS: OutputFormat[] = ['pdf', 'html', 'docx', 'png']
 
-/**
- * Determine which formats to render based on CLI options
- */
 function resolveFormats(options: RenderCommandOptions): OutputFormat[] {
 	if (options.format && options.format.length > 0) {
 		for (const f of options.format) {
@@ -83,7 +86,6 @@ function resolveFormats(options: RenderCommandOptions): OutputFormat[] {
 		return options.format as OutputFormat[]
 	}
 
-	// Default to PDF
 	return ['pdf']
 }
 
@@ -102,12 +104,8 @@ function formatDuration(ms: number): string {
 	return `${minutes}m ${remainingSeconds.toFixed(1)}s`
 }
 
-/**
- * Render task representing a single (theme, role, lang) combination
- */
 interface RenderTask {
-	themeName: string
-	cssPath: string
+	cssPaths: string[]
 	variables: Record<string, string>
 	outputDir: string
 	outputName: string
@@ -117,18 +115,14 @@ interface RenderTask {
 }
 
 /**
- * Build render tasks for all theme × role × lang combinations
+ * Build render tasks for all role × lang combinations.
  *
- * Output filename: {name}-{role}-{lang}-{theme}.{format}
+ * Output filename: {name}-{role}-{lang}.{format}
  * Each dimension is included as a suffix only when it has multiple values.
- * Suffixes are always in fixed order: role, lang, theme.
  */
 function buildRenderTasks(
-	themes: Array<{
-		name: string
-		cssPath: string
-		variables: Record<string, string>
-	}>,
+	cssPaths: string[],
+	variables: Record<string, string>,
 	roles: string[],
 	langs: string[],
 	baseOutputDir: string,
@@ -137,29 +131,21 @@ function buildRenderTasks(
 	const tasks: RenderTask[] = []
 	const hasMultipleRoles = roles.length > 1
 	const hasMultipleLangs = langs.length > 1
-	const hasMultipleThemes = themes.length > 1
 
 	const effectiveRoles: Array<string | undefined> =
 		roles.length > 0 ? roles : [undefined]
 	const effectiveLangs: Array<string | undefined> =
 		langs.length > 0 ? langs : [undefined]
 
-	for (const [theme, role, lang] of cartesian(
-		themes,
-		effectiveRoles,
-		effectiveLangs,
-	)) {
-		// Build suffix in fixed order: role, lang, theme
+	for (const [role, lang] of cartesian(effectiveRoles, effectiveLangs)) {
 		const suffixParts = [
 			hasMultipleRoles && role,
 			hasMultipleLangs && lang,
-			hasMultipleThemes && theme.name,
 		].filter(Boolean) as string[]
 
 		const labelParts = [
 			hasMultipleRoles && role,
 			hasMultipleLangs && lang,
-			hasMultipleThemes && theme.name,
 		].filter(Boolean) as string[]
 
 		const outputName =
@@ -168,9 +154,8 @@ function buildRenderTasks(
 			:	baseOutputName
 
 		tasks.push({
-			themeName: theme.name,
-			cssPath: theme.cssPath,
-			variables: theme.variables,
+			cssPaths,
+			variables,
 			outputDir: baseOutputDir,
 			outputName,
 			activeRole: role,
@@ -182,9 +167,6 @@ function buildRenderTasks(
 	return tasks
 }
 
-/**
- * Read all of stdin into a string
- */
 async function readStdin(): Promise<string> {
 	const chunks: Buffer[] = []
 	for await (const chunk of process.stdin) {
@@ -193,20 +175,13 @@ async function readStdin(): Promise<string> {
 	return Buffer.concat(chunks).toString('utf-8')
 }
 
-/**
- * Context for a render cycle — provides metadata the renderer can't
- * derive from the raw content alone.
- */
 interface RenderContext {
-	/** Display label for the log line (e.g. "resume.md" or "stdin") */
 	label: string
-	/** Fallback output name when frontmatter doesn't specify one */
 	defaultOutputName: string
+	/** Directory for resolving relative CSS paths (markdown file's dir, or cwd for stdin) */
+	cssBaseDir: string
 }
 
-/**
- * Run a single render cycle
- */
 async function runRender(
 	rawContent: string,
 	options: RenderCommandOptions,
@@ -215,7 +190,6 @@ async function runRender(
 ): Promise<void> {
 	const renderStart = performance.now()
 
-	// Parse frontmatter
 	const parsed = parseFrontmatterFromString(rawContent)
 	if (!parsed.ok) {
 		throw new Error(parsed.error)
@@ -226,24 +200,16 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve themes (CLI > Frontmatter > default)
-	const themeNames = resolveThemes(options.theme, fmConfig?.themes)
+	// Resolve CSS paths (CLI > Frontmatter > default), relative to markdown file
+	const cssPaths = resolveCssPaths(
+		options.css,
+		fmConfig?.css,
+		context.cssBaseDir,
+	)
 
-	// Resolve each theme to CSS path and variables
-	const themes: Array<{
-		name: string
-		cssPath: string
-		variables: Record<string, string>
-	}> = []
-	for (const themeName of themeNames) {
-		const cssPath = resolveTheme(themeName, cwd)
-
-		// Merge style overrides (CLI > Frontmatter > Theme defaults)
-		const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
-		const variables = mergeVariables(fmConfig?.style, cliStyles)
-
-		themes.push({ name: themeName, cssPath, variables })
-	}
+	// Merge style overrides (CLI > Frontmatter)
+	const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
+	const variables = mergeVariables(fmConfig?.style, cliStyles)
 
 	// Determine output (CLI > Frontmatter > defaults)
 	const outputString = options.output ?? fmConfig?.output
@@ -252,36 +218,29 @@ async function runRender(
 	let outputTemplate: string | undefined
 
 	if (outputString) {
-		validateTemplateVars(outputString, ['theme', 'role', 'lang'])
+		validateTemplateVars(outputString, ['role', 'lang'])
 
 		if (outputString.endsWith('/')) {
-			// Directory: use as output dir, keep default name
 			baseOutputDir = resolve(cwd, outputString.slice(0, -1) || '.')
 		} else if (/\{[^}]+\}/.test(outputString)) {
-			// Template: expand per theme × role combination
 			outputTemplate = outputString
 		} else {
-			// Plain name: split into dir + name
 			const resolved = resolve(cwd, outputString)
 			baseOutputDir = dirname(resolved)
 			baseOutputName = stripDocExtension(basename(resolved))
 		}
 	}
 
-	// Get formats to render (CLI > default)
 	const formats = resolveFormats(options)
 
-	// Check dependencies
-	// Only pdf2docx is required for DOCX output (PDF uses bundled Playwright Chromium)
 	const needsDocx = formats.includes('docx')
 	requireDependencies({ docx: needsDocx })
 
-	// Resolve target pages (CLI > Frontmatter)
 	const targetPages = options.pages ?? fmConfig?.pages
 
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
-	// Discover roles and languages from content (render markdown first to get HTML)
+	// Discover roles and languages from content
 	const html = renderMarkdown(content)
 	const ROLE_CLASS_RE = /\brole:([^\s"']+)/g
 	const discoveredRoles = extractBySelector(html, '[class*="role:"]', el => {
@@ -297,33 +256,28 @@ async function runRender(
 		return v ? [v] : []
 	})
 
-	// Merge composed role names from frontmatter into discovered set
 	const roleMap = fmConfig?.roles
 	const allKnownRoles =
 		roleMap ?
 			[...new Set([...discoveredRoles, ...Object.keys(roleMap)])]
 		:	discoveredRoles
 
-	// Resolve which roles to generate (priority: CLI > discovered + composed)
 	const rolesToGenerate = resolveValues(
 		options.role ?? [],
 		allKnownRoles,
 		'role',
 	)
 
-	// Resolve which languages to generate (priority: CLI > discovered)
 	const langsToGenerate = resolveValues(
 		options.lang ?? [],
 		discoveredLangs,
 		'language',
 	)
 
-	// Build render tasks for all theme × role combinations
 	let renderTasks: RenderTask[]
 
 	if (outputTemplate) {
 		validateTemplateUniqueness(outputTemplate, {
-			theme: themes.map(t => t.name),
 			role: rolesToGenerate,
 			lang: langsToGenerate,
 		})
@@ -334,14 +288,9 @@ async function runRender(
 		const effectiveLangs: Array<string | undefined> =
 			langsToGenerate.length > 0 ? langsToGenerate : [undefined]
 
-		for (const [theme, role, lang] of cartesian(
-			themes,
-			effectiveRoles,
-			effectiveLangs,
-		)) {
+		for (const [role, lang] of cartesian(effectiveRoles, effectiveLangs)) {
 			const expanded = cleanupPath(
 				expandTemplate(outputTemplate, {
-					theme: theme.name,
 					role: role ?? '',
 					lang: lang ?? '',
 				}),
@@ -350,12 +299,10 @@ async function runRender(
 			const labelParts: string[] = []
 			if (role) labelParts.push(role)
 			if (lang) labelParts.push(lang)
-			if (themes.length > 1) labelParts.push(theme.name)
 
 			renderTasks.push({
-				themeName: theme.name,
-				cssPath: theme.cssPath,
-				variables: theme.variables,
+				cssPaths,
+				variables,
 				outputDir: dirname(resolved),
 				outputName: stripDocExtension(basename(resolved)),
 				activeRole: role,
@@ -365,7 +312,8 @@ async function runRender(
 		}
 	} else {
 		renderTasks = buildRenderTasks(
-			themes,
+			cssPaths,
+			variables,
 			rolesToGenerate,
 			langsToGenerate,
 			baseOutputDir,
@@ -373,7 +321,6 @@ async function runRender(
 		)
 	}
 
-	// Render all tasks in parallel
 	const taskResults = await Promise.all(
 		renderTasks.map(async task => {
 			const hasVariables = Object.keys(task.variables).length > 0
@@ -382,7 +329,7 @@ async function runRender(
 				outputDir: task.outputDir,
 				outputName: task.outputName,
 				formats,
-				cssPath: task.cssPath,
+				cssPaths: task.cssPaths,
 				variables: hasVariables ? task.variables : undefined,
 				activeRole: task.activeRole,
 				activeLang: task.activeLang,
@@ -394,7 +341,6 @@ async function runRender(
 		}),
 	)
 
-	// Print results — one compact line per task
 	let allSuccess = true
 	let totalFiles = 0
 	const outputDirs = new Set<string>()
@@ -451,24 +397,10 @@ async function runRender(
 	}
 }
 
-/**
- * Detect whether stdin should be used as input
- *
- * stdin is used when:
- * - The file argument is explicitly `-`
- * - stdin is piped (!process.stdin.isTTY) and no explicit file argument was given
- *   (Commander sets file to undefined when no positional arg is provided)
- */
 function isStdinInput(file: string | undefined): boolean {
 	return file === '-' || (file === undefined && !process.stdin.isTTY)
 }
 
-/**
- * Run validation and decide whether to proceed with rendering.
- *
- * Returns true if rendering should proceed, false for --check mode (done).
- * Throws on validation failure in --check or --strict mode.
- */
 async function handleCheck(
 	rawContent: string,
 	label: string,
@@ -482,29 +414,20 @@ async function handleCheck(
 	printCheckResults(filteredIssues, label)
 
 	if (options.check) {
-		// --check: validate only, signal result
 		if (!ok) throw new Error('Validation failed')
-		return false // check-only mode passed, don't render
+		return false
 	}
 
 	if (options.strict && !ok) {
-		// --strict: block render on validation failure
 		throw new Error('Validation failed, skipping render (--strict)')
 	}
 
-	// Default: warn and continue
 	if (filteredIssues.length > 0) {
 		console.log()
 	}
 	return true
 }
 
-/**
- * Main render command handler.
- *
- * Returns normally on success, throws on any failure.
- * The CLI wrapper in index.ts handles process.exit().
- */
 export async function renderCommand(
 	inputFile: string | undefined,
 	options: RenderCommandOptions,
@@ -512,12 +435,11 @@ export async function renderCommand(
 ): Promise<void> {
 	const skipCheck = options.check === false
 
-	// --check is incompatible with --watch
 	if (options.check && options.watch) {
 		throw new Error('--check cannot be used with --watch')
 	}
 
-	// Stdin path: read from pipe or explicit `-`
+	// Stdin path
 	if (isStdinInput(inputFile)) {
 		if (options.watch) {
 			throw new Error('--watch cannot be used with stdin input')
@@ -525,13 +447,11 @@ export async function renderCommand(
 
 		const rawContent = await readStdin()
 
-		// Validation step (unless --no-check)
 		if (!skipCheck) {
 			const proceed = await handleCheck(rawContent, 'stdin', options)
-			if (!proceed) return // --check passed, done
+			if (!proceed) return
 		}
 
-		// --check returns above, so we only reach here for render
 		const nameFromContent = extractNameFromContent(rawContent)
 		const outputOverride = options.output && !options.output.endsWith('/')
 
@@ -544,12 +464,13 @@ export async function renderCommand(
 		const context: RenderContext = {
 			label: 'stdin',
 			defaultOutputName: nameFromContent ?? '',
+			cssBaseDir: cwd,
 		}
 		await runRender(rawContent, options, cwd, context)
 		return
 	}
 
-	// File path (existing behavior)
+	// File path
 	const file = inputFile ?? 'resume.md'
 	const inputPath = resolve(cwd, file)
 
@@ -557,40 +478,34 @@ export async function renderCommand(
 		throw new Error(`Input file not found: ${inputPath}`)
 	}
 
+	const mdDir = dirname(inputPath)
+
 	const context: RenderContext = {
 		label: relative(cwd, inputPath),
 		defaultOutputName: getOutputName(inputPath),
+		cssBaseDir: mdDir,
 	}
 
-	// Read file content and resolve watch paths
 	const rawContent = readFileSync(inputPath, 'utf-8')
 
-	// Validation step (unless --no-check)
 	if (!skipCheck) {
 		const proceed = await handleCheck(rawContent, context.label, options)
-		if (!proceed) return // --check passed, done
+		if (!proceed) return
 	}
 
+	// Resolve CSS paths for watch mode
 	const parsed = parseFrontmatterFromString(rawContent)
 	const fmConfig = parsed.ok ? parsed.config : null
-	const themeNamesForWatch = resolveThemes(options.theme, fmConfig?.themes)
 
-	// Collect CSS paths for all themes
-	const cssPaths: string[] = []
-	for (const themeName of themeNamesForWatch) {
-		try {
-			const cssPath = resolveTheme(themeName, cwd)
-			if (existsSync(cssPath)) {
-				cssPaths.push(cssPath)
-			}
-		} catch {
-			// Will error during render if theme not found
-		}
+	let cssPaths: string[] = []
+	try {
+		cssPaths = resolveCssPaths(options.css, fmConfig?.css, mdDir)
+	} catch {
+		// Will error during render
 	}
 
-	const watchPaths = [inputPath, ...cssPaths]
+	const watchPaths = [inputPath, ...cssPaths.filter(p => existsSync(p))]
 
-	// Print watch message before initial render
 	if (options.watch) {
 		const relativeWatchPaths = watchPaths.map(p => relative(cwd, p))
 		console.log(
@@ -600,12 +515,10 @@ export async function renderCommand(
 		console.log('')
 	}
 
-	// Run initial render
 	await runRender(rawContent, options, cwd, context)
 
 	if (!options.watch) return
 
-	// Debounce rapid changes
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 	const watcher = chokidar.watch(watchPaths, {
@@ -626,7 +539,6 @@ export async function renderCommand(
 				console.log(chalk.blue('\nChange detected, rebuilding...'))
 				const freshContent = readFileSync(inputPath, 'utf-8')
 
-				// Re-validate on each change (unless --no-check)
 				if (!skipCheck) {
 					const proceed = await handleCheck(
 						freshContent,

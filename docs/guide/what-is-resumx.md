@@ -7,18 +7,19 @@ It automatically [**fits content to the page**](/guide/fit-to-page), shrinking s
 <!-- prettier-ignore-start -->
 ```markdown
 ---
-themes: [zurich, oxford]
 pages: 1
 ---
 # Jane Doe
+
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
+
 ### :meta: Meta || June 2022 - Present
 _Senior Software Engineer_
 
 - Built distributed systems serving 1M requests/day {.role:backend}
-- Built interactive dashboards using :ts: TypeScript {.role:frontend .role:fullstack}
+- Built interactive dashboards using :ts: TypeScript {.role:frontend}
 
 ## Technical Skills
 ::: {.grid .grid-cols-2}
@@ -32,8 +33,6 @@ _Senior Software Engineer_
 
 <ResumeDemo />
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/guide/themes) gives the same content a different look:
-
-<!-- TODO: Side-by-side comparison of full resumes rendered in the Zurich, Oxford, and Seattle themes -->
+That produces a file for every combination of **role** and **format** (3 roles × 3 formats = 9 files).
 
 Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source. [Get started in under a minute →](/guide/quick-start)

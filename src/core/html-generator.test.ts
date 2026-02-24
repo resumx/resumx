@@ -47,7 +47,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('<!DOCTYPE html>')
@@ -63,7 +63,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('<meta charset="UTF-8">')
@@ -75,7 +75,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain(
@@ -88,7 +88,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('<style>')
@@ -102,7 +102,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Hello World\n\nParagraph here.', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('<h1>Hello World</h1>')
@@ -115,7 +115,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'CustomFont, serif',
 						'custom-color': '#ff0000',
@@ -132,7 +132,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# Test', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'Override',
 					},
@@ -154,7 +154,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('# {{ name }}', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Without context, expression is left as-is
@@ -168,7 +168,7 @@ describe('html-generator', () => {
 
 				const html = await generateHtml(
 					'<div class="text-blue-500 font-bold">Styled</div>',
-					{ cssPath: join(dir, 'style.css') },
+					{ cssPaths: [join(dir, 'style.css')] },
 				)
 
 				expect(html).toContain('.text-blue-500')
@@ -181,7 +181,7 @@ describe('html-generator', () => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 				const html = await generateHtml('', {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('<!DOCTYPE html>')
@@ -211,7 +211,7 @@ Languages
 : TypeScript, Python, Go
 `
 				const html = await generateHtml(markdown, {
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(html).toContain('Resume</h1>')
@@ -235,7 +235,7 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					const html = await generateHtml('### :myicon: Company', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							myicon:
 								'<svg xmlns="http://www.w3.org/2000/svg" width="384" height="512" viewBox="0 0 384 512"><path d="M0 0"/></svg>',
@@ -266,7 +266,7 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					const html = await generateHtml('### :logo: Company', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							logo: 'https://example.com/logo.svg',
 						},
@@ -289,7 +289,7 @@ Languages
 					).toString('base64')
 
 					const html = await generateHtml('### :badge: Award', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							badge: `data:image/svg+xml;base64,${svgB64}`,
 						},
@@ -306,7 +306,7 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					const html = await generateHtml(':react:', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							react:
 								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect class="custom-react"/></svg>',
@@ -324,7 +324,7 @@ Languages
 
 					// First render with icons
 					await generateHtml(':myicon:', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							myicon:
 								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle/></svg>',
@@ -333,7 +333,7 @@ Languages
 
 					// Second render without icons - should NOT resolve :myicon:
 					const html2 = await generateHtml(':myicon:', {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 					})
 
 					expect(html2).toContain(':myicon:')
@@ -344,7 +344,7 @@ Languages
 		it('throws error for non-existent CSS file', async () => {
 			await expect(
 				generateHtml('# Test', {
-					cssPath: '/non/existent/style.css',
+					cssPaths: ['/non/existent/style.css'],
 				}),
 			).rejects.toThrow('not found')
 		})
@@ -362,7 +362,7 @@ Languages
 - Common skill
 `
 					const html = await generateHtml(markdown, {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						activeRole: 'frontend',
 					})
 
@@ -381,7 +381,7 @@ Languages
 - Backend skill {.role:backend}
 `
 					const html = await generateHtml(markdown, {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 					})
 
 					expect(html).toContain('Frontend skill')
@@ -407,7 +407,7 @@ Languages
 :::
 `
 					const html = await generateHtml(markdown, {
-						cssPath: join(dir, 'style.css'),
+						cssPaths: [join(dir, 'style.css')],
 						activeRole: 'backend',
 					})
 

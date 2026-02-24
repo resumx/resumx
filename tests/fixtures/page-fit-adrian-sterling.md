@@ -1,5 +1,4 @@
 ---
-themes: [zurich]
 pages: 1
 style:
   font-size: 10pt

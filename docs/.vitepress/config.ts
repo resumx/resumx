@@ -33,7 +33,7 @@ const guideSidebar = [
 				text: 'Customizing Your Resume',
 				link: '/guide/customizing-your-resume',
 			},
-			{ text: 'Themes', link: '/guide/themes' },
+			{ text: 'Style Options', link: '/guide/style-options' },
 			{ text: 'Tailwind CSS', link: '/guide/tailwind-css' },
 			{ text: 'Custom CSS', link: '/guide/custom-css' },
 		],

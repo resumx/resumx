@@ -8,9 +8,8 @@ Configure rendering options directly inside your resume using YAML or TOML front
 
 ```yaml
 ---
-themes: zurich
 pages: 1
-output: ./dist/John_Doe-{theme}
+output: ./dist/John_Doe-{role}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -21,9 +20,8 @@ style:
 
 ```toml
 +++
-themes = "zurich"
 pages = 1
-output = "./dist/John_Doe-{theme}"
+output = "./dist/John_Doe-{role}"
 
 [style]
 font-family = "Inter, sans-serif"
@@ -37,26 +35,26 @@ YAML uses `---` delimiters; TOML uses `+++`. Both are fully supported, pick whic
 
 These fields control how `resumx` renders your resume.
 
-### `themes`
+### `css`
 
-Theme(s) to use for rendering. When multiple themes are specified, a separate output is produced for each.
+Path(s) to custom CSS file(s) to load in addition to the default styles. When multiple files are specified, they are loaded in order.
 
-| Property     | Value                  |
-| ------------ | ---------------------- |
-| **Type**     | `string` or `string[]` |
-| **Default**  | `zurich`               |
-| **CLI flag** | `-t, --theme <name>`   |
+| Property     | Value                        |
+| ------------ | ---------------------------- |
+| **Type**     | `string` or `string[]`       |
+| **Default**  | None (uses built-in default) |
+| **CLI flag** | `--css <path>`               |
 
 A single string is automatically normalized to a one-element array.
 
-**Priority:** CLI > frontmatter > `zurich` (default).
+**Priority:** CLI > frontmatter.
 
 ```yaml
-# Single theme
-themes: zurich
+# Single CSS file
+css: my-styles.css
 
-# Multiple themes
-themes: [zurich, oxford, seattle]
+# Multiple CSS files
+css: [base.css, overrides.css]
 ```
 
 ### `output`
@@ -71,31 +69,31 @@ Output path for rendered files. Supports three modes depending on its value:
 
 **Modes:**
 
-| Value                            | Mode       | Behavior                                                                       |
-| -------------------------------- | ---------- | ------------------------------------------------------------------------------ |
-| `./dist/`                        | Directory  | Ends with `/` — output files go into this directory using default naming rules |
-| `John_Doe`                       | Plain name | No `{…}` — used as the base filename, with automatic theme/role suffixes       |
-| `./dist/John_Doe-{theme}-{role}` | Template   | Contains `{theme}` and/or `{role}` — expanded for each combination             |
+| Value                           | Mode       | Behavior                                                                      |
+| ------------------------------- | ---------- | ----------------------------------------------------------------------------- |
+| `./dist/`                       | Directory  | Ends with `/`, output files go into this directory using default naming rules |
+| `John_Doe`                      | Plain name | No `{…}`, used as the base filename, with automatic role/lang suffixes        |
+| `./dist/John_Doe-{role}-{lang}` | Template   | Contains `{role}` and/or `{lang}`, expanded for each combination              |
 
 **Template variables:**
 
-- `{theme}` — the theme name (e.g. `zurich`, `oxford`)
 - `{role}` — the role name (e.g. `frontend`, `backend`). Expands to empty string when no roles exist; orphaned separators are cleaned up automatically.
+- `{lang}` — the language tag (e.g. `en`, `fr`). Expands to empty string when no languages exist.
 
-When using template mode, if the expanded paths would produce duplicate filenames (e.g. multiple themes but no `{theme}` in the template), an error is raised with a suggestion.
+When using template mode, if the expanded paths would produce duplicate filenames, an error is raised with a suggestion.
 
 ```yaml
-# Plain name — produces John_Doe.pdf
+# Plain name, produces John_Doe.pdf
 output: John_Doe
 
-# Directory — uses default name in ./dist/
+# Directory, uses default name in ./dist/
 output: ./dist/
 
-# Template — produces ./dist/John_Doe-zurich.pdf, etc.
-output: ./dist/John_Doe-{theme}
+# Template, produces ./dist/John_Doe-frontend.pdf, etc.
+output: ./dist/John_Doe-{role}
 
-# Template with both — produces frontend/John_Doe-zurich.pdf, etc.
-output: "{role}/John_Doe-{theme}"
+# Template with both, produces frontend/John_Doe-en.pdf, etc.
+output: "{role}/John_Doe-{lang}"
 
 # Path with directory and name
 output: ./dist/John_Doe
@@ -103,7 +101,7 @@ output: ./dist/John_Doe
 
 ### `pages`
 
-Target page count. When set, Resumx automatically adjusts CSS variables (gaps, line-height, font-size, margins) to fit your resume within the specified number of pages.
+Target page count. When set, Resumx automatically adjusts style options (gaps, line-height, font-size, margins) to fit your resume within the specified number of pages.
 
 | Property     | Value              |
 | ------------ | ------------------ |
@@ -214,7 +212,7 @@ companies = ["Acme Corp", "Globex"]
 
 ### `style`
 
-CSS variable overrides applied on top of the theme's defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` -> `--font-family`).
+Style overrides applied on top of the defaults. Keys map to `--key` in the generated CSS (e.g. `font-family` -> `--font-family`).
 
 | Property     | Value                      |
 | ------------ | -------------------------- |
@@ -231,7 +229,7 @@ style:
   font-size: '10pt'
 ```
 
-Available variables depend on the theme. See the [Theme Variable Reference](/guide/themes#variable-reference) for the full list.
+See the [Style Options](/guide/style-options#options-reference) reference for the full list.
 
 ## Validate Fields
 
@@ -290,9 +288,8 @@ validate:
 
 ```yaml
 ---
-themes: [zurich, oxford]
 pages: 1
-output: ./out/Jane_Smith-{theme}
+output: ./out/Jane_Smith-{role}
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -314,11 +311,11 @@ For fields that can be set in multiple places, the resolution order is:
 | ----------- | -------------- |
 | 1 (highest) | CLI flags      |
 | 2           | Frontmatter    |
-| 3 (lowest)  | Theme defaults |
+| 3 (lowest)  | Default styles |
 
 ## Unknown Fields
 
-Any top-level frontmatter key not in the known set (`themes`, `output`, `pages`, `style`, `icons`, `roles`, `validate`, `extra`) produces an error:
+Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `style`, `icons`, `roles`, `validate`, `extra`) produces an error:
 
 ```
 Unknown frontmatter field 'foo'. Use 'extra' for custom fields.

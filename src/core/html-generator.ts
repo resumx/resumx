@@ -6,7 +6,7 @@
 import jsBeautify from 'js-beautify'
 const { html: beautifyHtml } = jsBeautify
 import { generateVariablesCSS } from '../lib/css-engine/css-variables.js'
-import { getBundledThemesDir } from './themes.js'
+import { getBundledStylesDir } from './styles.js'
 import { resolveCssImports } from '../lib/css-engine/css-resolver.js'
 import { compileTailwindCSS } from '../lib/css-engine/tailwind.js'
 import { markdownRenderer } from './markdown.js'
@@ -17,8 +17,8 @@ import type { PipelineContext } from './dom-processors/index.js'
  * Options for HTML generation
  */
 export interface HtmlGeneratorOptions {
-	/** Absolute path to the CSS file */
-	cssPath: string
+	/** Absolute paths to CSS files (combined in order) */
+	cssPaths: string[]
 	/** Optional CSS variable overrides */
 	variables?: Record<string, string>
 	/** Active role for filtering content (if set, only matching role content is included) */
@@ -35,14 +35,14 @@ export interface HtmlGeneratorOptions {
  * Resolve CSS and combine with variable overrides
  */
 function resolveBaseCSS(
-	cssPath: string,
+	cssPaths: string[],
 	variables?: Record<string, string>,
 ): string {
-	// Resolve @import statements (with bundled themes dir as fallback for local theme files)
-	const resolvedCSS = resolveCssImports(cssPath, getBundledThemesDir())
+	const resolvedCSS = cssPaths
+		.map(p => resolveCssImports(p, getBundledStylesDir()))
+		.join('\n')
 	const variablesCSS = variables ? generateVariablesCSS(variables) : ''
 
-	// Append variable overrides AFTER resolved CSS so they take precedence
 	return resolvedCSS + '\n' + variablesCSS
 }
 
@@ -90,8 +90,7 @@ export async function generateHtml(
 	}
 	const rawBody = await markdownRenderer.renderAsync(content, env)
 
-	// Resolve base CSS with variable overrides
-	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)
+	const baseCSS = resolveBaseCSS(options.cssPaths, options.variables)
 
 	// Build pipeline context
 	const ctx: PipelineContext = {
