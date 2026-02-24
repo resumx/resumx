@@ -5,11 +5,11 @@ import * as TOML from 'smol-toml'
 import { z } from 'zod'
 
 const FrontmatterSchema = z.object({
-	themes: z
+	css: z
 		.preprocess(
 			val => (typeof val === 'string' ? [val] : val),
-			z.array(z.string({ error: "'themes' must contain only strings" }), {
-				error: "'themes' must be a string or an array of strings",
+			z.array(z.string({ error: "'css' must contain only strings" }), {
+				error: "'css' must be a string or an array of strings",
 			}),
 		)
 		.optional(),

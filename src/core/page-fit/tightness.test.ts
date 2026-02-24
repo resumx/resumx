@@ -12,7 +12,7 @@ import { describe, it, expect, afterAll } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { generateHtml } from '../html-generator.js'
-import { getBundledThemePath, DEFAULT_THEME } from '../themes.js'
+import { DEFAULT_STYLESHEET } from '../styles.js'
 import { parseFrontmatterFromString } from '../frontmatter.js'
 import { fitToPages } from './index.js'
 import { getContentHeight, readComputedValues } from './measure.js'
@@ -22,7 +22,7 @@ import { browserPool } from '../../lib/browser-pool/index.js'
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const MAX_BLANK = 10 // px
-const CSS_PATH = getBundledThemePath(DEFAULT_THEME)!
+const CSS_PATH = DEFAULT_STYLESHEET
 const FIXTURES_DIR = resolve(process.cwd(), 'tests/fixtures')
 
 interface Fixture {
@@ -91,7 +91,7 @@ async function measureTightness(
 	for (let i = 0; i < removals; i++) {
 		const trimmed = removeContentLines(fixture.content, i)
 		const html = await generateHtml(trimmed, {
-			cssPath: CSS_PATH,
+			cssPaths: [CSS_PATH],
 			variables: fixture.variables,
 		})
 		const result = await fitToPages(html, 1)

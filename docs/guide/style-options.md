@@ -1,56 +1,13 @@
-# Themes
+# Style Options
 
-Themes control how your resume looks. Switch themes without changing your Markdown.
+Resumx exposes a set of style options you can override to customize your resume without touching your Markdown.
 
-## Built-in Themes
+## Overriding Styles
 
-Resumx ships with three themes:
-
-| Theme                | Description                     | Font                     |
-| -------------------- | ------------------------------- | ------------------------ |
-| **zurich** (default) | Traditional, authoritative look | Palatino Linotype, serif |
-| **oxford**           | Clean, timeless design          | Georgia, serif           |
-| **seattle**          | Modern, minimal design          | Arial, sans-serif        |
-
-<!-- TODO: Side-by-side preview of all three built-in themes — Zurich, Oxford, and Seattle — rendering the same resume -->
-
-```bash
-resumx resume.md                    # Uses zurich (default)
-resumx resume.md --theme oxford
-resumx resume.md --theme seattle
-```
-
-You can render with multiple themes at once to produce separate PDFs:
-
-```bash
-resumx resume.md --theme zurich,oxford,seattle
-```
-
-## Choosing a Theme
-
-Set the theme per-resume in frontmatter:
-
-```yaml
----
-themes: zurich
----
-```
-
-Or pass it on the CLI:
-
-```bash
-resumx resume.md --theme oxford
-```
-
-**Priority:** CLI `--theme` > Frontmatter `themes` > `zurich` (default)
-
-## CSS Variables
-
-Override any style property to customize a theme.
+Set `style:` in frontmatter to override any option:
 
 ```markdown
 ---
-themes: zurich
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -60,9 +17,9 @@ style:
 
 You can also override via `--style` on the CLI. See the [CLI Reference](/guide/cli-reference) for details.
 
-**Priority:** CLI `--style` > Frontmatter > Theme defaults
+**Priority:** CLI `--style` > Frontmatter > Defaults
 
-## Variable Reference
+## Options Reference
 
 ### Typography
 
@@ -135,3 +92,69 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 | Variable | Default  | Description                     |
 | -------- | -------- | ------------------------------- |
 | `icons`  | `inline` | Icon display (`inline`, `none`) |
+
+## Style Recipes
+
+A few `style:` snippets that create distinct looks using only variable overrides.
+
+### Classic Serif (the default)
+
+```yaml
+style:
+  font-family: "'Georgia', serif"
+  header-text-align: center
+  name-caps: normal
+```
+
+No overrides needed, this is what you get out of the box.
+
+### Zurich
+
+Warm serif with small-caps name and accent-colored section headers.
+
+```yaml
+style:
+  font-family: "'Palatino Linotype', Palatino, Georgia, serif"
+  accent-color: '#c43218'
+  name-caps: small-caps
+  section-header-color: var(--accent-color)
+  section-border: 1.5px solid var(--section-header-color)
+```
+
+### Seattle
+
+Clean sans-serif with left-aligned header and muted section borders.
+
+```yaml
+style:
+  font-family: "'Arial', 'Helvetica Neue', sans-serif"
+  text-color: '#2d3748'
+  section-border: 2px solid #b0b5be
+  header-text-align: left
+  bullet-style: circle
+```
+
+### Minimal
+
+No section borders, tight spacing, all-caps section titles.
+
+```yaml
+style:
+  section-border: none
+  section-title-caps: uppercase
+  section-gap: 6px
+  entry-gap: 3px
+```
+
+### Bold Modern
+
+Strong contrast with a vibrant accent color.
+
+```yaml
+style:
+  font-family: "'Inter', 'Segoe UI', sans-serif"
+  accent-color: '#2563eb'
+  name-weight: bold
+  section-header-color: var(--accent-color)
+  link-color: var(--accent-color)
+```

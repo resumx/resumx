@@ -41,7 +41,7 @@ Use `:::` to apply attributes to block content. With a single child, attributes 
 
 <!-- prettier-ignore-start -->
 :::: code-group
-```markdown
+```markdown [Markdown]
 ## Technical Skills
 
 ::: {.grid .grid-cols-3}
@@ -54,7 +54,7 @@ Use `:::` to apply attributes to block content. With a single child, attributes 
 :::
 ```
 
-```html
+```html [HTML]
 <h2>Technical Skills</h2>
 
 <ul class="grid grid-cols-3">
@@ -77,7 +77,7 @@ If the fenced div contains multiple children, it auto-promotes to a `<div>` wrap
 
 <!-- prettier-ignore-start -->
 :::: code-group
-```markdown
+```markdown [Markdown]
 ::: {.flex .gap-4}
 ## Title
 
@@ -85,7 +85,7 @@ Some paragraph
 :::
 ```
 
-```html
+```html [HTML]
 <div class="flex gap-4">
 	<h2>Title</h2>
 

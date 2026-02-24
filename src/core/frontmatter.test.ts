@@ -23,7 +23,7 @@ describe('frontmatter', () => {
 		describe('YAML frontmatter', () => {
 			it('parses YAML frontmatter with all fields', () => {
 				const input = `---
-themes: formal
+css: formal
 output: ./dist/john-doe-resume
 style:
   font-family: "Inter, sans-serif"
@@ -37,7 +37,7 @@ Some content here.`
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					themes: ['formal'],
+					css: ['formal'],
 					output: './dist/john-doe-resume',
 					style: {
 						'font-family': 'Inter, sans-serif',
@@ -47,16 +47,16 @@ Some content here.`
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')
 			})
 
-			it('parses YAML frontmatter with only themes', () => {
+			it('parses YAML frontmatter with only css', () => {
 				const input = `---
-themes: minimal
+css: minimal
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['minimal'] })
+				expect(result.config).toEqual({ css: ['minimal'] })
 				expect(result.content.trim()).toBe('# Resume')
 			})
 
@@ -86,7 +86,7 @@ output: ./build/output/
 
 			it('parses YAML frontmatter with output template', () => {
 				const input = `---
-output: "build/John_Doe-{theme}-{role}"
+output: "build/John_Doe-{role}-{lang}"
 ---
 # Resume`
 
@@ -94,7 +94,7 @@ output: "build/John_Doe-{theme}-{role}"
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					output: 'build/John_Doe-{theme}-{role}',
+					output: 'build/John_Doe-{role}-{lang}',
 				})
 			})
 
@@ -113,9 +113,9 @@ style:
 				})
 			})
 
-			it('parses YAML frontmatter with multiple themes', () => {
+			it('parses YAML frontmatter with multiple css', () => {
 				const input = `---
-themes:
+css:
   - formal
   - minimal
 ---
@@ -124,14 +124,14 @@ themes:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['formal', 'minimal'] })
+				expect(result.config).toEqual({ css: ['formal', 'minimal'] })
 			})
 		})
 
 		describe('TOML frontmatter', () => {
 			it('parses TOML frontmatter with all fields', () => {
 				const input = `+++
-themes = "formal"
+css = "formal"
 output = "./dist/john-doe-resume"
 
 [style]
@@ -146,7 +146,7 @@ Some content here.`
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					themes: ['formal'],
+					css: ['formal'],
 					output: './dist/john-doe-resume',
 					style: {
 						'font-family': 'Inter, sans-serif',
@@ -156,28 +156,28 @@ Some content here.`
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')
 			})
 
-			it('parses TOML frontmatter with only themes', () => {
+			it('parses TOML frontmatter with only css', () => {
 				const input = `+++
-themes = "minimal"
+css = "minimal"
 +++
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['minimal'] })
+				expect(result.config).toEqual({ css: ['minimal'] })
 			})
 
-			it('parses TOML frontmatter with multiple themes', () => {
+			it('parses TOML frontmatter with multiple css', () => {
 				const input = `+++
-themes = ["formal", "minimal"]
+css = ["formal", "minimal"]
 +++
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ themes: ['formal', 'minimal'] })
+				expect(result.config).toEqual({ css: ['formal', 'minimal'] })
 			})
 
 			it('parses TOML frontmatter with only style', () => {
@@ -219,7 +219,7 @@ Some content here.`
 
 			it('does not parse incomplete YAML delimiters', () => {
 				const input = `---
-themes: formal
+css: formal
 # Missing closing delimiter
 # John Doe`
 
@@ -236,7 +236,7 @@ themes: formal
 		describe('stripping frontmatter', () => {
 			it('strips YAML frontmatter completely', () => {
 				const input = `---
-themes: formal
+css: formal
 ---
 # John Doe`
 
@@ -244,13 +244,13 @@ themes: formal
 				assert(result.ok)
 
 				expect(result.content).not.toContain('---')
-				expect(result.content).not.toContain('themes')
+				expect(result.content).not.toContain('css')
 				expect(result.content.trim()).toBe('# John Doe')
 			})
 
 			it('strips TOML frontmatter completely', () => {
 				const input = `+++
-themes = "formal"
+css = "formal"
 +++
 # John Doe`
 
@@ -258,7 +258,7 @@ themes = "formal"
 				assert(result.ok)
 
 				expect(result.content).not.toContain('+++')
-				expect(result.content).not.toContain('themes')
+				expect(result.content).not.toContain('css')
 				expect(result.content.trim()).toBe('# John Doe')
 			})
 
@@ -270,7 +270,7 @@ themes = "formal"
 - Job 1
 - Job 2`
 				const input = `---
-themes: formal
+css: formal
 ---
 ${content}`
 
@@ -282,9 +282,9 @@ ${content}`
 		})
 
 		describe('validation', () => {
-			it('rejects non-string/array themes', () => {
+			it('rejects non-string/array css', () => {
 				const input = `---
-themes: 123
+css: 123
 ---
 # Resume`
 
@@ -292,13 +292,13 @@ themes: 123
 
 				expect(result).toEqual({
 					ok: false,
-					error: "'themes' must be a string or an array of strings",
+					error: "'css' must be a string or an array of strings",
 				})
 			})
 
-			it('rejects non-string themes array element', () => {
+			it('rejects non-string css array element', () => {
 				const input = `---
-themes:
+css:
   - formal
   - 123
 ---
@@ -308,20 +308,20 @@ themes:
 
 				expect(result).toEqual({
 					ok: false,
-					error: "'themes' must contain only strings",
+					error: "'css' must contain only strings",
 				})
 			})
 
-			it('normalizes string themes to single-element array', () => {
+			it('normalizes string css to single-element array', () => {
 				const input = `---
-themes: formal
+css: formal
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.themes).toEqual(['formal'])
+				expect(result.config?.css).toEqual(['formal'])
 			})
 
 			it('rejects non-string output', () => {
@@ -367,7 +367,7 @@ style:
 
 			it('rejects unknown fields with suggestion to use extra', () => {
 				const input = `---
-themes: formal
+css: formal
 variables: some-value
 ---
 # Resume`
@@ -423,7 +423,7 @@ page: 2
 				})
 			})
 
-			it('rejects likely typo: theme instead of themes', () => {
+			it('rejects likely typo: theme with suggestion to use extra', () => {
 				const input = `---
 theme: formal
 ---
@@ -431,9 +431,11 @@ theme: formal
 
 				const result = parseFrontmatterFromString(input)
 
+				// theme is too far from css (distance > 2) for typo suggestion
 				expect(result).toEqual({
 					ok: false,
-					error: "Unknown frontmatter field 'theme'. Did you mean 'themes'?",
+					error:
+						"Unknown frontmatter field 'theme'. Use 'extra' for custom fields.",
 				})
 			})
 
@@ -468,7 +470,7 @@ outputs: ./dist/resume
 
 			it('rejects genuinely unknown fields (not typos) with extra suggestion', () => {
 				const input = `---
-themes: formal
+css: formal
 variables: some-value
 ---
 # Resume`
@@ -484,7 +486,7 @@ variables: some-value
 
 			it('returns empty warnings when all fields are known', () => {
 				const input = `---
-themes: formal
+css: formal
 output: ./dist/my-resume
 style:
   font-family: Arial
@@ -538,7 +540,7 @@ pages = 1
 
 			it('parses pages alongside other fields', () => {
 				const input = `---
-themes: zurich
+css: zurich
 pages: 1
 style:
   font-size: "10pt"
@@ -549,7 +551,7 @@ style:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					themes: ['zurich'],
+					css: ['zurich'],
 					pages: 1,
 					style: { 'font-size': '10pt' },
 				})
@@ -666,7 +668,7 @@ roles:
 
 			it('is optional', () => {
 				const input = `---
-themes: zurich
+css: zurich
 ---
 # Resume`
 
@@ -706,7 +708,7 @@ fullstack = ["frontend", "backend"]
 
 			it('works alongside other frontmatter fields', () => {
 				const input = `---
-themes: zurich
+css: zurich
 pages: 1
 roles:
   fullstack: [frontend, backend]
@@ -717,7 +719,7 @@ roles:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					themes: ['zurich'],
+					css: ['zurich'],
 					pages: 1,
 					roles: { fullstack: ['frontend', 'backend'] },
 				})
@@ -727,7 +729,7 @@ roles:
 		describe('extra field', () => {
 			it('parses extra with arbitrary key/value pairs', () => {
 				const input = `---
-themes: zurich
+css: zurich
 extra:
   name: Adrian Sterling
   target-role: Senior SWE
@@ -766,7 +768,7 @@ extra:
 
 			it('parses extra alongside other known fields', () => {
 				const input = `---
-themes: zurich
+css: zurich
 pages: 1
 style:
   font-size: 10pt
@@ -779,7 +781,7 @@ extra:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					themes: ['zurich'],
+					css: ['zurich'],
 					pages: 1,
 					style: { 'font-size': '10pt' },
 					extra: { company: 'Acme Corp' },
@@ -788,7 +790,7 @@ extra:
 
 			it('is optional', () => {
 				const input = `---
-themes: zurich
+css: zurich
 ---
 # Resume`
 
@@ -802,14 +804,14 @@ themes: zurich
 		describe('edge cases', () => {
 			it('handles frontmatter with empty values', () => {
 				const input = `---
-themes: ""
+css: ""
 ---
 # Resume`
 
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.themes).toEqual([''])
+				expect(result.config?.css).toEqual([''])
 			})
 
 			it('handles frontmatter with whitespace in values', () => {
@@ -845,7 +847,7 @@ style:
 		it('parses YAML frontmatter from file', () => {
 			const filePath = join(tempDir, 'resume.md')
 			const content = `---
-themes: formal
+css: formal
 output: test-resume
 ---
 # Test Person`
@@ -856,7 +858,7 @@ output: test-resume
 			assert(result.ok)
 
 			expect(result.config).toEqual({
-				themes: ['formal'],
+				css: ['formal'],
 				output: 'test-resume',
 			})
 			expect(result.content.trim()).toBe('# Test Person')
@@ -865,7 +867,7 @@ output: test-resume
 		it('parses TOML frontmatter from file', () => {
 			const filePath = join(tempDir, 'resume.md')
 			const content = `+++
-themes = "minimal"
+css = "minimal"
 +++
 # Test Person`
 
@@ -875,7 +877,7 @@ themes = "minimal"
 			assert(result.ok)
 
 			expect(result.config).toEqual({
-				themes: ['minimal'],
+				css: ['minimal'],
 			})
 		})
 

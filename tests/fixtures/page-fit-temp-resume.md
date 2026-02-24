@@ -1,5 +1,4 @@
 ---
-themes: [zurich]
 output: output/
 pages: 1
 style:
