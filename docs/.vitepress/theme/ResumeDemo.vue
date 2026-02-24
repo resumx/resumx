@@ -143,7 +143,7 @@ async function run() {
 				@load="disableLinks"
 			/>
 			<figcaption>
-				Rendered sample of the snippet above, Zurich theme, frontend role.
+				Rendered sample of the snippet above, frontend role.
 			</figcaption>
 		</figure>
 	</div>

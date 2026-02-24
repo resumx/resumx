@@ -1,11 +1,11 @@
 ---
 name: resumx
-description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, theming, or tailoring resumes. Covers syntax, CLI, themes, icons, per-role output, multi-language, page fitting, validation, CSS customization, JSON Resume conversion, and AI-assisted resume writing.
+description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, styling, or tailoring resumes. Covers syntax, CLI, style options, icons, per-role output, multi-language, page fitting, validation, custom CSS, JSON Resume conversion, and AI-assisted resume writing.
 ---
 
 # Resumx
 
-Resumx (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports per-role and multi-language output from a single source file, and ships with built-in themes.
+Resumx (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports per-role and multi-language output from a single source file, and uses style options for styling.
 
 ## Resources
 
@@ -134,15 +134,15 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 ### Render Fields
 
-| Field    | Type                       | Default             | Description                                                                 |
-| -------- | -------------------------- | ------------------- | --------------------------------------------------------------------------- |
-| `themes` | `string \| string[]`       | `zurich`            | Theme(s) to render with                                                     |
-| `output` | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{theme}`/`{role}`) |
-| `pages`  | `positive integer`         | No clamping         | Target page count                                                           |
-| `style`  | `Record<string, string>`   | No overrides        | CSS variable overrides                                                      |
-| `roles`  | `Record<string, string[]>` | No composed roles   | Role composition map (composed name -> constituent roles)                   |
-| `icons`  | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                               |
-| `extra`  | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                 |
+| Field    | Type                       | Default             | Description                                                                |
+| -------- | -------------------------- | ------------------- | -------------------------------------------------------------------------- |
+| `css`    | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                              |
+| `output` | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{role}`/`{lang}`) |
+| `pages`  | `positive integer`         | No clamping         | Target page count                                                          |
+| `style`  | `Record<string, string>`   | No overrides        | Style option overrides                                                     |
+| `roles`  | `Record<string, string[]>` | No composed roles   | Role composition map (composed name -> constituent roles)                  |
+| `icons`  | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                              |
+| `extra`  | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                |
 
 ### Validate Fields
 
@@ -165,9 +165,8 @@ Unknown top-level keys error. Use `extra` for custom data.
 
 ```yaml
 ---
-themes: [zurich, oxford]
 pages: 1
-output: ./out/Jane_Smith-{theme}
+output: ./out/Jane_Smith-{role}
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -191,7 +190,7 @@ resumx init [filename]     # Create template resume
 
 | Flag                       | Description                                |
 | -------------------------- | ------------------------------------------ |
-| `-t, --theme <name>`       | Theme(s), repeatable/comma-separated       |
+| `--css <path>`             | Path to custom CSS file, repeatable        |
 | `-o, --output <value>`     | Output path (name, directory, or template) |
 | `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable   |
 | `-s, --style <name=value>` | Override style property, repeatable        |
@@ -213,26 +212,16 @@ git show HEAD~3:resume.md | resumx -o old
 
 ### Output Naming
 
-| Scenario                | Output                       |
-| ----------------------- | ---------------------------- |
-| 1 theme, no roles       | `resume.pdf`                 |
-| 1 theme, with roles     | `resume-frontend.pdf`        |
-| Multiple themes         | `resume-zurich.pdf`          |
-| Multiple themes + roles | `frontend/resume-zurich.pdf` |
+| Scenario           | Output                   |
+| ------------------ | ------------------------ |
+| No roles, no langs | `resume.pdf`             |
+| With roles         | `resume-frontend.pdf`    |
+| With langs         | `resume-en.pdf`          |
+| Roles + langs      | `frontend/resume-en.pdf` |
 
-Template variables: `{theme}`, `{role}`.
+Template variables: `{role}`, `{lang}`.
 
-## Themes
-
-Three built-in themes:
-
-| Theme                | Description                | Font                     |
-| -------------------- | -------------------------- | ------------------------ |
-| **zurich** (default) | Traditional, authoritative | Palatino Linotype, serif |
-| **oxford**           | Clean, timeless            | Georgia, serif           |
-| **seattle**          | Modern, minimal            | Arial, sans-serif        |
-
-### CSS Variables
+## Style Options
 
 Override via frontmatter `style:` or CLI `--style`.
 
@@ -250,7 +239,7 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Features:** `icons` (`inline`, `none`).
 
-### Custom Themes
+### Custom CSS
 
 Create a CSS file importing common base modules:
 
@@ -266,7 +255,7 @@ Create a CSS file importing common base modules:
 }
 ```
 
-Reference by path: `themes: my-theme.css` or `--theme my-theme.css`.
+Reference by path: `css: my-styles.css` or `--css my-styles.css`.
 
 Common modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`), `common/two-column.css` (two-column grid, omit to disable `---` columns).
 
@@ -359,7 +348,7 @@ Tag content with `{lang=xx}` (BCP 47). Untagged content appears in all languages
 
 Combines with roles: `{lang=en .role:backend}`. Filter with `--lang en` or `--lang en,fr`.
 
-Dimensions multiply: 2 langs x 2 roles x 2 themes = 8 PDFs.
+Dimensions multiply: 2 langs × 2 roles = 4 PDFs.
 
 ## Semantic Selectors
 
@@ -379,7 +368,7 @@ Headings are classified by fuzzy keyword matching.
 
 ```bash
 git resumx sent/stripe-2026-02              # render from tag
-git resumx HEAD~3 --theme zurich -o stripe  # past commit
+git resumx HEAD~3 --css my-styles.css -o stripe  # past commit
 git show :resume.md | resumx -o staged      # staged changes
 ```
 
@@ -404,7 +393,6 @@ With `pages: 1`, layout auto-adjusts after every edit.
 
 ```markdown
 ---
-themes: zurich
 pages: 1
 ---
 

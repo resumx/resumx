@@ -36,7 +36,7 @@ describe('renderDocxFromPdf', () => {
 			content: '# Test\n\nContent',
 			output: '/tmp/output.docx',
 			format: 'docx',
-			cssPath: '/fake/style.css',
+			cssPaths: ['/fake/style.css'],
 		})
 
 		expect(execFileSyncMock).toHaveBeenCalledWith(
@@ -57,7 +57,7 @@ describe('renderDocxFromPdf', () => {
 			content: '# Test\n\nContent',
 			output: '/tmp/output.docx',
 			format: 'docx',
-			cssPath: '/fake/style.css',
+			cssPaths: ['/fake/style.css'],
 		})
 
 		const call = execFileSyncMock.mock.calls[0]

@@ -28,7 +28,6 @@ It automatically [fits content to the page](/guide/fit-to-page), shrinking spaci
 <!-- prettier-ignore-start -->
 ```markdown
 ---
-themes: [zurich, oxford]
 pages: 1
 style:
   section-title-caps: small-caps
@@ -62,10 +61,10 @@ resumx resume.md --format pdf,docx,html
 
 <img
   src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
-  alt="Rendered sample of the snippet above, Zurich theme, frontend role"
+  alt="Rendered sample of the snippet above, frontend role"
 />
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/guide/themes) gives the same content a different look:
+That produces a file for every combination of **role** and **format** (3 roles × 3 formats = 9 files).
 
 ## Quick Start
 
@@ -114,7 +113,7 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | -------------------------------------- | ----------------------- |
 | `resumx [file]`                        | Render to PDF (default) |
 | `resumx [file] --watch`                | Live preview            |
-| `resumx [file] --theme zurich,oxford`  | Multiple themes         |
+| `resumx [file] --css my-styles.css`    | Custom CSS file         |
 | `resumx [file] --role frontend`        | Role-specific output    |
 | `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX       |
 | `resumx [file] --pages 1`              | Fit to 1 page           |

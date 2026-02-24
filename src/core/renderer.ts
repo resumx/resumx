@@ -18,7 +18,7 @@ export interface RenderOptions {
 	content: string
 	output: string
 	format: OutputFormat
-	cssPath: string
+	cssPaths: string[]
 	variables?: Record<string, string>
 	activeRole?: string
 	activeLang?: string
@@ -131,7 +131,7 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 export async function render(options: RenderOptions): Promise<RenderResult> {
 	try {
 		let html = await generateHtml(options.content, {
-			cssPath: options.cssPath,
+			cssPaths: options.cssPaths,
 			variables: options.variables,
 			activeRole: options.activeRole,
 			activeLang: options.activeLang,
@@ -197,7 +197,7 @@ export interface RenderMultipleOptions {
 	outputDir: string
 	outputName: string
 	formats: OutputFormat[]
-	cssPath: string
+	cssPaths: string[]
 	variables?: Record<string, string>
 	activeRole?: string
 	activeLang?: string
@@ -217,7 +217,7 @@ export async function renderMultiple(
 		outputDir,
 		outputName,
 		formats,
-		cssPath,
+		cssPaths,
 		variables,
 		activeRole,
 		activeLang,
@@ -235,7 +235,7 @@ export async function renderMultiple(
 			content,
 			output,
 			format,
-			cssPath,
+			cssPaths,
 			variables,
 			activeRole,
 			activeLang,

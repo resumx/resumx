@@ -1,6 +1,6 @@
 # Custom CSS
 
-For styling beyond [Tailwind utility classes](/guide/tailwind-css) and [theme variables](/guide/themes#css-variables), you can write custom CSS directly.
+For styling beyond [Tailwind utility classes](/guide/tailwind-css) and [style options](/guide/style-options), you can write custom CSS directly.
 
 ## Inline Style Block
 
@@ -21,42 +21,47 @@ Add a `<style>` tag in your Markdown for customizations without needing a separa
 </style>
 ```
 
-Inline styles are applied alongside your theme — they don't replace it.
+Inline styles are applied alongside the default styles, they don't replace them.
 
-## Creating a Theme
+## Custom CSS File
 
-Create a CSS file and import the common base modules:
+Your CSS cascades on top of the default stylesheet, so you only write overrides:
 
 ```css
-/* my-theme.css */
-@import 'common/base.css';
-@import 'common/icons.css';
-@import 'common/utilities.css';
-@import 'common/two-column.css';
-
+/* my-styles.css */
 :root {
 	--font-family: 'Inter', sans-serif;
 	--accent-color: #2563eb;
 	--section-border: 2px solid var(--accent-color);
 	--header-text-align: left;
 }
+
+h2 {
+	letter-spacing: 0.05em;
+}
 ```
 
-Then reference it by path:
+Reference it in frontmatter or on the CLI:
 
 ```markdown
 ---
-themes: my-theme.css
+css: my-styles.css
 ---
 ```
 
-```shell
-resumx resume.md --theme my-theme.css
+```bash
+resumx resume.md --css my-styles.css
 ```
 
-### Common Base Modules
+You can pass multiple CSS files as an array. They are combined in order, later files take precedence:
 
-Your theme can `@import` any of the bundled common modules. They resolve automatically regardless of where your CSS file lives.
+```yaml
+css: [base-company.css, role-specific.css]
+```
+
+### Bundled Common Modules
+
+If you need to build a stylesheet from scratch, your CSS file can `@import` any of the bundled common modules. They resolve automatically regardless of where your CSS file lives.
 
 | Module                  | Purpose                                                |
 | ----------------------- | ------------------------------------------------------ |

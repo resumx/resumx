@@ -11,6 +11,7 @@ import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
+import { DEFAULT_STYLESHEET } from '../core/styles.js'
 import { renderCommand } from './render.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -50,7 +51,7 @@ describe('render command', () => {
 	 * - Works with multiple formats: all formats get correct extensions
 	 *
 	 * Other:
-	 * - Theme selection
+	 * - CSS selection
 	 * - Error handling
 	 * - Input filename priority over H1 heading
 	 * - Argument validation
@@ -221,10 +222,10 @@ describe('render command', () => {
 		expect(existsSync(join(tempDir, 'build/result.html'))).toBe(true)
 	})
 
-	it('uses specified theme', async () => {
+	it('uses specified css', async () => {
 		await renderCommand(
 			'sample.md',
-			{ format: ['html'], theme: ['zurich'] },
+			{ format: ['html'], css: [DEFAULT_STYLESHEET] },
 			tempDir,
 		)
 
@@ -391,7 +392,7 @@ describe('render command', () => {
 		it('errors on extra positional argument with options', async () => {
 			const result = await execa(
 				'node',
-				[CLI_PATH, 'sample.md', '-t', 'seattle', 'extra.pdf'],
+				[CLI_PATH, 'sample.md', '-c', 'style.css', 'extra.pdf'],
 				{
 					cwd: tempDir,
 					reject: false,
@@ -432,24 +433,21 @@ describe('render command', () => {
 	})
 
 	describe('frontmatter configuration', () => {
-		it('uses theme from YAML frontmatter', async () => {
+		it('uses css from YAML frontmatter', async () => {
+			const styleCss = `:root { --font-family: 'CustomFont, serif'; }`
+			writeFileSync(join(tempDir, 'style.css'), styleCss)
 			const mdContent = `---
-themes: zurich
+css: ./style.css
 ---
 # Test Person
 
 Test content`
-			writeFileSync(join(tempDir, 'with-theme.md'), mdContent)
+			writeFileSync(join(tempDir, 'with-css.md'), mdContent)
 
-			await renderCommand('with-theme.md', { format: ['html'] }, tempDir)
+			await renderCommand('with-css.md', { format: ['html'] }, tempDir)
 
-			// Should render successfully with zurich theme
-			const htmlContent = readFileSync(
-				join(tempDir, 'with-theme.html'),
-				'utf-8',
-			)
-			// Verify zurich theme font is applied (Palatino Linotype is distinctive to zurich)
-			expect(htmlContent).toContain('Palatino Linotype')
+			const htmlContent = readFileSync(join(tempDir, 'with-css.html'), 'utf-8')
+			expect(htmlContent).toContain('CustomFont')
 		})
 
 		it('uses output name from frontmatter', async () => {
@@ -501,57 +499,72 @@ Test content`
 		})
 
 		it('CLI flags override frontmatter values', async () => {
+			const customCss = `:root { --font-family: 'CLIFont, serif'; }`
+			writeFileSync(join(tempDir, 'custom.css'), customCss)
 			const mdContent = `---
 output: frontmatter-name
-themes: seattle
+css: ./style.css
 ---
 # Test Person
 
 Test content`
+			writeFileSync(
+				join(tempDir, 'style.css'),
+				`:root { --font-family: 'FrontmatterFont, serif'; }`,
+			)
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			// CLI options override frontmatter
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], output: 'cli-name', theme: ['zurich'] },
+				{
+					format: ['html'],
+					output: 'cli-name',
+					css: [join(tempDir, 'custom.css')],
+				},
 				tempDir,
 			)
 
-			// CLI output name should be used
 			expect(existsSync(join(tempDir, 'cli-name.html'))).toBe(true)
-			// Frontmatter name should NOT be used
 			expect(existsSync(join(tempDir, 'frontmatter-name.html'))).toBe(false)
+			const htmlContent = readFileSync(join(tempDir, 'cli-name.html'), 'utf-8')
+			expect(htmlContent).toContain('CLIFont')
 		})
 
 		it('frontmatter is stripped from HTML output', async () => {
 			const mdContent = `---
-themes: zurich
+css: ./style.css
 output: test
 ---
 # Test Person
 
 Test content`
+			writeFileSync(
+				join(tempDir, 'style.css'),
+				`:root { --font-family: Georgia; }`,
+			)
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
 
 			const htmlContent = readFileSync(join(tempDir, 'test.html'), 'utf-8')
 
-			// Frontmatter should not appear in output
-			expect(htmlContent).not.toContain('themes: zurich')
+			expect(htmlContent).not.toContain('css: ./style.css')
 			expect(htmlContent).not.toContain('output: test')
-			// But content should be present
 			expect(htmlContent).toContain('Test Person')
 		})
 
 		it('parses TOML frontmatter', async () => {
 			const mdContent = `+++
-themes = "zurich"
+css = "./style.css"
 output = "toml-output"
 +++
 # Test Person
 
 Test content`
+			writeFileSync(
+				join(tempDir, 'style.css'),
+				`:root { --font-family: Georgia; }`,
+			)
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
@@ -838,28 +851,6 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume-backend-fr.html'))).toBe(true)
 		})
 
-		it('combines lang with themes', async () => {
-			const mdContent = `# Test Person
-
-## [Experience]{lang=en} [Expérience]{lang=fr}
-
-- [Built APIs]{lang=en}
-  [Développé des APIs]{lang=fr}`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			await renderCommand(
-				'resume.md',
-				{ format: ['html'], theme: ['zurich', 'seattle'] },
-				tempDir,
-			)
-
-			// 2 langs x 2 themes = 4 files
-			expect(existsSync(join(tempDir, 'resume-en-zurich.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-en-seattle.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-fr-zurich.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-fr-seattle.html'))).toBe(true)
-		})
-
 		it('accepts comma-separated langs', async () => {
 			const mdContent = `# Test Person
 
@@ -1011,130 +1002,6 @@ Test content`
 			// Should not create an empty-named or suffixed file
 			expect(existsSync(join(tempDir, 'resume-.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
-		})
-	})
-
-	describe('multi-theme rendering', () => {
-		it('generates multiple theme variants with theme suffix', async () => {
-			// multi-theme, no roles → resume-zurich.html, resume-seattle.html
-			await renderCommand(
-				'sample.md',
-				{ format: ['html'], theme: ['zurich', 'seattle'] },
-				tempDir,
-			)
-
-			// Should generate both theme variants
-			expect(existsSync(join(tempDir, 'sample-zurich.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'sample-seattle.html'))).toBe(true)
-
-			// Verify each uses the correct theme
-			const zurichHtml = readFileSync(
-				join(tempDir, 'sample-zurich.html'),
-				'utf-8',
-			)
-			expect(zurichHtml).toContain('Palatino Linotype') // zurich theme font
-
-			const seattleHtml = readFileSync(
-				join(tempDir, 'sample-seattle.html'),
-				'utf-8',
-			)
-			expect(seattleHtml).toContain('Helvetica Neue') // seattle theme font
-		})
-
-		it('generates flat filenames for multi-theme + roles', async () => {
-			const mdContent = `# Test Person
-
-## Skills
-
-- React {.role:frontend}
-- Node.js {.role:backend}`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			// multi-theme + roles → resume-frontend-zurich.html, etc.
-			await renderCommand(
-				'resume.md',
-				{
-					format: ['html'],
-					theme: ['zurich', 'seattle'],
-					role: ['frontend', 'backend'],
-				},
-				tempDir,
-			)
-
-			// Flat naming: {name}-{role}-{theme}.{format}
-			expect(existsSync(join(tempDir, 'resume-frontend-zurich.html'))).toBe(
-				true,
-			)
-			expect(existsSync(join(tempDir, 'resume-frontend-seattle.html'))).toBe(
-				true,
-			)
-			expect(existsSync(join(tempDir, 'resume-backend-zurich.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-backend-seattle.html'))).toBe(
-				true,
-			)
-
-			// Verify content filtering in frontend + zurich variant
-			const frontendZurichHtml = readFileSync(
-				join(tempDir, 'resume-frontend-zurich.html'),
-				'utf-8',
-			)
-			expect(frontendZurichHtml).toContain('React')
-			expect(frontendZurichHtml).not.toContain('Node.js')
-			expect(frontendZurichHtml).toContain('Palatino Linotype') // zurich theme
-
-			// Verify content filtering in backend + seattle variant
-			const backendSeattleHtml = readFileSync(
-				join(tempDir, 'resume-backend-seattle.html'),
-				'utf-8',
-			)
-			expect(backendSeattleHtml).toContain('Node.js')
-			expect(backendSeattleHtml).not.toContain('React')
-			expect(backendSeattleHtml).toContain('Helvetica Neue') // seattle theme
-		})
-
-		it('single theme with no roles produces no suffix', async () => {
-			await renderCommand(
-				'sample.md',
-				{ format: ['html'], theme: ['zurich'] },
-				tempDir,
-			)
-
-			// Should generate single file with no suffix
-			expect(existsSync(join(tempDir, 'sample.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'sample-zurich.html'))).toBe(false)
-		})
-
-		it('single theme with single role produces no suffix', async () => {
-			const mdContent = `# Test Person
-
-## Skills
-
-- React {.role:frontend}
-- Node.js {.role:backend}`
-			writeFileSync(join(tempDir, 'resume.md'), mdContent)
-
-			await renderCommand(
-				'resume.md',
-				{ format: ['html'], theme: ['zurich'], role: ['frontend'] },
-				tempDir,
-			)
-
-			// Single role + single theme → no suffix for either
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-zurich.html'))).toBe(false)
-		})
-
-		it('supports repeated --theme flags', async () => {
-			await renderCommand(
-				'sample.md',
-				{ format: ['html'], theme: ['zurich', 'seattle'] },
-				tempDir,
-			)
-
-			// Should generate both theme variants
-			expect(existsSync(join(tempDir, 'sample-zurich.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'sample-seattle.html'))).toBe(true)
 		})
 	})
 
@@ -1302,9 +1169,11 @@ Some content
 			expect(existsSync(join(tempDir, 'Jane_Smith.html'))).toBe(false)
 		})
 
-		it('applies theme from stdin frontmatter', async () => {
-			const contentWithTheme = `---
-themes: zurich
+		it('applies css from stdin frontmatter', async () => {
+			const customCss = `:root { --font-family: 'StdinFont, serif'; }`
+			writeFileSync(join(tempDir, 'stdin-style.css'), customCss)
+			const contentWithCss = `---
+css: ./stdin-style.css
 ---
 # Jane Smith
 
@@ -1312,14 +1181,14 @@ Some content
 `
 			await execa('node', [CLI_PATH, '-', '--format', 'html'], {
 				cwd: tempDir,
-				input: contentWithTheme,
+				input: contentWithCss,
 			})
 
 			const htmlContent = readFileSync(
 				join(tempDir, 'Jane_Smith.html'),
 				'utf-8',
 			)
-			expect(htmlContent).toContain('Palatino Linotype')
+			expect(htmlContent).toContain('StdinFont')
 		})
 
 		it('errors when --watch is used with stdin', async () => {

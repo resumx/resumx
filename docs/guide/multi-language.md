@@ -112,4 +112,4 @@ resumx render resume.md --lang en        # English only
 resumx render resume.md --lang en,fr     # English and French
 ```
 
-Languages combine with roles, themes, and formats. For example, 2 langs × 2 roles × 2 themes = **8 PDFs**. Each dimension is included in the filename only when it has multiple values: `resume-frontend-en-zurich.pdf`, `resume-backend-fr-oxford.pdf`, etc.
+Languages combine with roles and formats. For example, 2 langs × 2 roles = **4 PDFs**. Each dimension is included in the filename only when it has multiple values: `resume-frontend-en.pdf`, `resume-backend-fr.pdf`, etc.

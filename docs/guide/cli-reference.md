@@ -37,8 +37,8 @@ When reading from stdin, the output filename is derived from:
 
 | Flag                       | Description                                                                            |
 | -------------------------- | -------------------------------------------------------------------------------------- |
-| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                           |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`.      |
+| `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                  |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{role}`/`{lang}`.       |
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.           |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                                   |
 | `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                       |
@@ -56,17 +56,14 @@ When reading from stdin, the output filename is derived from:
 # Basic render to PDF
 resumx resume.md
 
-# Use a specific theme
-resumx resume.md --theme zurich
-
-# Multiple themes (produces separate PDFs)
-resumx resume.md --theme zurich,oxford,seattle
+# Custom CSS file
+resumx resume.md --css my-styles.css
 
 # Custom output name
 resumx resume.md --output John_Doe_Resume
 
 # Output with template variables
-resumx resume.md --output "dist/John_Doe-{theme}" --theme zurich,oxford
+resumx resume.md --output "dist/John_Doe-{role}" --role frontend,backend
 
 # Override style properties
 resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#2563eb"
@@ -84,7 +81,7 @@ resumx resume.md --watch
 resumx resume.md --role frontend
 
 # Combine options
-resumx resume.md --theme zurich --role frontend,backend --format pdf,html,docx --watch
+resumx resume.md --css my-styles.css --role frontend,backend --format pdf,html,docx --watch
 
 # Validate only (no render)
 resumx resume.md --check
@@ -140,9 +137,8 @@ Some CLI options can also be set in the resume's YAML or TOML frontmatter. CLI f
 
 ```yaml
 ---
-themes: zurich
 pages: 1
-output: ./dist/John_Doe-{theme}
+output: ./dist/John_Doe-{role}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -155,23 +151,23 @@ See the [Frontmatter Reference](/guide/frontmatter-reference) for the full list 
 
 When no `-o` flag or `output` frontmatter is set, filenames are automatically determined:
 
-| Scenario                  | Output                       |
-| ------------------------- | ---------------------------- |
-| 1 theme, no roles         | `resume.pdf`                 |
-| 1 theme, with roles       | `resume-frontend.pdf`        |
-| Multiple themes, no roles | `resume-zurich.pdf`          |
-| Multiple themes + roles   | `frontend/resume-zurich.pdf` |
+| Scenario           | Output                   |
+| ------------------ | ------------------------ |
+| No roles, no langs | `resume.pdf`             |
+| With roles         | `resume-frontend.pdf`    |
+| With langs         | `resume-en.pdf`          |
+| Roles + langs      | `frontend/resume-en.pdf` |
 
 For custom naming, use the `-o` flag with template variables:
 
 ```bash
-# Template with theme variable
-resumx resume.md -o "John_Doe-{theme}" --theme zurich,oxford
-# → John_Doe-zurich.pdf, John_Doe-oxford.pdf
+# Template with role variable
+resumx resume.md -o "John_Doe-{role}" --role frontend,backend
+# → John_Doe-frontend.pdf, John_Doe-backend.pdf
 
-# Template with role and theme
-resumx resume.md -o "{role}/John_Doe-{theme}" --theme zurich,oxford --role frontend,backend
-# → frontend/John_Doe-zurich.pdf, backend/John_Doe-oxford.pdf, etc.
+# Template with role and lang
+resumx resume.md -o "{role}/John_Doe-{lang}" --role frontend --lang en,fr
+# → frontend/John_Doe-en.pdf, frontend/John_Doe-fr.pdf
 ```
 
 See the [Frontmatter Reference](/guide/frontmatter-reference#output) for full details on template variables and modes.

@@ -15,7 +15,7 @@ import { browserPool } from '../lib/browser-pool/index.js'
 
 // Get project paths
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const THEMES_DIR = join(__dirname, '../../themes')
+const STYLES_DIR = join(__dirname, '../../styles')
 
 // =============================================================================
 // Test Utilities
@@ -224,7 +224,7 @@ describe('renderer', () => {
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -251,7 +251,7 @@ describe('renderer', () => {
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -272,7 +272,7 @@ describe('renderer', () => {
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'CustomFont, serif',
 						'custom-var': '#ff0000',
@@ -299,7 +299,7 @@ describe('renderer', () => {
 					content: mdContent,
 					output: outputPath,
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -328,7 +328,7 @@ describe('renderer', () => {
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -362,7 +362,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -384,7 +384,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -404,7 +404,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: {},
 				})
 
@@ -424,7 +424,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -451,7 +451,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// May fail if Chromium is not installed
@@ -478,7 +478,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'Helvetica, sans-serif',
 					},
@@ -506,7 +506,7 @@ Tools
 					content: mdContent,
 					output: outputPath,
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// May fail if Chromium is not installed
@@ -530,7 +530,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output1.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Second render (should reuse browser)
@@ -538,7 +538,7 @@ Tools
 					content: '# Another Test',
 					output: join(dir, 'output2.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// May fail if Chromium is not installed
@@ -572,7 +572,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.png'),
 					format: 'png',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// May fail if Chromium is not installed
@@ -601,7 +601,7 @@ Tools
 					content: mdContent,
 					output: outputPath,
 					format: 'png',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// May fail if Chromium is not installed
@@ -630,7 +630,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.docx'),
 					format: 'docx',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// DOCX may fail if pdf2docx or Chromium is not installed
@@ -660,7 +660,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.docx'),
 					format: 'docx',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Temp PDF should be cleaned up (not in output dir)
@@ -691,7 +691,7 @@ Tools
 					content: '# Test',
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: '/non/existent/style.css',
+					cssPaths: ['/non/existent/style.css'],
 				})
 
 				expect(result.success).toBe(false)
@@ -710,7 +710,7 @@ Tools
 					content: '# Test',
 					output: '/root/protected/output.html',
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(false)
@@ -726,7 +726,7 @@ Tools
 					content: '# Test',
 					output: outputPath,
 					format: 'html',
-					cssPath: '/invalid/path.css',
+					cssPaths: ['/invalid/path.css'],
 				})
 
 				expect(result.success).toBe(false)
@@ -752,7 +752,7 @@ Tools
 					outputDir: dir,
 					outputName: 'output',
 					formats: ['html'],
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(results.size).toBe(1)
@@ -773,7 +773,7 @@ Tools
 					outputDir: dir,
 					outputName: 'multi',
 					formats: ['html', 'pdf'],
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(results.size).toBe(2)
@@ -801,7 +801,7 @@ Tools
 					outputDir: dir,
 					outputName: 'all-formats',
 					formats: ['html', 'pdf', 'docx'],
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(results.size).toBe(3)
@@ -834,7 +834,7 @@ Tools
 					outputDir: dir,
 					outputName: 'with-vars',
 					formats: ['html'],
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 					variables: { 'custom-var': 'custom-value' },
 				})
 
@@ -858,7 +858,7 @@ Tools
 					outputDir,
 					outputName: 'nested',
 					formats: ['html'],
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(results.get('html')?.success).toBe(true)
@@ -875,7 +875,7 @@ Tools
 					outputDir: dir,
 					outputName: 'partial',
 					formats: ['html', 'pdf'],
-					cssPath: '/non/existent/style.css',
+					cssPaths: ['/non/existent/style.css'],
 				})
 
 				expect(results.size).toBe(2)
@@ -902,7 +902,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'test.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Should not throw
@@ -921,7 +921,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'test.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Multiple close calls should not throw
@@ -943,7 +943,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'first.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Close browser
@@ -954,7 +954,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'second.pdf'),
 					format: 'pdf',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				// Both should have same outcome (success or Chromium error)
@@ -968,17 +968,16 @@ Tools
 	})
 
 	// =========================================================================
-	// Integration with Bundled Themes
+	// Integration with Bundled Styles
 	// =========================================================================
 
-	describe('integration with bundled themes', () => {
-		it('renders with classic theme', async () => {
+	describe('integration with bundled styles', () => {
+		it('renders with default stylesheet', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# John Doe\n\n> contact@example.com\n\n## Experience'
-				const classicCss = join(THEMES_DIR, 'classic.css')
+				const defaultCss = join(STYLES_DIR, 'default.css')
 
-				// Skip if themes directory doesn't exist (e.g., in CI before build)
-				if (!existsSync(classicCss)) {
+				if (!existsSync(defaultCss)) {
 					return
 				}
 
@@ -986,54 +985,12 @@ Tools
 					content: mdContent,
 					output: join(dir, 'output.html'),
 					format: 'html',
-					cssPath: classicCss,
+					cssPaths: [defaultCss],
 				})
 
 				expect(result.success).toBe(true)
 				const html = readFileSync(result.outputPath, 'utf-8')
-				expect(html).toContain('Times New Roman')
-			})
-		})
-
-		it('renders with formal theme', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# Test Person\n\nContent'
-				const formalCss = join(THEMES_DIR, 'formal.css')
-
-				if (!existsSync(formalCss)) {
-					return
-				}
-
-				const result = await render({
-					content: mdContent,
-					output: join(dir, 'output.html'),
-					format: 'html',
-					cssPath: formalCss,
-				})
-
-				expect(result.success).toBe(true)
-				const html = readFileSync(result.outputPath, 'utf-8')
-				expect(html).toContain('Palatino Linotype')
-			})
-		})
-
-		it('renders with minimal theme', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# Test\n\nContent'
-				const minimalCss = join(THEMES_DIR, 'minimal.css')
-
-				if (!existsSync(minimalCss)) {
-					return
-				}
-
-				const result = await render({
-					content: mdContent,
-					output: join(dir, 'output.html'),
-					format: 'html',
-					cssPath: minimalCss,
-				})
-
-				expect(result.success).toBe(true)
+				expect(html).toContain('Georgia')
 			})
 		})
 	})
@@ -1053,7 +1010,7 @@ Tools
 					content: '',
 					output: join(dir, 'empty.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -1078,7 +1035,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'long.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -1097,7 +1054,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'special.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -1115,7 +1072,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'unicode.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)
@@ -1138,7 +1095,7 @@ Tools
 					content: mdContent,
 					output: join(dir, 'emoji.html'),
 					format: 'html',
-					cssPath: join(dir, 'style.css'),
+					cssPaths: [join(dir, 'style.css')],
 				})
 
 				expect(result.success).toBe(true)

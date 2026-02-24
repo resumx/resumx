@@ -79,12 +79,12 @@ Use `||` to split a line into columns, pushing them to opposite sides. This is t
 
 <!-- prettier-ignore-start -->
 :::: code-group
-```markdown
+```markdown [Markdown]
 ### Google || Jan 2020 - Present
 _Senior Software Engineer_ || San Francisco, CA
 ```
 
-```html
+```html [HTML]
 <h3>
 	<span class="col">Google</span>
 	<span class="col">Jan 2020 - Present</span>
@@ -107,4 +107,4 @@ To write a literal `||`, escape the first pipe: `\||`.
 
 ## Horizontal Rule
 
-A horizontal rule (`---`) splits the resume into a two-column layout. See [Themes > Spacing](/guide/themes#spacing) for column variables and [Custom CSS](/guide/custom-css#creating-a-theme) for enabling or disabling it.
+A horizontal rule (`---`) splits the resume into a two-column layout. See [Style Options](/guide/style-options#spacing) for column options and [Custom CSS](/guide/custom-css) for enabling or disabling it.
