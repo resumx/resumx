@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process'
+import which from 'which'
 
 export interface DependencyStatus {
 	name: string
@@ -7,21 +8,10 @@ export interface DependencyStatus {
 	installHint?: string
 }
 
-/**
- * Check if a command exists in PATH
- */
 function commandExists(cmd: string): boolean {
-	try {
-		execSync(`which ${cmd}`, { stdio: 'ignore' })
-		return true
-	} catch {
-		return false
-	}
+	return which.sync(cmd, { nothrow: true }) !== null
 }
 
-/**
- * Get version of a command
- */
 function getVersion(
 	cmd: string,
 	versionFlag = '--version',
@@ -31,7 +21,6 @@ function getVersion(
 			encoding: 'utf-8',
 			stdio: ['pipe', 'pipe', 'pipe'],
 		})
-		// Extract first line and clean it up
 		const firstLine = output.split('\n')[0]?.trim()
 		return firstLine
 	} catch {
