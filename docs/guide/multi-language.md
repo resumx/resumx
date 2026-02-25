@@ -66,10 +66,10 @@ For large blocks where everything differs, use [fenced divs](/guide/classes-and-
 
 ## Combining with Roles
 
-`{lang=xx}` and `{.role:name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.role:backend}` without brackets is an [element attribute](/guide/classes-and-ids#element-attributes) that applies to the whole bullet.
+`{lang=xx}` and `{.@name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.@backend}` without brackets is an [element attribute](/guide/classes-and-ids#element-attributes) that applies to the whole bullet.
 
 ```markdown
-- [Designed REST APIs with OpenAPI spec]{lang=en} [Conception d'API REST avec OpenAPI]{lang=fr} {.role:backend}
+- [Designed REST APIs with OpenAPI spec]{lang=en} [Conception d'API REST avec OpenAPI]{lang=fr} {.@backend}
 ```
 
 Break into multiple lines for readability — Markdown collapses them into the same bullet:
@@ -77,14 +77,14 @@ Break into multiple lines for readability — Markdown collapses them into the s
 ```markdown
 - [Designed REST APIs with OpenAPI spec]{lang=en}
   [Conception d'API REST avec OpenAPI]{lang=fr}
-  {.role:backend}
+  {.@backend}
 ```
 
 With separate bullets, each is its own element, so both need the role:
 
-```markdown /{.role:backend}/ /{lang=en}/ /{lang=fr}/
-- Designed REST APIs with OpenAPI spec {lang=en .role:backend}
-- Conception d'API REST avec OpenAPI {lang=fr .role:backend}
+```markdown /{.@backend}/ /{lang=en}/ /{lang=fr}/
+- Designed REST APIs with OpenAPI spec {lang=en .@backend}
+- Conception d'API REST avec OpenAPI {lang=fr .@backend}
 ```
 
 ## Language Tags

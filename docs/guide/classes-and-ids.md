@@ -30,8 +30,8 @@ When `{...}` appears at the end of a block element without `[...]`, it applies t
 
 ### Google {.small-caps}
 
-- Designed REST APIs with OpenAPI documentation {.role:backend}
-- Built interactive dashboards with React and D3.js {.role:frontend}
+- Designed REST APIs with OpenAPI documentation {.@backend}
+- Built interactive dashboards with React and D3.js {.@frontend}
 - Led team of 5 engineers to deliver project 2 weeks early
 ```
 

@@ -40,8 +40,8 @@ jane@example.com | github.com/jane | linkedin.com/in/jane
 ### :meta: Meta || June 2022 - Present
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day {.role:backend}
-- Built interactive dashboards using :ts: TypeScript {.role:frontend .role:fullstack}
+- Built distributed systems serving 1M requests/day {.@backend}
+- Built interactive dashboards using :ts: TypeScript {.@frontend .@fullstack}
 
 ## Technical Skills
 ::: {.grid .grid-cols-2}

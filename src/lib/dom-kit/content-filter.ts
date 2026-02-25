@@ -24,7 +24,7 @@ import { parseHTML } from 'linkedom'
  *
  * @example
  * filterBySelector(html, '[lang]:not([lang="en"])')
- * filterBySelector(html, '[class*="role:"]:not([class*="role:frontend"])')
+ * filterBySelector(html, '[class*="@"]:not([class*="@frontend"])')
  */
 export function filterBySelector(html: string, removeSelector: string): string {
 	if (!html) return ''

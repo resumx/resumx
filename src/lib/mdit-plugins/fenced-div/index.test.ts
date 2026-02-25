@@ -73,31 +73,27 @@ describe('fencedDiv plugin', () => {
 	})
 
 	describe('role namespace classes', () => {
-		it('renders role:frontend class exactly', () => {
+		it('renders @frontend class exactly', () => {
 			const md = createMd()
-			const result = md.render(
-				'::: div {.role:frontend}\n- Item 1\n- Item 2\n:::',
-			)
-			expect(result).toMatch(/<div class="role:frontend">/)
+			const result = md.render('::: div {.@frontend}\n- Item 1\n- Item 2\n:::')
+			expect(result).toMatch(/<div class="@frontend">/)
 			expect(result).toMatch(/<ul>\n<li>Item 1<\/li>\n<li>Item 2<\/li>\n<\/ul>/)
 		})
 
 		it('renders multiple role classes preserving order', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: div {.role:frontend .role:fullstack .role:backend}\nContent\n:::',
+				'::: div {.@frontend .@fullstack .@backend}\nContent\n:::',
 			)
-			expect(result).toMatch(
-				/<div class="role:frontend role:fullstack role:backend">/,
-			)
+			expect(result).toMatch(/<div class="@frontend @fullstack @backend">/)
 		})
 
 		it('renders mixed role and regular classes', () => {
 			const md = createMd()
 			const result = md.render(
-				'::: div {.highlight .role:frontend .warning}\nContent\n:::',
+				'::: div {.highlight .@frontend .warning}\nContent\n:::',
 			)
-			expect(result).toMatch(/<div class="highlight role:frontend warning">/)
+			expect(result).toMatch(/<div class="highlight @frontend warning">/)
 		})
 	})
 
@@ -119,10 +115,8 @@ describe('fencedDiv plugin', () => {
 
 		it('renders component tag with id and classes', () => {
 			const md = createMd()
-			const result = md.render(
-				'::: sidebar {.role:frontend #nav}\nContent\n:::',
-			)
-			expect(result).toMatch(/<sidebar class="role:frontend" id="nav">/)
+			const result = md.render('::: sidebar {.@frontend #nav}\nContent\n:::')
+			expect(result).toMatch(/<sidebar class="@frontend" id="nav">/)
 			expect(result).toMatch(/<\/sidebar>/)
 		})
 
@@ -804,13 +798,13 @@ And another.
 	describe('complex real-world scenarios', () => {
 		it('renders resume-style role-based sections with named div', () => {
 			const md = createMd()
-			const input = `::: div {.role:frontend .role:fullstack}
+			const input = `::: div {.@frontend .@fullstack}
 - Built React components with TypeScript
 - Implemented responsive design
 - Optimized bundle size by 40%
 :::`
 			const result = md.render(input)
-			expect(result).toMatch(/<div class="role:frontend role:fullstack">/)
+			expect(result).toMatch(/<div class="@frontend @fullstack">/)
 			expect(result).toMatch(/<ul>/)
 			expect(result).toMatch(/Built React components/)
 			expect(result).toMatch(/Optimized bundle size/)
@@ -933,9 +927,9 @@ Footer text
 			it('forwards role classes to single child', () => {
 				const md = createMd()
 				const result = md.render(
-					'::: {.role:frontend}\n- Built React components\n- Implemented responsive design\n:::',
+					'::: {.@frontend}\n- Built React components\n- Implemented responsive design\n:::',
 				)
-				expect(result).toMatch(/<ul class="role:frontend">/)
+				expect(result).toMatch(/<ul class="@frontend">/)
 				expect(result).not.toMatch(/<div/)
 			})
 		})

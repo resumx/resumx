@@ -357,8 +357,8 @@ Languages
 					const markdown = `
 # Resume
 
-- Frontend skill {.role:frontend}
-- Backend skill {.role:backend}
+- Frontend skill {.@frontend}
+- Backend skill {.@backend}
 - Common skill
 `
 					const html = await generateHtml(markdown, {
@@ -377,8 +377,8 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					const markdown = `
-- Frontend skill {.role:frontend}
-- Backend skill {.role:backend}
+- Frontend skill {.@frontend}
+- Backend skill {.@backend}
 `
 					const html = await generateHtml(markdown, {
 						cssPaths: [join(dir, 'style.css')],
@@ -396,12 +396,12 @@ Languages
 					const markdown = `
 # Skills
 
-::: div {.role:frontend}
+::: div {.@frontend}
 - React
 - TypeScript
 :::
 
-::: div {.role:backend}
+::: div {.@backend}
 - Node.js
 - PostgreSQL
 :::

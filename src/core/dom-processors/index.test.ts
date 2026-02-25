@@ -164,7 +164,7 @@ describe('runPipeline', () => {
 	describe('role filtering in pipeline', () => {
 		it('filters by role before other processing', () => {
 			const html =
-				'<h1>Name</h1><p class="role:frontend">Frontend</p><p class="role:backend">Backend</p><h2>Skills</h2>'
+				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
 			const result = runPipeline(
 				html,
 				createContext(CSS_WITHOUT_TWO_COLUMN, 'frontend'),
@@ -177,16 +177,16 @@ describe('runPipeline', () => {
 			expect(header?.children.length).toBe(2)
 			expect(header?.children[0].tagName).toBe('H1')
 			expect(header?.children[1].tagName).toBe('P')
-			expect(header?.children[1].getAttribute('class')).toBe('role:frontend')
+			expect(header?.children[1].getAttribute('class')).toBe('@frontend')
 			expect(header?.children[1].textContent).toBe('Frontend')
 
 			// Backend paragraph is removed
-			expect(doc.querySelector('.role\\:backend')).toBeNull()
+			expect(doc.querySelector('.\\@backend')).toBeNull()
 		})
 
 		it('preserves all content when no activeRole specified', () => {
 			const html =
-				'<h1>Name</h1><p class="role:frontend">Frontend</p><p class="role:backend">Backend</p><h2>Skills</h2>'
+				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
 			const result = runPipeline(html, createContext(CSS_WITHOUT_TWO_COLUMN))
 			const doc = parseHtml(result)
 
