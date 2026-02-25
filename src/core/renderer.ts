@@ -20,11 +20,11 @@ export interface RenderOptions {
 	format: OutputFormat
 	cssPaths: string[]
 	variables?: Record<string, string>
-	activeRole?: string
+	activeTarget?: string
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
-	roleMap?: Record<string, string[]>
+	targetMap?: Record<string, string[]>
 }
 
 export interface RenderResult {
@@ -133,10 +133,10 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 		let html = await generateHtml(options.content, {
 			cssPaths: options.cssPaths,
 			variables: options.variables,
-			activeRole: options.activeRole,
+			activeTarget: options.activeTarget,
 			activeLang: options.activeLang,
 			icons: options.icons,
-			roleMap: options.roleMap,
+			targetMap: options.targetMap,
 		})
 
 		if (options.targetPages) {
@@ -199,11 +199,11 @@ export interface RenderMultipleOptions {
 	formats: OutputFormat[]
 	cssPaths: string[]
 	variables?: Record<string, string>
-	activeRole?: string
+	activeTarget?: string
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
-	roleMap?: Record<string, string[]>
+	targetMap?: Record<string, string[]>
 }
 
 /**
@@ -219,11 +219,11 @@ export async function renderMultiple(
 		formats,
 		cssPaths,
 		variables,
-		activeRole,
+		activeTarget,
 		activeLang,
 		targetPages,
 		icons,
-		roleMap,
+		targetMap,
 	} = options
 
 	// Render all formats in parallel
@@ -237,11 +237,11 @@ export async function renderMultiple(
 			format,
 			cssPaths,
 			variables,
-			activeRole,
+			activeTarget,
 			activeLang,
 			targetPages,
 			icons,
-			roleMap,
+			targetMap,
 		})
 
 		return [format, result] as const

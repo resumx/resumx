@@ -61,10 +61,10 @@ resumx resume.md --format pdf,docx,html
 
 <img
   src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
-  alt="Rendered sample of the snippet above, frontend role"
+  alt="Rendered sample of the snippet above, frontend targetted"
 />
 
-That produces a file for every combination of **role** and **format** (3 roles × 3 formats = 9 files).
+That produces a file for every combination of **target** and **format** (3 targets × 3 formats = 9 files).
 
 ## Quick Start
 
@@ -114,7 +114,7 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | `resumx [file]`                        | Render to PDF (default) |
 | `resumx [file] --watch`                | Live preview            |
 | `resumx [file] --css my-styles.css`    | Custom CSS file         |
-| `resumx [file] --role frontend`        | Role-specific output    |
+| `resumx [file] --target frontend`      | Target-specific output  |
 | `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX       |
 | `resumx [file] --pages 1`              | Fit to 1 page           |
 | `resumx init`                          | Create from template    |

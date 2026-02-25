@@ -86,7 +86,7 @@ output: ./build/output/
 
 			it('parses YAML frontmatter with output template', () => {
 				const input = `---
-output: "build/John_Doe-{role}-{lang}"
+output: "build/John_Doe-{target}-{lang}"
 ---
 # Resume`
 
@@ -94,7 +94,7 @@ output: "build/John_Doe-{role}-{lang}"
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					output: 'build/John_Doe-{role}-{lang}',
+					output: 'build/John_Doe-{target}-{lang}',
 				})
 			})
 
@@ -381,9 +381,9 @@ variables: some-value
 				})
 			})
 
-			it('rejects roles with non-object value', () => {
+			it('rejects targets with non-object value', () => {
 				const input = `---
-roles: frontend
+targets: frontend
 ---
 # Resume`
 
@@ -614,10 +614,10 @@ pages: "one"
 			})
 		})
 
-		describe('roles field', () => {
-			it('parses roles as a map of string arrays', () => {
+		describe('targets field', () => {
+			it('parses targets as a map of string arrays', () => {
 				const input = `---
-roles:
+targets:
   fullstack:
     - frontend
     - backend
@@ -627,14 +627,14 @@ roles:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.roles).toEqual({
+				expect(result.config?.targets).toEqual({
 					fullstack: ['frontend', 'backend'],
 				})
 			})
 
 			it('coerces a single string value to a one-element array', () => {
 				const input = `---
-roles:
+targets:
   senior: backend
 ---
 # Resume`
@@ -642,14 +642,14 @@ roles:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.roles).toEqual({
+				expect(result.config?.targets).toEqual({
 					senior: ['backend'],
 				})
 			})
 
-			it('parses multiple composed roles', () => {
+			it('parses multiple composed targets', () => {
 				const input = `---
-roles:
+targets:
   fullstack: [frontend, backend]
   tech-lead: [backend, leadership]
   startup-cto: [fullstack, leadership, architecture]
@@ -659,7 +659,7 @@ roles:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.roles).toEqual({
+				expect(result.config?.targets).toEqual({
 					fullstack: ['frontend', 'backend'],
 					'tech-lead': ['backend', 'leadership'],
 					'startup-cto': ['fullstack', 'leadership', 'architecture'],
@@ -675,12 +675,12 @@ css: zurich
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.roles).toBeUndefined()
+				expect(result.config?.targets).toBeUndefined()
 			})
 
 			it('rejects non-string array values', () => {
 				const input = `---
-roles:
+targets:
   fullstack:
     - 123
 ---
@@ -691,9 +691,9 @@ roles:
 				expect(result.ok).toBe(false)
 			})
 
-			it('parses roles from TOML', () => {
+			it('parses targets from TOML', () => {
 				const input = `+++
-[roles]
+[targets]
 fullstack = ["frontend", "backend"]
 +++
 # Resume`
@@ -701,7 +701,7 @@ fullstack = ["frontend", "backend"]
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.roles).toEqual({
+				expect(result.config?.targets).toEqual({
 					fullstack: ['frontend', 'backend'],
 				})
 			})
@@ -710,7 +710,7 @@ fullstack = ["frontend", "backend"]
 				const input = `---
 css: zurich
 pages: 1
-roles:
+targets:
   fullstack: [frontend, backend]
 ---
 # Resume`
@@ -721,7 +721,7 @@ roles:
 				expect(result.config).toEqual({
 					css: ['zurich'],
 					pages: 1,
-					roles: { fullstack: ['frontend', 'backend'] },
+					targets: { fullstack: ['frontend', 'backend'] },
 				})
 			})
 		})

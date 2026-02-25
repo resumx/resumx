@@ -6,7 +6,7 @@
  * - Filter HTML by removing elements that don't match a CSS selector
  * - Resolve which values to generate with validation
  *
- * These generic functions power language and role filtering,
+ * These generic functions power language and target filtering,
  * using CSS selectors to define the matching strategy.
  */
 
@@ -83,13 +83,13 @@ export function extractBySelector(
  *
  * @param explicit - User-specified values (e.g., from CLI flags)
  * @param discovered - Auto-discovered values from content
- * @param dimensionName - Name used in error messages (e.g., 'language', 'role')
+ * @param dimensionName - Name used in error messages (e.g., 'language', 'target')
  * @returns Array of values to use
  * @throws Error if any explicit value does not exist in discovered
  *
  * @example
  * resolveValues(['en'], ['en', 'fr'], 'language')
- * resolveValues([], ['frontend', 'backend'], 'role')
+ * resolveValues([], ['frontend', 'backend'], 'target')
  */
 export function resolveValues(
 	explicit: string[],

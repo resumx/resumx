@@ -608,8 +608,8 @@ Test content`
 		})
 	})
 
-	describe('role filtering', () => {
-		it('filters content with --role flag', async () => {
+	describe('target filtering', () => {
+		it('filters content with --target flag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -621,18 +621,18 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend'] },
+				{ format: ['html'], target: ['frontend'] },
 				tempDir,
 			)
 
-			// Single role → no suffix
+			// Single target → no suffix
 			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
 			expect(htmlContent).toContain('React')
 			expect(htmlContent).not.toContain('Node.js')
 			expect(htmlContent).toContain('Common skill')
 		})
 
-		it('auto-generates all role variants when roles exist', async () => {
+		it('auto-generates all target variants when targets exist', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -643,7 +643,7 @@ Test content`
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
 
-			// Should generate separate files for each role
+			// Should generate separate files for each target
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
 
@@ -663,7 +663,7 @@ Test content`
 			expect(backendHtml).not.toContain('React')
 		})
 
-		it('generates single file with explicit role flag', async () => {
+		it('generates single file with explicit target flag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -674,17 +674,17 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend'] },
+				{ format: ['html'], target: ['frontend'] },
 				tempDir,
 			)
 
-			// Single role selected → no suffix needed
+			// Single target selected → no suffix needed
 			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 		})
 
-		it('renders normally when no roles in content', async () => {
+		it('renders normally when no targets in content', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -696,7 +696,7 @@ Test content`
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
 
-			// Should generate single file (no role suffix)
+			// Should generate single file (no target suffix)
 			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
 
 			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
@@ -705,7 +705,7 @@ Test content`
 			expect(htmlContent).toContain('Go')
 		})
 
-		it('filters fenced div blocks with role class', async () => {
+		it('filters fenced div blocks with target class', async () => {
 			const mdContent = `# Test Person
 
 ::: div {.@frontend}
@@ -725,11 +725,11 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['backend'] },
+				{ format: ['html'], target: ['backend'] },
 				tempDir,
 			)
 
-			// Single role → no suffix
+			// Single target → no suffix
 			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
 			expect(htmlContent).not.toContain('Frontend Skills')
 			expect(htmlContent).not.toContain('React')
@@ -831,7 +831,7 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume-en.html'))).toBe(false)
 		})
 
-		it('combines lang with roles', async () => {
+		it('combines lang with targets', async () => {
 			const mdContent = `# Test Person
 
 ## [Skills]{lang=en} [Compétences]{lang=fr}
@@ -844,7 +844,7 @@ Test content`
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
 
-			// 2 langs x 2 roles = 4 files, flat: {name}-{role}-{lang}.{format}
+			// 2 langs x 2 targets = 4 files, flat: {name}-{target}-{lang}.{format}
 			expect(existsSync(join(tempDir, 'resume-frontend-en.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-frontend-fr.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend-en.html'))).toBe(true)
@@ -918,7 +918,7 @@ Test content`
 	})
 
 	describe('comma-separated CLI options', () => {
-		it('accepts comma-separated roles', async () => {
+		it('accepts comma-separated targets', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -930,18 +930,18 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend', 'backend'] },
+				{ format: ['html'], target: ['frontend', 'backend'] },
 				tempDir,
 			)
 
-			// Should generate both specified roles
+			// Should generate both specified targets
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
 			// But not devops
 			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
 		})
 
-		it('accepts comma-separated roles with spaces', async () => {
+		it('accepts comma-separated targets with spaces', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -952,7 +952,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend', 'backend'] },
+				{ format: ['html'], target: ['frontend', 'backend'] },
 				tempDir,
 			)
 
@@ -972,7 +972,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend', 'backend', 'devops'] },
+				{ format: ['html'], target: ['frontend', 'backend', 'devops'] },
 				tempDir,
 			)
 
@@ -993,11 +993,11 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], role: ['frontend'] },
+				{ format: ['html'], target: ['frontend'] },
 				tempDir,
 			)
 
-			// Single role after trimming → no suffix
+			// Single target after trimming → no suffix
 			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
 			// Should not create an empty-named or suffixed file
 			expect(existsSync(join(tempDir, 'resume-.html'))).toBe(false)

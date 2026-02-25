@@ -137,8 +137,8 @@ program
 		[],
 	)
 	.option(
-		'-r, --role <name>',
-		'Generate for specific role(s) only (repeatable)',
+		'-t, --target <name>',
+		'Generate for specific target(s) only (repeatable)',
 		collectWithCommas,
 		[],
 	)

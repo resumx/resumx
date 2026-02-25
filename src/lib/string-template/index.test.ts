@@ -9,13 +9,13 @@ import {
 // validateTemplateVars
 // =============================================================================
 
-const VALID = ['role', 'lang']
+const VALID = ['target', 'lang']
 
 describe('validateTemplateVars', () => {
 	it('accepts known variables', () => {
-		expect(() => validateTemplateVars('resume-{role}', VALID)).not.toThrow()
+		expect(() => validateTemplateVars('resume-{target}', VALID)).not.toThrow()
 		expect(() =>
-			validateTemplateVars('{role}/resume-{lang}', VALID),
+			validateTemplateVars('{target}/resume-{lang}', VALID),
 		).not.toThrow()
 	})
 
@@ -26,7 +26,7 @@ describe('validateTemplateVars', () => {
 	})
 
 	it('throws on unknown variable {name}', () => {
-		expect(() => validateTemplateVars('{name}-{role}', VALID)).toThrow(
+		expect(() => validateTemplateVars('{name}-{target}', VALID)).toThrow(
 			'Unknown template variable(s): {name}',
 		)
 	})
@@ -45,7 +45,7 @@ describe('validateTemplateVars', () => {
 
 	it('mentions valid variables in error', () => {
 		expect(() => validateTemplateVars('{foo}', VALID)).toThrow(
-			'Valid variables: {role}, {lang}',
+			'Valid variables: {target}, {lang}',
 		)
 	})
 
@@ -61,50 +61,50 @@ describe('validateTemplateVars', () => {
 // =============================================================================
 
 describe('expandTemplate', () => {
-	it('expands {role} variable', () => {
-		expect(expandTemplate('resume-{role}', { role: 'frontend' })).toBe(
+	it('expands {target} variable', () => {
+		expect(expandTemplate('resume-{target}', { target: 'frontend' })).toBe(
 			'resume-frontend',
 		)
 	})
 
 	it('expands {lang} variable', () => {
 		expect(
-			expandTemplate('resume-{lang}', { role: 'frontend', lang: 'en' }),
+			expandTemplate('resume-{lang}', { target: 'frontend', lang: 'en' }),
 		).toBe('resume-en')
 	})
 
-	it('expands both {role} and {lang}', () => {
+	it('expands both {target} and {lang}', () => {
 		expect(
-			expandTemplate('John-{role}-{lang}', {
-				role: 'frontend',
+			expandTemplate('John-{target}-{lang}', {
+				target: 'frontend',
 				lang: 'en',
 			}),
 		).toBe('John-frontend-en')
 	})
 
-	it('expands {role} as directory prefix', () => {
+	it('expands {target} as directory prefix', () => {
 		expect(
-			expandTemplate('{role}/John-{lang}', {
-				role: 'backend',
+			expandTemplate('{target}/John-{lang}', {
+				target: 'backend',
 				lang: 'en',
 			}),
 		).toBe('backend/John-en')
 	})
 
 	it('replaces missing keys with empty string', () => {
-		expect(expandTemplate('resume-{role}', { lang: 'en' })).toBe('resume-')
+		expect(expandTemplate('resume-{target}', { lang: 'en' })).toBe('resume-')
 	})
 
 	it('replaces missing keys in the middle with empty string', () => {
-		expect(expandTemplate('resume-{role}-{lang}', { lang: 'en' })).toBe(
+		expect(expandTemplate('resume-{target}-{lang}', { lang: 'en' })).toBe(
 			'resume--en',
 		)
 	})
 
 	it('handles template with static directory prefix', () => {
 		expect(
-			expandTemplate('build/{role}/John-{lang}', {
-				role: 'frontend',
+			expandTemplate('build/{target}/John-{lang}', {
+				target: 'frontend',
 				lang: 'en',
 			}),
 		).toBe('build/frontend/John-en')
@@ -127,16 +127,16 @@ describe('expandTemplate', () => {
 describe('validateTemplateUniqueness', () => {
 	it('passes with single value per dimension', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				role: ['frontend'],
+			validateTemplateUniqueness('John-{target}', {
+				target: ['frontend'],
 			}),
 		).not.toThrow()
 	})
 
-	it('passes with multiple roles and {role} in template', () => {
+	it('passes with multiple targets and {target} in template', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				role: ['frontend', 'backend'],
+			validateTemplateUniqueness('John-{target}', {
+				target: ['frontend', 'backend'],
 			}),
 		).not.toThrow()
 	})
@@ -144,7 +144,7 @@ describe('validateTemplateUniqueness', () => {
 	it('passes with multiple langs and {lang} in template', () => {
 		expect(() =>
 			validateTemplateUniqueness('John-{lang}', {
-				role: ['frontend'],
+				target: ['frontend'],
 				lang: ['en', 'fr'],
 			}),
 		).not.toThrow()
@@ -152,34 +152,34 @@ describe('validateTemplateUniqueness', () => {
 
 	it('passes with both variables and full matrix', () => {
 		expect(() =>
-			validateTemplateUniqueness('{role}/John-{lang}', {
-				role: ['frontend', 'backend'],
+			validateTemplateUniqueness('{target}/John-{lang}', {
+				target: ['frontend', 'backend'],
 				lang: ['en', 'fr'],
 			}),
 		).not.toThrow()
 	})
 
-	it('throws when multiple roles but no {role}', () => {
+	it('throws when multiple targets but no {target}', () => {
 		expect(() =>
 			validateTemplateUniqueness('John-{lang}', {
-				role: ['frontend', 'backend'],
+				target: ['frontend', 'backend'],
 				lang: ['en'],
 			}),
 		).toThrow('duplicates')
 	})
 
-	it('suggests adding {role} when roles collide', () => {
+	it('suggests adding {target} when targets collide', () => {
 		expect(() =>
 			validateTemplateUniqueness('John', {
-				role: ['frontend', 'backend'],
+				target: ['frontend', 'backend'],
 			}),
-		).toThrow('{role}')
+		).toThrow('{target}')
 	})
 
 	it('throws when multiple langs but no {lang}', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				role: ['frontend'],
+			validateTemplateUniqueness('John-{target}', {
+				target: ['frontend'],
 				lang: ['en', 'fr'],
 			}),
 		).toThrow('duplicates')
@@ -187,8 +187,8 @@ describe('validateTemplateUniqueness', () => {
 
 	it('suggests adding {lang} when langs collide', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				role: ['frontend'],
+			validateTemplateUniqueness('John-{target}', {
+				target: ['frontend'],
 				lang: ['en', 'fr'],
 			}),
 		).toThrow('{lang}')
@@ -196,8 +196,8 @@ describe('validateTemplateUniqueness', () => {
 
 	it('throws on multi-dimension without both variables', () => {
 		expect(() =>
-			validateTemplateUniqueness('John-{role}', {
-				role: ['frontend', 'backend'],
+			validateTemplateUniqueness('John-{target}', {
+				target: ['frontend', 'backend'],
 				lang: ['en', 'fr'],
 			}),
 		).toThrow('{lang}')
@@ -206,7 +206,7 @@ describe('validateTemplateUniqueness', () => {
 	it('passes when single value in all dimensions', () => {
 		expect(() =>
 			validateTemplateUniqueness('John', {
-				role: ['frontend'],
+				target: ['frontend'],
 				lang: ['en'],
 			}),
 		).not.toThrow()
@@ -215,7 +215,7 @@ describe('validateTemplateUniqueness', () => {
 	it('ignores empty dimensions', () => {
 		expect(() =>
 			validateTemplateUniqueness('John', {
-				role: ['frontend'],
+				target: ['frontend'],
 				lang: [],
 			}),
 		).not.toThrow()

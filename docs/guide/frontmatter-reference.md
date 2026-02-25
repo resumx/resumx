@@ -9,7 +9,7 @@ Configure rendering options directly inside your resume using YAML or TOML front
 ```yaml
 ---
 pages: 1
-output: ./dist/John_Doe-{role}
+output: ./dist/John_Doe-{target}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -21,7 +21,7 @@ style:
 ```toml
 +++
 pages = 1
-output = "./dist/John_Doe-{role}"
+output = "./dist/John_Doe-{target}"
 
 [style]
 font-family = "Inter, sans-serif"
@@ -69,15 +69,15 @@ Output path for rendered files. Supports three modes depending on its value:
 
 **Modes:**
 
-| Value                           | Mode       | Behavior                                                                      |
-| ------------------------------- | ---------- | ----------------------------------------------------------------------------- |
-| `./dist/`                       | Directory  | Ends with `/`, output files go into this directory using default naming rules |
-| `John_Doe`                      | Plain name | No `{…}`, used as the base filename, with automatic role/lang suffixes        |
-| `./dist/John_Doe-{role}-{lang}` | Template   | Contains `{role}` and/or `{lang}`, expanded for each combination              |
+| Value                             | Mode       | Behavior                                                                      |
+| --------------------------------- | ---------- | ----------------------------------------------------------------------------- |
+| `./dist/`                         | Directory  | Ends with `/`, output files go into this directory using default naming rules |
+| `John_Doe`                        | Plain name | No `{…}`, used as the base filename, with automatic target/lang suffixes      |
+| `./dist/John_Doe-{target}-{lang}` | Template   | Contains `{target}` and/or `{lang}`, expanded for each combination            |
 
 **Template variables:**
 
-- `{role}` — the role name (e.g. `frontend`, `backend`). Expands to empty string when no roles exist; orphaned separators are cleaned up automatically.
+- `{target}` — the target name (e.g. `frontend`, `backend`). Expands to empty string when no targets exist; orphaned separators are cleaned up automatically.
 - `{lang}` — the language tag (e.g. `en`, `fr`). Expands to empty string when no languages exist.
 
 When using template mode, if the expanded paths would produce duplicate filenames, an error is raised with a suggestion.
@@ -90,10 +90,10 @@ output: John_Doe
 output: ./dist/
 
 # Template, produces ./dist/John_Doe-frontend.pdf, etc.
-output: ./dist/John_Doe-{role}
+output: ./dist/John_Doe-{target}
 
 # Template with both, produces frontend/John_Doe-en.pdf, etc.
-output: "{role}/John_Doe-{lang}"
+output: "{target}/John_Doe-{lang}"
 
 # Path with directory and name
 output: ./dist/John_Doe
@@ -138,30 +138,30 @@ pages: 2
 
 See [Fit to Page](/guide/fit-to-page) for the full guide.
 
-### `roles`
+### `targets`
 
-Role composition map. Define composed roles as unions of constituent roles. When rendering for a composed role, content tagged with any constituent is included.
+Target composition map. Define composed targets as unions of constituent targets. When rendering for a composed target, content tagged with any constituent is included.
 
 | Property    | Value                      |
 | ----------- | -------------------------- |
 | **Type**    | `Record<string, string[]>` |
-| **Default** | No composed roles          |
+| **Default** | No composed targets        |
 
-Composed role names are added to the auto-discovered set, so they get PDFs even without explicit `{.@name}` tags in content. Compositions can reference other composed roles (recursive expansion). Circular references produce an error.
+Composed target names are added to the auto-discovered set, so they get PDFs even without explicit `{.@name}` tags in content. Compositions can reference other composed targets (recursive expansion). Circular references produce an error.
 
 ```yaml
 # Simple composition
-roles:
+targets:
   fullstack: [frontend, backend]
 
-# Multiple composed roles with recursive expansion
-roles:
+# Multiple composed targets with recursive expansion
+targets:
   fullstack: [frontend, backend]
   tech-lead: [backend, leadership]
   startup-cto: [fullstack, leadership, architecture]
 ```
 
-See [Per-Role Output](/guide/per-role-output#role-composition) for the full guide.
+See [Tailored Variants](/guide/tailored-variants#target-composition) for the full guide.
 
 ### `icons`
 
@@ -289,7 +289,7 @@ validate:
 ```yaml
 ---
 pages: 1
-output: ./out/Jane_Smith-{role}
+output: ./out/Jane_Smith-{target}
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -315,7 +315,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `style`, `icons`, `roles`, `validate`, `extra`) produces an error:
+Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `style`, `icons`, `targets`, `validate`, `extra`) produces an error:
 
 ```
 Unknown frontmatter field 'foo'. Use 'extra' for custom fields.

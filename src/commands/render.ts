@@ -61,7 +61,7 @@ export interface RenderCommandOptions {
 	css?: string[]
 	output?: string
 	style?: string[]
-	role?: string[]
+	target?: string[]
 	lang?: string[]
 	format?: string[]
 	watch?: boolean
@@ -109,42 +109,42 @@ interface RenderTask {
 	variables: Record<string, string>
 	outputDir: string
 	outputName: string
-	activeRole: string | undefined
+	activeTarget: string | undefined
 	activeLang: string | undefined
 	label: string
 }
 
 /**
- * Build render tasks for all role × lang combinations.
+ * Build render tasks for all target × lang combinations.
  *
- * Output filename: {name}-{role}-{lang}.{format}
+ * Output filename: {name}-{target}-{lang}.{format}
  * Each dimension is included as a suffix only when it has multiple values.
  */
 function buildRenderTasks(
 	cssPaths: string[],
 	variables: Record<string, string>,
-	roles: string[],
+	targets: string[],
 	langs: string[],
 	baseOutputDir: string,
 	baseOutputName: string,
 ): RenderTask[] {
 	const tasks: RenderTask[] = []
-	const hasMultipleRoles = roles.length > 1
+	const hasMultipleTargets = targets.length > 1
 	const hasMultipleLangs = langs.length > 1
 
-	const effectiveRoles: Array<string | undefined> =
-		roles.length > 0 ? roles : [undefined]
+	const effectiveTargets: Array<string | undefined> =
+		targets.length > 0 ? targets : [undefined]
 	const effectiveLangs: Array<string | undefined> =
 		langs.length > 0 ? langs : [undefined]
 
-	for (const [role, lang] of cartesian(effectiveRoles, effectiveLangs)) {
+	for (const [target, lang] of cartesian(effectiveTargets, effectiveLangs)) {
 		const suffixParts = [
-			hasMultipleRoles && role,
+			hasMultipleTargets && target,
 			hasMultipleLangs && lang,
 		].filter(Boolean) as string[]
 
 		const labelParts = [
-			hasMultipleRoles && role,
+			hasMultipleTargets && target,
 			hasMultipleLangs && lang,
 		].filter(Boolean) as string[]
 
@@ -158,7 +158,7 @@ function buildRenderTasks(
 			variables,
 			outputDir: baseOutputDir,
 			outputName,
-			activeRole: role,
+			activeTarget: target,
 			activeLang: lang,
 			label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
 		})
@@ -218,7 +218,7 @@ async function runRender(
 	let outputTemplate: string | undefined
 
 	if (outputString) {
-		validateTemplateVars(outputString, ['role', 'lang'])
+		validateTemplateVars(outputString, ['target', 'lang'])
 
 		if (outputString.endsWith('/')) {
 			baseOutputDir = resolve(cwd, outputString.slice(0, -1) || '.')
@@ -240,32 +240,32 @@ async function runRender(
 
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
-	// Discover roles and languages from content
+	// Discover targets and languages from content
 	const html = renderMarkdown(content)
-	const ROLE_CLASS_RE = /@([^\s"']+)/g
-	const discoveredRoles = extractBySelector(html, '[class*="@"]', el => {
+	const TARGET_CLASS_RE = /@([^\s"']+)/g
+	const discoveredTargets = extractBySelector(html, '[class*="@"]', el => {
 		const cls = el.getAttribute('class') ?? ''
-		ROLE_CLASS_RE.lastIndex = 0
-		const roles: string[] = []
+		TARGET_CLASS_RE.lastIndex = 0
+		const targets: string[] = []
 		let m
-		while ((m = ROLE_CLASS_RE.exec(cls))) roles.push(m[1]!)
-		return roles
+		while ((m = TARGET_CLASS_RE.exec(cls))) targets.push(m[1]!)
+		return targets
 	})
 	const discoveredLangs = extractBySelector(html, '[lang]', el => {
 		const v = el.getAttribute('lang')
 		return v ? [v] : []
 	})
 
-	const roleMap = fmConfig?.roles
-	const allKnownRoles =
-		roleMap ?
-			[...new Set([...discoveredRoles, ...Object.keys(roleMap)])]
-		:	discoveredRoles
+	const targetMap = fmConfig?.targets
+	const allKnownTargets =
+		targetMap ?
+			[...new Set([...discoveredTargets, ...Object.keys(targetMap)])]
+		:	discoveredTargets
 
-	const rolesToGenerate = resolveValues(
-		options.role ?? [],
-		allKnownRoles,
-		'role',
+	const targetsToGenerate = resolveValues(
+		options.target ?? [],
+		allKnownTargets,
+		'target',
 	)
 
 	const langsToGenerate = resolveValues(
@@ -278,26 +278,26 @@ async function runRender(
 
 	if (outputTemplate) {
 		validateTemplateUniqueness(outputTemplate, {
-			role: rolesToGenerate,
+			target: targetsToGenerate,
 			lang: langsToGenerate,
 		})
 
 		renderTasks = []
-		const effectiveRoles: Array<string | undefined> =
-			rolesToGenerate.length > 0 ? rolesToGenerate : [undefined]
+		const effectiveTargets: Array<string | undefined> =
+			targetsToGenerate.length > 0 ? targetsToGenerate : [undefined]
 		const effectiveLangs: Array<string | undefined> =
 			langsToGenerate.length > 0 ? langsToGenerate : [undefined]
 
-		for (const [role, lang] of cartesian(effectiveRoles, effectiveLangs)) {
+		for (const [target, lang] of cartesian(effectiveTargets, effectiveLangs)) {
 			const expanded = cleanupPath(
 				expandTemplate(outputTemplate, {
-					role: role ?? '',
+					target: target ?? '',
 					lang: lang ?? '',
 				}),
 			)
 			const resolved = resolve(cwd, expanded)
 			const labelParts: string[] = []
-			if (role) labelParts.push(role)
+			if (target) labelParts.push(target)
 			if (lang) labelParts.push(lang)
 
 			renderTasks.push({
@@ -305,7 +305,7 @@ async function runRender(
 				variables,
 				outputDir: dirname(resolved),
 				outputName: stripDocExtension(basename(resolved)),
-				activeRole: role,
+				activeTarget: target,
 				activeLang: lang,
 				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
 			})
@@ -314,7 +314,7 @@ async function runRender(
 		renderTasks = buildRenderTasks(
 			cssPaths,
 			variables,
-			rolesToGenerate,
+			targetsToGenerate,
 			langsToGenerate,
 			baseOutputDir,
 			baseOutputName,
@@ -331,11 +331,11 @@ async function runRender(
 				formats,
 				cssPaths: task.cssPaths,
 				variables: hasVariables ? task.variables : undefined,
-				activeRole: task.activeRole,
+				activeTarget: task.activeTarget,
 				activeLang: task.activeLang,
 				targetPages,
 				icons: fmConfig?.icons,
-				roleMap,
+				targetMap,
 			})
 			return { label: task.label, results }
 		}),

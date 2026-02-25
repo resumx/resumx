@@ -16,14 +16,14 @@ export interface PipelineConfig {
 	style?: string
 	/** CSS variable overrides */
 	variables?: Record<string, string>
-	/** Active role for content filtering */
-	activeRole?: string
-	/** Role composition map from frontmatter (composed role name -> constituent roles) */
-	roleMap?: Record<string, string[]>
+	/** Active target for content filtering */
+	activeTarget?: string
+	/** Target composition map from frontmatter (composed target name -> constituent targets) */
+	targetMap?: Record<string, string[]>
 	/** Active language for content filtering */
 	activeLang?: string
-	/** Available roles from content */
-	roles?: string[]
+	/** Available targets from content */
+	targets?: string[]
 }
 
 /**

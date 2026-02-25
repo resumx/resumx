@@ -1,6 +1,6 @@
 # Multi-Language Output
 
-Write one resume file with content in multiple languages. Tag text with `{lang=xx}` and Resumx generates a separate output for each language — just like [per-role output](/guide/per-role-output), but for languages.
+Write one resume file with content in multiple languages. Tag text with `{lang=xx}` and Resumx generates a separate output for each language, just like [tailored variants](/guide/tailored-variants), but for languages.
 
 ```markdown /{lang=en}/ /{lang=fr}/
 ## [Experience]{lang=en} [Expérience]{lang=fr}
@@ -37,7 +37,7 @@ That produces two PDFs. Content without `{lang=...}` appears in both:
 :::
 
 ::: info Why `lang` attribute, not a class like `{.lang:en}`?
-Unlike roles, `lang` is a [standard HTML global attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang). Resumx uses it directly so the output is valid, accessible HTML.
+Unlike targets, `lang` is a [standard HTML global attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang). Resumx uses it directly so the output is valid, accessible HTML.
 :::
 
 ## Tagging Content
@@ -64,7 +64,7 @@ For large blocks where everything differs, use [fenced divs](/guide/classes-and-
 :::
 ```
 
-## Combining with Roles
+## Combining with Targets
 
 `{lang=xx}` and `{.@name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.@backend}` without brackets is an [element attribute](/guide/classes-and-ids#element-attributes) that applies to the whole bullet.
 
@@ -80,7 +80,7 @@ Break into multiple lines for readability — Markdown collapses them into the s
   {.@backend}
 ```
 
-With separate bullets, each is its own element, so both need the role:
+With separate bullets, each is its own element, so both need the target:
 
 ```markdown /{.@backend}/ /{lang=en}/ /{lang=fr}/
 - Designed REST APIs with OpenAPI spec {lang=en .@backend}
@@ -112,4 +112,4 @@ resumx render resume.md --lang en        # English only
 resumx render resume.md --lang en,fr     # English and French
 ```
 
-Languages combine with roles and formats. For example, 2 langs × 2 roles = **4 PDFs**. Each dimension is included in the filename only when it has multiple values: `resume-frontend-en.pdf`, `resume-backend-fr.pdf`, etc.
+Languages combine with targets and formats. For example, 2 langs × 2 targets = **4 PDFs**. Each dimension is included in the filename only when it has multiple values: `resume-frontend-en.pdf`, `resume-backend-fr.pdf`, etc.

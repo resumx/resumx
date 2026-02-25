@@ -143,7 +143,7 @@ async function run() {
 				@load="disableLinks"
 			/>
 			<figcaption>
-				Rendered sample of the snippet above, frontend role.
+				Rendered sample of the snippet above, frontend targetted.
 			</figcaption>
 		</figure>
 	</div>
