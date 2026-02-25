@@ -21,11 +21,11 @@
 
 ---
 
-In resume writing, the real leverage is content quality and [tailoring for the role](https://resumx.dev/playbook/tailored-vs-generic) (10.6x higher interview rates), but those are what existing tools ignore. Resumx makes tailoring easier and everything else, layout, page fitting, styling, cost you zero effort.
+In resume writing, the real leverage is **content quality and tailoring for the role** ([**10.6x higher interview rates**](https://resumx.dev/playbook/tailored-vs-generic)), but those are what existing tools ignore. Resumx makes tailoring easier and everything else, layout, page fitting, styling, cost you zero effort.
 
 - **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
 - **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
-- **AI-friendly by default.** Plain Markdown means AI can help draft, refine, and tailor your content without losing context.
+- **AI-friendly by default.** Content in a single file means AI can help draft, refine, and tailor your content without losing context.
 - **More writing, fewer decisions.** Sensible defaults for typography and structure so you can spend your time on substance.
 
 <!-- prettier-ignore-start -->
@@ -36,6 +36,7 @@ style:
   section-title-caps: small-caps
 ---
 # Jane Doe
+
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
