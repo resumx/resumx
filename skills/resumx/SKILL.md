@@ -110,7 +110,7 @@ _Senior Software Engineer_ [San Francisco, CA]{.right}
 `{...}` at end of a block element applies to the whole element:
 
 ```markdown
-- Built interactive dashboards {.role:frontend}
+- Built interactive dashboards {.@frontend}
 ```
 
 ### Fenced Divs
@@ -311,12 +311,12 @@ Built-in utilities: `.small-caps`, `.sr-only`.
 
 ## Per-Role Output
 
-Tag content with `{.role:name}`. Untagged content always included. Tagged content only appears for matching roles. Multiple roles: `{.role:backend .role:fullstack}`.
+Tag content with `{.@name}`. Untagged content always included. Tagged content only appears for matching roles. Multiple roles: `{.@backend .@fullstack}`.
 
 ```markdown
 - Shared bullet
-- Frontend-only bullet {.role:frontend}
-- Backend-only bullet {.role:backend}
+- Frontend-only bullet {.@frontend}
+- Backend-only bullet {.@backend}
 ```
 
 Resumx auto-discovers all roles and generates a PDF for each. Filter with `--role frontend` or `--role frontend,backend`.
@@ -346,7 +346,7 @@ Tag content with `{lang=xx}` (BCP 47). Untagged content appears in all languages
   [Réduction de la latence API de 60%]{lang=fr}
 ```
 
-Combines with roles: `{lang=en .role:backend}`. Filter with `--lang en` or `--lang en,fr`.
+Combines with roles: `{lang=en .@backend}`. Filter with `--lang en` or `--lang en,fr`.
 
 Dimensions multiply: 2 langs × 2 roles = 4 PDFs.
 

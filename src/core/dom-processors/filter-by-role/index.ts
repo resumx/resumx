@@ -12,9 +12,9 @@ import type { PipelineContext } from '../types.js'
 /**
  * Filter HTML to keep only content matching the active role
  *
- * - Elements with .role:X where X matches activeRole (or its constituents) are KEPT
- * - Elements with .role:X where X does NOT match are REMOVED
- * - Elements without any .role:* class are KEPT (common content)
+ * - Elements with .@X where X matches activeRole (or its constituents) are KEPT
+ * - Elements with .@X where X does NOT match are REMOVED
+ * - Elements without any .@* class are KEPT (common content)
  *
  * When a roleMap is provided, the active role is expanded into its full
  * constituent set (e.g., fullstack -> {fullstack, frontend, backend}).
@@ -28,8 +28,8 @@ export function filterByRole(html: string, ctx: PipelineContext): string {
 
 	const roleSet = resolveRoleSet(activeRole, roleMap ?? {})
 	const notClauses = [...roleSet]
-		.map(role => `:not([class*="role:${role}"])`)
+		.map(role => `:not([class*="@${role}"])`)
 		.join('')
 
-	return filterBySelector(html, `[class*="role:"]${notClauses}`)
+	return filterBySelector(html, `[class*="@"]${notClauses}`)
 }

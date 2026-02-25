@@ -30,7 +30,7 @@ const langExtractor = (el: Element) => {
 }
 
 /** Extract role names from an element's class attribute */
-const ROLE_CLASS_RE = /\brole:([^\s"']+)/g
+const ROLE_CLASS_RE = /@([^\s"']+)/g
 const roleExtractor = (el: Element) => {
 	const cls = el.getAttribute('class') ?? ''
 	ROLE_CLASS_RE.lastIndex = 0
@@ -153,8 +153,8 @@ describe('filterBySelector', () => {
 
 		it('preserves elements with lang + role attributes when filtering by lang', () => {
 			const html = `
-				<li lang="en" class="role:backend">Built REST APIs</li>
-				<li lang="fr" class="role:backend">Developpe des APIs REST</li>
+				<li lang="en" class="@backend">Built REST APIs</li>
+				<li lang="fr" class="@backend">Developpe des APIs REST</li>
 			`
 			const result = filterBySelector(html, '[lang]:not([lang="en"])')
 			const doc = parseHtml(result)
@@ -162,40 +162,40 @@ describe('filterBySelector', () => {
 			const items = doc.querySelectorAll('li')
 			expect(items.length).toBe(1)
 			expect(items[0]?.textContent).toBe('Built REST APIs')
-			expect(items[0]?.getAttribute('class')).toContain('role:backend')
+			expect(items[0]?.getAttribute('class')).toContain('@backend')
 		})
 	})
 
-	describe('role filtering ([class*="role:"]:not(...))', () => {
+	describe('role filtering ([class*="@"]:not(...))', () => {
 		it('keeps elements matching the active role', () => {
-			const html = '<div class="role:frontend">Frontend content</div>'
+			const html = '<div class="@frontend">Frontend content</div>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('Frontend content')
-			expect(result).toContain('role:frontend')
+			expect(result).toContain('@frontend')
 		})
 
 		it('removes elements not matching the active role', () => {
-			const html = '<div class="role:backend">Backend content</div>'
+			const html = '<div class="@backend">Backend content</div>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).not.toContain('Backend content')
-			expect(result).not.toContain('role:backend')
+			expect(result).not.toContain('@backend')
 		})
 
 		it('keeps elements without any role class (common content)', () => {
 			const html = `
-				<div class="role:frontend">Frontend</div>
+				<div class="@frontend">Frontend</div>
 				<div class="common">Common content</div>
-				<div class="role:backend">Backend</div>
+				<div class="@backend">Backend</div>
 			`
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('Frontend')
 			expect(result).toContain('Common content')
@@ -203,10 +203,10 @@ describe('filterBySelector', () => {
 		})
 
 		it('keeps elements with multiple roles if one matches', () => {
-			const html = '<div class="role:frontend role:fullstack">Shared</div>'
+			const html = '<div class="@frontend @fullstack">Shared</div>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('Shared')
 		})
@@ -214,14 +214,14 @@ describe('filterBySelector', () => {
 		it('handles list items correctly', () => {
 			const html = `
 				<ul>
-					<li class="role:frontend">React</li>
-					<li class="role:backend">Node.js</li>
+					<li class="@frontend">React</li>
+					<li class="@backend">Node.js</li>
 					<li>Common skill</li>
 				</ul>
 			`
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('React')
 			expect(result).not.toContain('Node.js')
@@ -230,14 +230,14 @@ describe('filterBySelector', () => {
 
 		it('handles nested elements - removes parent removes children', () => {
 			const html = `
-				<div class="role:backend">
+				<div class="@backend">
 					<p>Backend paragraph</p>
 					<span>Backend span</span>
 				</div>
 			`
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).not.toContain('Backend paragraph')
 			expect(result).not.toContain('Backend span')
@@ -245,7 +245,7 @@ describe('filterBySelector', () => {
 
 		it('handles fenced divs with role class', () => {
 			const html = `
-				<div class="role:frontend">
+				<div class="@frontend">
 					<p>Frontend skills</p>
 					<ul>
 						<li>React</li>
@@ -255,17 +255,17 @@ describe('filterBySelector', () => {
 			`
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('Frontend skills')
 			expect(result).toContain('React')
 		})
 
 		it('returns empty string when all content is filtered out', () => {
-			const html = '<div class="role:backend">Backend only</div>'
+			const html = '<div class="@backend">Backend only</div>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result.trim()).toBe('')
 		})
@@ -274,17 +274,17 @@ describe('filterBySelector', () => {
 			const html = `
 				<article>
 					<h2>Skills</h2>
-					<div class="role:frontend">
+					<div class="@frontend">
 						<h3>Frontend</h3>
 					</div>
-					<div class="role:backend">
+					<div class="@backend">
 						<h3>Backend</h3>
 					</div>
 				</article>
 			`
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('<article>')
 			expect(result).toContain('<h2>Skills</h2>')
@@ -294,20 +294,20 @@ describe('filterBySelector', () => {
 
 		it('handles span elements with role class', () => {
 			const html =
-				'<p>Experience: <span class="role:frontend">5 years React</span></p>'
+				'<p>Experience: <span class="@frontend">5 years React</span></p>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).toContain('5 years React')
 		})
 
 		it('removes span elements not matching role', () => {
 			const html =
-				'<p>Experience: <span class="role:backend">3 years Node</span></p>'
+				'<p>Experience: <span class="@backend">3 years Node</span></p>'
 			const result = filterBySelector(
 				html,
-				'[class*="role:"]:not([class*="role:frontend"])',
+				'[class*="@"]:not([class*="@frontend"])',
 			)
 			expect(result).not.toContain('3 years Node')
 			expect(result).toContain('Experience:')
@@ -391,7 +391,7 @@ describe('extractBySelector', () => {
 		})
 
 		it('extracts lang from elements that also have class and role', () => {
-			const html = '<li lang="en" class="role:frontend highlight">React</li>'
+			const html = '<li lang="en" class="@frontend highlight">React</li>'
 			expect(extractBySelector(html, '[lang]', langExtractor)).toEqual(['en'])
 		})
 
@@ -401,28 +401,28 @@ describe('extractBySelector', () => {
 		})
 	})
 
-	describe('role extraction ([class*="role:"])', () => {
+	describe('role extraction ([class*="@"])', () => {
 		it('extracts single role from class attribute', () => {
-			const html = '<div class="role:frontend">Content</div>'
-			expect(
-				extractBySelector(html, '[class*="role:"]', roleExtractor),
-			).toEqual(['frontend'])
+			const html = '<div class="@frontend">Content</div>'
+			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([
+				'frontend',
+			])
 		})
 
 		it('extracts multiple roles from same element', () => {
-			const html = '<div class="role:frontend role:fullstack">Content</div>'
-			const roles = extractBySelector(html, '[class*="role:"]', roleExtractor)
+			const html = '<div class="@frontend @fullstack">Content</div>'
+			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
 			expect(roles).toContain('frontend')
 			expect(roles).toContain('fullstack')
 		})
 
 		it('extracts roles from multiple elements', () => {
 			const html = `
-				<div class="role:frontend">Frontend</div>
-				<div class="role:backend">Backend</div>
-				<div class="role:fullstack">Fullstack</div>
+				<div class="@frontend">Frontend</div>
+				<div class="@backend">Backend</div>
+				<div class="@fullstack">Fullstack</div>
 			`
-			const roles = extractBySelector(html, '[class*="role:"]', roleExtractor)
+			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
 			expect(roles).toContain('frontend')
 			expect(roles).toContain('backend')
 			expect(roles).toContain('fullstack')
@@ -430,49 +430,42 @@ describe('extractBySelector', () => {
 
 		it('returns unique roles (no duplicates)', () => {
 			const html = `
-				<div class="role:frontend">One</div>
-				<div class="role:frontend">Two</div>
-				<li class="role:frontend">Three</li>
+				<div class="@frontend">One</div>
+				<div class="@frontend">Two</div>
+				<li class="@frontend">Three</li>
 			`
-			const roles = extractBySelector(html, '[class*="role:"]', roleExtractor)
+			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
 			expect(roles).toEqual(['frontend'])
 		})
 
 		it('returns empty array for HTML without roles', () => {
 			const html = '<div class="highlight">No roles here</div>'
-			expect(
-				extractBySelector(html, '[class*="role:"]', roleExtractor),
-			).toEqual([])
+			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([])
 		})
 
 		it('returns empty array for empty HTML', () => {
-			expect(extractBySelector('', '[class*="role:"]', roleExtractor)).toEqual(
-				[],
-			)
+			expect(extractBySelector('', '[class*="@"]', roleExtractor)).toEqual([])
 		})
 
-		it('ignores role: in text content (only extracts from class)', () => {
-			const html = '<p>This mentions role:frontend but is not a class</p>'
-			expect(
-				extractBySelector(html, '[class*="role:"]', roleExtractor),
-			).toEqual([])
+		it('ignores @ in text content (only extracts from class attribute)', () => {
+			const html = '<p>This mentions @frontend but is not a class</p>'
+			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([])
 		})
 
 		it('handles role classes with other classes', () => {
-			const html =
-				'<div class="highlight role:frontend text-bold">Content</div>'
-			expect(
-				extractBySelector(html, '[class*="role:"]', roleExtractor),
-			).toEqual(['frontend'])
+			const html = '<div class="highlight @frontend text-bold">Content</div>'
+			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([
+				'frontend',
+			])
 		})
 
 		it('handles nested elements with roles', () => {
 			const html = `
-				<div class="role:frontend">
-					<span class="role:fullstack">Nested</span>
+				<div class="@frontend">
+					<span class="@fullstack">Nested</span>
 				</div>
 			`
-			const roles = extractBySelector(html, '[class*="role:"]', roleExtractor)
+			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
 			expect(roles).toContain('frontend')
 			expect(roles).toContain('fullstack')
 		})
@@ -480,12 +473,12 @@ describe('extractBySelector', () => {
 		it('extracts roles from list items', () => {
 			const html = `
 				<ul>
-					<li class="role:frontend">React</li>
-					<li class="role:backend">Node.js</li>
+					<li class="@frontend">React</li>
+					<li class="@backend">Node.js</li>
 					<li>Common skill</li>
 				</ul>
 			`
-			const roles = extractBySelector(html, '[class*="role:"]', roleExtractor)
+			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
 			expect(roles).toContain('frontend')
 			expect(roles).toContain('backend')
 			expect(roles).toHaveLength(2)

@@ -147,7 +147,7 @@ Role composition map. Define composed roles as unions of constituent roles. When
 | **Type**    | `Record<string, string[]>` |
 | **Default** | No composed roles          |
 
-Composed role names are added to the auto-discovered set, so they get PDFs even without explicit `{.role:name}` tags in content. Compositions can reference other composed roles (recursive expansion). Circular references produce an error.
+Composed role names are added to the auto-discovered set, so they get PDFs even without explicit `{.@name}` tags in content. Compositions can reference other composed roles (recursive expansion). Circular references produce an error.
 
 ```yaml
 # Simple composition

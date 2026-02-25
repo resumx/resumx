@@ -68,7 +68,7 @@ Attributes follow the same syntax as Pandoc fenced code blocks:
 ### Class Names
 
 - Multiple classes: `.class1 .class2 .class3` → `class="class1 class2 class3"`
-- Namespaced classes: `.role:frontend` → `class="role:frontend"` (colons allowed)
+- Namespaced classes: `.@frontend` → `class="@frontend"`
 - Hyphenated: `.my-class` → `class="my-class"`
 - Underscored: `.my_class` → `class="my_class"`
 - Numeric suffix: `.class123` → `class="class123"`
@@ -201,7 +201,7 @@ NOT as content. Content must begin on the next line.
 ### Role-based Sections (Resume Use Case)
 
 ```markdown
-::: div {.role:frontend .role:fullstack}
+::: div {.@frontend .@fullstack}
 
 - Built React components with TypeScript
 - Implemented responsive design

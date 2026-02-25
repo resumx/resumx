@@ -242,8 +242,8 @@ async function runRender(
 
 	// Discover roles and languages from content
 	const html = renderMarkdown(content)
-	const ROLE_CLASS_RE = /\brole:([^\s"']+)/g
-	const discoveredRoles = extractBySelector(html, '[class*="role:"]', el => {
+	const ROLE_CLASS_RE = /@([^\s"']+)/g
+	const discoveredRoles = extractBySelector(html, '[class*="@"]', el => {
 		const cls = el.getAttribute('class') ?? ''
 		ROLE_CLASS_RE.lastIndex = 0
 		const roles: string[] = []

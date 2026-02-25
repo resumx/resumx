@@ -520,7 +520,7 @@ describe('wrapSections', () => {
 
 		it('handles content with role classes', () => {
 			const html =
-				'<h2>Experience</h2><p class="role:frontend">Frontend work</p><p class="role:backend">Backend work</p>'
+				'<h2>Experience</h2><p class="@frontend">Frontend work</p><p class="@backend">Backend work</p>'
 			const result = wrapSections(html, createContext())
 			const doc = parseHtml(result)
 
@@ -538,12 +538,12 @@ describe('wrapSections', () => {
 
 			const p1 = section.children[1] as Element
 			expect(p1.tagName).toBe('P')
-			expect(p1.getAttribute('class')).toBe('role:frontend')
+			expect(p1.getAttribute('class')).toBe('@frontend')
 			expect(p1.textContent).toBe('Frontend work')
 
 			const p2 = section.children[2] as Element
 			expect(p2.tagName).toBe('P')
-			expect(p2.getAttribute('class')).toBe('role:backend')
+			expect(p2.getAttribute('class')).toBe('@backend')
 			expect(p2.textContent).toBe('Backend work')
 		})
 	})

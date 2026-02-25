@@ -25,7 +25,7 @@ function parseAttributes(attrString: string): ParsedAttributes {
 	const content = attrString.slice(1, -1).trim()
 	if (!content) return result
 
-	// Extract classes (.class-name or .class:name)
+	// Extract classes (.class-name, .@role, etc.)
 	const classPattern = /\.([^\s.#=]+)/g
 	let match
 	while ((match = classPattern.exec(content)) !== null) {

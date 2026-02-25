@@ -63,10 +63,8 @@ describe('fixAttrsListSoftbreak', () => {
 	describe('bracketed spans + continuation attrs', () => {
 		it('applies role to <li> with single span', () => {
 			const md = createMd()
-			const doc = parseHtml(md.render('- [Text]{lang=en}\n  {.role:backend}'))
-			expect(doc.querySelector('li')?.getAttribute('class')).toBe(
-				'role:backend',
-			)
+			const doc = parseHtml(md.render('- [Text]{lang=en}\n  {.@backend}'))
+			expect(doc.querySelector('li')?.getAttribute('class')).toBe('@backend')
 			expect(doc.querySelector('span')?.getAttribute('lang')).toBe('en')
 			expect(doc.querySelector('ul')?.getAttribute('class')).toBeFalsy()
 		})
@@ -76,13 +74,11 @@ describe('fixAttrsListSoftbreak', () => {
 			const input = [
 				'- [Designed REST APIs with OpenAPI spec]{lang=en}',
 				"  [Conception d'API REST avec OpenAPI]{lang=fr}",
-				'  {.role:backend}',
+				'  {.@backend}',
 			].join('\n')
 			const doc = parseHtml(md.render(input))
 
-			expect(doc.querySelector('li')?.getAttribute('class')).toBe(
-				'role:backend',
-			)
+			expect(doc.querySelector('li')?.getAttribute('class')).toBe('@backend')
 			const spans = doc.querySelectorAll('span')
 			expect(spans.length).toBe(2)
 			expect(spans[0].getAttribute('lang')).toBe('en')
@@ -92,9 +88,8 @@ describe('fixAttrsListSoftbreak', () => {
 
 		it('matches single-line behavior', () => {
 			const md = createMd()
-			const singleLine = '- [Text]{lang=en} [Texte]{lang=fr} {.role:backend}'
-			const multiLine =
-				'- [Text]{lang=en}\n  [Texte]{lang=fr}\n  {.role:backend}'
+			const singleLine = '- [Text]{lang=en} [Texte]{lang=fr} {.@backend}'
+			const multiLine = '- [Text]{lang=en}\n  [Texte]{lang=fr}\n  {.@backend}'
 
 			const singleDoc = parseHtml(md.render(singleLine))
 			const multiDoc = parseHtml(md.render(multiLine))
@@ -111,30 +106,30 @@ describe('fixAttrsListSoftbreak', () => {
 		it('applies attrs to each respective <li>', () => {
 			const md = createMd()
 			const input = [
-				'- [React]{lang=en}\n  {.role:frontend}',
-				'- [Node.js]{lang=en}\n  {.role:backend}',
+				'- [React]{lang=en}\n  {.@frontend}',
+				'- [Node.js]{lang=en}\n  {.@backend}',
 			].join('\n')
 			const doc = parseHtml(md.render(input))
 
 			const items = doc.querySelectorAll('li')
 			expect(items.length).toBe(2)
-			expect(items[0].getAttribute('class')).toBe('role:frontend')
-			expect(items[1].getAttribute('class')).toBe('role:backend')
+			expect(items[0].getAttribute('class')).toBe('@frontend')
+			expect(items[1].getAttribute('class')).toBe('@backend')
 		})
 
 		it('items without continuation attrs are unaffected', () => {
 			const md = createMd()
 			const input = [
-				'- React {.role:frontend}',
-				'- Node.js\n  {.role:backend}',
+				'- React {.@frontend}',
+				'- Node.js\n  {.@backend}',
 				'- Common skill',
 			].join('\n')
 			const doc = parseHtml(md.render(input))
 
 			const items = doc.querySelectorAll('li')
 			expect(items.length).toBe(3)
-			expect(items[0].getAttribute('class')).toBe('role:frontend')
-			expect(items[1].getAttribute('class')).toBe('role:backend')
+			expect(items[0].getAttribute('class')).toBe('@frontend')
+			expect(items[1].getAttribute('class')).toBe('@backend')
 			expect(items[2].getAttribute('class')).toBeFalsy()
 		})
 	})
@@ -179,10 +174,8 @@ describe('fixAttrsListSoftbreak', () => {
 
 		it('handles multiple attrs in braces', () => {
 			const md = createMd()
-			const doc = parseHtml(md.render('- text\n  {.role:backend lang=en}'))
-			expect(doc.querySelector('li')?.getAttribute('class')).toBe(
-				'role:backend',
-			)
+			const doc = parseHtml(md.render('- text\n  {.@backend lang=en}'))
+			expect(doc.querySelector('li')?.getAttribute('class')).toBe('@backend')
 			expect(doc.querySelector('li')?.getAttribute('lang')).toBe('en')
 		})
 	})

@@ -443,14 +443,14 @@ describe('wrapEntries', () => {
 
 		it('handles content with role classes', () => {
 			const input =
-				'<h3>Entry</h3><p class="role:frontend">Frontend work</p><p class="role:backend">Backend work</p>'
+				'<h3>Entry</h3><p class="@frontend">Frontend work</p><p class="@backend">Backend work</p>'
 
 			const expected = `
 				<div class="entries">
 					<article class="entry">
 						<h3>Entry</h3>
-						<p class="role:frontend">Frontend work</p>
-						<p class="role:backend">Backend work</p>
+						<p class="@frontend">Frontend work</p>
+						<p class="@backend">Backend work</p>
 					</article>
 				</div>
 			`

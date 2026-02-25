@@ -107,9 +107,9 @@ describe('filterByLang', () => {
 
 		it('handles lang combined with role classes', () => {
 			const html = `
-				<li lang="en" class="role:backend">Built APIs</li>
-				<li lang="fr" class="role:backend">Développé des APIs</li>
-				<li class="role:frontend">React, TypeScript</li>
+				<li lang="en" class="@backend">Built APIs</li>
+				<li lang="fr" class="@backend">Développé des APIs</li>
+				<li class="@frontend">React, TypeScript</li>
 			`
 			const result = filterByLang(html, createContext('en'))
 			const doc = parseHtml(result)

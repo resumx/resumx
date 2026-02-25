@@ -614,8 +614,8 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}
+- React {.@frontend}
+- Node.js {.@backend}
 - Common skill`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
@@ -637,8 +637,8 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}`
+- React {.@frontend}
+- Node.js {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
@@ -668,8 +668,8 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}`
+- React {.@frontend}
+- Node.js {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand(
@@ -708,14 +708,14 @@ Test content`
 		it('filters fenced div blocks with role class', async () => {
 			const mdContent = `# Test Person
 
-::: div {.role:frontend}
+::: div {.@frontend}
 ## Frontend Skills
 
 - React
 - TypeScript
 :::
 
-::: div {.role:backend}
+::: div {.@backend}
 ## Backend Skills
 
 - Node.js
@@ -836,10 +836,10 @@ Test content`
 
 ## [Skills]{lang=en} [Compétences]{lang=fr}
 
-- [React]{lang=en} {.role:frontend}
-- [Node.js]{lang=en} {.role:backend}
-- [React]{lang=fr} {.role:frontend}
-- [Node.js]{lang=fr} {.role:backend}`
+- [React]{lang=en} {.@frontend}
+- [Node.js]{lang=en} {.@backend}
+- [React]{lang=fr} {.@frontend}
+- [Node.js]{lang=fr} {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
@@ -923,9 +923,9 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}
-- Go {.role:devops}`
+- React {.@frontend}
+- Node.js {.@backend}
+- Go {.@devops}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand(
@@ -946,8 +946,8 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}`
+- React {.@frontend}
+- Node.js {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand(
@@ -965,9 +965,9 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}
-- Go {.role:devops}`
+- React {.@frontend}
+- Node.js {.@backend}
+- Go {.@devops}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand(
@@ -987,8 +987,8 @@ Test content`
 
 ## Skills
 
-- React {.role:frontend}
-- Node.js {.role:backend}`
+- React {.@frontend}
+- Node.js {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
 			await renderCommand(

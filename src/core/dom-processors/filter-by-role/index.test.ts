@@ -37,14 +37,14 @@ function createContext(activeRole?: string): PipelineContext {
 describe('filterByRole', () => {
 	describe('when no activeRole is specified', () => {
 		it('returns unchanged when activeRole is undefined', () => {
-			const html = '<p class="role:frontend">Frontend</p><p>Common</p>'
+			const html = '<p class="@frontend">Frontend</p><p>Common</p>'
 			const result = filterByRole(html, createContext())
 
 			expect(result).toBe(html)
 		})
 
 		it('returns unchanged when activeRole is empty string', () => {
-			const html = '<p class="role:frontend">Frontend</p><p>Common</p>'
+			const html = '<p class="@frontend">Frontend</p><p>Common</p>'
 			const result = filterByRole(html, createContext(''))
 
 			// Empty string is falsy, so it should return unchanged
@@ -55,7 +55,7 @@ describe('filterByRole', () => {
 	describe('filtering behavior', () => {
 		it('keeps elements matching active role', () => {
 			const html =
-				'<p class="role:frontend">Frontend content</p><p class="role:backend">Backend content</p>'
+				'<p class="@frontend">Frontend content</p><p class="@backend">Backend content</p>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -63,12 +63,12 @@ describe('filterByRole', () => {
 			expect(doc.body.children.length).toBe(1)
 			const p = doc.body.children[0] as Element
 			expect(p.tagName).toBe('P')
-			expect(p.getAttribute('class')).toBe('role:frontend')
+			expect(p.getAttribute('class')).toBe('@frontend')
 			expect(p.textContent).toBe('Frontend content')
 		})
 
 		it('keeps elements without role class (common content)', () => {
-			const html = '<p class="role:frontend">Frontend</p><p>Common content</p>'
+			const html = '<p class="@frontend">Frontend</p><p>Common content</p>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -76,14 +76,14 @@ describe('filterByRole', () => {
 			expect(doc.body.children.length).toBe(2)
 			const p1 = doc.body.children[0] as Element
 			const p2 = doc.body.children[1] as Element
-			expect(p1.getAttribute('class')).toBe('role:frontend')
+			expect(p1.getAttribute('class')).toBe('@frontend')
 			expect(p1.textContent).toBe('Frontend')
 			expect(p2.hasAttribute('class')).toBe(false)
 			expect(p2.textContent).toBe('Common content')
 		})
 
 		it('removes elements with non-matching role', () => {
-			const html = '<p class="role:backend">Backend only</p><p>Common</p>'
+			const html = '<p class="@backend">Backend only</p><p>Common</p>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -96,7 +96,7 @@ describe('filterByRole', () => {
 		})
 
 		it('handles multiple role classes on same element', () => {
-			const html = '<p class="role:frontend role:fullstack">Shared content</p>'
+			const html = '<p class="@frontend @fullstack">Shared content</p>'
 			const result = filterByRole(html, createContext('fullstack'))
 			const doc = parseHtml(result)
 
@@ -104,22 +104,18 @@ describe('filterByRole', () => {
 			expect(doc.body.children.length).toBe(1)
 			const p = doc.body.children[0] as Element
 			expect(p.tagName).toBe('P')
-			expect(p.getAttribute('class')).toBe('role:frontend role:fullstack')
+			expect(p.getAttribute('class')).toBe('@frontend @fullstack')
 			expect(p.textContent).toBe('Shared content')
 		})
 	})
 
 	describe('filtering various element types', () => {
 		it.each([
-			['paragraph', '<p class="role:frontend">Text</p>', 'p'],
-			['list item', '<li class="role:frontend">Item</li>', 'li'],
-			['div', '<div class="role:frontend">Content</div>', 'div'],
-			['span', '<span class="role:frontend">Inline</span>', 'span'],
-			[
-				'section',
-				'<section class="role:frontend">Section</section>',
-				'section',
-			],
+			['paragraph', '<p class="@frontend">Text</p>', 'p'],
+			['list item', '<li class="@frontend">Item</li>', 'li'],
+			['div', '<div class="@frontend">Content</div>', 'div'],
+			['span', '<span class="@frontend">Inline</span>', 'span'],
+			['section', '<section class="@frontend">Section</section>', 'section'],
 		])('filters %s elements correctly', (_, html, selector) => {
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
@@ -128,9 +124,9 @@ describe('filterByRole', () => {
 		})
 
 		it.each([
-			['paragraph', '<p class="role:backend">Text</p>'],
-			['list item', '<li class="role:backend">Item</li>'],
-			['div', '<div class="role:backend">Content</div>'],
+			['paragraph', '<p class="@backend">Text</p>'],
+			['list item', '<li class="@backend">Item</li>'],
+			['div', '<div class="@backend">Content</div>'],
 		])('removes non-matching %s elements', (_, html) => {
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
@@ -142,7 +138,7 @@ describe('filterByRole', () => {
 	describe('nested elements', () => {
 		it('removes parent element with role, removing all children', () => {
 			const html =
-				'<div class="role:backend"><p>Nested paragraph</p><span>Nested span</span></div>'
+				'<div class="@backend"><p>Nested paragraph</p><span>Nested span</span></div>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -152,7 +148,7 @@ describe('filterByRole', () => {
 
 		it('keeps parent with matching role and all children', () => {
 			const html =
-				'<div class="role:frontend"><p>Nested paragraph</p><ul><li>Item</li></ul></div>'
+				'<div class="@frontend"><p>Nested paragraph</p><ul><li>Item</li></ul></div>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -160,7 +156,7 @@ describe('filterByRole', () => {
 			expect(doc.body.children.length).toBe(1)
 			const div = doc.body.children[0] as Element
 			expect(div.tagName).toBe('DIV')
-			expect(div.getAttribute('class')).toBe('role:frontend')
+			expect(div.getAttribute('class')).toBe('@frontend')
 			expect(div.children.length).toBe(2)
 
 			const p = div.children[0] as Element
@@ -177,8 +173,8 @@ describe('filterByRole', () => {
 		it('handles mixed role content in siblings', () => {
 			const html = `
 				<p>Common intro</p>
-				<p class="role:frontend">Frontend specific</p>
-				<p class="role:backend">Backend specific</p>
+				<p class="@frontend">Frontend specific</p>
+				<p class="@backend">Backend specific</p>
 				<p>Common outro</p>
 			`
 			const result = filterByRole(html, createContext('frontend'))
@@ -191,7 +187,7 @@ describe('filterByRole', () => {
 			expect(paragraphs[0].hasAttribute('class')).toBe(false)
 			expect(paragraphs[0].textContent).toBe('Common intro')
 
-			expect(paragraphs[1].getAttribute('class')).toBe('role:frontend')
+			expect(paragraphs[1].getAttribute('class')).toBe('@frontend')
 			expect(paragraphs[1].textContent).toBe('Frontend specific')
 
 			expect(paragraphs[2].hasAttribute('class')).toBe(false)
@@ -207,7 +203,7 @@ describe('filterByRole', () => {
 			['numeric suffix', 'role1', 'role1'],
 			['camelCase', 'fullStack', 'fullStack'],
 		])('handles %s role names: %s', (_, roleName, activeRole) => {
-			const html = `<p class="role:${roleName}">Content</p>`
+			const html = `<p class="@${roleName}">Content</p>`
 			const result = filterByRole(html, createContext(activeRole))
 			const doc = parseHtml(result)
 
@@ -217,7 +213,7 @@ describe('filterByRole', () => {
 
 	describe('class attribute preservation', () => {
 		it('preserves other classes on kept elements', () => {
-			const html = '<p class="text-blue-500 role:frontend font-bold">Styled</p>'
+			const html = '<p class="text-blue-500 @frontend font-bold">Styled</p>'
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
@@ -225,7 +221,7 @@ describe('filterByRole', () => {
 			const classes = p?.getAttribute('class')
 			expect(classes).toContain('text-blue-500')
 			expect(classes).toContain('font-bold')
-			expect(classes).toContain('role:frontend')
+			expect(classes).toContain('@frontend')
 		})
 	})
 
@@ -242,7 +238,7 @@ describe('filterByRole', () => {
 
 		it('keeps frontend-tagged content when active role is composed fullstack', () => {
 			const html =
-				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p><p class="role:devops">DevOps</p>'
+				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p><p class="@devops">DevOps</p>'
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
@@ -250,13 +246,13 @@ describe('filterByRole', () => {
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(2)
-			expect(doc.querySelectorAll('.role\\:frontend').length).toBe(1)
-			expect(doc.querySelectorAll('.role\\:backend').length).toBe(1)
+			expect(doc.querySelectorAll('.\\@frontend').length).toBe(1)
+			expect(doc.querySelectorAll('.\\@backend').length).toBe(1)
 		})
 
 		it('keeps explicitly tagged fullstack content alongside constituents', () => {
 			const html =
-				'<p class="role:fullstack">Explicit fullstack</p><p class="role:frontend">Frontend</p>'
+				'<p class="@fullstack">Explicit fullstack</p><p class="@frontend">Frontend</p>'
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
@@ -268,7 +264,7 @@ describe('filterByRole', () => {
 
 		it('keeps common (untagged) content with composed roles', () => {
 			const html =
-				'<p>Common</p><p class="role:frontend">Frontend</p><p class="role:devops">DevOps</p>'
+				'<p>Common</p><p class="@frontend">Frontend</p><p class="@devops">DevOps</p>'
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
@@ -281,7 +277,7 @@ describe('filterByRole', () => {
 
 		it('expands recursively through nested compositions', () => {
 			const html =
-				'<p class="role:frontend">FE</p><p class="role:backend">BE</p><p class="role:leadership">Lead</p><p class="role:devops">Ops</p>'
+				'<p class="@frontend">FE</p><p class="@backend">BE</p><p class="@leadership">Lead</p><p class="@devops">Ops</p>'
 			const ctx = createContextWithMap('startup-cto', {
 				fullstack: ['frontend', 'backend'],
 				'startup-cto': ['fullstack', 'leadership'],
@@ -295,7 +291,7 @@ describe('filterByRole', () => {
 
 		it('falls back to simple filtering when roleMap has no entry for active role', () => {
 			const html =
-				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p>'
+				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p>'
 			const ctx = createContextWithMap('frontend', {
 				fullstack: ['frontend', 'backend'],
 			})
@@ -308,7 +304,7 @@ describe('filterByRole', () => {
 
 		it('handles empty roleMap same as no roleMap', () => {
 			const html =
-				'<p class="role:frontend">Frontend</p><p class="role:backend">Backend</p>'
+				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p>'
 			const ctx = createContextWithMap('frontend', {})
 			const result = filterByRole(html, ctx)
 			const doc = parseHtml(result)
@@ -338,7 +334,7 @@ describe('filterByRole', () => {
 			const result = filterByRole(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
-			// Element should be kept because it doesn't have role:X pattern
+			// Element should be kept because it doesn't have @X pattern
 			expect(doc.querySelector('p')).toBeTruthy()
 		})
 	})
