@@ -21,7 +21,7 @@
 
 ---
 
-In resume writing, what lands interviews is **content quality and tailoring for the role** ([**10.6x higher interview rates**](https://resumx.dev/playbook/tailored-vs-generic)). Existing tools focus on everything else. Resumx flips that: tailoring is easier, everything else is zero effort.
+In resume writing, what lands interviews is **content quality and tailoring for the role** ([**10.6x higher interview rates**](https://resumx.dev/playbook/tailored-vs-generic)). Existing tools focus on styling and layout. Resumx flips that: tailoring is easier, styling and layout are handled for you.
 
 - **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
 - **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
