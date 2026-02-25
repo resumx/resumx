@@ -7,10 +7,6 @@
 </p>
 
 <p align="center">
-  <strong>/rɪˈzuːmɪx/</strong> — <strong>Resu</strong>me <strong>M</strong>arkdown e<strong>X</strong>pression
-</p>
-
-<p align="center">
   <a href="https://www.npmjs.com/package/resumx"><img src="https://img.shields.io/npm/v/resumx?color=blue" alt="npm version"></a>
 </p>
 
@@ -21,7 +17,7 @@
 
 ---
 
-Studies show resumes tailored to a specific role are [**10x more likely to land an interview**](https://resumx.dev/playbook/tailored-vs-generic). Most tools focus on styling and layout instead. Resumx flips the story: tailoring is easier, you never touch formatting.
+Tailored resumes get [**10x more interviews**](https://resumx.dev/playbook/tailored-vs-generic), but rewriting yours for every job is painful. With Resumx, you write once and tailor for every role without starting over.
 
 - **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
 - **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
