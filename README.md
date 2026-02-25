@@ -21,7 +21,7 @@
 
 ---
 
-Studies show resumes tailored to a specific role are [**10x more likely to land an interview**](https://resumx.dev/playbook/tailored-vs-generic). Existing tools ignore this, focusing on styling and layout instead. Resumx flips the story: tailoring is easier, you never touch formatting.
+Studies show resumes tailored to a specific role are [**10x more likely to land an interview**](https://resumx.dev/playbook/tailored-vs-generic). Most tools focus on styling and layout instead. Resumx flips the story: tailoring is easier, you never touch formatting.
 
 - **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
 - **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
