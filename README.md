@@ -12,17 +12,17 @@
 
 <p align="center">
   <a href="https://resumx.dev/guide/"><strong>Documentation</strong></a> | 
-  <a href="https://resumx.dev/guide/quick-start"><strong>Quick Start</strong></a>
+  <a href="https://resumx.dev/playbook/resume-length"><strong>The Resume Playbook</strong></a>
 </p>
 
 ---
 
 Tailored resumes get [**10x more interviews**](https://resumx.dev/playbook/tailored-vs-generic), but rewriting yours for every job is painful. With Resumx, you write once and tailor for every role without starting over.
 
-- **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
-- **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
-- **AI-friendly by default.** Content in a single file means AI can help draft, refine, and tailor your content without losing context.
-- **More writing, fewer decisions.** Sensible defaults for typography and structure so you can spend your time on substance.
+- **Tailoring without the overhead.** Target variants in one file (`{.@frontend}`, `{.@backend}`), auto-fitted to the page.
+- **Layout and fitting handled for you.** Research-backed layout that adjusts automatically, no manual margin nudging.
+- **AI-friendly by default.** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
+- **More writing, fewer decisions.** Sensible defaults for typography and structure so you focus on substance.
 
 <!-- prettier-ignore-start -->
 ```markdown
