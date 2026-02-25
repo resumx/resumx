@@ -23,10 +23,13 @@ function parseHtml(html: string) {
 /**
  * Create a minimal pipeline context for testing
  */
-function createContext(css: string = '', activeRole?: string): PipelineContext {
+function createContext(
+	css: string = '',
+	activeTarget?: string,
+): PipelineContext {
 	return {
 		config: {
-			activeRole,
+			activeTarget,
 		},
 		env: {
 			css,
@@ -56,7 +59,7 @@ body {
 //
 // This file tests the pipeline as a whole, verifying that all processors
 // work together correctly. Individual processor tests are in their own files:
-// - filter-by-role.test.ts
+// - filter-by-target.test.ts
 // - extract-header.test.ts
 // - process-columns.test.ts
 // - wrap-sections.test.ts
@@ -161,8 +164,8 @@ describe('runPipeline', () => {
 		})
 	})
 
-	describe('role filtering in pipeline', () => {
-		it('filters by role before other processing', () => {
+	describe('target filtering in pipeline', () => {
+		it('filters by target before other processing', () => {
 			const html =
 				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
 			const result = runPipeline(
@@ -184,7 +187,7 @@ describe('runPipeline', () => {
 			expect(doc.querySelector('.\\@backend')).toBeNull()
 		})
 
-		it('preserves all content when no activeRole specified', () => {
+		it('preserves all content when no active target specified', () => {
 			const html =
 				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
 			const result = runPipeline(html, createContext(CSS_WITHOUT_TWO_COLUMN))

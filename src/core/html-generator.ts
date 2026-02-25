@@ -21,12 +21,12 @@ export interface HtmlGeneratorOptions {
 	cssPaths: string[]
 	/** Optional CSS variable overrides */
 	variables?: Record<string, string>
-	/** Active role for filtering content (if set, only matching role content is included) */
-	activeRole?: string
+	/** Active target for filtering content (if set, only matching target content is included) */
+	activeTarget?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
 	activeLang?: string
-	/** Role composition map from frontmatter (composed role name -> constituent roles) */
-	roleMap?: Record<string, string[]>
+	/** Target composition map from frontmatter (composed target name -> constituent targets) */
+	targetMap?: Record<string, string[]>
 	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
 	icons?: Record<string, string>
 }
@@ -95,17 +95,17 @@ export async function generateHtml(
 	// Build pipeline context
 	const ctx: PipelineContext = {
 		config: {
-			activeRole: options.activeRole,
+			activeTarget: options.activeTarget,
 			activeLang: options.activeLang,
 			variables: options.variables,
-			roleMap: options.roleMap,
+			targetMap: options.targetMap,
 		},
 		env: {
 			css: baseCSS,
 		},
 	}
 
-	// Run DOM processor pipeline (role filtering, header extraction, columns, section wrapping)
+	// Run DOM processor pipeline (target filtering, header extraction, columns, section wrapping)
 	const body = runPipeline(rawBody, ctx)
 
 	// Compile Tailwind CSS for classes used in the HTML body

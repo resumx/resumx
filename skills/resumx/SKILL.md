@@ -1,11 +1,11 @@
 ---
 name: resumx
-description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, styling, or tailoring resumes. Covers syntax, CLI, style options, icons, per-role output, multi-language, page fitting, validation, custom CSS, JSON Resume conversion, and AI-assisted resume writing.
+description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, styling, or tailoring resumes. Covers syntax, CLI, style options, icons, tailored variants, multi-language, page fitting, validation, custom CSS, JSON Resume conversion, and AI-assisted resume writing.
 ---
 
 # Resumx
 
-Resumx (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports per-role and multi-language output from a single source file, and uses style options for styling.
+Resumx (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports targeted and multi-language output from a single source file, and uses style options for styling.
 
 ## Resources
 
@@ -110,7 +110,7 @@ _Senior Software Engineer_ [San Francisco, CA]{.right}
 `{...}` at end of a block element applies to the whole element:
 
 ```markdown
-- Built interactive dashboards {.@frontend}
+- Built interactive dashboards {.role:frontend}
 ```
 
 ### Fenced Divs
@@ -134,15 +134,15 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 ### Render Fields
 
-| Field    | Type                       | Default             | Description                                                                |
-| -------- | -------------------------- | ------------------- | -------------------------------------------------------------------------- |
-| `css`    | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                              |
-| `output` | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{role}`/`{lang}`) |
-| `pages`  | `positive integer`         | No clamping         | Target page count                                                          |
-| `style`  | `Record<string, string>`   | No overrides        | Style option overrides                                                     |
-| `roles`  | `Record<string, string[]>` | No composed roles   | Role composition map (composed name -> constituent roles)                  |
-| `icons`  | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                              |
-| `extra`  | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                |
+| Field     | Type                       | Default             | Description                                                                  |
+| --------- | -------------------------- | ------------------- | ---------------------------------------------------------------------------- |
+| `css`     | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                                |
+| `output`  | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{target}`/`{lang}`) |
+| `pages`   | `positive integer`         | No clamping         | Target page count                                                            |
+| `style`   | `Record<string, string>`   | No overrides        | Style option overrides                                                       |
+| `targets` | `Record<string, string[]>` | No composed targets | Target composition map (composed name -> constituent targets)                |
+| `icons`   | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                                |
+| `extra`   | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                  |
 
 ### Validate Fields
 
@@ -166,7 +166,7 @@ Unknown top-level keys error. Use `extra` for custom data.
 ```yaml
 ---
 pages: 1
-output: ./out/Jane_Smith-{role}
+output: ./out/Jane_Smith-{target}
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -194,7 +194,7 @@ resumx init [filename]     # Create template resume
 | `-o, --output <value>`     | Output path (name, directory, or template) |
 | `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable   |
 | `-s, --style <name=value>` | Override style property, repeatable        |
-| `-r, --role <name>`        | Role filter, repeatable                    |
+| `-t, --target <name>`      | Target filter, repeatable                  |
 | `-l, --lang <tag>`         | Language filter (BCP 47), repeatable       |
 | `-p, --pages <number>`     | Target page count                          |
 | `-w, --watch`              | Auto-rebuild on changes                    |
@@ -212,14 +212,14 @@ git show HEAD~3:resume.md | resumx -o old
 
 ### Output Naming
 
-| Scenario           | Output                   |
-| ------------------ | ------------------------ |
-| No roles, no langs | `resume.pdf`             |
-| With roles         | `resume-frontend.pdf`    |
-| With langs         | `resume-en.pdf`          |
-| Roles + langs      | `frontend/resume-en.pdf` |
+| Scenario             | Output                   |
+| -------------------- | ------------------------ |
+| No targets, no langs | `resume.pdf`             |
+| With targets         | `resume-frontend.pdf`    |
+| With langs           | `resume-en.pdf`          |
+| Targets + langs      | `frontend/resume-en.pdf` |
 
-Template variables: `{role}`, `{lang}`.
+Template variables: `{target}`, `{lang}`.
 
 ## Style Options
 
@@ -309,29 +309,29 @@ Works with bracketed spans, element attributes, and fenced divs. Supports arbitr
 
 Built-in utilities: `.small-caps`, `.sr-only`.
 
-## Per-Role Output
+## Tailored Variants
 
-Tag content with `{.@name}`. Untagged content always included. Tagged content only appears for matching roles. Multiple roles: `{.@backend .@fullstack}`.
+Tag content with `{.role:name}`. Untagged content always included. Tagged content only appears for matching targets. Multiple targets: `{.role:backend .role:fullstack}`.
 
 ```markdown
 - Shared bullet
-- Frontend-only bullet {.@frontend}
-- Backend-only bullet {.@backend}
+- Frontend-only bullet {.role:frontend}
+- Backend-only bullet {.role:backend}
 ```
 
-Resumx auto-discovers all roles and generates a PDF for each. Filter with `--role frontend` or `--role frontend,backend`.
+Resumx auto-discovers all targets and generates a PDF for each. Filter with `--target frontend` or `--target frontend,backend`.
 
-### Role Composition
+### Target Composition
 
-Define composed roles in frontmatter as unions of constituents:
+Define composed targets in frontmatter as unions of constituents:
 
 ```yaml
-roles:
+targets:
   fullstack: [frontend, backend]
   startup-cto: [fullstack, leadership, architecture]
 ```
 
-When rendering for `fullstack`, content tagged `frontend` or `backend` is included. Compositions expand recursively (`startup-cto` includes `frontend` and `backend` via `fullstack`). Composed role names are added to the auto-discovered set.
+When rendering for `fullstack`, content tagged `frontend` or `backend` is included. Compositions expand recursively (`startup-cto` includes `frontend` and `backend` via `fullstack`). Composed target names are added to the auto-discovered set.
 
 ## Multi-Language Output
 
@@ -346,9 +346,9 @@ Tag content with `{lang=xx}` (BCP 47). Untagged content appears in all languages
   [Réduction de la latence API de 60%]{lang=fr}
 ```
 
-Combines with roles: `{lang=en .@backend}`. Filter with `--lang en` or `--lang en,fr`.
+Combines with targets: `{lang=en .role:backend}`. Filter with `--lang en` or `--lang en,fr`.
 
-Dimensions multiply: 2 langs × 2 roles = 4 PDFs.
+Dimensions multiply: 2 langs × 2 targets = 4 PDFs.
 
 ## Semantic Selectors
 

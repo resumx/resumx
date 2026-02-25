@@ -29,15 +29,15 @@ const langExtractor = (el: Element) => {
 	return v ? [v] : []
 }
 
-/** Extract role names from an element's class attribute */
-const ROLE_CLASS_RE = /@([^\s"']+)/g
-const roleExtractor = (el: Element) => {
+/** Extract target names from an element's class attribute */
+const TARGET_CLASS_RE = /@([^\s"']+)/g
+const targetExtractor = (el: Element) => {
 	const cls = el.getAttribute('class') ?? ''
-	ROLE_CLASS_RE.lastIndex = 0
-	const roles: string[] = []
+	TARGET_CLASS_RE.lastIndex = 0
+	const targets: string[] = []
 	let m
-	while ((m = ROLE_CLASS_RE.exec(cls))) roles.push(m[1]!)
-	return roles
+	while ((m = TARGET_CLASS_RE.exec(cls))) targets.push(m[1]!)
+	return targets
 }
 
 // =============================================================================
@@ -151,7 +151,7 @@ describe('filterBySelector', () => {
 			expect(doc.querySelector('[lang="zh-TW"]')).toBeNull()
 		})
 
-		it('preserves elements with lang + role attributes when filtering by lang', () => {
+		it('preserves elements with lang + target attributes when filtering by lang', () => {
 			const html = `
 				<li lang="en" class="@backend">Built REST APIs</li>
 				<li lang="fr" class="@backend">Developpe des APIs REST</li>
@@ -166,8 +166,8 @@ describe('filterBySelector', () => {
 		})
 	})
 
-	describe('role filtering ([class*="@"]:not(...))', () => {
-		it('keeps elements matching the active role', () => {
+	describe('target filtering ([class*="@"]:not(...))', () => {
+		it('keeps elements matching the active target', () => {
 			const html = '<div class="@frontend">Frontend content</div>'
 			const result = filterBySelector(
 				html,
@@ -177,7 +177,7 @@ describe('filterBySelector', () => {
 			expect(result).toContain('@frontend')
 		})
 
-		it('removes elements not matching the active role', () => {
+		it('removes elements not matching the active target', () => {
 			const html = '<div class="@backend">Backend content</div>'
 			const result = filterBySelector(
 				html,
@@ -187,7 +187,7 @@ describe('filterBySelector', () => {
 			expect(result).not.toContain('@backend')
 		})
 
-		it('keeps elements without any role class (common content)', () => {
+		it('keeps elements without any target class (common content)', () => {
 			const html = `
 				<div class="@frontend">Frontend</div>
 				<div class="common">Common content</div>
@@ -202,7 +202,7 @@ describe('filterBySelector', () => {
 			expect(result).not.toContain('Backend')
 		})
 
-		it('keeps elements with multiple roles if one matches', () => {
+		it('keeps elements with multiple targets if one matches', () => {
 			const html = '<div class="@frontend @fullstack">Shared</div>'
 			const result = filterBySelector(
 				html,
@@ -243,7 +243,7 @@ describe('filterBySelector', () => {
 			expect(result).not.toContain('Backend span')
 		})
 
-		it('handles fenced divs with role class', () => {
+		it('handles fenced divs with target class', () => {
 			const html = `
 				<div class="@frontend">
 					<p>Frontend skills</p>
@@ -292,7 +292,7 @@ describe('filterBySelector', () => {
 			expect(result).not.toContain('<h3>Backend</h3>')
 		})
 
-		it('handles span elements with role class', () => {
+		it('handles span elements with target class', () => {
 			const html =
 				'<p>Experience: <span class="@frontend">5 years React</span></p>'
 			const result = filterBySelector(
@@ -302,7 +302,7 @@ describe('filterBySelector', () => {
 			expect(result).toContain('5 years React')
 		})
 
-		it('removes span elements not matching role', () => {
+		it('removes span elements not matching target', () => {
 			const html =
 				'<p>Experience: <span class="@backend">3 years Node</span></p>'
 			const result = filterBySelector(
@@ -390,7 +390,7 @@ describe('extractBySelector', () => {
 			expect(langs).toContain('fr')
 		})
 
-		it('extracts lang from elements that also have class and role', () => {
+		it('extracts lang from elements that also have class and target', () => {
 			const html = '<li lang="en" class="@frontend highlight">React</li>'
 			expect(extractBySelector(html, '[lang]', langExtractor)).toEqual(['en'])
 		})
@@ -401,76 +401,80 @@ describe('extractBySelector', () => {
 		})
 	})
 
-	describe('role extraction ([class*="@"])', () => {
-		it('extracts single role from class attribute', () => {
+	describe('target extraction ([class*="@"])', () => {
+		it('extracts single target from class attribute', () => {
 			const html = '<div class="@frontend">Content</div>'
-			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([
+			expect(extractBySelector(html, '[class*="@"]', targetExtractor)).toEqual([
 				'frontend',
 			])
 		})
 
-		it('extracts multiple roles from same element', () => {
+		it('extracts multiple targets from same element', () => {
 			const html = '<div class="@frontend @fullstack">Content</div>'
-			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
-			expect(roles).toContain('frontend')
-			expect(roles).toContain('fullstack')
+			const targets = extractBySelector(html, '[class*="@"]', targetExtractor)
+			expect(targets).toContain('frontend')
+			expect(targets).toContain('fullstack')
 		})
 
-		it('extracts roles from multiple elements', () => {
+		it('extracts targets from multiple elements', () => {
 			const html = `
 				<div class="@frontend">Frontend</div>
 				<div class="@backend">Backend</div>
 				<div class="@fullstack">Fullstack</div>
 			`
-			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
-			expect(roles).toContain('frontend')
-			expect(roles).toContain('backend')
-			expect(roles).toContain('fullstack')
+			const targets = extractBySelector(html, '[class*="@"]', targetExtractor)
+			expect(targets).toContain('frontend')
+			expect(targets).toContain('backend')
+			expect(targets).toContain('fullstack')
 		})
 
-		it('returns unique roles (no duplicates)', () => {
+		it('returns unique targets (no duplicates)', () => {
 			const html = `
 				<div class="@frontend">One</div>
 				<div class="@frontend">Two</div>
 				<li class="@frontend">Three</li>
 			`
-			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
-			expect(roles).toEqual(['frontend'])
+			const targets = extractBySelector(html, '[class*="@"]', targetExtractor)
+			expect(targets).toEqual(['frontend'])
 		})
 
-		it('returns empty array for HTML without roles', () => {
-			const html = '<div class="highlight">No roles here</div>'
-			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([])
+		it('returns empty array for HTML without targets', () => {
+			const html = '<div class="highlight">No targets here</div>'
+			expect(extractBySelector(html, '[class*="@"]', targetExtractor)).toEqual(
+				[],
+			)
 		})
 
 		it('returns empty array for empty HTML', () => {
-			expect(extractBySelector('', '[class*="@"]', roleExtractor)).toEqual([])
+			expect(extractBySelector('', '[class*="@"]', targetExtractor)).toEqual([])
 		})
 
 		it('ignores @ in text content (only extracts from class attribute)', () => {
 			const html = '<p>This mentions @frontend but is not a class</p>'
-			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([])
+			expect(extractBySelector(html, '[class*="@"]', targetExtractor)).toEqual(
+				[],
+			)
 		})
 
-		it('handles role classes with other classes', () => {
+		it('handles target classes with other classes', () => {
 			const html = '<div class="highlight @frontend text-bold">Content</div>'
-			expect(extractBySelector(html, '[class*="@"]', roleExtractor)).toEqual([
+			expect(extractBySelector(html, '[class*="@"]', targetExtractor)).toEqual([
 				'frontend',
 			])
 		})
 
-		it('handles nested elements with roles', () => {
+		it('handles nested elements with targets', () => {
 			const html = `
 				<div class="@frontend">
 					<span class="@fullstack">Nested</span>
 				</div>
 			`
-			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
-			expect(roles).toContain('frontend')
-			expect(roles).toContain('fullstack')
+			const targets = extractBySelector(html, '[class*="@"]', targetExtractor)
+			expect(targets).toContain('frontend')
+			expect(targets).toContain('fullstack')
 		})
 
-		it('extracts roles from list items', () => {
+		it('extracts targets from list items', () => {
 			const html = `
 				<ul>
 					<li class="@frontend">React</li>
@@ -478,10 +482,10 @@ describe('extractBySelector', () => {
 					<li>Common skill</li>
 				</ul>
 			`
-			const roles = extractBySelector(html, '[class*="@"]', roleExtractor)
-			expect(roles).toContain('frontend')
-			expect(roles).toContain('backend')
-			expect(roles).toHaveLength(2)
+			const targets = extractBySelector(html, '[class*="@"]', targetExtractor)
+			expect(targets).toContain('frontend')
+			expect(targets).toContain('backend')
+			expect(targets).toHaveLength(2)
 		})
 	})
 })
@@ -543,79 +547,83 @@ describe('resolveValues', () => {
 		})
 	})
 
-	describe('with role dimension', () => {
-		it('returns explicit role as highest priority', () => {
+	describe('with target dimension', () => {
+		it('returns explicit target as highest priority', () => {
 			expect(
 				resolveValues(
 					['frontend'],
 					['frontend', 'backend', 'fullstack'],
-					'role',
+					'target',
 				),
 			).toEqual(['frontend'])
 		})
 
-		it('returns multiple explicit roles', () => {
+		it('returns multiple explicit targets', () => {
 			expect(
 				resolveValues(
 					['frontend', 'backend'],
 					['frontend', 'backend', 'fullstack'],
-					'role',
+					'target',
 				),
 			).toEqual(['frontend', 'backend'])
 		})
 
-		it('returns discovered roles if no explicit', () => {
+		it('returns discovered targets if no explicit', () => {
 			expect(
-				resolveValues([], ['frontend', 'backend', 'fullstack'], 'role'),
+				resolveValues([], ['frontend', 'backend', 'fullstack'], 'target'),
 			).toEqual(['frontend', 'backend', 'fullstack'])
 		})
 
-		it('returns empty array if no roles at any level', () => {
-			expect(resolveValues([], [], 'role')).toEqual([])
+		it('returns empty array if no targets at any level', () => {
+			expect(resolveValues([], [], 'target')).toEqual([])
 		})
 
 		it('handles empty explicit array (falls through to discovered)', () => {
-			expect(resolveValues([], ['frontend', 'backend'], 'role')).toEqual([
+			expect(resolveValues([], ['frontend', 'backend'], 'target')).toEqual([
 				'frontend',
 				'backend',
 			])
 		})
 
-		it('throws error when explicit role does not exist in discovered roles', () => {
+		it('throws error when explicit target does not exist in discovered targets', () => {
 			expect(() =>
-				resolveValues(['nonexistent'], ['frontend', 'backend'], 'role'),
-			).toThrow("role 'nonexistent' does not exist")
+				resolveValues(['nonexistent'], ['frontend', 'backend'], 'target'),
+			).toThrow("target 'nonexistent' does not exist")
 		})
 
-		it('throws error when multiple explicit roles do not exist', () => {
+		it('throws error when multiple explicit targets do not exist', () => {
 			expect(() =>
 				resolveValues(
 					['frontend', 'typo1', 'typo2'],
 					['frontend', 'backend'],
-					'role',
+					'target',
 				),
-			).toThrow("roles 'typo1', 'typo2' does not exist")
+			).toThrow("targets 'typo1', 'typo2' does not exist")
 		})
 
-		it('throws error when explicit role is typo of existing role', () => {
+		it('throws error when explicit target is typo of existing target', () => {
 			expect(() =>
 				resolveValues(
 					['fronted'], // typo
 					['frontend', 'backend'],
-					'role',
+					'target',
 				),
-			).toThrow("role 'fronted' does not exist")
+			).toThrow("target 'fronted' does not exist")
 		})
 
-		it('includes available roles in error message', () => {
+		it('includes available targets in error message', () => {
 			expect(() =>
-				resolveValues(['devops'], ['frontend', 'backend', 'fullstack'], 'role'),
-			).toThrow('Available roles: frontend, backend, fullstack')
+				resolveValues(
+					['devops'],
+					['frontend', 'backend', 'fullstack'],
+					'target',
+				),
+			).toThrow('Available targets: frontend, backend, fullstack')
 		})
 
-		it('allows explicit role that exists in discovered', () => {
+		it('allows explicit target that exists in discovered', () => {
 			expect(
-				resolveValues(['frontend'], ['frontend', 'backend'], 'role'),
+				resolveValues(['frontend'], ['frontend', 'backend'], 'target'),
 			).toEqual(['frontend'])
 		})
 	})

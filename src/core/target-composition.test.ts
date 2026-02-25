@@ -1,40 +1,40 @@
 import { describe, it, expect } from 'vitest'
-import { resolveRoleSet } from './role-composition.js'
+import { resolveTargetSet } from './target-composition.js'
 
-describe('resolveRoleSet', () => {
-	describe('when role has no composition', () => {
-		it('returns a set containing only the role itself', () => {
-			const result = resolveRoleSet('frontend', {})
+describe('resolveTargetSet', () => {
+	describe('when target has no composition', () => {
+		it('returns a set containing only the target itself', () => {
+			const result = resolveTargetSet('frontend', {})
 			expect(result).toEqual(new Set(['frontend']))
 		})
 
-		it('returns a set containing only the role when map has unrelated entries', () => {
-			const result = resolveRoleSet('frontend', {
+		it('returns a set containing only the target when map has unrelated entries', () => {
+			const result = resolveTargetSet('frontend', {
 				fullstack: ['backend', 'devops'],
 			})
 			expect(result).toEqual(new Set(['frontend']))
 		})
 	})
 
-	describe('when role is a simple composition', () => {
+	describe('when target is a simple composition', () => {
 		it('expands to constituents plus itself', () => {
-			const result = resolveRoleSet('fullstack', {
+			const result = resolveTargetSet('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
 			expect(result).toEqual(new Set(['fullstack', 'frontend', 'backend']))
 		})
 
-		it('expands a single-constituent composition', () => {
-			const result = resolveRoleSet('senior', {
+		it('expands single-constituent composition', () => {
+			const result = resolveTargetSet('senior', {
 				senior: ['backend'],
 			})
 			expect(result).toEqual(new Set(['senior', 'backend']))
 		})
 	})
 
-	describe('when role has recursive composition', () => {
+	describe('when target has recursive composition', () => {
 		it('expands transitively through nested compositions', () => {
-			const result = resolveRoleSet('startup-cto', {
+			const result = resolveTargetSet('startup-cto', {
 				fullstack: ['frontend', 'backend'],
 				'startup-cto': ['fullstack', 'leadership'],
 			})
@@ -50,7 +50,7 @@ describe('resolveRoleSet', () => {
 		})
 
 		it('expands three levels deep', () => {
-			const result = resolveRoleSet('mega', {
+			const result = resolveTargetSet('mega', {
 				base: ['core'],
 				mid: ['base', 'extra'],
 				mega: ['mid', 'top'],
@@ -63,7 +63,7 @@ describe('resolveRoleSet', () => {
 
 	describe('when composition has duplicate constituents', () => {
 		it('deduplicates across branches', () => {
-			const result = resolveRoleSet('combined', {
+			const result = resolveTargetSet('combined', {
 				a: ['shared', 'unique-a'],
 				b: ['shared', 'unique-b'],
 				combined: ['a', 'b'],
@@ -76,23 +76,23 @@ describe('resolveRoleSet', () => {
 
 	describe('when composition has cycles', () => {
 		it('throws on direct self-reference', () => {
-			expect(() => resolveRoleSet('a', { a: ['a'] })).toThrow(/circular/i)
+			expect(() => resolveTargetSet('a', { a: ['a'] })).toThrow(/circular/i)
 		})
 
 		it('throws on two-node cycle', () => {
-			expect(() => resolveRoleSet('a', { a: ['b'], b: ['a'] })).toThrow(
+			expect(() => resolveTargetSet('a', { a: ['b'], b: ['a'] })).toThrow(
 				/circular/i,
 			)
 		})
 
 		it('throws on three-node cycle', () => {
 			expect(() =>
-				resolveRoleSet('a', { a: ['b'], b: ['c'], c: ['a'] }),
+				resolveTargetSet('a', { a: ['b'], b: ['c'], c: ['a'] }),
 			).toThrow(/circular/i)
 		})
 
 		it('includes the cycle path in the error message', () => {
-			expect(() => resolveRoleSet('a', { a: ['b'], b: ['a'] })).toThrow('a')
+			expect(() => resolveTargetSet('a', { a: ['b'], b: ['a'] })).toThrow('a')
 		})
 	})
 
@@ -106,8 +106,8 @@ describe('resolveRoleSet', () => {
 				fullstack: ['frontend', 'backend'],
 				'startup-cto': ['fullstack', 'leadership'],
 			}
-			expect(resolveRoleSet('startup-cto', map1)).toEqual(
-				resolveRoleSet('startup-cto', map2),
+			expect(resolveTargetSet('startup-cto', map1)).toEqual(
+				resolveTargetSet('startup-cto', map2),
 			)
 		})
 	})

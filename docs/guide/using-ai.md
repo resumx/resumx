@@ -37,4 +37,4 @@ from the job description, map each to my existing bullets, then
 propose targeted edits. Keep facts truthful.
 ```
 
-Replace `<URL>` with the job posting link. Adjust the instructions to match your workflow. For example, ask the agent to focus on a specific role variant or preserve certain sections.
+Replace `<URL>` with the job posting link. Adjust the instructions to match your workflow. For example, ask the agent to focus on a specific target variant or preserve certain sections.

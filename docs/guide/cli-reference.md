@@ -38,10 +38,10 @@ When reading from stdin, the output filename is derived from:
 | Flag                       | Description                                                                            |
 | -------------------------- | -------------------------------------------------------------------------------------- |
 | `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                  |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{role}`/`{lang}`.       |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{target}`/`{lang}`.     |
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.           |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                                   |
-| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                       |
+| `-t, --target <name>`      | Generate for specific target(s) only. Repeatable, comma-separated.                     |
 | `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).     |
 | `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.                |
 | `-w, --watch`              | Watch for changes and auto-rebuild.                                                    |
@@ -63,7 +63,7 @@ resumx resume.md --css my-styles.css
 resumx resume.md --output John_Doe_Resume
 
 # Output with template variables
-resumx resume.md --output "dist/John_Doe-{role}" --role frontend,backend
+resumx resume.md --output "dist/John_Doe-{target}" --target frontend,backend
 
 # Override style properties
 resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#2563eb"
@@ -77,11 +77,11 @@ resumx resume.md --pages 1
 # Watch mode
 resumx resume.md --watch
 
-# Filter by role
-resumx resume.md --role frontend
+# Filter by target
+resumx resume.md --target frontend
 
 # Combine options
-resumx resume.md --css my-styles.css --role frontend,backend --format pdf,html,docx --watch
+resumx resume.md --css my-styles.css --target frontend,backend --format pdf,html,docx --watch
 
 # Validate only (no render)
 resumx resume.md --check
@@ -133,12 +133,12 @@ Formats can be comma-separated: `--format pdf,html,docx`.
 
 ## Frontmatter Configuration
 
-Some CLI options can also be set in the resume's YAML or TOML frontmatter. CLI flags always take precedence over frontmatter values. Note that `--format` and `--role` are CLI-only options and cannot be set in frontmatter.
+Some CLI options can also be set in the resume's YAML or TOML frontmatter. CLI flags always take precedence over frontmatter values. Note that `--format` and `--target` are CLI-only options and cannot be set in frontmatter.
 
 ```yaml
 ---
 pages: 1
-output: ./dist/John_Doe-{role}
+output: ./dist/John_Doe-{target}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -151,22 +151,22 @@ See the [Frontmatter Reference](/guide/frontmatter-reference) for the full list 
 
 When no `-o` flag or `output` frontmatter is set, filenames are automatically determined:
 
-| Scenario           | Output                   |
-| ------------------ | ------------------------ |
-| No roles, no langs | `resume.pdf`             |
-| With roles         | `resume-frontend.pdf`    |
-| With langs         | `resume-en.pdf`          |
-| Roles + langs      | `frontend/resume-en.pdf` |
+| Scenario             | Output                   |
+| -------------------- | ------------------------ |
+| No targets, no langs | `resume.pdf`             |
+| With targets         | `resume-frontend.pdf`    |
+| With langs           | `resume-en.pdf`          |
+| Targets + langs      | `frontend/resume-en.pdf` |
 
 For custom naming, use the `-o` flag with template variables:
 
 ```bash
-# Template with role variable
-resumx resume.md -o "John_Doe-{role}" --role frontend,backend
+# Template with target variable
+resumx resume.md -o "John_Doe-{target}" --target frontend,backend
 # → John_Doe-frontend.pdf, John_Doe-backend.pdf
 
-# Template with role and lang
-resumx resume.md -o "{role}/John_Doe-{lang}" --role frontend --lang en,fr
+# Template with target and lang
+resumx resume.md -o "{target}/John_Doe-{lang}" --target frontend --lang en,fr
 # → frontend/John_Doe-en.pdf, frontend/John_Doe-fr.pdf
 ```
 

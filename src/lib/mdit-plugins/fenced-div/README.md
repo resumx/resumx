@@ -198,7 +198,7 @@ NOT as content. Content must begin on the next line.
 
 ## Examples
 
-### Role-based Sections (Resume Use Case)
+### Target-based Sections (Resume Use Case)
 
 ```markdown
 ::: div {.@frontend .@fullstack}

@@ -349,8 +349,8 @@ Languages
 			).rejects.toThrow('not found')
 		})
 
-		describe('activeRole filtering', () => {
-			it('filters content to keep only matching role', async () => {
+		describe('activeTarget filtering', () => {
+			it('filters content to keep only matching target', async () => {
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
@@ -363,7 +363,7 @@ Languages
 `
 					const html = await generateHtml(markdown, {
 						cssPaths: [join(dir, 'style.css')],
-						activeRole: 'frontend',
+						activeTarget: 'frontend',
 					})
 
 					expect(html).toContain('Frontend skill')
@@ -372,7 +372,7 @@ Languages
 				})
 			})
 
-			it('keeps all content when no activeRole specified', async () => {
+			it('keeps all content when no active target specified', async () => {
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
@@ -389,7 +389,7 @@ Languages
 				})
 			})
 
-			it('filters fenced div content by role', async () => {
+			it('filters fenced div content by target', async () => {
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
@@ -408,7 +408,7 @@ Languages
 `
 					const html = await generateHtml(markdown, {
 						cssPaths: [join(dir, 'style.css')],
-						activeRole: 'backend',
+						activeTarget: 'backend',
 					})
 
 					expect(html).not.toContain('React')

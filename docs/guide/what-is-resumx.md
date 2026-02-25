@@ -33,6 +33,6 @@ _Senior Software Engineer_
 
 <ResumeDemo />
 
-That produces a file for every combination of **role** and **format** (3 roles × 3 formats = 9 files).
+That produces a file for every combination of **target** and **format** (3 targets × 3 formats = 9 files).
 
 Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source. [Get started in under a minute →](/guide/quick-start)

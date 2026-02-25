@@ -13,7 +13,7 @@ Wrap inline text in `[text]{...}` to produce a `<span>` with the given classes, 
 | `[text]{data-x="val"}` | `<span data-x="val">text</span>`        |
 | `[text]{.a .b #id}`    | `<span class="a b" id="id">text</span>` |
 
-This is the most common syntax in Resumx — used for applying [Tailwind CSS](/guide/tailwind-css) classes, tagging content for [per-role output](/guide/per-role-output), and more:
+This is the most common syntax in Resumx — used for applying [Tailwind CSS](/guide/tailwind-css) classes, tagging content for [tailored variants](/guide/tailored-variants), and more:
 
 ```markdown
 ### Google [2022 – Present]{.right}

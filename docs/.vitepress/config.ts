@@ -41,7 +41,7 @@ const guideSidebar = [
 	{
 		text: 'Going Further',
 		items: [
-			{ text: 'Per-Role Output', link: '/guide/per-role-output' },
+			{ text: 'Tailored Variants', link: '/guide/tailored-variants' },
 			{ text: 'Multi-Language', link: '/guide/multi-language' },
 			{ text: 'Git Integration', link: '/guide/git-integration' },
 		],
