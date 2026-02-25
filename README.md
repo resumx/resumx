@@ -21,9 +21,12 @@
 
 ---
 
-Resumx renders resumes from Markdown.
+In resume writing, the real leverage is content quality and [tailoring for the role](https://resumx.dev/playbook/tailored-vs-generic) (10.6x higher interview rates), but those are what existing tools ignore. Resumx makes tailoring easier and everything else, layout, page fitting, styling, cost you zero effort.
 
-It automatically [fits content to the page](/guide/fit-to-page), shrinking spacing, font size, and margins when content overflows and expanding them when it's short.
+- **Tailoring without the overhead.** One Markdown file with target variants (`{.@frontend}`, `{.@backend}`), many tailored outputs, each auto-fitted to the page.
+- **Layout and fitting handled for you.** An opinionated, research-backed layout that adjusts automatically. No manual margin nudging.
+- **AI-friendly by default.** Plain Markdown means AI can help draft, refine, and tailor your content without losing context.
+- **More writing, fewer decisions.** Sensible defaults for typography and structure so you can spend your time on substance.
 
 <!-- prettier-ignore-start -->
 ```markdown

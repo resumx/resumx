@@ -1,8 +1,33 @@
 # Resumx
 
+> `CLAUDE.md` is a symlink to this file. Only modify `AGENTS.md`.
+
 Resumx is a CLI that renders resumes from Markdown to PDF, HTML, and DOCX. Users write their resume in a single `.md` file with optional YAML frontmatter, and the renderer handles page fitting, styling, target-specific filtering, and multi-language output.
 
 View the dependency graph in `deps.svg` to understand module structure.
+
+## Philosophy
+
+Resume builders overwhelmingly optimize for styling and theming, the factor with the least impact on whether a candidate gets hired. The actual value breakdown looks closer to:
+
+| Factor                                                            | Hiring impact | Typical user effort |
+| ----------------------------------------------------------------- | ------------- | ------------------- |
+| Content quality (wording, quantified achievements, value framing) | ~50%          | ~15%                |
+| Tailoring for the specific job description                        | ~25%          | ~5%                 |
+| Layout and page fitting                                           | ~15%          | ~15%                |
+| Styling and theming                                               | ~10%          | ~65%                |
+
+Effort is almost perfectly inverted from value. Users keep tweaking themes and layouts, mistaking activity for progress.
+
+Resumx is built on four bets:
+
+1. **Zero time on low-value work.** Layout, page fitting, and styling should cost the user nothing. The layout is opinionated, research-backed (ATS-friendly, optimized for the 7.4-second recruiter scan), and not configurable beyond minor CSS overrides. Auto page fitting means content never breaks the layout regardless of how much you add or remove.
+
+2. **Make tailoring trivial.** [Research shows](docs/playbook/tailored-vs-generic.md) tailored resumes get 10.6x higher interview rates, yet most people skip it because it means duplicating files and re-fighting layout for every variant. Target variants in a single Markdown file eliminate that friction entirely.
+
+3. **AI-native by format.** Markdown is the ideal format for AI collaboration: no proprietary schema, no GUI state, no context loss. An AI can read, edit, and generate variants from a single file. The long-term direction is agents that find jobs, create target variants, and produce tailored resumes automatically.
+
+4. **Opinionated by default.** Users waste time on choices that don't affect hiring outcomes. Resumx removes those choices. Layout, typography, and structure follow established best practices for tech-adjacent industries (software, finance, consulting). The user's only job is writing great content.
 
 ## Ground Rules
 
