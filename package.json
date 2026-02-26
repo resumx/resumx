@@ -28,13 +28,13 @@
 		"lint": "tsc --noEmit",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
-		"prepublishOnly": "npm run build",
+		"prepublishOnly": "pnpm run build",
 		"prepare": "husky",
 		"docs:dev": "vitepress dev docs",
 		"docs:build": "vitepress build docs",
 		"docs:preview": "vitepress preview docs",
 		"deps": "madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --image deps.svg src/ && madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --json src/ > deps.json",
-		"optimize-icons": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright npx tsx scripts/optimize-icons.ts",
+		"optimize-icons": "pnpm exec tsx scripts/optimize-icons.ts",
 		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
 	},
 	"keywords": [
@@ -54,6 +54,7 @@
 		"type": "git",
 		"url": "https://github.com/resumx/resumx"
 	},
+	"packageManager": "pnpm@10.30.3",
 	"engines": {
 		"node": ">=20"
 	},
@@ -112,6 +113,12 @@
 		],
 		"assets/icons/*.svg": [
 			"svgo --config svgo.config.mjs"
+		]
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"sharp"
 		]
 	}
 }

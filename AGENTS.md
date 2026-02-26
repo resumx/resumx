@@ -48,8 +48,8 @@ Resumx is built on four bets:
 
 ## Development Workflow
 
-- Optimize icons after adding or modifying them: `npm run optimize-icons -- assets/icons assets/icons`
-- Run `npm run lint` to ensure the code compiles before yielding back to the user.
+- Optimize icons after adding or modifying them: `pnpm run optimize-icons -- assets/icons assets/icons`
+- Run `pnpm run lint` to ensure the code compiles before yielding back to the user.
 
 ### Testing
 
@@ -57,7 +57,7 @@ This project uses Playwright with Chromium for PDF rendering tests, so launching
 
 The full suite is slow because of Playwright. Prefer running only affected tests to keep the feedback loop fast:
 
-- **`npm run test:related -- <source files>`** runs only test files that transitively import the changed sources via Vite's module graph. Example: `npm run test:related -- src/lib/dom-processors/shared/dom.ts src/lib/dom-processors/wrap-entries/index.ts`
-- **`npm run test:changed`** does the same but auto-detects from uncommitted git changes. Good as a final check.
-- **`npm run test`** runs the entire suite. Use when `test:related` passes but you want full confidence.
-- Avoid running a specific test file directly (e.g., `npx vitest run path/to/test.ts`). It won't catch regressions in dependent modules that `test:related` would.
+- **`pnpm run test:related -- <source files>`** runs only test files that transitively import the changed sources via Vite's module graph. Example: `pnpm run test:related -- src/lib/dom-processors/shared/dom.ts src/lib/dom-processors/wrap-entries/index.ts`
+- **`pnpm run test:changed`** does the same but auto-detects from uncommitted git changes. Good as a final check.
+- **`pnpm run test`** runs the entire suite. Use when `test:related` passes but you want full confidence.
+- Avoid running a specific test file directly (e.g., `pnpm exec vitest run path/to/test.ts`). It won't catch regressions in dependent modules that `test:related` would.
