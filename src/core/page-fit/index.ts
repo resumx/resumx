@@ -17,7 +17,7 @@
 
 import type { Page } from 'playwright'
 import type { FitResult, VariableRange, CSSVariableValues } from './types.js'
-import { MINIMUMS, A4_WIDTH_PX, A4_HEIGHT_PX, IN_TO_PX } from './types.js'
+import { MINIMUMS, A4_WIDTH_PX, IN_TO_PX } from './types.js'
 import { browserPool } from '../../lib/browser-pool/index.js'
 import { solve, interpolate } from '../../lib/solver/solve.js'
 import { predictTotalHeight, pageCapacity } from './predict.js'
@@ -148,9 +148,7 @@ export async function fitToPages(
 				await applyVariables(page, minAdj)
 				const minH = await getContentHeight(page)
 				const minCv = await readComputedValues(page)
-				const minMarginYPx = minCv['page-margin-y'] * IN_TO_PX
-				const minCap = A4_HEIGHT_PX - 2 * minMarginYPx
-				minBlank = minCap - minH
+				minBlank = pageCapacity(minCv['page-margin-y'], targetPages) - minH
 				minPdfPages = await getPdfPageCount(page)
 				// Reset to original before binary search
 				const origAdj = buildAdjustments(
@@ -179,9 +177,8 @@ export async function fitToPages(
 				await applyVariables(page, candidateAdj)
 				const contentH = await getContentHeight(page)
 				const current = await readComputedValues(page)
-				const marginYPx = current['page-margin-y'] * IN_TO_PX
-				const cap = A4_HEIGHT_PX - 2 * marginYPx
-				const blank = cap - contentH
+				const blank =
+					pageCapacity(current['page-margin-y'], targetPages) - contentH
 
 				if (blank >= 0 && blank <= TARGET_BLANK) {
 					hi = mid
@@ -247,12 +244,10 @@ export async function fitToPages(
 			// that binary search can't resolve. Instead of expanding
 			// gaps (incompatible with shrinking), increase page-margin-y
 			// to absorb the blank. This doesn't reflow content.
-			if (currentPages === 1) {
+			if (currentPages <= targetPages) {
 				const contentH = await getContentHeight(page)
 				const cv = await readComputedValues(page)
-				const marginYPx = cv['page-margin-y'] * IN_TO_PX
-				const cap = A4_HEIGHT_PX - 2 * marginYPx
-				const blank = cap - contentH
+				const blank = pageCapacity(cv['page-margin-y'], targetPages) - contentH
 
 				if (blank > TARGET_BLANK) {
 					// Increase margin to absorb half the excess (split top/bottom)

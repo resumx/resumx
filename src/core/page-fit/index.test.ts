@@ -70,6 +70,12 @@ li { margin-bottom: var(--row-gap); }
 		return `<section><h2>${heading}</h2>\n${entryHtml}</section>`
 	}
 
+	/** Parse a CSS pt value like "10.5pt" to a number, or return the original (11) if undefined. */
+	function parsePt(value: string | undefined): number {
+		if (!value) return 11
+		return parseFloat(value)
+	}
+
 	it('returns original HTML when content fits within target pages', async () => {
 		const html = buildTestHtml(`
 			<h1>John Doe</h1>
@@ -143,5 +149,56 @@ li { margin-bottom: var(--row-gap); }
 		const result = await fitToPages(buildTestHtml(body), 2)
 
 		expect(result.finalPages).toBeLessThanOrEqual(result.originalPages)
+	})
+
+	it('shrinks to 2 pages without over-shrinking font-size', async () => {
+		const body = `
+			<h1>John Doe</h1>
+			${makeSection('Experience', 4, 6)}
+			${makeSection('Projects', 3, 5)}
+			${makeSection('Education', 2, 4)}
+			${makeSection('Skills', 2, 3)}
+		`
+
+		const result = await fitToPages(buildTestHtml(body), 2)
+
+		expect(result.originalPages).toBeGreaterThan(2)
+		expect(result.finalPages).toBe(2)
+		const fontSize = parsePt(result.adjustments['font-size'])
+		expect(fontSize).toBeGreaterThanOrEqual(10)
+	})
+
+	it('shrinks to 3 pages without over-shrinking font-size', async () => {
+		const body = `
+			<h1>John Doe</h1>
+			${makeSection('Experience', 5, 6)}
+			${makeSection('Projects', 5, 5)}
+			${makeSection('Education', 4, 4)}
+			${makeSection('Skills', 3, 4)}
+			${makeSection('Publications', 3, 3)}
+		`
+
+		const result = await fitToPages(buildTestHtml(body), 3)
+
+		expect(result.originalPages).toBeGreaterThan(3)
+		expect(result.finalPages).toBe(3)
+		const fontSize = parsePt(result.adjustments['font-size'])
+		expect(fontSize).toBeGreaterThanOrEqual(10)
+	})
+
+	it('does not collapse font-size to minimum when fitting 3 pages to 2', async () => {
+		const body = `
+			<h1>John Doe</h1>
+			${makeSection('Experience', 4, 6)}
+			${makeSection('Projects', 4, 5)}
+			${makeSection('Education', 3, 4)}
+		`
+
+		const result = await fitToPages(buildTestHtml(body), 2)
+
+		expect(result.originalPages).toBeGreaterThanOrEqual(3)
+		expect(result.finalPages).toBe(2)
+		const fontSize = parsePt(result.adjustments['font-size'])
+		expect(fontSize).toBeGreaterThan(9)
 	})
 })
