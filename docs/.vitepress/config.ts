@@ -84,6 +84,19 @@ export default defineConfig({
 		],
 		['meta', { name: 'apple-mobile-web-app-title', content: 'Resumx' }],
 		['link', { rel: 'manifest', href: '/site.webmanifest' }],
+		['meta', { property: 'og:type', content: 'website' }],
+		[
+			'meta',
+			{ property: 'og:image', content: 'https://resumx.dev/og-image.png' },
+		],
+		['meta', { property: 'og:image:width', content: '1200' }],
+		['meta', { property: 'og:image:height', content: '630' }],
+		['meta', { property: 'og:image:type', content: 'image/png' }],
+		['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+		[
+			'meta',
+			{ name: 'twitter:image', content: 'https://resumx.dev/og-image.png' },
+		],
 	],
 	rewrites: {
 		'guide/what-is-resumx.md': 'index.md',
