@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   build:
+    if: false  # disabled until Pages is enabled in repo settings
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,6 +44,7 @@ jobs:
           path: docs/.vitepress/dist
 
   deploy:
+    if: false  # disabled until site is public
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
