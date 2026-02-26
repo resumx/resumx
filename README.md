@@ -17,12 +17,12 @@
 
 ---
 
-Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip tailoring because it means maintaining multiple files and reworking layout every time. Resumx lets you tailor for every role from a single source file, with layout and page fitting handled automatically.
+Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and fixing layout every time. Resumx lets you tailor for every role in a **single file**, with **layout and page fitting handled automatically**.
 
-- **One file, multiple targets.** Tag sections with `{.@frontend}`, `{.@vercel-swe}`, etc. and render each variant separately, auto-fitted to the page.
-- **Layout and page fitting handled.** Content reflows automatically as you edit, no manual margin nudging.
-- **Plain Markdown.** Version-controlled, diffable, and easy for AI tools to read and edit.
-- **Opinionated defaults.** Typography and structure follow best practices so you spend time on content, not formatting.
+- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), auto-fitted to the page.
+- **Layout and fitting handled for you:** Research-backed layout that auto-adjusts, no manual margin nudging.
+- **AI-friendly by default:** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
+- **More writing, fewer decisions:** Sensible defaults for typography and structure so you focus on substance.
 
 <!-- prettier-ignore-start -->
 ```markdown
