@@ -210,13 +210,36 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					end: pos + m[2].length + 2,
 					properties: { class: 'resumx-delim' },
 				})
+				for (let i = m.index; i < m.index + m[0].length; i++)
+					matched.add(String(i))
 			}
 
-			// 6) | delimiters between markdown links — dim
+			// 5b) Plain-text emails and bare URLs — underline
+			for (const m of code.matchAll(
+				/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|(?<![[(\/])(?:(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})\/[^\s|)\]"]*/g,
+			)) {
+				if (matched.has(String(m.index))) continue
+				options.decorations.push({
+					start: m.index,
+					end: m.index + m[0].length,
+					properties: { class: 'resumx-plain-link' },
+				})
+			}
+
+			// 6) | delimiters between links (both markdown and plain-text) — dim
 			for (const m of code.matchAll(/(?<=\)) \| (?=\[)/g)) {
 				options.decorations.push({
 					start: m.index,
 					end: m.index + m[0].length,
+					properties: { class: 'resumx-delim' },
+				})
+			}
+			// 6a) | between plain-text contact items — dim
+			for (const m of code.matchAll(/(?<=[a-zA-Z0-9/]) \| (?=[a-zA-Z0-9])/g)) {
+				if (matched.has(String(m.index))) continue
+				options.decorations.push({
+					start: m.index,
+					end: m.index + 3,
 					properties: { class: 'resumx-delim' },
 				})
 			}

@@ -283,6 +283,14 @@ main a {
 	--shiki-dark: #e6edf3 !important;
 }
 
+/* plain-text links (emails, domains) — underline to hint they're links */
+.resumx-plain-link,
+.resumx-plain-link span {
+	text-decoration: underline;
+	text-decoration-color: var(--vp-c-text-3);
+	text-underline-offset: 2px;
+}
+
 /* ***bold italic*** and ___bold italic___ */
 .resumx-bold-italic,
 .resumx-bold-italic span {
