@@ -100,6 +100,7 @@ _Software Engineer, Core Infrastructure_ || San Francisco, CA
 - Selected as one of 1000+ global contributors for Google Summer of Code program
 - Implemented advanced debugging tools for TensorFlow.js runtime environment
 - Mentored by Google engineers and contributed 15K+ lines of production code
+- Presented findings at internal Google Engineering Review to 50+ senior engineers
 
 ## Technical Skills
 
