@@ -11,12 +11,12 @@
   <a href="https://resumx.dev/playbook/resume-length"><strong>The Resume Playbook</strong></a>
 </p>
 
-Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and fixing layout every time. Resumx lets you tailor for every role in a **single file**, with **layout and page fitting handled automatically**.
+Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
-- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), auto-fitted to the page.
-- **Layout and fitting handled for you:** Research-backed layout that auto-adjusts, no manual margin nudging.
+- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
+- **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
 - **AI-friendly by default:** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
-- **More writing, fewer decisions:** Sensible defaults for typography and structure so you focus on substance.
+- **More writing, fewer decisions:** Sensible defaults for layout and structure so you focus on substance.
 
 <!-- prettier-ignore-start -->
 ```markdown
