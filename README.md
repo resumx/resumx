@@ -29,6 +29,9 @@ style:
 
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
+[Stream Processing, Event-Driven Architecture, Distributed Systems, Go, Kafka]{.@stripe-swe}
+[React, UI Performance, Design Systems, TypeScript, Next.js]{.@vercel-fe}
+
 ## Experience
 
 ### :meta: Meta || June 2022 - Present
