@@ -149,16 +149,16 @@ describe('html-generator', () => {
 			})
 		})
 
-		it('leaves double-brace syntax unchanged', async () => {
+		it('replaces undefined variables with empty string', async () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# {{ name }}', {
+				const html = await generateHtml('# Hello {{ name }}', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
-				// Without context, expression is left as-is
-				expect(html).toContain('{{ name }}')
+				expect(html).toContain('Hello')
+				expect(html).not.toContain('{{ name }}')
 			})
 		})
 
