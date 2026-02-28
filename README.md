@@ -59,7 +59,7 @@ _Senior Software Engineer_
 Render with:
 
 ```bash
-resumx resume.md --format pdf,docx,html
+resumx resume.md --for backend -v tagline="Payments APIs, Go, Distributed Systems" -o Stripe_backend.pdf
 ```
 
 <img
