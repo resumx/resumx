@@ -49,10 +49,4 @@ _Senior Software Engineer_
 
 <ResumeDemo />
 
-Render with:
-
-```bash
-resumx resume.md --format pdf,docx,html
-```
-
 [Get started in under a minute →](/guide/quick-start) Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source.
