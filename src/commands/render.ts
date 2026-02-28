@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { mergeVariables, DEFAULT_STYLESHEET } from '../core/styles.js'
+import { DEFAULT_STYLESHEET } from '../core/styles.js'
 import { parseStyleFlags } from './utils/style-flags.js'
 import {
 	renderMultiple,
@@ -31,26 +31,22 @@ import {
 	validateTemplateUniqueness,
 } from '../lib/string-template/index.js'
 import { runCheck, printCheckResults } from './check.js'
+import { resolveView } from '../core/view/resolve.js'
+import type { ViewLayer } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
 
 /**
- * Resolve CSS file paths (CLI > Frontmatter > default).
+ * Resolve CSS file paths from an already-cascaded list.
  * The default stylesheet is always included first, user CSS cascades on top.
  * Paths resolve relative to the markdown file's directory.
  */
 function resolveCssPaths(
-	cliCss: string[] | undefined,
-	frontmatterCss: string[] | undefined,
+	resolvedCss: string[] | null,
 	baseDir: string,
 ): string[] {
-	const raw =
-		cliCss && cliCss.length > 0 ? cliCss
-		: frontmatterCss && frontmatterCss.length > 0 ? frontmatterCss
-		: null
+	if (!resolvedCss || resolvedCss.length === 0) return [DEFAULT_STYLESHEET]
 
-	if (!raw) return [DEFAULT_STYLESHEET]
-
-	const userPaths = raw.map(p => {
+	const userPaths = resolvedCss.map(p => {
 		const absolutePath = isAbsolute(p) ? p : resolve(baseDir, p)
 		if (!existsSync(absolutePath)) {
 			throw new Error(`CSS file not found: ${absolutePath}`)
@@ -200,32 +196,47 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve CSS paths (CLI > Frontmatter > default), relative to markdown file
-	const cssPaths = resolveCssPaths(
-		options.css,
-		fmConfig?.css,
-		context.cssBaseDir,
-	)
-
-	// Merge style overrides (CLI > Frontmatter)
+	// Build view layers: default (frontmatter) + ephemeral (CLI)
 	const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
-	const variables = mergeVariables(fmConfig?.style, cliStyles)
 
-	// Determine output (CLI > Frontmatter > defaults)
-	const outputString = options.output ?? fmConfig?.output
+	const defaultView: ViewLayer = {
+		pages: fmConfig?.pages,
+		vars: fmConfig?.vars,
+		style: fmConfig?.style,
+		output: fmConfig?.output,
+		css: fmConfig?.css,
+	}
+
+	const ephemeralView: ViewLayer = {
+		pages: options.pages,
+		vars:
+			options.var && Object.keys(options.var).length > 0 ?
+				options.var
+			:	undefined,
+		style: cliStyles,
+		output: options.output,
+		css: options.css && options.css.length > 0 ? options.css : undefined,
+	}
+
+	const view = resolveView([defaultView, ephemeralView])
+
+	// Resolve CSS paths from the cascade result
+	const cssPaths = resolveCssPaths(view.css, context.cssBaseDir)
+
+	// Determine output path
 	let baseOutputName = context.defaultOutputName
 	let baseOutputDir = cwd
 	let outputTemplate: string | undefined
 
-	if (outputString) {
-		validateTemplateVars(outputString, ['target', 'lang'])
+	if (view.output) {
+		validateTemplateVars(view.output, ['target', 'lang'])
 
-		if (outputString.endsWith('/')) {
-			baseOutputDir = resolve(cwd, outputString.slice(0, -1) || '.')
-		} else if (/\{[^}]+\}/.test(outputString)) {
-			outputTemplate = outputString
+		if (view.output.endsWith('/')) {
+			baseOutputDir = resolve(cwd, view.output.slice(0, -1) || '.')
+		} else if (/\{[^}]+\}/.test(view.output)) {
+			outputTemplate = view.output
 		} else {
-			const resolved = resolve(cwd, outputString)
+			const resolved = resolve(cwd, view.output)
 			baseOutputDir = dirname(resolved)
 			baseOutputName = stripDocExtension(basename(resolved))
 		}
@@ -236,13 +247,7 @@ async function runRender(
 	const needsDocx = formats.includes('docx')
 	requireDependencies({ docx: needsDocx })
 
-	const targetPages = options.pages ?? fmConfig?.pages
-
-	const mergedVars: Record<string, string> = {
-		...fmConfig?.vars,
-		...options.var,
-	}
-	const vars = Object.keys(mergedVars).length > 0 ? mergedVars : undefined
+	const vars = Object.keys(view.vars).length > 0 ? view.vars : undefined
 
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
@@ -308,7 +313,7 @@ async function runRender(
 
 			renderTasks.push({
 				cssPaths,
-				variables,
+				variables: view.style,
 				outputDir: dirname(resolved),
 				outputName: stripDocExtension(basename(resolved)),
 				activeTarget: target,
@@ -319,7 +324,7 @@ async function runRender(
 	} else {
 		renderTasks = buildRenderTasks(
 			cssPaths,
-			variables,
+			view.style,
 			tagsToGenerate,
 			langsToGenerate,
 			baseOutputDir,
@@ -339,7 +344,7 @@ async function runRender(
 				variables: hasVariables ? task.variables : undefined,
 				activeTarget: task.activeTarget,
 				activeLang: task.activeLang,
-				targetPages,
+				targetPages: view.pages ?? undefined,
 				icons: fmConfig?.icons,
 				tagMap,
 				vars,
@@ -522,7 +527,11 @@ export async function renderCommand(
 
 	let cssPaths: string[] = []
 	try {
-		cssPaths = resolveCssPaths(options.css, parsed.config?.css, mdDir)
+		const resolvedCss =
+			options.css && options.css.length > 0 ?
+				options.css
+			:	(parsed.config?.css ?? null)
+		cssPaths = resolveCssPaths(resolvedCss, mdDir)
 	} catch {
 		// Will error during render
 	}
