@@ -17,19 +17,6 @@ interface OutputLine {
 const phase = ref<Phase>('idle')
 const visibleLines = ref(0)
 
-function combo(label: string): OutputLine {
-	return {
-		segments: [
-			{ t: `  ${label} ` },
-			{ t: 'HTML' },
-			{ t: ' \u2713', c: 'green' },
-			{ t: '  PDF' },
-			{ t: ' \u2713', c: 'green' },
-		],
-		delay: 60,
-	}
-}
-
 const outputLines: OutputLine[] = [
 	{ segments: [{ t: 'No issues found', c: 'green' }], delay: 200 },
 	{
@@ -37,19 +24,37 @@ const outputLines: OutputLine[] = [
 		delay: 150,
 	},
 	{ segments: [{ t: '' }], delay: 80 },
-	combo('[backend, zurich]  '),
-	combo('[frontend, zurich] '),
-	combo('[fullstack, zurich]'),
-	combo('[backend, oxford]  '),
-	combo('[frontend, oxford] '),
-	combo('[fullstack, oxford]'),
+	{
+		segments: [
+			{ t: '  [backend] ' },
+			{ t: ' PDF', c: 'dim' },
+			{ t: ' \u2713', c: 'green' },
+		],
+		delay: 120,
+	},
+	{
+		segments: [
+			{ t: '  [frontend]' },
+			{ t: ' PDF', c: 'dim' },
+			{ t: ' \u2713', c: 'green' },
+		],
+		delay: 120,
+	},
+	{
+		segments: [
+			{ t: '  [fullstack]' },
+			{ t: ' PDF', c: 'dim' },
+			{ t: ' \u2713', c: 'green' },
+		],
+		delay: 120,
+	},
 	{ segments: [{ t: '' }], delay: 80 },
 	{
 		segments: [
 			{ t: 'Done!', c: 'green' },
-			{ t: ' 12 files \u2192 ' },
+			{ t: ' 3 files \u2192 ' },
 			{ t: 'output/', c: 'cyan' },
-			{ t: ' (Time: 1.36s)', c: 'dim' },
+			{ t: ' (Time: 0.84s)', c: 'dim' },
 		],
 		delay: 200,
 	},
@@ -112,7 +117,7 @@ async function run() {
 			<div class="terminal-body">
 				<div class="command-line">
 					<span class="prompt">$</span>
-					<span class="command">resumx resume.md --format html,pdf</span>
+					<span class="command">resumx resume.md --for backend,frontend,fullstack</span>
 					<span class="run-btn" :class="{ hidden: phase !== 'idle' }" aria-hidden="true">Run</span>
 				</div>
 				<div class="output-wrapper" :class="{ expanded: phase !== 'idle' }">
@@ -194,6 +199,8 @@ async function run() {
 	color: var(--vp-c-text-1);
 	flex: 1;
 	min-width: 0;
+	white-space: nowrap;
+	overflow-x: auto;
 }
 
 .run-btn {
