@@ -687,6 +687,44 @@ pages: 1
 			})
 		})
 
+		it('returns error for malformed YAML (unclosed quote)', () => {
+			const input = `---
+vars:
+tagline: "
+---
+
+# Resume`
+			const result = parseFrontmatterFromString(input)
+			expect(result.ok).toBe(false)
+			if (!result.ok) {
+				expect(result.error).toContain('YAML')
+			}
+		})
+
+		it('returns error for malformed YAML even after prior gray-matter cache pollution', async () => {
+			const { default: matter } = await import('gray-matter')
+			const input = `---
+vars:
+  tagline: "
+---
+
+# Resume`
+
+			// Simulate extractValidateConfig calling matter() directly and catching the error
+			try {
+				matter(input)
+			} catch {
+				// swallowed, just like extractValidateConfig does
+			}
+
+			// Now parseFrontmatterFromString must still detect the error
+			const result = parseFrontmatterFromString(input)
+			expect(result.ok).toBe(false)
+			if (!result.ok) {
+				expect(result.error).toContain('YAML')
+			}
+		})
+
 		describe('tags field', () => {
 			it('parses tags as a map of string arrays', () => {
 				const input = `---

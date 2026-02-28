@@ -119,22 +119,32 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 		return { ok: true, config: null, content: input, warnings: [] }
 	}
 
-	// Parse based on frontmatter type
-	const result =
-		frontmatterType === 'toml' ?
-			matter(input, {
-				language: 'toml',
-				delimiters: '+++',
-				engines: {
-					toml: {
-						parse: (str: string) => TOML.parse(str),
-						stringify: () => {
-							throw new Error('TOML stringify not supported')
+	// Passing options bypasses gray-matter's internal cache, which can retain
+	// corrupted entries from prior callers that caught the same malformed input.
+	let result: matter.GrayMatterFile<string>
+	try {
+		result =
+			frontmatterType === 'toml' ?
+				matter(input, {
+					language: 'toml',
+					delimiters: '+++',
+					engines: {
+						toml: {
+							parse: (str: string) => TOML.parse(str),
+							stringify: () => {
+								throw new Error('TOML stringify not supported')
+							},
 						},
 					},
-				},
-			})
-		:	matter(input)
+				})
+			:	matter(input, {}) // when options are truthy, gray-matter skips both cache read and write
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err)
+		return {
+			ok: false,
+			error: `Invalid ${frontmatterType.toUpperCase()} frontmatter: ${msg}`,
+		}
+	}
 
 	// Check if there's any frontmatter data
 	const data = result.data as Record<string, unknown>
