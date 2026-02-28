@@ -217,6 +217,19 @@ Some content here.`
 				expect(result.content).toBe('')
 			})
 
+			it('strips empty frontmatter delimiters from content', () => {
+				const input = `---
+---
+
+# John Doe`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config).toBeNull()
+				expect(result.content.trim()).toBe('# John Doe')
+			})
+
 			it('does not parse incomplete YAML delimiters', () => {
 				const input = `---
 css: formal
@@ -710,11 +723,12 @@ vars:
 
 # Resume`
 
-			// Simulate extractValidateConfig calling matter() directly and catching the error
+			// Simulate any caller invoking matter() directly and catching the error,
+			// which leaves a corrupted entry in gray-matter's internal cache.
 			try {
 				matter(input)
 			} catch {
-				// swallowed, just like extractValidateConfig does
+				// swallowed
 			}
 
 			// Now parseFrontmatterFromString must still detect the error

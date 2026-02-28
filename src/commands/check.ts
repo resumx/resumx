@@ -1,5 +1,4 @@
 import chalk from 'chalk'
-import matter from 'gray-matter'
 import { validate } from '../core/validator/index.js'
 import type {
 	Severity,
@@ -9,9 +8,15 @@ import type {
 	ValidationResult,
 } from '../core/validator/types.js'
 
+export interface ValidateConfig {
+	extends?: PresetName
+	rules?: RuleOverrides
+}
+
 export interface CheckOptions {
 	strict?: boolean
 	minSeverity?: Severity
+	validateConfig?: ValidateConfig
 }
 
 export interface CheckResult {
@@ -35,62 +40,6 @@ const severityColors: Record<Severity, (text: string) => string> = {
 	warning: chalk.yellow,
 	note: chalk.blue,
 	bonus: chalk.gray,
-}
-
-/**
- * Extract validation config from frontmatter
- */
-interface ValidateConfig {
-	extends?: PresetName
-	rules?: RuleOverrides
-}
-
-export function extractValidateConfig(content: string): ValidateConfig {
-	try {
-		const result = matter(content)
-		const data = result.data as Record<string, unknown>
-
-		const validateField = data['validate']
-		if (!validateField || typeof validateField !== 'object') {
-			return {}
-		}
-
-		const validateData = validateField as Record<string, unknown>
-		const config: ValidateConfig = {}
-
-		// Extract extends
-		const extendsField = validateData['extends']
-		if (
-			extendsField
-			&& typeof extendsField === 'string'
-			&& ['recommended', 'minimal', 'strict', 'none'].includes(extendsField)
-		) {
-			config.extends = extendsField as PresetName
-		}
-
-		// Extract rules
-		const rulesField = validateData['rules']
-		if (rulesField && typeof rulesField === 'object') {
-			const rules: RuleOverrides = {}
-			for (const [key, value] of Object.entries(
-				rulesField as Record<string, unknown>,
-			)) {
-				if (
-					typeof value === 'string'
-					&& ['critical', 'warning', 'note', 'bonus', 'off'].includes(value)
-				) {
-					rules[key] = value as Severity | 'off'
-				}
-			}
-			if (Object.keys(rules).length > 0) {
-				config.rules = rules
-			}
-		}
-
-		return config
-	} catch {
-		return {}
-	}
 }
 
 /**
@@ -144,11 +93,9 @@ export async function runCheck(
 	rawContent: string,
 	options: CheckOptions = {},
 ): Promise<CheckResult> {
-	const validateConfig = extractValidateConfig(rawContent)
-
 	const result = await validate(rawContent, {
-		extends: validateConfig.extends,
-		rules: validateConfig.rules,
+		extends: options.validateConfig?.extends,
+		rules: options.validateConfig?.rules,
 	})
 
 	// Filter issues by minimum severity

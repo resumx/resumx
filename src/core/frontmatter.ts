@@ -150,7 +150,7 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 	const data = result.data as Record<string, unknown>
 
 	if (Object.keys(data).length === 0) {
-		return { ok: true, config: null, content: input, warnings: [] }
+		return { ok: true, config: null, content: result.content, warnings: [] }
 	}
 
 	const knownKeys = Object.keys(FrontmatterSchema.shape)

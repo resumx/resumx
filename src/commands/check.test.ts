@@ -7,7 +7,7 @@ import {
 	afterEach,
 	MockInstance,
 } from 'vitest'
-import { runCheck, printCheckResults, extractValidateConfig } from './check.js'
+import { runCheck, printCheckResults } from './check.js'
 
 // =============================================================================
 // Test Fixtures
@@ -40,22 +40,6 @@ const INVALID_RESUME = `## Education
 `
 
 const WARNING_RESUME = `# John Doe
-
-> john@example.com
-
-## Skills
-
-Languages
-: TypeScript
-`
-
-const RESUME_WITH_VALIDATE_CONFIG = `---
-validate:
-  extends: minimal
-  rules:
-    no-entries: off
----
-# John Doe
 
 > john@example.com
 
@@ -111,58 +95,27 @@ describe('runCheck', () => {
 		expect(criticalOnly.every(i => i.severity === 'critical')).toBe(true)
 	})
 
-	it('should respect frontmatter validate config', async () => {
-		const { ok, filteredIssues } = await runCheck(RESUME_WITH_VALIDATE_CONFIG)
+	it('should respect validate config passed via options', async () => {
+		const body = `# John Doe
 
-		// no-entries is disabled, so should be clean
+> john@example.com
+
+## Skills
+
+Languages
+: TypeScript
+`
+		const { ok, filteredIssues } = await runCheck(body, {
+			validateConfig: { extends: 'minimal', rules: { 'no-entries': 'off' } },
+		})
+
 		expect(ok).toBe(true)
 		expect(filteredIssues.filter(i => i.code === 'no-entries')).toHaveLength(0)
 	})
-})
 
-// =============================================================================
-// extractValidateConfig tests
-// =============================================================================
-
-describe('extractValidateConfig', () => {
-	it('should return empty config for content without frontmatter', () => {
-		const config = extractValidateConfig('# Hello')
-		expect(config).toEqual({})
-	})
-
-	it('should extract extends preset', () => {
-		const content = `---
-validate:
-  extends: minimal
----
-# Hello`
-		const config = extractValidateConfig(content)
-		expect(config.extends).toBe('minimal')
-	})
-
-	it('should extract rule overrides', () => {
-		const content = `---
-validate:
-  rules:
-    long-bullet: warning
-    single-bullet-section: off
----
-# Hello`
-		const config = extractValidateConfig(content)
-		expect(config.rules).toEqual({
-			'long-bullet': 'warning',
-			'single-bullet-section': 'off',
-		})
-	})
-
-	it('should reject invalid preset names', () => {
-		const content = `---
-validate:
-  extends: invalid-preset
----
-# Hello`
-		const config = extractValidateConfig(content)
-		expect(config.extends).toBeUndefined()
+	it('should use default preset when no validate config provided', async () => {
+		const { ok } = await runCheck(VALID_RESUME)
+		expect(ok).toBe(true)
 	})
 })
 

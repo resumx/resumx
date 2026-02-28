@@ -14,7 +14,11 @@ import {
 	cleanupPath,
 	type OutputFormat,
 } from '../core/renderer.js'
-import { parseFrontmatterFromString } from '../core/frontmatter.js'
+import {
+	parseFrontmatterFromString,
+	type FrontmatterConfig,
+	type ParseResult,
+} from '../core/frontmatter.js'
 import { renderMarkdown } from '../core/markdown.js'
 import {
 	extractBySelector,
@@ -184,17 +188,12 @@ interface RenderContext {
 }
 
 async function runRender(
-	rawContent: string,
+	parsed: Extract<ParseResult, { ok: true }>,
 	options: RenderCommandOptions,
 	cwd: string,
 	context: RenderContext,
 ): Promise<void> {
 	const renderStart = performance.now()
-
-	const parsed = parseFrontmatterFromString(rawContent)
-	if (!parsed.ok) {
-		throw new Error(parsed.error)
-	}
 
 	const { config: fmConfig, content, warnings } = parsed
 	for (const warning of warnings) {
@@ -413,10 +412,12 @@ async function handleCheck(
 	rawContent: string,
 	label: string,
 	options: RenderCommandOptions,
+	validateConfig?: FrontmatterConfig['validate'],
 ): Promise<boolean> {
 	const { filteredIssues, ok } = await runCheck(rawContent, {
 		strict: options.strict,
 		minSeverity: options.minSeverity,
+		validateConfig,
 	})
 
 	printCheckResults(filteredIssues, label)
@@ -454,9 +455,18 @@ export async function renderCommand(
 		}
 
 		const rawContent = await readStdin()
+		const parsed = parseFrontmatterFromString(rawContent)
+		if (!parsed.ok) {
+			throw new Error(parsed.error)
+		}
 
 		if (!skipCheck) {
-			const proceed = await handleCheck(rawContent, 'stdin', options)
+			const proceed = await handleCheck(
+				rawContent,
+				'stdin',
+				options,
+				parsed.config?.validate,
+			)
 			if (!proceed) return
 		}
 
@@ -474,7 +484,7 @@ export async function renderCommand(
 			defaultOutputName: nameFromContent ?? '',
 			cssBaseDir: cwd,
 		}
-		await runRender(rawContent, options, cwd, context)
+		await runRender(parsed, options, cwd, context)
 		return
 	}
 
@@ -495,19 +505,24 @@ export async function renderCommand(
 	}
 
 	const rawContent = readFileSync(inputPath, 'utf-8')
+	const parsed = parseFrontmatterFromString(rawContent)
+	if (!parsed.ok) {
+		throw new Error(parsed.error)
+	}
 
 	if (!skipCheck) {
-		const proceed = await handleCheck(rawContent, context.label, options)
+		const proceed = await handleCheck(
+			rawContent,
+			context.label,
+			options,
+			parsed.config?.validate,
+		)
 		if (!proceed) return
 	}
 
-	// Resolve CSS paths for watch mode
-	const parsed = parseFrontmatterFromString(rawContent)
-	const fmConfig = parsed.ok ? parsed.config : null
-
 	let cssPaths: string[] = []
 	try {
-		cssPaths = resolveCssPaths(options.css, fmConfig?.css, mdDir)
+		cssPaths = resolveCssPaths(options.css, parsed.config?.css, mdDir)
 	} catch {
 		// Will error during render
 	}
@@ -523,7 +538,7 @@ export async function renderCommand(
 		console.log('')
 	}
 
-	await runRender(rawContent, options, cwd, context)
+	await runRender(parsed, options, cwd, context)
 
 	if (!options.watch) return
 
@@ -546,17 +561,22 @@ export async function renderCommand(
 			try {
 				console.log(chalk.blue('\nChange detected, rebuilding...'))
 				const freshContent = readFileSync(inputPath, 'utf-8')
+				const freshParsed = parseFrontmatterFromString(freshContent)
+				if (!freshParsed.ok) {
+					throw new Error(freshParsed.error)
+				}
 
 				if (!skipCheck) {
 					const proceed = await handleCheck(
 						freshContent,
 						context.label,
 						options,
+						freshParsed.config?.validate,
 					)
 					if (!proceed) return
 				}
 
-				await runRender(freshContent, options, cwd, context)
+				await runRender(freshParsed, options, cwd, context)
 			} catch (error) {
 				console.log(chalk.yellow((error as Error).message ?? 'Unknown error'))
 				console.log(chalk.yellow('Fix issues and save again.'))
