@@ -22,8 +22,8 @@ export interface HtmlGeneratorOptions {
 	cssPaths: string[]
 	/** Optional CSS variable overrides */
 	variables?: Record<string, string>
-	/** Active target for filtering content (if set, only matching target content is included) */
-	activeTarget?: string
+	/** Active tag for filtering content (if set, only matching tag content is included) */
+	activeTag?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
 	activeLang?: string
 	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */
@@ -99,7 +99,7 @@ export async function generateHtml(
 	// Build pipeline context
 	const ctx: PipelineContext = {
 		config: {
-			activeTarget: options.activeTarget,
+			activeTag: options.activeTag,
 			activeLang: options.activeLang,
 			variables: options.variables,
 			tagMap: options.tagMap,

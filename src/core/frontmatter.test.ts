@@ -86,7 +86,7 @@ output: ./build/output/
 
 			it('parses YAML frontmatter with output template', () => {
 				const input = `---
-output: "build/John_Doe-{target}-{lang}"
+output: "build/John_Doe-{view}-{lang}"
 ---
 # Resume`
 
@@ -94,7 +94,7 @@ output: "build/John_Doe-{target}-{lang}"
 				assert(result.ok)
 
 				expect(result.config).toEqual({
-					output: 'build/John_Doe-{target}-{lang}',
+					output: 'build/John_Doe-{view}-{lang}',
 				})
 			})
 

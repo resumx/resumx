@@ -134,15 +134,15 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 ### Render Fields
 
-| Field     | Type                       | Default             | Description                                                                  |
-| --------- | -------------------------- | ------------------- | ---------------------------------------------------------------------------- |
-| `css`     | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                                |
-| `output`  | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{target}`/`{lang}`) |
-| `pages`   | `positive integer`         | No clamping         | Target page count                                                            |
-| `style`   | `Record<string, string>`   | No overrides        | Style option overrides                                                       |
-| `targets` | `Record<string, string[]>` | No composed targets | Target composition map (composed name -> constituent targets)                |
-| `icons`   | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                                |
-| `extra`   | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                  |
+| Field     | Type                       | Default             | Description                                                                |
+| --------- | -------------------------- | ------------------- | -------------------------------------------------------------------------- |
+| `css`     | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                              |
+| `output`  | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{view}`/`{lang}`) |
+| `pages`   | `positive integer`         | No clamping         | Target page count                                                          |
+| `style`   | `Record<string, string>`   | No overrides        | Style option overrides                                                     |
+| `targets` | `Record<string, string[]>` | No composed targets | Target composition map (composed name -> constituent targets)              |
+| `icons`   | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                              |
+| `extra`   | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                |
 
 ### Validate Fields
 
@@ -166,7 +166,7 @@ Unknown top-level keys error. Use `extra` for custom data.
 ```yaml
 ---
 pages: 1
-output: ./out/Jane_Smith-{target}
+output: ./out/Jane_Smith-{view}
 style:
   accent-color: '#0ea5e9'
 validate:
@@ -219,7 +219,7 @@ git show HEAD~3:resume.md | resumx -o old
 | With langs           | `resume-en.pdf`          |
 | Targets + langs      | `frontend/resume-en.pdf` |
 
-Template variables: `{target}`, `{lang}`.
+Template variables: `{view}`, `{lang}`.
 
 ## Style Options
 

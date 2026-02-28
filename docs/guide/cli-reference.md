@@ -38,7 +38,7 @@ When reading from stdin, the output filename is derived from:
 | Flag                       | Description                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                                |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{target}`/`{lang}`.                   |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{view}`/`{lang}`.                     |
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.                         |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                                                 |
 | `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).                   |
@@ -156,7 +156,7 @@ Some CLI options can also be set in the resume's YAML or TOML frontmatter, or in
 ```yaml
 ---
 pages: 1
-output: ./dist/John_Doe-{target}
+output: ./dist/John_Doe-{view}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -179,12 +179,12 @@ When no `-o` flag or `output` frontmatter is set, filenames are automatically de
 For custom naming, use the `-o` flag with template variables:
 
 ```bash
-# Template with tag/view name variable
-resumx resume.md -o "John_Doe-{target}" --for frontend
+# Template with view name variable
+resumx resume.md -o "John_Doe-{view}" --for frontend
 # → John_Doe-frontend.pdf
 
-# Template with tag/view and lang
-resumx resume.md -o "{target}/John_Doe-{lang}" --for frontend --lang en,fr
+# Template with view and lang
+resumx resume.md -o "{view}/John_Doe-{lang}" --for frontend --lang en,fr
 # → frontend/John_Doe-en.pdf, frontend/John_Doe-fr.pdf
 ```
 

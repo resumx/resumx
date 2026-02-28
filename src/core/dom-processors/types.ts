@@ -16,14 +16,14 @@ export interface PipelineConfig {
 	style?: string
 	/** CSS variable overrides */
 	variables?: Record<string, string>
-	/** Active target for content filtering */
-	activeTarget?: string
+	/** Active tag for content filtering */
+	activeTag?: string
 	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */
 	tagMap?: Record<string, string[]>
 	/** Active language for content filtering */
 	activeLang?: string
-	/** Available targets from content */
-	targets?: string[]
+	/** Available tags from content */
+	tags?: string[]
 }
 
 /**

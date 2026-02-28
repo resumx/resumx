@@ -12,7 +12,7 @@
 
 import { stripComments } from './strip-comments/index.js'
 import { filterByLang } from './filter-by-lang/index.js'
-import { filterByTarget } from './filter-by-target/index.js'
+import { filterByTag } from './filter-by-tag/index.js'
 import { extractHeader } from './extract-header/index.js'
 import { processColumns } from './process-columns/index.js'
 import { wrapSections } from './wrap-sections/index.js'
@@ -26,7 +26,7 @@ import type { DOMProcessor, PipelineContext } from './types.js'
  * Order matters:
  * 1. stripComments - remove HTML comment nodes so downstream processors never see them
  * 2. filterByLang - remove non-matching language content (before target so target filtering operates on language-filtered content)
- * 3. filterByTarget - remove non-matching target content
+ * 3. filterByTag - remove non-matching tag content
  * 4. extractHeader - pull content before first h2 into <header>
  * 5. wrapSections - wrap h2 groups in <section> tags (before columns so no layout awareness needed)
  * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags (before columns so no layout awareness needed)
@@ -37,7 +37,7 @@ import type { DOMProcessor, PipelineContext } from './types.js'
 export const defaultProcessors: DOMProcessor[] = [
 	{ name: 'stripComments', process: stripComments },
 	{ name: 'filterByLang', process: filterByLang },
-	{ name: 'filterByTarget', process: filterByTarget },
+	{ name: 'filterByTag', process: filterByTag },
 	{ name: 'extractHeader', process: extractHeader },
 	{ name: 'wrapSections', process: wrapSections },
 	{ name: 'wrapEntries', process: wrapEntries },
@@ -67,7 +67,7 @@ export type {
 
 // Re-export individual processors for testing
 export { filterByLang } from './filter-by-lang/index.js'
-export { filterByTarget } from './filter-by-target/index.js'
+export { filterByTag } from './filter-by-tag/index.js'
 export { extractHeader } from './extract-header/index.js'
 export { processColumns } from './process-columns/index.js'
 export { wrapSections, slugify } from './wrap-sections/index.js'

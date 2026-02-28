@@ -23,13 +23,10 @@ function parseHtml(html: string) {
 /**
  * Create a minimal pipeline context for testing
  */
-function createContext(
-	css: string = '',
-	activeTarget?: string,
-): PipelineContext {
+function createContext(css: string = '', activeTag?: string): PipelineContext {
 	return {
 		config: {
-			activeTarget,
+			activeTag,
 		},
 		env: {
 			css,
@@ -59,7 +56,7 @@ body {
 //
 // This file tests the pipeline as a whole, verifying that all processors
 // work together correctly. Individual processor tests are in their own files:
-// - filter-by-target.test.ts
+// - filter-by-tag.test.ts
 // - extract-header.test.ts
 // - process-columns.test.ts
 // - wrap-sections.test.ts

@@ -110,7 +110,7 @@ interface RenderTask {
 	variables: Record<string, string>
 	outputDir: string
 	outputName: string
-	activeTarget: string | undefined
+	activeTag: string | undefined
 	activeLang: string | undefined
 	label: string
 }
@@ -118,7 +118,7 @@ interface RenderTask {
 /**
  * Build render tasks for all target × lang combinations.
  *
- * Output filename: {name}-{target}-{lang}.{format}
+ * Output filename: {name}-{view}-{lang}.{format}
  * Each dimension is included as a suffix only when it has multiple values.
  */
 function buildRenderTasks(
@@ -159,7 +159,7 @@ function buildRenderTasks(
 			variables,
 			outputDir: baseOutputDir,
 			outputName,
-			activeTarget: target,
+			activeTag: target,
 			activeLang: lang,
 			label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
 		})
@@ -229,7 +229,7 @@ async function runRender(
 	let outputTemplate: string | undefined
 
 	if (view.output) {
-		validateTemplateVars(view.output, ['target', 'lang'])
+		validateTemplateVars(view.output, ['view', 'lang'])
 
 		if (view.output.endsWith('/')) {
 			baseOutputDir = resolve(cwd, view.output.slice(0, -1) || '.')
@@ -289,7 +289,7 @@ async function runRender(
 
 	if (outputTemplate) {
 		validateTemplateUniqueness(outputTemplate, {
-			target: tagsToGenerate,
+			view: tagsToGenerate,
 			lang: langsToGenerate,
 		})
 
@@ -302,7 +302,7 @@ async function runRender(
 		for (const [target, lang] of cartesian(effectiveTargets, effectiveLangs)) {
 			const expanded = cleanupPath(
 				expandTemplate(outputTemplate, {
-					target: target ?? '',
+					view: target ?? '',
 					lang: lang ?? '',
 				}),
 			)
@@ -316,7 +316,7 @@ async function runRender(
 				variables: view.style,
 				outputDir: dirname(resolved),
 				outputName: stripDocExtension(basename(resolved)),
-				activeTarget: target,
+				activeTag: target,
 				activeLang: lang,
 				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
 			})
@@ -342,7 +342,7 @@ async function runRender(
 				formats,
 				cssPaths: task.cssPaths,
 				variables: hasVariables ? task.variables : undefined,
-				activeTarget: task.activeTarget,
+				activeTag: task.activeTag,
 				activeLang: task.activeLang,
 				targetPages: view.pages ?? undefined,
 				icons: fmConfig?.icons,

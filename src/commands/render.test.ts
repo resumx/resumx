@@ -844,7 +844,7 @@ Test content`
 
 			await renderCommand('resume.md', { format: ['html'] }, tempDir)
 
-			// 2 langs x 2 targets = 4 files, flat: {name}-{target}-{lang}.{format}
+			// 2 langs x 2 targets = 4 files, flat: {name}-{view}-{lang}.{format}
 			expect(existsSync(join(tempDir, 'resume-frontend-en.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-frontend-fr.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend-en.html'))).toBe(true)

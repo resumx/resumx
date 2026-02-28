@@ -9,7 +9,7 @@ Configure rendering options directly inside your resume using YAML or TOML front
 ```yaml
 ---
 pages: 1
-output: ./dist/John_Doe-{target}
+output: ./dist/John_Doe-{view}
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
@@ -21,7 +21,7 @@ style:
 ```toml
 +++
 pages = 1
-output = "./dist/John_Doe-{target}"
+output = "./dist/John_Doe-{view}"
 
 [style]
 font-family = "Inter, sans-serif"
@@ -69,15 +69,15 @@ Output path for rendered files. Supports three modes depending on its value:
 
 **Modes:**
 
-| Value                             | Mode       | Behavior                                                                      |
-| --------------------------------- | ---------- | ----------------------------------------------------------------------------- |
-| `./dist/`                         | Directory  | Ends with `/`, output files go into this directory using default naming rules |
-| `John_Doe`                        | Plain name | No `{…}`, used as the base filename, with automatic tag/lang suffixes         |
-| `./dist/John_Doe-{target}-{lang}` | Template   | Contains `{target}` and/or `{lang}`, expanded for each combination            |
+| Value                           | Mode       | Behavior                                                                      |
+| ------------------------------- | ---------- | ----------------------------------------------------------------------------- |
+| `./dist/`                       | Directory  | Ends with `/`, output files go into this directory using default naming rules |
+| `John_Doe`                      | Plain name | No `{…}`, used as the base filename, with automatic tag/lang suffixes         |
+| `./dist/John_Doe-{view}-{lang}` | Template   | Contains `{view}` and/or `{lang}`, expanded for each combination              |
 
 **Template variables:**
 
-- `{target}` — the tag or view name (e.g. `frontend`, `stripe-swe`). Expands to empty string when rendering without `--for`; orphaned separators are cleaned up automatically.
+- `{view}` — the tag or view name (e.g. `frontend`, `stripe-swe`). Expands to empty string when rendering without `--for`; orphaned separators are cleaned up automatically.
 - `{lang}` — the language tag (e.g. `en`, `fr`). Expands to empty string when no languages exist.
 
 When using template mode, if the expanded paths would produce duplicate filenames, an error is raised with a suggestion.
@@ -90,10 +90,10 @@ output: John_Doe
 output: ./dist/
 
 # Template, produces ./dist/John_Doe-frontend.pdf, etc.
-output: ./dist/John_Doe-{target}
+output: ./dist/John_Doe-{view}
 
 # Template with both, produces frontend/John_Doe-en.pdf, etc.
-output: "{target}/John_Doe-{lang}"
+output: "{view}/John_Doe-{lang}"
 
 # Path with directory and name
 output: ./dist/John_Doe
@@ -358,7 +358,7 @@ validate:
 ```yaml
 ---
 pages: 1
-output: ./out/Jane_Smith-{target}
+output: ./out/Jane_Smith-{view}
 bullet-order: source
 style:
   accent-color: '#0ea5e9'

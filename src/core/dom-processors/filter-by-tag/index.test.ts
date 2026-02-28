@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
-import { filterByTarget } from './index.js'
+import { filterByTag } from './index.js'
 import type { PipelineContext } from '../types.js'
 
 // =============================================================================
@@ -21,31 +21,31 @@ function parseHtml(html: string) {
 }
 
 /**
- * Create a pipeline context with optional activeTarget
+ * Create a pipeline context with optional activeTag
  */
-function createContext(activeTarget?: string): PipelineContext {
+function createContext(activeTag?: string): PipelineContext {
 	return {
-		config: { activeTarget },
+		config: { activeTag },
 		env: { css: '' },
 	}
 }
 
 // =============================================================================
-// Tests: filterByTarget
+// Tests: filterByTag
 // =============================================================================
 
-describe('filterByTarget', () => {
-	describe('when no activeTarget is specified', () => {
-		it('returns unchanged when activeTarget is undefined', () => {
+describe('filterByTag', () => {
+	describe('when no activeTag is specified', () => {
+		it('returns unchanged when activeTag is undefined', () => {
 			const html = '<p class="@frontend">Frontend</p><p>Common</p>'
-			const result = filterByTarget(html, createContext())
+			const result = filterByTag(html, createContext())
 
 			expect(result).toBe(html)
 		})
 
-		it('returns unchanged when activeTarget is empty string', () => {
+		it('returns unchanged when activeTag is empty string', () => {
 			const html = '<p class="@frontend">Frontend</p><p>Common</p>'
-			const result = filterByTarget(html, createContext(''))
+			const result = filterByTag(html, createContext(''))
 
 			// Empty string is falsy, so it should return unchanged
 			expect(result).toBe(html)
@@ -56,7 +56,7 @@ describe('filterByTarget', () => {
 		it('keeps elements matching active target', () => {
 			const html =
 				'<p class="@frontend">Frontend content</p><p class="@backend">Backend content</p>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify exact DOM structure: only frontend element remains
@@ -69,7 +69,7 @@ describe('filterByTarget', () => {
 
 		it('keeps elements without target class (common content)', () => {
 			const html = '<p class="@frontend">Frontend</p><p>Common content</p>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify both elements remain in order
@@ -84,7 +84,7 @@ describe('filterByTarget', () => {
 
 		it('removes elements with non-matching target', () => {
 			const html = '<p class="@backend">Backend only</p><p>Common</p>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify only common element remains
@@ -97,7 +97,7 @@ describe('filterByTarget', () => {
 
 		it('handles multiple target classes on same element', () => {
 			const html = '<p class="@frontend @fullstack">Shared content</p>'
-			const result = filterByTarget(html, createContext('fullstack'))
+			const result = filterByTag(html, createContext('fullstack'))
 			const doc = parseHtml(result)
 
 			// Verify element is kept with all classes preserved
@@ -117,7 +117,7 @@ describe('filterByTarget', () => {
 			['span', '<span class="@frontend">Inline</span>', 'span'],
 			['section', '<section class="@frontend">Section</section>', 'section'],
 		])('filters %s elements correctly', (_, html, selector) => {
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector(selector)).toBeTruthy()
@@ -128,7 +128,7 @@ describe('filterByTarget', () => {
 			['list item', '<li class="@backend">Item</li>'],
 			['div', '<div class="@backend">Content</div>'],
 		])('removes non-matching %s elements', (_, html) => {
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(0)
@@ -139,7 +139,7 @@ describe('filterByTarget', () => {
 		it('removes parent element with target, removing all children', () => {
 			const html =
 				'<div class="@backend"><p>Nested paragraph</p><span>Nested span</span></div>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify entire div and its children are removed
@@ -149,7 +149,7 @@ describe('filterByTarget', () => {
 		it('keeps parent with matching target and all children', () => {
 			const html =
 				'<div class="@frontend"><p>Nested paragraph</p><ul><li>Item</li></ul></div>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify complete nested structure is preserved
@@ -177,7 +177,7 @@ describe('filterByTarget', () => {
 				<p class="@backend">Backend specific</p>
 				<p>Common outro</p>
 			`
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Verify exactly 3 paragraphs remain in correct order
@@ -195,16 +195,16 @@ describe('filterByTarget', () => {
 		})
 	})
 
-	describe('target name variations', () => {
+	describe('tag name variations', () => {
 		it.each([
 			['simple', 'frontend', 'frontend'],
 			['hyphenated', 'ui-design', 'ui-design'],
 			['underscored', 'data_science', 'data_science'],
 			['numeric suffix', 'role1', 'role1'],
 			['camelCase', 'fullStack', 'fullStack'],
-		])('handles %s target names: %s', (_, targetName, activeTarget) => {
-			const html = `<p class="@${targetName}">Content</p>`
-			const result = filterByTarget(html, createContext(activeTarget))
+		])('handles %s tag names: %s', (_, tagName, activeTag) => {
+			const html = `<p class="@${tagName}">Content</p>`
+			const result = filterByTag(html, createContext(activeTag))
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('p')).toBeTruthy()
@@ -214,7 +214,7 @@ describe('filterByTarget', () => {
 	describe('class attribute preservation', () => {
 		it('preserves other classes on kept elements', () => {
 			const html = '<p class="text-blue-500 @frontend font-bold">Styled</p>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			const p = doc.querySelector('p')
@@ -225,13 +225,13 @@ describe('filterByTarget', () => {
 		})
 	})
 
-	describe('composed targets via tagMap', () => {
+	describe('composed tags via tagMap', () => {
 		function createContextWithMap(
-			activeTarget: string,
+			activeTag: string,
 			tagMap: Record<string, string[]>,
 		): PipelineContext {
 			return {
-				config: { activeTarget, tagMap },
+				config: { activeTag, tagMap },
 				env: { css: '' },
 			}
 		}
@@ -242,7 +242,7 @@ describe('filterByTarget', () => {
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(2)
@@ -256,7 +256,7 @@ describe('filterByTarget', () => {
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(2)
@@ -268,7 +268,7 @@ describe('filterByTarget', () => {
 			const ctx = createContextWithMap('fullstack', {
 				fullstack: ['frontend', 'backend'],
 			})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			const texts = Array.from(doc.body.children).map(el => el.textContent)
@@ -282,7 +282,7 @@ describe('filterByTarget', () => {
 				fullstack: ['frontend', 'backend'],
 				'startup-cto': ['fullstack', 'leadership'],
 			})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			const texts = Array.from(doc.body.children).map(el => el.textContent)
@@ -295,7 +295,7 @@ describe('filterByTarget', () => {
 			const ctx = createContextWithMap('frontend', {
 				fullstack: ['frontend', 'backend'],
 			})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(1)
@@ -306,7 +306,7 @@ describe('filterByTarget', () => {
 			const html =
 				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p>'
 			const ctx = createContextWithMap('frontend', {})
-			const result = filterByTarget(html, ctx)
+			const result = filterByTag(html, ctx)
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(1)
@@ -316,13 +316,13 @@ describe('filterByTarget', () => {
 
 	describe('edge cases', () => {
 		it('handles empty input', () => {
-			const result = filterByTarget('', createContext('frontend'))
+			const result = filterByTag('', createContext('frontend'))
 			expect(result).toBe('')
 		})
 
 		it('handles content with no target classes', () => {
 			const html = '<p>Just regular content</p><div>More content</div>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('p')?.textContent).toBe('Just regular content')
@@ -331,7 +331,7 @@ describe('filterByTarget', () => {
 
 		it('handles target class without colon (should not match)', () => {
 			const html = '<p class="rolefrontend">Not a target</p>'
-			const result = filterByTarget(html, createContext('frontend'))
+			const result = filterByTag(html, createContext('frontend'))
 			const doc = parseHtml(result)
 
 			// Element should be kept because it doesn't have @X pattern

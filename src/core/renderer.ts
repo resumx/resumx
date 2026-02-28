@@ -20,7 +20,7 @@ export interface RenderOptions {
 	format: OutputFormat
 	cssPaths: string[]
 	variables?: Record<string, string>
-	activeTarget?: string
+	activeTag?: string
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
@@ -134,7 +134,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 		let html = await generateHtml(options.content, {
 			cssPaths: options.cssPaths,
 			variables: options.variables,
-			activeTarget: options.activeTarget,
+			activeTag: options.activeTag,
 			activeLang: options.activeLang,
 			icons: options.icons,
 			tagMap: options.tagMap,
@@ -201,7 +201,7 @@ export interface RenderMultipleOptions {
 	formats: OutputFormat[]
 	cssPaths: string[]
 	variables?: Record<string, string>
-	activeTarget?: string
+	activeTag?: string
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
@@ -222,7 +222,7 @@ export async function renderMultiple(
 		formats,
 		cssPaths,
 		variables,
-		activeTarget,
+		activeTag,
 		activeLang,
 		targetPages,
 		icons,
@@ -241,7 +241,7 @@ export async function renderMultiple(
 			format,
 			cssPaths,
 			variables,
-			activeTarget,
+			activeTag,
 			activeLang,
 			targetPages,
 			icons,
