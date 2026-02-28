@@ -226,7 +226,9 @@ In the resume body:
 {{ tagline }}
 ```
 
-When a variable is undefined or empty, the <code v-pre>{{ }}</code> placeholder produces nothing (the line is removed from output).
+When a variable is undefined or empty, the <code v-pre>{{ }}</code> placeholder produces nothing (the line is removed from output). Variable values can contain markdown formatting, which is rendered normally.
+
+Defining a variable with no matching placeholder in the document is an error.
 
 See [Views: Variables](/guide/views#variables) for the full guide.
 

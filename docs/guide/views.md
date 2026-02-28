@@ -152,7 +152,9 @@ stripe-swe:
     tagline: 'Backend engineer specializing in stream processing'
 ```
 
-When defined, the value renders in place. When undefined, the placeholder produces nothing (no blank space).
+When defined, the value renders in place. When undefined, the placeholder produces nothing (no blank space). Variable values can contain markdown formatting (e.g. `**bold**`), which is rendered normally since substitution happens before markdown parsing.
+
+Defining a variable with no matching <code v-pre>{{ }}</code> placeholder is an error.
 
 Variables resolve in order: ephemeral view (CLI `-v`) > tag view or custom view `vars` > default view `vars`.
 

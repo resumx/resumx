@@ -23,6 +23,7 @@ import { columnSep } from '../lib/mdit-plugins/column-sep/index.js'
 import { fencedDiv } from '../lib/mdit-plugins/fenced-div/index.js'
 import { timePlugin } from '../lib/mdit-plugins/time/index.js'
 import { fixAttrsListSoftbreak } from '../lib/mdit-plugins/fix-attrs-list-softbreak/index.js'
+import { variableSubstitution } from '../lib/mdit-plugins/variable-substitution/index.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -64,7 +65,8 @@ export function createMarkdownRenderer(
 		.use(fixAttrsListSoftbreak)
 		.use(sub)
 		.use(sup)
-		.use(timePlugin) as MarkdownItWithAsyncIcon
+		.use(timePlugin)
+		.use(variableSubstitution) as MarkdownItWithAsyncIcon
 }
 
 /**

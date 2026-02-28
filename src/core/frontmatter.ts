@@ -46,6 +46,20 @@ const FrontmatterSchema = z.object({
 				.optional(),
 		})
 		.optional(),
+	vars: z
+		.record(
+			z.string(),
+			z.preprocess(
+				val => {
+					if (val === null) return ''
+					if (typeof val === 'number') return String(val)
+					return val
+				},
+				z.string({ error: "'vars' values must be strings or numbers" }),
+			),
+			{ error: "'vars' must be an object mapping variable names to values" },
+		)
+		.optional(),
 	tags: z
 		.record(
 			z.string(),

@@ -61,6 +61,7 @@ export interface RenderCommandOptions {
 	css?: string[]
 	output?: string
 	style?: string[]
+	var?: Record<string, string>
 	for?: string[]
 	lang?: string[]
 	format?: string[]
@@ -238,6 +239,12 @@ async function runRender(
 
 	const targetPages = options.pages ?? fmConfig?.pages
 
+	const mergedVars: Record<string, string> = {
+		...fmConfig?.vars,
+		...options.var,
+	}
+	const vars = Object.keys(mergedVars).length > 0 ? mergedVars : undefined
+
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
 	// Discover targets and languages from content
@@ -336,6 +343,7 @@ async function runRender(
 				targetPages,
 				icons: fmConfig?.icons,
 				tagMap,
+				vars,
 			})
 			return { label: task.label, results }
 		}),

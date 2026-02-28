@@ -137,6 +137,12 @@ program
 		[],
 	)
 	.option(
+		'-v, --var <key=value>',
+		'Set variable for {{ key }} substitution (repeatable)',
+		collectVar,
+		{},
+	)
+	.option(
 		'--for <name>',
 		'Generate for specific tag(s) only (repeatable)',
 		collectWithCommas,
@@ -193,6 +199,20 @@ program
 	.action(async (filename: string | undefined, options: InitCommandOptions) => {
 		await initCommand(filename, options)
 	})
+
+// Helper to collect -v key=value pairs into a Record
+function collectVar(
+	value: string,
+	previous: Record<string, string>,
+): Record<string, string> {
+	const eq = value.indexOf('=')
+	if (eq === -1) {
+		throw new Error(`Invalid --var format: '${value}'. Expected key=value.`)
+	}
+	const key = value.slice(0, eq)
+	const val = value.slice(eq + 1)
+	return { ...previous, [key]: val }
+}
 
 // Helper to collect repeatable options (no comma splitting - for values that may contain commas)
 function collect(value: string, previous: string[]): string[] {

@@ -12,6 +12,7 @@ import { compileTailwindCSS } from '../lib/css-engine/tailwind.js'
 import { markdownRenderer } from './markdown.js'
 import { runPipeline } from './dom-processors/index.js'
 import type { PipelineContext } from './dom-processors/index.js'
+import type { VarsEnv } from '../lib/mdit-plugins/variable-substitution/index.js'
 
 /**
  * Options for HTML generation
@@ -29,6 +30,8 @@ export interface HtmlGeneratorOptions {
 	tagMap?: Record<string, string[]>
 	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
 	icons?: Record<string, string>
+	/** Template variables for {{ key }} substitution */
+	vars?: Record<string, string>
 }
 
 /**
@@ -85,8 +88,9 @@ export async function generateHtml(
 	content: string,
 	options: HtmlGeneratorOptions,
 ): Promise<string> {
-	const env: { iconOverrides?: Record<string, string> } = {
+	const env: { iconOverrides?: Record<string, string> } & VarsEnv = {
 		iconOverrides: options.icons,
+		vars: options.vars,
 	}
 	const rawBody = await markdownRenderer.renderAsync(content, env)
 

@@ -614,6 +614,79 @@ pages: "one"
 			})
 		})
 
+		describe('vars field', () => {
+			it('parses vars as a string record', () => {
+				const input = `---
+vars:
+  tagline: Full-stack engineer
+  keywords: React, TypeScript
+---`
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.vars).toEqual({
+					tagline: 'Full-stack engineer',
+					keywords: 'React, TypeScript',
+				})
+			})
+
+			it('coerces number values to strings', () => {
+				const input = `---
+vars:
+  years: 8
+---`
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.vars).toEqual({ years: '8' })
+			})
+
+			it('treats null values as empty string', () => {
+				const input = `---
+vars:
+  tagline: null
+---`
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.vars).toEqual({ tagline: '' })
+			})
+
+			it('rejects boolean values', () => {
+				const input = `---
+vars:
+  flag: true
+---`
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+			})
+
+			it('rejects array values', () => {
+				const input = `---
+vars:
+  items: [a, b, c]
+---`
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+			})
+
+			it('rejects object values', () => {
+				const input = `---
+vars:
+  nested:
+    key: value
+---`
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+			})
+
+			it('allows omitting vars', () => {
+				const input = `---
+pages: 1
+---`
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.vars).toBeUndefined()
+			})
+		})
+
 		describe('tags field', () => {
 			it('parses tags as a map of string arrays', () => {
 				const input = `---
