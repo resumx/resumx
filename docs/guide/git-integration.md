@@ -1,6 +1,6 @@
 # Git Superpowers
 
-A single branch works well for most resume projects. Use [tailored variants](/guide/tailored-variants) and command flags to tailor each application, and `git tag` to snapshot submissions.
+A single branch works well for most resume projects. Use [tags and views](/guide/tailoring) to tailor each application, and `git tag` to snapshot submissions.
 
 ## Render Past Version
 
@@ -8,9 +8,9 @@ With a one-time alias setup, you can render your resume from past commits, tags,
 
 ```bash
 git resumx sent/stripe-2026-02                  # render a tag
-git resumx a3f1c2d --target backend              # specific commit, filtered by target
+git resumx a3f1c2d --for backend              # specific commit, filtered by tag
 git resumx HEAD~3 --css my-styles.css -o stripe  # 3 commits ago, custom CSS + output
-git resumx --target frontend                    # HEAD with target filter (ref is optional)
+git resumx --for frontend                    # HEAD with tag filter (ref is optional)
 git resumx HEAD@{3 months ago} --format png     # 3 months ago, as PNG
 ```
 

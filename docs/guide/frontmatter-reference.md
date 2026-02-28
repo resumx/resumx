@@ -31,9 +31,9 @@ accent-color = "#2563eb"
 
 YAML uses `---` delimiters; TOML uses `+++`. Both are fully supported, pick whichever you prefer.
 
-## Render Fields
+## Render Fields (Default View)
 
-These fields control how `resumx` renders your resume.
+These fields form the [default view](/guide/views#default-view), the base render configuration that applies to every render. Tag views, custom views, and ephemeral views override these values.
 
 ### `css`
 
@@ -72,12 +72,12 @@ Output path for rendered files. Supports three modes depending on its value:
 | Value                             | Mode       | Behavior                                                                      |
 | --------------------------------- | ---------- | ----------------------------------------------------------------------------- |
 | `./dist/`                         | Directory  | Ends with `/`, output files go into this directory using default naming rules |
-| `John_Doe`                        | Plain name | No `{…}`, used as the base filename, with automatic target/lang suffixes      |
+| `John_Doe`                        | Plain name | No `{…}`, used as the base filename, with automatic tag/lang suffixes         |
 | `./dist/John_Doe-{target}-{lang}` | Template   | Contains `{target}` and/or `{lang}`, expanded for each combination            |
 
 **Template variables:**
 
-- `{target}` — the target name (e.g. `frontend`, `backend`). Expands to empty string when no targets exist; orphaned separators are cleaned up automatically.
+- `{target}` — the tag or view name (e.g. `frontend`, `stripe-swe`). Expands to empty string when rendering without `--for`; orphaned separators are cleaned up automatically.
 - `{lang}` — the language tag (e.g. `en`, `fr`). Expands to empty string when no languages exist.
 
 When using template mode, if the expanded paths would produce duplicate filenames, an error is raised with a suggestion.
@@ -138,30 +138,97 @@ pages: 2
 
 See [Fit to Page](/guide/fit-to-page) for the full guide.
 
-### `targets`
+### `bullet-order`
 
-Target composition map. Define composed targets as unions of constituent targets. When rendering for a composed target, content tagged with any constituent is included.
+Controls how bullets are ordered within each section when rendering with tags or views.
 
-| Property    | Value                      |
-| ----------- | -------------------------- |
-| **Type**    | `Record<string, string[]>` |
-| **Default** | No composed targets        |
+| Property    | Value             |
+| ----------- | ----------------- |
+| **Type**    | `source` \| `tag` |
+| **Default** | `source`          |
 
-Composed target names are added to the auto-discovered set, so they get PDFs even without explicit `{.@name}` tags in content. Compositions can reference other composed targets (recursive expansion). Circular references produce an error.
+**Values:**
+
+| Value    | Behavior                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------- |
+| `source` | Document order, as written in markdown                                                                  |
+| `tag`    | Tagged bullets first, ordered by `extends`/`selects` priority. Untagged bullets follow in source order. |
+
+Set as a base default to apply to all views, or override per-view.
 
 ```yaml
-# Simple composition
-targets:
-  fullstack: [frontend, backend]
+bullet-order: tag
+```
 
-# Multiple composed targets with recursive expansion
-targets:
+See [Views: Bullet Order](/guide/views#bullet-order) for the full guide.
+
+### `tags`
+
+Tag composition and [tag view](/guide/views#tag-views) configuration. Define composed tags as unions of constituent tags, and optionally configure their implicit tag view. When rendering for a composed tag, content tagged with any constituent is included. Use `--for <name>` to render a tag view.
+
+| Property    | Value                                   |
+| ----------- | --------------------------------------- |
+| **Type**    | `Record<string, string[] \| TagConfig>` |
+| **Default** | No composed tags                        |
+
+**Shorthand** (composition only):
+
+```yaml
+tags:
   fullstack: [frontend, backend]
   tech-lead: [backend, leadership]
   startup-cto: [fullstack, leadership, architecture]
 ```
 
-See [Tailored Variants](/guide/tailored-variants#target-composition) for the full guide.
+**Expanded** (composition + tag view config):
+
+```yaml
+tags:
+  frontend:
+    layout: [experience, skills, projects]
+    pages: 1
+
+  fullstack:
+    extends: [frontend, backend]
+    layout: [experience, skills, projects, education]
+    pages: 2
+```
+
+The shorthand `fullstack: [frontend, backend]` is sugar for `fullstack: { extends: [frontend, backend] }`.
+
+Compositions can reference other composed tags (recursive expansion). Circular references produce an error.
+
+See [Tags](/guide/tags) for tagging syntax, composition, and tag views. See [Views](/guide/views) for custom views and ephemeral views.
+
+### `vars`
+
+Template variables that can be referenced in the resume body with <code v-pre>{{ name }}</code> syntax. Variables provide a way to inject per-application content (taglines, keyword lines) without editing the resume body.
+
+| Property     | Value                    |
+| ------------ | ------------------------ |
+| **Type**     | `Record<string, string>` |
+| **Default**  | No variables             |
+| **CLI flag** | `-v, --var <key=value>`  |
+
+Variables defined here serve as base defaults. They can be overridden by [view](/guide/views) `vars` or CLI `-v` flags.
+
+**Priority:** CLI > view > frontmatter.
+
+```yaml
+vars:
+  tagline: 'Full-stack engineer with 8 years of experience'
+  keywords: ''
+```
+
+In the resume body:
+
+```markdown
+{{ tagline }}
+```
+
+When a variable is undefined or empty, the <code v-pre>{{ }}</code> placeholder produces nothing (the line is removed from output).
+
+See [Views: Variables](/guide/views#variables) for the full guide.
 
 ### `icons`
 
@@ -290,8 +357,14 @@ validate:
 ---
 pages: 1
 output: ./out/Jane_Smith-{target}
+bullet-order: source
 style:
   accent-color: '#0ea5e9'
+tags:
+  fullstack: [frontend, backend]
+  leadership: false
+vars:
+  tagline: 'Full-stack engineer with 8 years of experience'
 validate:
   extends: recommended
   rules:
@@ -303,19 +376,22 @@ extra:
 ---
 ```
 
+Custom views are defined in external `.view.yaml` files. Tag views are configured inline under `tags:`. See [Views](/guide/views) for the full guide.
+
 ## Field Precedence
 
 For fields that can be set in multiple places, the resolution order is:
 
-| Priority    | Source         |
-| ----------- | -------------- |
-| 1 (highest) | CLI flags      |
-| 2           | Frontmatter    |
-| 3 (lowest)  | Default styles |
+| Priority    | Source                                       |
+| ----------- | -------------------------------------------- |
+| 1 (highest) | Ephemeral view (CLI flags)                   |
+| 2           | Tag view OR custom view (whichever resolves) |
+| 3           | Default view (frontmatter render fields)     |
+| 4 (lowest)  | Built-in defaults                            |
 
 ## Unknown Fields
 
-Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `style`, `icons`, `targets`, `validate`, `extra`) produces an error:
+Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `bullet-order`, `style`, `icons`, `tags`, `vars`, `validate`, `extra`) produces an error:
 
 ```
 Unknown frontmatter field 'foo'. Use 'extra' for custom fields.

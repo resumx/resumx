@@ -27,6 +27,14 @@ const guideSidebar = [
 		],
 	},
 	{
+		text: 'Tailoring',
+		items: [
+			{ text: 'How It Works', link: '/guide/tailoring' },
+			{ text: 'Tags', link: '/guide/tags' },
+			{ text: 'Views', link: '/guide/views' },
+		],
+	},
+	{
 		text: 'Styling',
 		items: [
 			{
@@ -41,7 +49,6 @@ const guideSidebar = [
 	{
 		text: 'Going Further',
 		items: [
-			{ text: 'Tailored Variants', link: '/guide/tailored-variants' },
 			{ text: 'Multi-Language', link: '/guide/multi-language' },
 			{ text: 'Git Integration', link: '/guide/git-integration' },
 		],

@@ -4,7 +4,7 @@
 
 Tailored resumes get [10x more interviews](/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
-- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
+- **Tailoring without the overhead:** Tag content for different audiences in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
 - **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
 - **AI-friendly by default:** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
 - **More writing, fewer decisions:** Sensible defaults for layout and structure so you focus on substance.
