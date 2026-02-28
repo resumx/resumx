@@ -22,26 +22,32 @@ Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-
 ```markdown
 ---
 pages: 1
-style:
-  section-title-caps: small-caps
+tags:
+  fullstack: [frontend, backend]
 ---
 # Jane Doe
 
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
-[Stream Processing, Event-Driven Architecture, Distributed Systems, Go, Kafka]{.@stripe-swe}
-[React, UI Performance, Design Systems, TypeScript, Next.js]{.@vercel-fe}
+{{ tagline }}
 
 ## Experience
 
 ### :meta: Meta || June 2022 - Present
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day {.@frontend}
-- Built interactive dashboards using :ts: TypeScript {.@vercel-swe}
+- Built distributed systems serving 1M requests/day {.@backend}
+- Built interactive dashboards using :ts: TypeScript {.@frontend}
 
 ## Technical Skills
-::: {.grid .grid-cols-2}
+::: {.@backend .grid .grid-cols-2}
+- Go
+- Kafka
+- PostgreSQL
+- Redis
+:::
+
+::: {.@frontend .grid .grid-cols-2}
 - TypeScript
 - React
 - Vue
