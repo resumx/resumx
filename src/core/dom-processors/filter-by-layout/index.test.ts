@@ -221,47 +221,6 @@ describe('arrangeSections', () => {
 		})
 	})
 
-	describe('two-column layout', () => {
-		const TWO_COL_HTML = [
-			'<div class="two-column-layout">',
-			'<header><h1>Jane</h1></header>',
-			'<div class="primary">',
-			'<section data-section="work"><h2>Experience</h2></section>',
-			'<section data-section="projects"><h2>Projects</h2></section>',
-			'</div>',
-			'<div class="secondary">',
-			'<section data-section="skills"><h2>Skills</h2></section>',
-			'<section data-section="education"><h2>Education</h2></section>',
-			'</div>',
-			'</div>',
-		].join('')
-
-		it('hides sections across both columns', () => {
-			const result = arrangeSections(
-				TWO_COL_HTML,
-				createContext(['projects', 'education']),
-			)
-			const doc = parseHtml(result)
-
-			expect(doc.sections()).toEqual(['work', 'skills'])
-		})
-
-		it('pins sections across columns', () => {
-			const result = arrangeSections(
-				TWO_COL_HTML,
-				createContext(undefined, ['skills']),
-			)
-			const doc = parseHtml(result)
-
-			expect(doc.sections()).toEqual([
-				'skills',
-				'work',
-				'projects',
-				'education',
-			])
-		})
-	})
-
 	describe('edge cases', () => {
 		it('handles empty HTML', () => {
 			const result = arrangeSections('', createContext(['work']))

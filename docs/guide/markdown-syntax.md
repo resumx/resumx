@@ -104,7 +104,3 @@ A || B || C
 ```
 
 To write a literal `||`, escape the first pipe: `\||`.
-
-## Horizontal Rule
-
-A horizontal rule (`---`) splits the resume into a two-column layout. See [Style Options](/guide/style-options#spacing) for column options and [Custom CSS](/guide/custom-css) for enabling or disabling it.

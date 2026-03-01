@@ -804,7 +804,7 @@ describe('collectSiblings', () => {
 			expect(tags(result)).toEqual(['p', 'blockquote'])
 		})
 
-		it('process-columns: elements before hr excluding header', () => {
+		it('elements before hr excluding header', () => {
 			const { root } = createSiblings(
 				'<header>H</header><p>A</p><p>B</p><hr><p>C</p>',
 			)
@@ -818,7 +818,7 @@ describe('collectSiblings', () => {
 			expect(texts(result)).toEqual(['A', 'B'])
 		})
 
-		it('process-columns: elements from hr to end excluding hrs', () => {
+		it('elements from hr to end excluding hrs', () => {
 			const { root } = createSiblings('<p>A</p><hr><p>B</p><p>C</p>')
 			const result = collectSiblings(
 				root.querySelector('hr'),

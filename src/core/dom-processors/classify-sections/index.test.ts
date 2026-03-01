@@ -139,30 +139,6 @@ describe('classifySections', () => {
 			expect(section?.getAttribute('data-section')).toBe('work')
 		})
 	})
-
-	describe('two-column layout', () => {
-		it('classifies sections inside columns', () => {
-			const html = `
-				<div class="two-column-layout">
-					<header><h1>Name</h1></header>
-					<div class="primary">
-						<section id="work"><h2>Work Experience</h2></section>
-					</div>
-					<div class="secondary">
-						<section id="skills"><h2>Technical Skills</h2></section>
-					</div>
-				</div>
-			`
-			const result = classifySections(html, createContext())
-			const doc = parseHtml(result)
-
-			const workSection = doc.querySelector('.primary section')
-			const skillsSection = doc.querySelector('.secondary section')
-
-			expect(workSection?.getAttribute('data-section')).toBe('work')
-			expect(skillsSection?.getAttribute('data-section')).toBe('skills')
-		})
-	})
 })
 
 // =============================================================================

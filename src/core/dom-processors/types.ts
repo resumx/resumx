@@ -36,21 +36,11 @@ export interface PipelineConfig {
 }
 
 /**
- * Derived environment values computed at runtime
- */
-export interface PipelineEnv {
-	/** Resolved CSS content */
-	css: string
-}
-
-/**
  * Context passed to each processor in the pipeline
  */
 export interface PipelineContext {
 	/** User configuration from CLI/frontmatter */
 	config: PipelineConfig
-	/** Derived runtime environment */
-	env: PipelineEnv
 }
 
 /**

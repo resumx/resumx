@@ -14,7 +14,6 @@ import { stripComments } from './strip-comments/index.js'
 import { filterByLang } from './filter-by-lang/index.js'
 import { filterByTag } from './filter-by-tag/index.js'
 import { extractHeader } from './extract-header/index.js'
-import { processColumns } from './process-columns/index.js'
 import { wrapSections } from './wrap-sections/index.js'
 import { classifySections } from './classify-sections/index.js'
 import { arrangeSections } from './filter-by-layout/index.js'
@@ -31,10 +30,9 @@ import type { DOMProcessor, PipelineContext } from './types.js'
  * 4. extractHeader - pull content before first h2 into <header>
  * 5. wrapSections - wrap h2 groups in <section> tags (before columns so no layout awareness needed)
  * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags (before columns so no layout awareness needed)
- * 7. processColumns - handle <hr>, create two-column layout (operates on already-wrapped sections)
- * 8. classifySections - add data-section attrs for JSON Resume types
- * 9. arrangeSections - hide sections and pin others to the top
- * 10. classifyHeader - wrap contact info in <address>, add data-field attrs
+ * 7. classifySections - add data-section attrs for JSON Resume types
+ * 8. arrangeSections - hide sections and pin others to the top
+ * 9. classifyHeader - wrap contact info in <address>, add data-field attrs
  */
 export const defaultProcessors: DOMProcessor[] = [
 	{ name: 'stripComments', process: stripComments },
@@ -43,7 +41,6 @@ export const defaultProcessors: DOMProcessor[] = [
 	{ name: 'extractHeader', process: extractHeader },
 	{ name: 'wrapSections', process: wrapSections },
 	{ name: 'wrapEntries', process: wrapEntries },
-	{ name: 'processColumns', process: processColumns },
 	{ name: 'classifySections', process: classifySections },
 	{ name: 'arrangeSections', process: arrangeSections },
 	{ name: 'classifyHeader', process: classifyHeader },
@@ -61,18 +58,12 @@ export function runPipeline(
 }
 
 // Re-export types
-export type {
-	DOMProcessor,
-	PipelineContext,
-	PipelineConfig,
-	PipelineEnv,
-} from './types.js'
+export type { DOMProcessor, PipelineContext, PipelineConfig } from './types.js'
 
 // Re-export individual processors for testing
 export { filterByLang } from './filter-by-lang/index.js'
 export { filterByTag } from './filter-by-tag/index.js'
 export { extractHeader } from './extract-header/index.js'
-export { processColumns } from './process-columns/index.js'
 export { wrapSections, slugify } from './wrap-sections/index.js'
 export { classifySections } from './classify-sections/index.js'
 export { classifyHeader, isContactBlock } from './classify-header/index.js'

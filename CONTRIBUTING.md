@@ -99,7 +99,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 feat: add support for custom page sizes
 fix: correct date parsing for partial dates
 docs: clarify frontmatter schema in README
-test: add coverage for two-column layout edge case
+test: add coverage for section arrangement edge case
 refactor: extract CSS variable resolution into separate module
 ```
 

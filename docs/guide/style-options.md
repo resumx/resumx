@@ -67,19 +67,16 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 
 ### Spacing
 
-| Variable           | Default                               | Description                                                                             |
-| ------------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
-| `page-margin-x`    | `0.5in`                               | Horizontal page margin                                                                  |
-| `page-margin-y`    | `0.5in`                               | Vertical page margin                                                                    |
-| `gap`              | `1`                                   | Unitless scale factor for all vertical gaps                                             |
-| `section-gap`      | `10px`                                | Gap between sections (scaled by `gap`)                                                  |
-| `entry-gap`        | `5px`                                 | Gap between entries (scaled by `gap`)                                                   |
-| `row-gap`          | `2px`                                 | Vertical gap between list items, definition list rows, and table rows (scaled by `gap`) |
-| `col-gap`          | `12px`                                | Column gap for definition lists and tables                                              |
-| `list-indent`      | `1.2em`                               | List indentation                                                                        |
-| `two-col-widths`   | `2fr 1fr`                             | Column widths for two-column layout                                                     |
-| `two-col-gap`      | `1.5rem`                              | Gap between columns in two-column layout                                                |
-| `two-col-template` | `'header header' 'primary secondary'` | Grid area template for two-column layout                                                |
+| Variable        | Default | Description                                                                             |
+| --------------- | ------- | --------------------------------------------------------------------------------------- |
+| `page-margin-x` | `0.5in` | Horizontal page margin                                                                  |
+| `page-margin-y` | `0.5in` | Vertical page margin                                                                    |
+| `gap`           | `1`     | Unitless scale factor for all vertical gaps                                             |
+| `section-gap`   | `10px`  | Gap between sections (scaled by `gap`)                                                  |
+| `entry-gap`     | `5px`   | Gap between entries (scaled by `gap`)                                                   |
+| `row-gap`       | `2px`   | Vertical gap between list items, definition list rows, and table rows (scaled by `gap`) |
+| `col-gap`       | `12px`  | Column gap for definition lists and tables                                              |
+| `list-indent`   | `1.2em` | List indentation                                                                        |
 
 ### Lists
 

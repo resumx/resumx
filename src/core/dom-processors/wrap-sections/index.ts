@@ -7,7 +7,7 @@
  * Behavior:
  * - Stops grouping at next <h2> OR <hr>
  * - Skips h2s inside <header> element
- * - Runs before processColumns so no column layout awareness needed
+ * - Runs before classifySections so sections are wrapped first
  */
 
 import type { PipelineContext } from '../types.js'

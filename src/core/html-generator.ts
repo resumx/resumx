@@ -113,9 +113,6 @@ export async function generateHtml(
 			variables: options.variables,
 			tagMap: options.tagMap,
 		},
-		env: {
-			css: baseCSS,
-		},
 	}
 
 	// Run DOM processor pipeline (target filtering, header extraction, columns, section wrapping)

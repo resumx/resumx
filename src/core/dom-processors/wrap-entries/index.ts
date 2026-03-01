@@ -8,7 +8,7 @@
  * - Finds ALL h3s in the document (container-agnostic)
  * - Stops grouping at next <h3>, <h2>, or <hr>
  * - Skips h3s inside <header> element
- * - Runs before processColumns so no column layout awareness needed
+ * - Runs before classifySections so sections are wrapped first
  */
 
 import type { PipelineContext } from '../types.js'

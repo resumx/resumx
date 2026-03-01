@@ -87,7 +87,7 @@ Senior Software Engineer
 
 ### Horizontal Rule
 
-`---` splits content into a two-column layout. Everything above becomes the primary column, everything below the secondary.
+`---` renders as a standard thematic break or section divider.
 
 ### Comments
 
@@ -233,7 +233,7 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Links:** `link-underline` (`underline`, `none`).
 
-**Spacing:** `gap` (unitless scale factor for all vertical gaps), `page-margin-x`, `page-margin-y`, `section-gap`, `entry-gap`, `row-gap`, `col-gap`, `list-indent`, `two-col-widths`, `two-col-gap`, `two-col-template`.
+**Spacing:** `gap` (unitless scale factor for all vertical gaps), `page-margin-x`, `page-margin-y`, `section-gap`, `entry-gap`, `row-gap`, `col-gap`, `list-indent`.
 
 **Lists:** `bullet-style` (`disc`, `circle`, `square`, `none`).
 
@@ -247,7 +247,6 @@ Create a CSS file importing common base modules:
 @import 'common/base.css';
 @import 'common/icons.css';
 @import 'common/utilities.css';
-@import 'common/two-column.css';
 
 :root {
 	--font-family: 'Inter', sans-serif;
@@ -257,7 +256,7 @@ Create a CSS file importing common base modules:
 
 Reference by path: `css: my-styles.css` or `--css my-styles.css`.
 
-Common modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`), `common/two-column.css` (two-column grid, omit to disable `---` columns).
+Common modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`).
 
 ## Fit to Page
 
