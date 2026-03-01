@@ -107,7 +107,7 @@ resumx resume.md --for stripe-swe
 | `selects`      | `string[]`               | Content tags to include (union).                             |
 | `sections`     | `object`                 | Section visibility and ordering (see [Sections](#sections)). |
 | `pages`        | `number`                 | Target page count (overrides frontmatter).                   |
-| `bullet-order` | `source` \| `tag`        | Bullet ordering strategy. Default: `source`.                 |
+| `bullet-order` | `none` \| `tag`          | Bullet ordering strategy. Default: `none`.                   |
 | `vars`         | `Record<string, string>` | Variable values for <code v-pre>{{ }}</code> placeholders.   |
 | `style`        | `Record<string, string>` | Style overrides (same as frontmatter `style`).               |
 | `format`       | `string`                 | Output format (`pdf`, `html`, `docx`, `png`).                |
@@ -195,10 +195,10 @@ resumx resume.md --hide publications --pin skills,work
 
 `bullet-order` controls how bullets are arranged within each section.
 
-| Value    | Behavior                                                                              |
-| -------- | ------------------------------------------------------------------------------------- |
-| `source` | Document order, as written in markdown. **(default)**                                 |
-| `tag`    | Tagged bullets first, ordered by `selects` priority. Untagged follow in source order. |
+| Value  | Behavior                                                                                |
+| ------ | --------------------------------------------------------------------------------------- |
+| `none` | Document order, as written in markdown. **(default)**                                   |
+| `tag`  | Tagged bullets promoted to top, sorted by `selects` declaration order within the group. |
 
 Given:
 
@@ -208,7 +208,7 @@ Given:
 - Built REST APIs with OpenAPI documentation {.@backend}
 ```
 
-With `bullet-order: tag` and `selects: [backend, distributed-systems]`:
+With `bullet-order: tag` and `selects: [backend, distributed-systems]`, tagged bullets float to the top, sorted by the `selects` declaration order (`backend` before `distributed-systems`):
 
 ```markdown
 - Built REST APIs with OpenAPI documentation {.@backend}
@@ -220,7 +220,7 @@ The recruiter's 7.4-second scan hits the most relevant content first, without re
 
 ## Ephemeral Views
 
-CLI flags like `-v`, `--hide`, `--pin`, `--pages`, `--bullet-order`, and `-s` define a view inline without persisting it. Useful for quick iteration, scripting, and CI pipelines:
+CLI flags like `-v`, `--hide`, `--pin`, `--pages`, `--bullet-order`, and `-s` create an ephemeral view inline without persisting it. Useful for quick iteration, scripting, and CI pipelines:
 
 ```bash
 resumx resume.md --for backend -v tagline="Stream Processing, Go" --pin skills,work -o stripe.pdf

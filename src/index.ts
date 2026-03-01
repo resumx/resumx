@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
 import { parseSectionList } from './core/section-types.js'
+import type { BulletOrder } from './core/view/types.js'
 
 const program = new Command()
 
@@ -197,6 +198,18 @@ program
 			const result = parseSectionList(values, 'pin')
 			if (!result.ok) throw new Error(result.error)
 			return result.sections
+		},
+	)
+	.option(
+		'--bullet-order <value>',
+		"Bullet ordering: 'none' (document order), 'tag' (tagged bullets first, sorted by tag declaration order)",
+		(value: string): BulletOrder => {
+			if (value !== 'none' && value !== 'tag') {
+				throw new Error(
+					`Invalid --bullet-order value: '${value}'. Must be 'none' or 'tag'.`,
+				)
+			}
+			return value
 		},
 	)
 	.option('--check', 'Validate only, do not render')

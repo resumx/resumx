@@ -174,17 +174,18 @@ See [Views: Sections](/guide/views#sections) for the full guide.
 
 Controls how bullets are ordered within each section when rendering with tags or views.
 
-| Property    | Value             |
-| ----------- | ----------------- |
-| **Type**    | `source` \| `tag` |
-| **Default** | `source`          |
+| Property     | Value                    |
+| ------------ | ------------------------ |
+| **Type**     | `none` \| `tag`          |
+| **Default**  | `none`                   |
+| **CLI flag** | `--bullet-order <value>` |
 
 **Values:**
 
-| Value    | Behavior                                                                                                |
-| -------- | ------------------------------------------------------------------------------------------------------- |
-| `source` | Document order, as written in markdown                                                                  |
-| `tag`    | Tagged bullets first, ordered by `extends`/`selects` priority. Untagged bullets follow in source order. |
+| Value  | Behavior                                                                                |
+| ------ | --------------------------------------------------------------------------------------- |
+| `none` | Document order, as written in markdown.                                                 |
+| `tag`  | Tagged bullets promoted to top, sorted by `selects` declaration order within the group. |
 
 Set as a base default to apply to all views, or override per-view.
 
@@ -394,7 +395,7 @@ validate:
 ---
 pages: 1
 output: ./out/Jane_Smith-{view}
-bullet-order: source
+bullet-order: tag
 style:
   accent-color: '#0ea5e9'
 tags:

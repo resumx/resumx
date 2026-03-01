@@ -37,6 +37,7 @@ Some content here.`
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					css: ['formal'],
 					output: './dist/john-doe-resume',
 					style: {
@@ -56,7 +57,10 @@ css: minimal
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ css: ['minimal'] })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					css: ['minimal'],
+				})
 				expect(result.content.trim()).toBe('# Resume')
 			})
 
@@ -69,7 +73,10 @@ output: my-resume
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ output: 'my-resume' })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					output: 'my-resume',
+				})
 			})
 
 			it('parses YAML frontmatter with output directory', () => {
@@ -81,7 +88,10 @@ output: ./build/output/
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ output: './build/output/' })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					output: './build/output/',
+				})
 			})
 
 			it('parses YAML frontmatter with output template', () => {
@@ -94,6 +104,7 @@ output: "build/John_Doe-{view}-{lang}"
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					output: 'build/John_Doe-{view}-{lang}',
 				})
 			})
@@ -109,6 +120,7 @@ style:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					style: { 'primary-color': '#ff0000' },
 				})
 			})
@@ -124,7 +136,10 @@ css:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ css: ['formal', 'minimal'] })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					css: ['formal', 'minimal'],
+				})
 			})
 		})
 
@@ -146,6 +161,7 @@ Some content here.`
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					css: ['formal'],
 					output: './dist/john-doe-resume',
 					style: {
@@ -165,7 +181,10 @@ css = "minimal"
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ css: ['minimal'] })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					css: ['minimal'],
+				})
 			})
 
 			it('parses TOML frontmatter with multiple css', () => {
@@ -177,7 +196,10 @@ css = ["formal", "minimal"]
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config).toEqual({ css: ['formal', 'minimal'] })
+				expect(result.config).toEqual({
+					'bullet-order': 'none',
+					css: ['formal', 'minimal'],
+				})
 			})
 
 			it('parses TOML frontmatter with only style', () => {
@@ -191,6 +213,7 @@ primary-color = "#ff0000"
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					style: { 'primary-color': '#ff0000' },
 				})
 			})
@@ -564,6 +587,7 @@ style:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					css: ['zurich'],
 					pages: 1,
 					style: { 'font-size': '10pt' },
@@ -844,6 +868,7 @@ tags:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					css: ['zurich'],
 					pages: 1,
 					tags: { fullstack: ['frontend', 'backend'] },
@@ -906,6 +931,7 @@ extra:
 				assert(result.ok)
 
 				expect(result.config).toEqual({
+					'bullet-order': 'none',
 					css: ['zurich'],
 					pages: 1,
 					style: { 'font-size': '10pt' },
@@ -1045,6 +1071,51 @@ sections:
 			})
 		})
 
+		describe('bullet-order field', () => {
+			it('accepts none', () => {
+				const input = `---
+bullet-order: none
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.['bullet-order']).toBe('none')
+			})
+
+			it('accepts tag', () => {
+				const input = `---
+bullet-order: tag
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.['bullet-order']).toBe('tag')
+			})
+
+			it('rejects invalid value', () => {
+				const input = `---
+bullet-order: random
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+			})
+
+			it('defaults to none when omitted', () => {
+				const input = `---
+pages: 1
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.['bullet-order']).toBe('none')
+			})
+		})
+
 		describe('edge cases', () => {
 			it('handles frontmatter with empty values', () => {
 				const input = `---
@@ -1102,6 +1173,7 @@ output: test-resume
 			assert(result.ok)
 
 			expect(result.config).toEqual({
+				'bullet-order': 'none',
 				css: ['formal'],
 				output: 'test-resume',
 			})
@@ -1121,6 +1193,7 @@ css = "minimal"
 			assert(result.ok)
 
 			expect(result.config).toEqual({
+				'bullet-order': 'none',
 				css: ['minimal'],
 			})
 		})

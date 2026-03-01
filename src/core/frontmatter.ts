@@ -95,6 +95,7 @@ const FrontmatterSchema = z.object({
 				}),
 		})
 		.optional(),
+	'bullet-order': z.enum(['none', 'tag']).default('none'),
 	tags: z
 		.record(
 			z.string(),

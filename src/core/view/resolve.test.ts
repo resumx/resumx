@@ -11,7 +11,7 @@ describe('resolveView', () => {
 				selects: null,
 				sections: { hide: [], pin: [] },
 				pages: null,
-				bulletOrder: 'source',
+				bulletOrder: 'none',
 				vars: {},
 				style: {},
 				format: 'pdf',
@@ -28,7 +28,7 @@ describe('resolveView', () => {
 				selects: null,
 				sections: { hide: [], pin: [] },
 				pages: null,
-				bulletOrder: 'source',
+				bulletOrder: 'none',
 				vars: {},
 				style: {},
 				format: 'pdf',
@@ -48,7 +48,7 @@ describe('resolveView', () => {
 
 		it('replaces bulletOrder from later layer', () => {
 			const result = resolveView([
-				{ bulletOrder: 'source' },
+				{ bulletOrder: 'none' },
 				{ bulletOrder: 'tag' },
 			])
 
@@ -225,7 +225,7 @@ describe('resolveView', () => {
 			})
 			expect(result.style).toEqual({ 'font-family': 'Arial' })
 			expect(result.format).toBe('pdf')
-			expect(result.bulletOrder).toBe('source')
+			expect(result.bulletOrder).toBe('none')
 		})
 	})
 

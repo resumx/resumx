@@ -32,13 +32,14 @@ import {
 	validateTemplateVars,
 	validateTemplateUniqueness,
 } from '../lib/string-template/index.js'
+import { extractTagNames } from '../core/target-composition.js'
 import { runCheck, printCheckResults } from './check.js'
 import { resolveView } from '../core/view/resolve.js'
 import {
 	validateHidePinOverlap,
 	type SectionType,
 } from '../core/section-types.js'
-import type { ViewLayer } from '../core/view/types.js'
+import type { ViewLayer, BulletOrder } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
 
 export interface RenderCommandOptions {
@@ -53,6 +54,7 @@ export interface RenderCommandOptions {
 	pages?: number
 	hide?: SectionType[]
 	pin?: SectionType[]
+	bulletOrder?: BulletOrder
 	check?: boolean
 	strict?: boolean
 	minSeverity?: Severity
@@ -110,6 +112,7 @@ async function runRender(
 	const defaultView: ViewLayer = {
 		pages: fmConfig?.pages,
 		sections: fmConfig?.sections,
+		bulletOrder: fmConfig?.['bullet-order'],
 		vars: fmConfig?.vars,
 		style: fmConfig?.style,
 		output: fmConfig?.output,
@@ -124,6 +127,7 @@ async function runRender(
 	const ephemeralView: ViewLayer = {
 		pages: options.pages,
 		sections: cliSections,
+		bulletOrder: options.bulletOrder,
 		vars:
 			options.var && Object.keys(options.var).length > 0 ?
 				options.var
@@ -174,15 +178,9 @@ async function runRender(
 
 	// Discover targets and languages from content
 	const html = renderMarkdown(content)
-	const TARGET_CLASS_RE = /@([^\s"']+)/g
-	const discoveredTargets = extractBySelector(html, '[class*="@"]', el => {
-		const cls = el.getAttribute('class') ?? ''
-		TARGET_CLASS_RE.lastIndex = 0
-		const targets: string[] = []
-		let m
-		while ((m = TARGET_CLASS_RE.exec(cls))) targets.push(m[1]!)
-		return targets
-	})
+	const discoveredTargets = extractBySelector(html, '[class*="@"]', el =>
+		extractTagNames(el.getAttribute('class') ?? ''),
+	)
 	const discoveredLangs = extractBySelector(html, '[lang]', el => {
 		const v = el.getAttribute('lang')
 		return v ? [v] : []

@@ -57,7 +57,7 @@ async function render(opts: RenderTestOptions): Promise<RenderResult> {
 			pin: opts.sections?.pin ?? [],
 		},
 		pages: opts.targetPages ?? null,
-		bulletOrder: 'source',
+		bulletOrder: 'none',
 		vars: opts.vars ?? {},
 		style: opts.variables ?? {},
 		format: opts.format,
