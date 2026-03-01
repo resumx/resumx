@@ -64,7 +64,7 @@ function gen(content: string, opts: LegacyOptions): Promise<string> {
 			pin: opts.sections?.pin ?? [],
 		},
 		pages: null,
-		bulletOrder: 'source',
+		bulletOrder: 'none',
 		vars: opts.vars ?? {},
 		style: opts.variables ?? {},
 		format: 'pdf',

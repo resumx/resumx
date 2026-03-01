@@ -1,4 +1,16 @@
 /**
+ * Extract all @-prefixed tag names from a CSS class string.
+ * Returns them in the order they appear.
+ */
+export function extractTagNames(className: string): string[] {
+	const re = /@([^\s"']+)/g
+	const tags: string[] = []
+	let m: RegExpExecArray | null
+	while ((m = re.exec(className))) tags.push(m[1]!)
+	return tags
+}
+
+/**
  * Resolve a tag name into its full set of constituent tags.
  *
  * Given a tagMap like `{ fullstack: ['frontend', 'backend'] }`,

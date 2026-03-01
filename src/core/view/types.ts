@@ -1,6 +1,8 @@
 import type { OutputFormat } from '../renderer.js'
 import type { SectionType } from '../section-types.js'
 
+export type BulletOrder = 'none' | 'tag'
+
 export interface SectionsConfig {
 	hide?: SectionType[]
 	pin?: SectionType[]
@@ -14,7 +16,7 @@ export interface ViewLayer {
 	selects?: string[]
 	sections?: SectionsConfig
 	pages?: number
-	bulletOrder?: 'source' | 'tag'
+	bulletOrder?: BulletOrder
 	vars?: Record<string, string>
 	style?: Record<string, string>
 	format?: OutputFormat
@@ -31,7 +33,7 @@ export interface ResolvedView {
 	selects: string[] | null
 	sections: Required<SectionsConfig>
 	pages: number | null
-	bulletOrder: 'source' | 'tag'
+	bulletOrder: BulletOrder
 	vars: Record<string, string>
 	style: Record<string, string>
 	format: OutputFormat

@@ -47,7 +47,7 @@ When reading from stdin, the output filename is derived from:
 | `-v, --var <key=value>`    | Override a template variable. Repeatable.                                                                        |
 | `--hide <list>`            | Hide sections from output (comma-separated [`data-section`](/guide/semantic-selectors) values).                  |
 | `--pin <list>`             | Pin sections to the top in specified order (comma-separated [`data-section`](/guide/semantic-selectors) values). |
-| `--bullet-order <value>`   | Bullet ordering: `source` (default) or `tag`. See [Views](/guide/views#bullet-order).                            |
+| `--bullet-order <value>`   | Bullet ordering: `none` (default) or `tag`. See [Views](/guide/views#bullet-order).                              |
 | `-w, --watch`              | Watch for changes and auto-rebuild.                                                                              |
 | `--check`                  | Validate only, do not render. Exit code 1 if critical issues found.                                              |
 | `--no-check`               | Skip validation entirely.                                                                                        |

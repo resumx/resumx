@@ -9,6 +9,7 @@
 import { stripComments } from './strip-comments/index.js'
 import { filterByLang } from './filter-by-lang/index.js'
 import { filterByTag } from './filter-by-tag/index.js'
+import { orderBullets } from './order-bullets/index.js'
 import { extractHeader } from './extract-header/index.js'
 import { wrapSections } from './wrap-sections/index.js'
 import { classifySections } from './classify-sections/index.js'
@@ -25,12 +26,13 @@ import type { DocumentContext } from '../types.js'
  * 1. stripComments - remove HTML comment nodes
  * 2. filterByLang - remove non-matching language content
  * 3. filterByTag - remove non-matching tag content
- * 4. extractHeader - pull content before first h2 into <header>
- * 5. wrapSections - wrap h2 groups in <section> tags
- * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags
- * 7. classifySections - add data-section attrs for JSON Resume types
- * 8. arrangeSections - hide sections and pin others to the top
- * 9. classifyHeader - wrap contact info in <address>, add data-field attrs
+ * 4. orderBullets - reorder bullets by tag priority (after tag classes are set)
+ * 5. extractHeader - pull content before first h2 into <header>
+ * 6. wrapSections - wrap h2 groups in <section> tags
+ * 7. wrapEntries - wrap h3 groups in <article class="entry"> tags
+ * 8. classifySections - add data-section attrs for JSON Resume types
+ * 9. arrangeSections - hide sections and pin others to the top
+ * 10. classifyHeader - wrap contact info in <address>, add data-field attrs
  */
 export function assemblePipeline(
 	view: ResolvedView,
@@ -40,6 +42,7 @@ export function assemblePipeline(
 		stripComments,
 		filterByLang(view.lang),
 		filterByTag(view.selects, doc.tagMap),
+		orderBullets(view.bulletOrder, view.selects, doc.tagMap),
 		extractHeader,
 		wrapSections,
 		wrapEntries,
@@ -60,4 +63,5 @@ export { classifySections } from './classify-sections/index.js'
 export { classifyHeader, isContactBlock } from './classify-header/index.js'
 export { wrapEntries } from './wrap-entries/index.js'
 export { arrangeSections } from './filter-by-layout/index.js'
+export { orderBullets } from './order-bullets/index.js'
 export { stripComments } from './strip-comments/index.js'

@@ -20,7 +20,7 @@ const DEFAULT_VIEW: ResolvedView = {
 	selects: null,
 	sections: { hide: [], pin: [] },
 	pages: null,
-	bulletOrder: 'source',
+	bulletOrder: 'none',
 	vars: {},
 	style: {},
 	format: 'pdf',

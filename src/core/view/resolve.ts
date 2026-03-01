@@ -9,7 +9,7 @@ const DEFAULTS: ResolvedView = {
 	selects: null,
 	sections: { ...DEFAULT_SECTIONS },
 	pages: null,
-	bulletOrder: 'source',
+	bulletOrder: 'none',
 	vars: {},
 	style: {},
 	format: 'pdf',
