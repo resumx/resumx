@@ -42,9 +42,10 @@ import { runCheck, printCheckResults } from './check.js'
 import { resolveView } from '../core/view/resolve.js'
 import {
 	extractTagViews,
-	resolveForFlag,
+	resolveForValue,
 	validateTagComposition,
 } from '../core/view/resolve-for.js'
+import { loadAllViews } from '../core/view/load.js'
 import {
 	validateHidePinOverlap,
 	type SectionType,
@@ -168,6 +169,9 @@ async function runRender(
 		validateTagComposition(tagMap, discoveredTargets)
 	}
 
+	// Discover custom views from .view.yaml files
+	const customViews = loadAllViews(context.cssBaseDir)
+
 	const forFlags = options.for ?? []
 
 	const langsToGenerate = resolveValues(
@@ -176,22 +180,29 @@ async function runRender(
 		'language',
 	)
 
-	// Build named views: for each --for tag, resolve 3-layer cascade.
+	// Build named views: for each --for value, resolve via 3-layer cascade.
 	// No --for → single base render (no tag filtering).
 	const namedViews: NamedView[] = []
 
 	if (forFlags.length > 0) {
-		for (const tagName of forFlags) {
-			const tagViewLayer = resolveForFlag(tagName, tagViews, discoveredTargets)
-			const view = resolveView([defaultView, tagViewLayer, ephemeralView])
-
-			const overlapError = validateHidePinOverlap(
-				view.sections.hide,
-				view.sections.pin,
+		for (const forValue of forFlags) {
+			const resolved = resolveForValue(
+				forValue,
+				tagViews,
+				customViews,
+				discoveredTargets,
 			)
-			if (overlapError) throw new Error(overlapError)
+			for (const { name, layer } of resolved) {
+				const view = resolveView([defaultView, layer, ephemeralView])
 
-			namedViews.push({ name: tagName, view })
+				const overlapError = validateHidePinOverlap(
+					view.sections.hide,
+					view.sections.pin,
+				)
+				if (overlapError) throw new Error(overlapError)
+
+				namedViews.push({ name, view })
+			}
 		}
 	} else {
 		const view = resolveView([defaultView, ephemeralView])

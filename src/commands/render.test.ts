@@ -632,7 +632,7 @@ Test content`
 			expect(htmlContent).toContain('Common skill')
 		})
 
-		it('auto-generates all target variants when targets exist', async () => {
+		it('generates all target variants with --for for each tag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -641,13 +641,15 @@ Test content`
 - Node.js {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await renderCommand('resume.md', { format: ['html'] }, tempDir)
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['frontend', 'backend'] },
+				tempDir,
+			)
 
-			// Should generate separate files for each target
 			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
 
-			// Check content filtering
 			const frontendHtml = readFileSync(
 				join(tempDir, 'resume-frontend.html'),
 				'utf-8',
@@ -661,6 +663,24 @@ Test content`
 			)
 			expect(backendHtml).toContain('Node.js')
 			expect(backendHtml).not.toContain('React')
+		})
+
+		it('renders all content when no --for is specified (tags present)', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Node.js {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand('resume.md', { format: ['html'] }, tempDir)
+
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('React')
+			expect(htmlContent).toContain('Node.js')
 		})
 
 		it('generates single file with explicit --for flag', async () => {
@@ -831,7 +851,7 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume-en.html'))).toBe(false)
 		})
 
-		it('combines lang with targets', async () => {
+		it('combines lang with targets via --for', async () => {
 			const mdContent = `# Test Person
 
 ## [Skills]{lang=en} [Compétences]{lang=fr}
@@ -842,7 +862,11 @@ Test content`
 - [Node.js]{lang=fr} {.@backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			await renderCommand('resume.md', { format: ['html'] }, tempDir)
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['frontend', 'backend'] },
+				tempDir,
+			)
 
 			// 2 langs x 2 targets = 4 files, flat: {name}-{view}-{lang}.{format}
 			expect(existsSync(join(tempDir, 'resume-frontend-en.html'))).toBe(true)
@@ -1344,6 +1368,539 @@ Some content
 
 			// Should still render despite validation issues
 			expect(existsSync(join(tempDir, 'invalid.html'))).toBe(true)
+		})
+	})
+
+	describe('view system (tag views, custom views, batch rendering)', () => {
+		it('--for with expanded tag view applies sections config', async () => {
+			const mdContent = `---
+tags:
+  frontend:
+    sections:
+      hide: [education]
+      pin: [skills]
+---
+# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Node.js {.@backend}
+
+## Work Experience
+
+### Acme Corp || Jan 2020 - Present
+
+- Built things
+
+## Education
+
+### MIT || 2016 - 2020
+
+- CS degree`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['frontend'] },
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('React')
+			expect(html).not.toContain('Node.js')
+			expect(html).not.toContain('data-section="education"')
+			expect(html).not.toContain('CS degree')
+		})
+
+		it('--for with tag view vars overrides default vars', async () => {
+			const mdContent = `---
+vars:
+  tagline: Default tagline
+tags:
+  frontend:
+    vars:
+      tagline: Frontend specialist
+---
+# Test Person
+
+{{ tagline }}
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['frontend'] },
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('Frontend specialist')
+			expect(html).not.toContain('Default tagline')
+		})
+
+		it('CLI -v overrides tag view vars (3-layer cascade)', async () => {
+			const mdContent = `---
+vars:
+  tagline: Default tagline
+tags:
+  frontend:
+    vars:
+      tagline: Tag view tagline
+---
+# Test Person
+
+{{ tagline }}
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{
+					format: ['html'],
+					for: ['frontend'],
+					var: { tagline: 'CLI override' },
+				},
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('CLI override')
+			expect(html).not.toContain('Tag view tagline')
+			expect(html).not.toContain('Default tagline')
+		})
+
+		it('custom .view.yaml file is discovered and used with --for', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'stripe.view.yaml'),
+				`stripe-swe:
+  selects: [backend]
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['stripe-swe'] },
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('Go')
+			expect(html).toContain('Common skill')
+			expect(html).not.toContain('React')
+		})
+
+		it('--for * renders all tag views and content tags', async () => {
+			const mdContent = `---
+tags:
+  general: [frontend, backend]
+---
+# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-general.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+
+			const generalHtml = readFileSync(
+				join(tempDir, 'resume-general.html'),
+				'utf-8',
+			)
+			expect(generalHtml).toContain('React')
+			expect(generalHtml).toContain('Go')
+
+			const frontendHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			expect(frontendHtml).toContain('React')
+			expect(frontendHtml).not.toContain('Go')
+		})
+
+		it('--for glob matches custom view names', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'companies.view.yaml'),
+				`stripe-swe:
+  selects: [backend]
+stripe-pm:
+  selects: [frontend]
+netflix-fe:
+  selects: [frontend]
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['stripe-*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-stripe-swe.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-stripe-pm.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-netflix-fe.html'))).toBe(false)
+
+			const sweHtml = readFileSync(
+				join(tempDir, 'resume-stripe-swe.html'),
+				'utf-8',
+			)
+			expect(sweHtml).toContain('Go')
+			expect(sweHtml).not.toContain('React')
+
+			const pmHtml = readFileSync(
+				join(tempDir, 'resume-stripe-pm.html'),
+				'utf-8',
+			)
+			expect(pmHtml).toContain('React')
+			expect(pmHtml).not.toContain('Go')
+		})
+
+		it('--for with .view.yaml file path loads views from that file', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			mkdirSync(join(tempDir, 'tmp'), { recursive: true })
+			const viewFile = join(tempDir, 'tmp', 'adhoc.view.yaml')
+			writeFileSync(
+				viewFile,
+				`adhoc-fe:
+  selects: [frontend]
+adhoc-be:
+  selects: [backend]
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: [viewFile] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-adhoc-fe.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-adhoc-be.html'))).toBe(true)
+		})
+
+		it('custom view with style config applies styles', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`styled-view:
+  selects: [frontend]
+  style:
+    font-family: "CustomFont, sans-serif"
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['styled-view'] },
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('React')
+			expect(html).toContain('--font-family: CustomFont, sans-serif')
+		})
+
+		it('nested .view.yaml files are discovered', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			mkdirSync(join(tempDir, 'views', 'active'), { recursive: true })
+			writeFileSync(
+				join(tempDir, 'views', 'active', 'nested.view.yaml'),
+				`nested-fe:
+  selects: [frontend]
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['nested-fe'] },
+				tempDir,
+			)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('React')
+			expect(html).not.toContain('Go')
+		})
+
+		it('--for unknown name throws with suggestion', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await expect(
+				renderCommand(
+					'resume.md',
+					{ format: ['html'], for: ['fronted'] },
+					tempDir,
+				),
+			).rejects.toThrow(/Did you mean 'frontend'/)
+		})
+
+		it('ambiguous name (tag view + custom view) throws error', async () => {
+			const mdContent = `---
+tags:
+  frontend:
+    pages: 1
+---
+# Test Person
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'conflict.view.yaml'),
+				`frontend:
+  selects: [frontend]
+  pages: 2
+`,
+			)
+
+			await expect(
+				renderCommand(
+					'resume.md',
+					{ format: ['html'], for: ['frontend'] },
+					tempDir,
+				),
+			).rejects.toThrow(/Ambiguous/)
+		})
+
+		it('duplicate view names across .view.yaml files throws error', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'a.view.yaml'),
+				`my-view:
+  selects: [frontend]
+`,
+			)
+			writeFileSync(
+				join(tempDir, 'b.view.yaml'),
+				`my-view:
+  selects: [frontend]
+`,
+			)
+
+			await expect(
+				renderCommand(
+					'resume.md',
+					{ format: ['html'], for: ['my-view'] },
+					tempDir,
+				),
+			).rejects.toThrow(/Duplicate view name 'my-view'/)
+		})
+
+		it('--for * with only content tags renders all as implicit views', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+
+			const frontendHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			expect(frontendHtml).toContain('React')
+			expect(frontendHtml).toContain('Common skill')
+			expect(frontendHtml).not.toContain('Go')
+		})
+
+		it('batch --for * with custom views + content tags produces all files', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`stripe-be:
+  selects: [backend]
+`,
+			)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-stripe-be.html'))).toBe(true)
+
+			const stripeBe = readFileSync(
+				join(tempDir, 'resume-stripe-be.html'),
+				'utf-8',
+			)
+			expect(stripeBe).toContain('Go')
+			expect(stripeBe).toContain('Common skill')
+			expect(stripeBe).not.toContain('React')
+
+			const frontendHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			expect(frontendHtml).toContain('React')
+			expect(frontendHtml).not.toContain('Go')
+		})
+
+		it('--for * with composed tag (shorthand) includes all constituent content', async () => {
+			const mdContent = `---
+tags:
+  fullstack: [frontend, backend]
+---
+# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume-fullstack.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(true)
+
+			const fullstackHtml = readFileSync(
+				join(tempDir, 'resume-fullstack.html'),
+				'utf-8',
+			)
+			expect(fullstackHtml).toContain('React')
+			expect(fullstackHtml).toContain('Go')
+			expect(fullstackHtml).toContain('Common skill')
+		})
+
+		it('ephemeral flags apply to all views in batch', async () => {
+			const mdContent = `# Test Person
+
+{{ tagline }}
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{
+					format: ['html'],
+					for: ['frontend', 'backend'],
+					var: { tagline: 'Shared tagline' },
+				},
+				tempDir,
+			)
+
+			const feHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			const beHtml = readFileSync(join(tempDir, 'resume-backend.html'), 'utf-8')
+			expect(feHtml).toContain('Shared tagline')
+			expect(beHtml).toContain('Shared tagline')
+		})
+
+		it('--for glob with no matches throws error', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await expect(
+				renderCommand(
+					'resume.md',
+					{ format: ['html'], for: ['nonexistent-*'] },
+					tempDir,
+				),
+			).rejects.toThrow(/No views match pattern/)
 		})
 	})
 

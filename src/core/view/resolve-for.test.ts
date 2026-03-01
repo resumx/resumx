@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import {
 	extractTagViews,
 	resolveForFlag,
+	resolveForValue,
 	validateTagComposition,
 } from './resolve-for.js'
 import { resolveView } from './resolve.js'
@@ -99,12 +103,20 @@ describe('resolveForFlag', () => {
 		const tagViews = {
 			frontend: { selects: ['frontend'], pages: 1 },
 		}
-		const result = resolveForFlag('frontend', tagViews, ['frontend'])
+		const result = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 		expect(result).toEqual({ selects: ['frontend'], pages: 1 })
 	})
 
+	it('resolves to custom view when name matches', () => {
+		const customViews = {
+			'stripe-swe': { selects: ['backend'], pages: 1 },
+		}
+		const result = resolveForFlag('stripe-swe', {}, customViews, [])
+		expect(result).toEqual({ selects: ['backend'], pages: 1 })
+	})
+
 	it('creates implicit view for content-only tag', () => {
-		const result = resolveForFlag('backend', {}, ['backend', 'frontend'])
+		const result = resolveForFlag('backend', {}, {}, ['backend', 'frontend'])
 		expect(result).toEqual({ selects: ['backend'] })
 	})
 
@@ -112,31 +124,42 @@ describe('resolveForFlag', () => {
 		const tagViews = {
 			frontend: { selects: ['frontend'], pages: 1 },
 		}
-		const result = resolveForFlag('frontend', tagViews, ['frontend'])
+		const result = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 		expect(result.pages).toBe(1)
 	})
 
-	it('throws for unknown tag with Levenshtein suggestion', () => {
-		const tagViews = {
-			frontend: { selects: ['frontend'] },
-		}
-		expect(() => resolveForFlag('fronted', tagViews, ['backend'])).toThrow(
-			"Unknown tag 'fronted'. Did you mean 'frontend'?",
+	it('throws ambiguity error when name matches both tag and custom view', () => {
+		const tagViews = { frontend: { selects: ['frontend'] } }
+		const customViews = { frontend: { selects: ['frontend'], pages: 1 } }
+		expect(() =>
+			resolveForFlag('frontend', tagViews, customViews, ['frontend']),
+		).toThrow(/Ambiguous view name 'frontend'/)
+	})
+
+	it('throws for unknown name with Levenshtein suggestion', () => {
+		const tagViews = { frontend: { selects: ['frontend'] } }
+		expect(() => resolveForFlag('fronted', tagViews, {}, ['backend'])).toThrow(
+			"Unknown view 'fronted'. Did you mean 'frontend'?",
 		)
 	})
 
-	it('throws for completely unknown tag with available list', () => {
-		const tagViews = {
-			frontend: { selects: ['frontend'] },
-		}
-		expect(() => resolveForFlag('zzzzz', tagViews, ['backend'])).toThrow(
-			'Available tags: frontend, backend',
+	it('throws for completely unknown name with available list', () => {
+		const tagViews = { frontend: { selects: ['frontend'] } }
+		expect(() => resolveForFlag('zzzzz', tagViews, {}, ['backend'])).toThrow(
+			'Available: frontend, backend',
 		)
 	})
 
-	it('throws when no tags exist at all', () => {
-		expect(() => resolveForFlag('anything', {}, [])).toThrow(
-			'No tags found in content or frontmatter',
+	it('throws when no tags or views exist at all', () => {
+		expect(() => resolveForFlag('anything', {}, {}, [])).toThrow(
+			'No tags or views found',
+		)
+	})
+
+	it('suggests custom view names in error', () => {
+		const customViews = { 'stripe-swe': { selects: ['backend'] } }
+		expect(() => resolveForFlag('stripe-sw', {}, customViews, [])).toThrow(
+			"Did you mean 'stripe-swe'?",
 		)
 	})
 
@@ -144,11 +167,204 @@ describe('resolveForFlag', () => {
 		const tagViews = {
 			fullstack: { selects: ['fullstack', 'frontend', 'backend'] },
 		}
-		const result = resolveForFlag('fullstack', tagViews, [
+		const result = resolveForFlag('fullstack', tagViews, {}, [
 			'frontend',
 			'backend',
 		])
 		expect(result.selects).toEqual(['fullstack', 'frontend', 'backend'])
+	})
+})
+
+describe('resolveForValue', () => {
+	describe('exact name resolution', () => {
+		it('resolves single tag view', () => {
+			const tagViews = { frontend: { selects: ['frontend'], pages: 1 } }
+			const result = resolveForValue('frontend', tagViews, {}, ['frontend'])
+
+			expect(result).toHaveLength(1)
+			expect(result[0]!.name).toBe('frontend')
+			expect(result[0]!.layer.pages).toBe(1)
+		})
+
+		it('resolves single custom view', () => {
+			const customViews = {
+				'stripe-swe': { selects: ['backend'] },
+			}
+			const result = resolveForValue('stripe-swe', {}, customViews, [])
+
+			expect(result).toHaveLength(1)
+			expect(result[0]!.name).toBe('stripe-swe')
+		})
+
+		it('resolves content-only tag as implicit view', () => {
+			const result = resolveForValue('backend', {}, {}, ['backend'])
+
+			expect(result).toHaveLength(1)
+			expect(result[0]!.name).toBe('backend')
+			expect(result[0]!.layer).toEqual({ selects: ['backend'] })
+		})
+	})
+
+	describe('glob pattern resolution', () => {
+		it('matches views with wildcard prefix', () => {
+			const customViews = {
+				'stripe-swe': { selects: ['backend'] },
+				'stripe-pm': { selects: ['frontend'] },
+				'netflix-fe': { selects: ['frontend'] },
+			}
+			const result = resolveForValue('stripe-*', {}, customViews, [])
+
+			expect(result).toHaveLength(2)
+			expect(result.map(r => r.name).sort()).toEqual([
+				'stripe-pm',
+				'stripe-swe',
+			])
+		})
+
+		it('matches all views with *', () => {
+			const tagViews = { frontend: { selects: ['frontend'] } }
+			const customViews = {
+				'stripe-swe': { selects: ['backend'] },
+			}
+			const result = resolveForValue('*', tagViews, customViews, [])
+
+			expect(result).toHaveLength(2)
+		})
+
+		it('includes content-only tags in * glob', () => {
+			const tagViews = {
+				general: { selects: ['k8s', 'docker', 'scalability'] },
+			}
+			const result = resolveForValue('*', tagViews, {}, [
+				'k8s',
+				'docker',
+				'scalability',
+				'latency',
+				'cicd',
+			])
+
+			expect(result.map(r => r.name).sort()).toEqual(
+				['cicd', 'general', 'k8s', 'docker', 'latency', 'scalability'].sort(),
+			)
+		})
+
+		it('includes content-only tags in prefix glob', () => {
+			const result = resolveForValue('back*', {}, {}, [
+				'backend',
+				'backend-infra',
+				'frontend',
+			])
+
+			expect(result).toHaveLength(2)
+			expect(result.map(r => r.name).sort()).toEqual([
+				'backend',
+				'backend-infra',
+			])
+		})
+
+		it('content-only tags matched by glob get implicit selects', () => {
+			const result = resolveForValue('*', {}, {}, ['k8s', 'docker'])
+
+			expect(result).toHaveLength(2)
+			expect(result.find(r => r.name === 'k8s')!.layer).toEqual({
+				selects: ['k8s'],
+			})
+			expect(result.find(r => r.name === 'docker')!.layer).toEqual({
+				selects: ['docker'],
+			})
+		})
+
+		it('explicit tag views take precedence over content tags with same name in glob', () => {
+			const tagViews = {
+				frontend: { selects: ['frontend'], pages: 1 },
+			}
+			const result = resolveForValue('*', tagViews, {}, ['frontend', 'backend'])
+
+			expect(result).toHaveLength(2)
+			const fe = result.find(r => r.name === 'frontend')!
+			expect(fe.layer.pages).toBe(1)
+			const be = result.find(r => r.name === 'backend')!
+			expect(be.layer).toEqual({ selects: ['backend'] })
+		})
+
+		it('tag views override custom views with same name in glob', () => {
+			const tagViews = { frontend: { selects: ['frontend'], pages: 1 } }
+			const customViews = { frontend: { selects: ['frontend'], pages: 2 } }
+			const result = resolveForValue('*', tagViews, customViews, [])
+
+			expect(result).toHaveLength(1)
+			expect(result[0]!.layer.pages).toBe(1)
+		})
+
+		it('throws when no views match a glob', () => {
+			const customViews = { 'stripe-swe': { selects: ['backend'] } }
+			expect(() =>
+				resolveForValue('nonexistent-*', {}, customViews, []),
+			).toThrow("No views match pattern 'nonexistent-*'")
+		})
+
+		it('throws when glob used with zero views', () => {
+			expect(() => resolveForValue('*', {}, {}, [])).toThrow(
+				'No views found. Create a .view.yaml file or define tag views in frontmatter.',
+			)
+		})
+
+		it('matches with ? wildcard', () => {
+			const customViews = {
+				v1: { pages: 1 },
+				v2: { pages: 2 },
+				v10: { pages: 10 },
+			}
+			const result = resolveForValue('v?', {}, customViews, [])
+
+			expect(result).toHaveLength(2)
+			expect(result.map(r => r.name).sort()).toEqual(['v1', 'v2'])
+		})
+	})
+
+	describe('file path resolution', () => {
+		function withTempDir<T>(fn: (dir: string) => T): T {
+			const dir = mkdtempSync(join(tmpdir(), 'resolve-for-test-'))
+			try {
+				return fn(dir)
+			} finally {
+				rmSync(dir, { recursive: true, force: true })
+			}
+		}
+
+		it('loads views from a file path', () => {
+			withTempDir(dir => {
+				const file = join(dir, 'adhoc.view.yaml')
+				writeFileSync(
+					file,
+					`adhoc-swe:
+  selects: [backend]
+  pages: 1
+adhoc-pm:
+  selects: [frontend]
+`,
+				)
+
+				const result = resolveForValue(file, {}, {}, [])
+
+				expect(result).toHaveLength(2)
+				expect(result.map(r => r.name).sort()).toEqual([
+					'adhoc-pm',
+					'adhoc-swe',
+				])
+			})
+		})
+
+		it('throws when file has no views', () => {
+			withTempDir(dir => {
+				const file = join(dir, 'empty.view.yaml')
+				writeFileSync(file, '')
+
+				expect(() => resolveForValue(file, {}, {}, [])).toThrow(
+					/No views found/,
+				)
+			})
+		})
 	})
 })
 
@@ -207,7 +423,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 	it('--for frontend with shorthand tag filters to frontend + constituents', () => {
 		const tags = { fullstack: ['frontend', 'backend'] }
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('fullstack', tagViews, [
+		const tagLayer = resolveForFlag('fullstack', tagViews, {}, [
 			'frontend',
 			'backend',
 		])
@@ -236,7 +452,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 			},
 		}
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('frontend', tagViews, ['frontend'])
+		const tagLayer = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 
 		const defaultView: ViewLayer = {
 			pages: 2,
@@ -260,7 +476,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 			},
 		}
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('frontend', tagViews, ['frontend'])
+		const tagLayer = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 
 		const defaultView: ViewLayer = {
 			vars: { tagline: 'Default tagline' },
@@ -291,7 +507,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 
 	it('--for content-only tag produces implicit view with selects: [name]', () => {
 		const tagViews = extractTagViews(undefined)
-		const tagLayer = resolveForFlag('backend', tagViews, [
+		const tagLayer = resolveForFlag('backend', tagViews, {}, [
 			'backend',
 			'frontend',
 		])
@@ -321,7 +537,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 			},
 		}
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('frontend', tagViews, [
+		const tagLayer = resolveForFlag('frontend', tagViews, {}, [
 			'frontend',
 			'backend',
 		])
@@ -351,7 +567,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 	it('ephemeral pages overrides tag view pages in 3-layer stack', () => {
 		const tags = { frontend: { pages: 1 } }
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('frontend', tagViews, ['frontend'])
+		const tagLayer = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 
 		const defaultView: ViewLayer = { pages: 3 }
 		const ephemeral: ViewLayer = { pages: 2 }
@@ -368,7 +584,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 			},
 		}
 		const tagViews = extractTagViews(tags)
-		const tagLayer = resolveForFlag('frontend', tagViews, ['frontend'])
+		const tagLayer = resolveForFlag('frontend', tagViews, {}, ['frontend'])
 
 		const defaultView: ViewLayer = { style: { 'font-family': 'Arial' } }
 		const ephemeral: ViewLayer = {
@@ -382,5 +598,50 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 			'accent-color': '#ef4444',
 			'font-size': '10pt',
 		})
+	})
+})
+
+describe('end-to-end: custom view cascade (default → custom → ephemeral)', () => {
+	it('custom view overrides default view', () => {
+		const customView: ViewLayer = {
+			selects: ['backend', 'distributed-systems'],
+			sections: { hide: ['publications'], pin: ['skills', 'work'] },
+			vars: { tagline: 'Stream Processing, Go, Kafka' },
+			pages: 1,
+		}
+
+		const defaultView: ViewLayer = {
+			pages: 2,
+			vars: { tagline: 'Full-stack engineer' },
+		}
+
+		const resolved = resolveView([defaultView, customView])
+
+		expect(resolved.selects).toEqual(['backend', 'distributed-systems'])
+		expect(resolved.pages).toBe(1)
+		expect(resolved.vars.tagline).toBe('Stream Processing, Go, Kafka')
+	})
+
+	it('ephemeral overrides custom view vars', () => {
+		const customView: ViewLayer = {
+			selects: ['backend'],
+			vars: { tagline: 'Backend engineer', keywords: 'Go, Kafka' },
+		}
+		const ephemeral: ViewLayer = {
+			vars: { tagline: 'CLI override' },
+		}
+
+		const resolved = resolveView([{}, customView, ephemeral])
+
+		expect(resolved.vars.tagline).toBe('CLI override')
+		expect(resolved.vars.keywords).toBe('Go, Kafka')
+	})
+
+	it('custom view with format: html overrides default pdf', () => {
+		const customView: ViewLayer = { format: 'html' }
+
+		const resolved = resolveView([{}, customView])
+
+		expect(resolved.format).toBe('html')
 	})
 })

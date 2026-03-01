@@ -5,8 +5,7 @@ import * as TOML from 'smol-toml'
 import { z } from 'zod'
 import { parseSectionList } from './section-types.js'
 
-// Shared view field schemas used by both FrontmatterSchema and TagExpandedSchema
-const SectionsSchema = z.object({
+export const SectionsSchema = z.object({
 	hide: z
 		.array(z.string())
 		.optional()
@@ -33,14 +32,14 @@ const SectionsSchema = z.object({
 		}),
 })
 
-const PagesSchema = z
+export const PagesSchema = z
 	.number({ error: "'pages' must be a positive integer (>= 1)" })
 	.int({ error: "'pages' must be a positive integer (>= 1)" })
 	.min(1, { error: "'pages' must be a positive integer (>= 1)" })
 
-const BulletOrderSchema = z.enum(['none', 'tag'])
+export const BulletOrderSchema = z.enum(['none', 'tag'])
 
-const VarsSchema = z.record(
+export const VarsSchema = z.record(
 	z.string(),
 	z.preprocess(
 		val => {
@@ -53,7 +52,7 @@ const VarsSchema = z.record(
 	{ error: "'vars' must be an object mapping variable names to values" },
 )
 
-const StyleSchema = z.preprocess(
+export const StyleSchema = z.preprocess(
 	val => (val === null ? undefined : val),
 	z
 		.record(
@@ -64,12 +63,16 @@ const StyleSchema = z.preprocess(
 		.optional(),
 )
 
-const CssSchema = z.preprocess(
+export const CssSchema = z.preprocess(
 	val => (typeof val === 'string' ? [val] : val),
 	z.array(z.string({ error: "'css' must contain only strings" }), {
 		error: "'css' must be a string or an array of strings",
 	}),
 )
+
+export const FormatSchema = z.enum(['pdf', 'html', 'docx', 'png'], {
+	error: "'format' must be one of: pdf, html, docx, png",
+})
 
 const TagExpandedSchema = z.object({
 	extends: z
@@ -83,11 +86,7 @@ const TagExpandedSchema = z.object({
 	'bullet-order': BulletOrderSchema.optional(),
 	vars: VarsSchema.optional(),
 	style: StyleSchema,
-	format: z
-		.enum(['pdf', 'html', 'docx', 'png'], {
-			error: "'format' must be one of: pdf, html, docx, png",
-		})
-		.optional(),
+	format: FormatSchema.optional(),
 	output: z.string().optional(),
 	css: CssSchema.optional(),
 })

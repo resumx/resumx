@@ -265,6 +265,12 @@ resumx resume.md --for '*'
 resumx resume.md --for 'stripe-*'
 ```
 
+Glob patterns match against all named views (both tag views and custom views). The pattern must match at least one view, otherwise Resumx raises an error listing available names. You can also point `--for` at a specific file to load views from it without placing it in the auto-discovery path:
+
+```bash
+resumx resume.md --for ./tmp/adhoc.view.yaml
+```
+
 For parallel rendering, use a Makefile:
 
 ```makefile
