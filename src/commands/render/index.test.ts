@@ -11,16 +11,16 @@ import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
-import { DEFAULT_STYLESHEET } from '../core/styles.js'
+import { DEFAULT_STYLESHEET } from '../../core/styles.js'
 import {
 	renderCommand,
 	type RenderCommandOptions,
 	type WatchHandle,
-} from './render.js'
+} from './index.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const CLI_PATH = join(__dirname, '../../dist/index.js')
-const FIXTURE_PATH = join(__dirname, '../../tests/fixtures/sample.md')
+const CLI_PATH = join(__dirname, '../../../dist/index.js')
+const FIXTURE_PATH = join(__dirname, '../../../tests/fixtures/sample.md')
 
 describe('render command', () => {
 	let tempDir: string

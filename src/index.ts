@@ -2,7 +2,10 @@
 
 import { Command } from 'commander'
 import chalk from 'chalk'
-import { renderCommand, type RenderCommandOptions } from './commands/render.js'
+import {
+	renderCommand,
+	type RenderCommandOptions,
+} from './commands/render/index.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
 import { parseSectionList } from './core/section-types.js'
 import type { BulletOrder } from './core/view/types.js'
