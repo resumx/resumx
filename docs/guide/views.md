@@ -65,12 +65,12 @@ Custom views live in `.view.yaml` files. Top-level keys are view names:
 ```yaml
 # stripe.view.yaml
 stripe-swe:
-  selects: [backend, distributed-systems, leadership]
+  selects: [backend/node, distributed-systems, leadership]
   sections:
     hide: [publications]
     pin: [skills, work]
   vars:
-    tagline: 'Stream Processing, Event-Driven Architecture, Go, Kafka'
+    tagline: 'Stream Processing, Event-Driven Architecture, Node.js, Kafka'
 
 stripe-pm:
   selects: [frontend, leadership]
@@ -265,24 +265,4 @@ resumx resume.md --for '*'
 resumx resume.md --for 'stripe-*'
 ```
 
-Glob patterns match against all named views (both tag views and custom views). The pattern must match at least one view, otherwise Resumx raises an error listing available names. You can also point `--for` at a specific file to load views from it without placing it in the auto-discovery path:
-
-```bash
-resumx resume.md --for ./tmp/adhoc.view.yaml
-```
-
-For parallel rendering, use a Makefile:
-
-```makefile
-RESUME = resume.md
-
-stripe: $(RESUME)
-	resumx $< --for stripe-swe -o out/stripe.pdf
-
-vercel: $(RESUME)
-	resumx $< --for vercel-fe -o out/vercel.pdf
-
-all: stripe vercel
-```
-
-`make -j4 all` renders in parallel. Edit a bullet in `resume.md`, run `make all`, and every application updates.
+Glob patterns match against all named views (both tag views and custom views). The pattern must match at least one view, otherwise Resumx raises an error listing available names.

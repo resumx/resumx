@@ -41,8 +41,8 @@ export function assemblePipeline(
 	const steps: HtmlTransform[] = [
 		stripComments,
 		filterByLang(view.lang),
-		filterByTag(view.selects, doc.tagMap),
-		orderBullets(view.bulletOrder, view.selects, doc.tagMap),
+		filterByTag(view.selects, doc.tagMap, doc.contentTags),
+		orderBullets(view.bulletOrder, view.selects, doc.tagMap, doc.contentTags),
 		extractHeader,
 		wrapSections,
 		wrapEntries,

@@ -1,11 +1,11 @@
 ---
 name: resumx
-description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, styling, or tailoring resumes. Covers syntax, CLI, style options, icons, tailored variants, multi-language, page fitting, validation, custom CSS, JSON Resume conversion, and AI-assisted resume writing.
+description: Work with Resumx, a Markdown-to-PDF resume renderer. Use when creating, editing, converting, building, styling, or tailoring resumes. Covers syntax, CLI, style options, icons, tags, views, variables, multi-language, page fitting, validation, custom CSS, JSON Resume conversion, and AI-assisted resume writing.
 ---
 
 # Resumx
 
-Resumx (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports targeted and multi-language output from a single source file, and uses style options for styling.
+Resumx renders resumes from Markdown to PDF, HTML, PNG, and DOCX. It auto-fits content to a target page count, supports tags and views for tailored output from a single source file, and uses style options for styling.
 
 ## Resources
 
@@ -15,22 +15,23 @@ This skill includes reference documents for specific workflows. Read them when a
 | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
 | [json-resume-to-markdown.md](resources/json-resume-to-markdown.md) | Converting between Resumx Markdown and JSON Resume format (either direction)                  |
 | [writing-resume.md](resources/writing-resume.md)                   | Interactive resume creation, guiding users step-by-step to collect info and generate a resume |
+| [tagging-resume.md](resources/tagging-resume.md)                   | Systematically tagging a resume for tailored output, including hierarchical tag taxonomy      |
 
 ## Markdown Syntax
 
-Standard Markdown with one extension: `{.right}` for right-alignment.
+Standard Markdown with extensions for inline columns, bracketed spans, and fenced divs.
 
 ### Structure
 
-| Element  | Syntax                                                         |
-| -------- | -------------------------------------------------------------- |
-| Name     | `# Full Name`                                                  |
-| Contact  | `> [phone](tel:...) \| [email](mailto:...) \| [linkedin](url)` |
-| Section  | `## Section Name`                                              |
-| Entry    | `### Title [Date]{.right}`                                     |
-| Subtitle | `_Role or Degree_`                                             |
-| Bullets  | `- Achievement with \`tech\` tags`                             |
-| Skills   | Definition list (`Term` + `: values`)                          |
+| Element  | Syntax                                              |
+| -------- | --------------------------------------------------- |
+| Name     | `# Full Name`                                       |
+| Contact  | `email@example.com \| github.com/user \| linkedin…` |
+| Section  | `## Section Name`                                   |
+| Entry    | `### Title \|\| Date`                               |
+| Subtitle | `_Role or Degree_ \|\| Location`                    |
+| Bullets  | `- Achievement with \`tech\` tags`                  |
+| Skills   | Definition list (`Term` + `: values`)               |
 
 ### Inline Columns
 
@@ -70,7 +71,7 @@ Frameworks
 Also used as inline metadata below entries:
 
 ```markdown
-### Google [June 2022 - Present]{.right}
+### Google || June 2022 - Present
 
 Senior Software Engineer
 : Infrastructure Platform Team
@@ -110,7 +111,7 @@ _Senior Software Engineer_ [San Francisco, CA]{.right}
 `{...}` at end of a block element applies to the whole element:
 
 ```markdown
-- Built interactive dashboards {.role:frontend}
+- Built interactive dashboards {.@frontend}
 ```
 
 ### Fenced Divs
@@ -134,15 +135,18 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 ### Render Fields
 
-| Field     | Type                       | Default             | Description                                                                |
-| --------- | -------------------------- | ------------------- | -------------------------------------------------------------------------- |
-| `css`     | `string \| string[]`       | None                | Path(s) to custom CSS file(s)                                              |
-| `output`  | `string`                   | Input filename stem | Output path (name, directory with `/`, or template with `{view}`/`{lang}`) |
-| `pages`   | `positive integer`         | No clamping         | Target page count                                                          |
-| `style`   | `Record<string, string>`   | No overrides        | Style option overrides                                                     |
-| `targets` | `Record<string, string[]>` | No composed targets | Target composition map (composed name -> constituent targets)              |
-| `icons`   | `Record<string, string>`   | No custom icons     | Custom icon definitions (SVG, URL, or base64)                              |
-| `extra`   | `Record<string, unknown>`  | No custom data      | Arbitrary user-defined data                                                |
+| Field          | Type                                    | Default             | Description                                                                |
+| -------------- | --------------------------------------- | ------------------- | -------------------------------------------------------------------------- |
+| `css`          | `string \| string[]`                    | None                | Path(s) to custom CSS file(s)                                              |
+| `output`       | `string`                                | Input filename stem | Output path (name, directory with `/`, or template with `{view}`/`{lang}`) |
+| `pages`        | `positive integer`                      | No clamping         | Target page count                                                          |
+| `sections`     | `{ hide?: string[], pin?: string[] }`   | All in source order | Section visibility and ordering                                            |
+| `bullet-order` | `none \| tag`                           | `none`              | Bullet ordering strategy                                                   |
+| `style`        | `Record<string, string>`                | No overrides        | Style option overrides                                                     |
+| `tags`         | `Record<string, string[] \| TagConfig>` | No composed tags    | Tag composition and tag view configuration                                 |
+| `vars`         | `Record<string, string>`                | No variables        | Template variables for `{{ }}` placeholders                                |
+| `icons`        | `Record<string, string>`                | No custom icons     | Custom icon definitions (SVG, URL, or base64)                              |
+| `extra`        | `Record<string, unknown>`               | No custom data      | Arbitrary user-defined data                                                |
 
 ### Validate Fields
 
@@ -167,12 +171,19 @@ Unknown top-level keys error. Use `extra` for custom data.
 ---
 pages: 1
 output: ./out/Jane_Smith-{view}
+bullet-order: tag
 style:
   accent-color: '#0ea5e9'
+tags:
+  fullstack: [frontend, backend]
+  leadership: false
+vars:
+  tagline: 'Full-stack engineer with 8 years of experience'
 validate:
   extends: recommended
   rules:
     long-bullet: warning
+    single-bullet-section: off
 extra:
   name: Jane Smith
   target-role: Senior SWE
@@ -186,22 +197,30 @@ resumx <file>              # Render (defaults to resume.md, PDF)
 resumx init [filename]     # Create template resume
 ```
 
+### Sandbox Requirement
+
+Resumx uses Playwright with Chromium for PDF rendering. Chromium cannot launch inside Cursor's default sandbox because the sandbox blocks syscalls Chromium needs to initialize. **Always run resumx commands with `required_permissions: ["all"]`** to disable the sandbox. Without this, rendering will fail with "Chromium not found" even though Chromium is installed.
+
 ### Render Options
 
-| Flag                       | Description                                |
-| -------------------------- | ------------------------------------------ |
-| `--css <path>`             | Path to custom CSS file, repeatable        |
-| `-o, --output <value>`     | Output path (name, directory, or template) |
-| `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable   |
-| `-s, --style <name=value>` | Override style property, repeatable        |
-| `-t, --target <name>`      | Target filter, repeatable                  |
-| `-l, --lang <tag>`         | Language filter (BCP 47), repeatable       |
-| `-p, --pages <number>`     | Target page count                          |
-| `-w, --watch`              | Auto-rebuild on changes                    |
-| `--check`                  | Validate only, no render                   |
-| `--no-check`               | Skip validation                            |
-| `--strict`                 | Fail on any validation error               |
-| `--min-severity <level>`   | Filter validation output                   |
+| Flag                       | Description                                                          |
+| -------------------------- | -------------------------------------------------------------------- |
+| `--css <path>`             | Path to custom CSS file, repeatable, comma-separated                 |
+| `-o, --output <value>`     | Output path (name, directory, or template)                           |
+| `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable, comma-separated            |
+| `-s, --style <name=value>` | Override style property, repeatable                                  |
+| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or `.view.yaml` path  |
+| `-v, --var <key=value>`    | Override a template variable, repeatable                             |
+| `--hide <list>`            | Hide sections (comma-separated `data-section` values)                |
+| `--pin <list>`             | Pin sections to top in order (comma-separated `data-section` values) |
+| `--bullet-order <value>`   | Bullet ordering: `none` (default) or `tag`                           |
+| `-l, --lang <tag>`         | Language filter (BCP 47), repeatable, comma-separated                |
+| `-p, --pages <number>`     | Target page count                                                    |
+| `-w, --watch`              | Auto-rebuild on changes                                              |
+| `--check`                  | Validate only, no render                                             |
+| `--no-check`               | Skip validation                                                      |
+| `--strict`                 | Fail on any validation error                                         |
+| `--min-severity <level>`   | Filter validation output                                             |
 
 ### Stdin
 
@@ -212,12 +231,12 @@ git show HEAD~3:resume.md | resumx -o old
 
 ### Output Naming
 
-| Scenario             | Output                   |
-| -------------------- | ------------------------ |
-| No targets, no langs | `resume.pdf`             |
-| With targets         | `resume-frontend.pdf`    |
-| With langs           | `resume-en.pdf`          |
-| Targets + langs      | `frontend/resume-en.pdf` |
+| Scenario          | Output                   |
+| ----------------- | ------------------------ |
+| No view, no langs | `resume.pdf`             |
+| With tag/view     | `resume-frontend.pdf`    |
+| With langs        | `resume-en.pdf`          |
+| Tag/view + langs  | `frontend/resume-en.pdf` |
 
 Template variables: `{view}`, `{lang}`.
 
@@ -229,7 +248,7 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Colors:** `text-color`, `muted-color`, `accent-color`, `link-color`, `background-color`.
 
-**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-italic`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`, `entry-title-italic`.
+**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`.
 
 **Links:** `link-underline` (`underline`, `none`).
 
@@ -241,30 +260,31 @@ Override via frontmatter `style:` or CLI `--style`.
 
 ### Custom CSS
 
-Create a CSS file importing common base modules:
+Your CSS cascades on top of the default stylesheet, so you only write overrides:
 
 ```css
-@import 'common/base.css';
-@import 'common/icons.css';
-@import 'common/utilities.css';
-
 :root {
 	--font-family: 'Inter', sans-serif;
 	--accent-color: #2563eb;
+}
+
+h2 {
+	letter-spacing: 0.05em;
 }
 ```
 
 Reference by path: `css: my-styles.css` or `--css my-styles.css`.
 
-Common modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`).
+For building a stylesheet from scratch, `@import` bundled modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`).
 
 ## Fit to Page
 
-Set `pages: N` to auto-fit. Shrinks in order of visual impact:
+Set `pages: N` to auto-fit. Shrinks in order of visual impact (least noticeable first):
 
 1. **Gaps** (row-gap, entry-gap, section-gap)
-2. **Margins** (page-margin-x, page-margin-y)
-3. **Typography** (font-size, line-height)
+2. **Line height**
+3. **Font size**
+4. **Margins** (page-margin-x, page-margin-y, last resort)
 
 For `pages: 1`, gaps also expand to fill remaining space.
 
@@ -308,29 +328,159 @@ Works with bracketed spans, element attributes, and fenced divs. Supports arbitr
 
 Built-in utilities: `.small-caps`, `.sr-only`.
 
-## Tailored Variants
+## Tags
 
-Tag content with `{.role:name}`. Untagged content always included. Tagged content only appears for matching targets. Multiple targets: `{.role:backend .role:fullstack}`.
+Tags filter content. Add `{.@name}` to any element to mark it for a specific audience. Untagged content always passes through. Tagged content only appears when rendering for a matching tag.
 
 ```markdown
 - Shared bullet
-- Frontend-only bullet {.role:frontend}
-- Backend-only bullet {.role:backend}
+- Frontend-only bullet {.@frontend}
+- Backend-only bullet {.@backend}
 ```
 
-Resumx auto-discovers all targets and generates a PDF for each. Filter with `--target frontend` or `--target frontend,backend`.
+Multiple tags: `{.@backend .@frontend}`.
 
-### Target Composition
+Render with `--for frontend` or `--for backend`.
 
-Define composed targets in frontmatter as unions of constituents:
+### Hierarchical Tags
+
+Use `/` to nest tags when a domain spans multiple ecosystems:
+
+```markdown
+- Designed REST APIs with OpenAPI documentation {.@backend}
+- Built microservices with `Express` {.@backend/node}
+- Migrated `Spring Boot` monolith {.@backend/jvm}
+```
+
+Inheritance: **a view includes its entire lineage (ancestors + self + descendants) and untagged content. Siblings are excluded.**
+
+- `--for backend/node` → `@backend` (ancestor) + `@backend/node` (self) + untagged. Excludes `@backend/jvm`.
+- `--for backend` → `@backend` (self) + `@backend/node` + `@backend/jvm` (descendants) + untagged.
+
+Depth is unlimited: `{.@data/ml/nlp}` nests three levels.
+
+### Tag Composition
+
+Define composed tags in frontmatter as unions of constituents:
 
 ```yaml
-targets:
+tags:
   fullstack: [frontend, backend]
+  node-fullstack: [frontend, backend/node]
+  tech-lead: [backend, leadership]
   startup-cto: [fullstack, leadership, architecture]
 ```
 
-When rendering for `fullstack`, content tagged `frontend` or `backend` is included. Compositions expand recursively (`startup-cto` includes `frontend` and `backend` via `fullstack`). Composed target names are added to the auto-discovered set.
+Hierarchical tags work as constituents. Lineage expands per constituent: `node-fullstack` includes `@frontend` (+ descendants), `@backend` (ancestor of `backend/node`), `@backend/node`, and untagged. Sibling `@backend/jvm` is excluded.
+
+Compositions expand recursively (`startup-cto` includes `frontend` and `backend` via `fullstack`). Every constituent must exist as a content tag or another composed tag; typos produce an error with a suggestion.
+
+## Views
+
+Tags filter content (what to show). Views configure rendering (how to show it). Every render uses a view.
+
+### Four Kinds of View
+
+| Kind           | Where                             | Nature                                    |
+| -------------- | --------------------------------- | ----------------------------------------- |
+| Default view   | Frontmatter render fields         | Base config for all renders               |
+| Tag view       | Frontmatter `tags:` expanded form | Per-tag overrides, implicit for every tag |
+| Custom view    | `.view.yaml` files                | Per-application config                    |
+| Ephemeral view | CLI flags                         | One-off, not persisted                    |
+
+### Tag Views
+
+Every tag implicitly generates a tag view. Configure with the expanded form:
+
+```yaml
+tags:
+  frontend:
+    sections:
+      hide: [publications]
+      pin: [skills, projects]
+    pages: 1
+
+  fullstack:
+    extends: [frontend, backend]
+    sections:
+      pin: [work, skills]
+    pages: 2
+```
+
+The shorthand `fullstack: [frontend, backend]` is sugar for `fullstack: { extends: [frontend, backend] }`.
+
+### Custom Views
+
+Custom views live in `.view.yaml` files, auto-discovered recursively relative to the resume:
+
+```yaml
+# stripe.view.yaml
+stripe-swe:
+  selects: [backend, distributed-systems, leadership]
+  sections:
+    hide: [publications]
+    pin: [skills, work]
+  vars:
+    tagline: 'Stream Processing, Event-Driven Architecture, Go, Kafka'
+```
+
+Render with `--for stripe-swe`. Batch with `--for '*'` or `--for 'stripe-*'`.
+
+Custom view fields: `selects` (content tags to include), `sections`, `pages`, `bullet-order`, `vars`, `style`, `format`, `output`.
+
+A view without `selects` applies no content filter (all content renders). An explicit `selects: []` means only untagged content.
+
+### Ephemeral Views
+
+CLI flags create an ephemeral view inline without persisting:
+
+```bash
+resumx resume.md --for backend -v tagline="Stream Processing, Go" --pin skills,work -o stripe.pdf
+```
+
+### Cascade Order
+
+```
+Built-in defaults
+  → Default view (frontmatter render fields)
+    → Tag view OR Custom view (whichever --for resolves)
+      → Ephemeral view (CLI flags)
+```
+
+## Template Variables
+
+Inject per-application text via `{{ name }}` placeholders:
+
+```markdown
+# Jane Doe
+
+jane@example.com | github.com/jane
+
+{{ tagline }}
+```
+
+Define in frontmatter `vars:`, in a custom view, or via CLI `-v`:
+
+```yaml
+vars:
+  tagline: 'Full-stack engineer with 8 years of experience'
+```
+
+When undefined or empty, the placeholder produces nothing (line removed). Variable values can contain markdown formatting. Defining a variable with no matching placeholder is an error.
+
+## Sections
+
+Control which sections appear and their order:
+
+```yaml
+sections:
+  hide: [publications, volunteer]
+  pin: [skills, work]
+```
+
+`hide` removes sections. `pin` moves them to the top in the specified order. Non-pinned sections follow in source order. Values are `data-section` types: `work`, `education`, `skills`, `projects`, `awards`, `certificates`, `publications`, `volunteer`, `languages`, `interests`, `references`, `basics`.
+
+CLI: `--hide publications --pin skills,work`.
 
 ## Multi-Language Output
 
@@ -345,9 +495,9 @@ Tag content with `{lang=xx}` (BCP 47). Untagged content appears in all languages
   [Réduction de la latence API de 60%]{lang=fr}
 ```
 
-Combines with targets: `{lang=en .role:backend}`. Filter with `--lang en` or `--lang en,fr`.
+Combines with tags: `{lang=en .@backend}`. Filter with `--lang en` or `--lang en,fr`.
 
-Dimensions multiply: 2 langs × 2 targets = 4 PDFs.
+Dimensions multiply: 2 langs × 2 tags = 4 PDFs.
 
 ## Semantic Selectors
 
@@ -381,12 +531,21 @@ Install agent skills: `npx skills add resumx/resumx`.
 ### Tailoring to Job Postings
 
 1. Give the agent `resume.md` and the job posting URL
-2. Agent extracts requirements and keywords
-3. Maps each to existing bullets (covered, weak, missing)
-4. Proposes minimal, truthful edits
-5. Run `resumx resume.md` to validate and render
+2. Agent reads the JD, maps each requirement to existing bullets (covered, weak, missing)
+3. Agent decides what's durable vs ephemeral: will this change make the next 10 applications better, or just this one?
+4. **Durable improvements** (better phrasing, new bullets, new tags) → edit `resume.md`
+5. **Ephemeral adjustments** (keywords, section order, tagline) → create a view or use CLI vars
+6. Render: `resumx resume.md --for stripe-swe -o out/stripe.pdf`
 
 With `pages: 1`, layout auto-adjusts after every edit.
+
+### Zero-File-Modification Rendering
+
+For maximum speed and zero git diff, render entirely from CLI flags:
+
+```bash
+resumx resume.md --for backend -v tagline="Stream Processing, Go, Kafka" --pin skills,work -o stripe.pdf
+```
 
 ### Resume Template
 
@@ -397,11 +556,13 @@ pages: 1
 
 # Full Name
 
-> [+1 555-123-4567](tel:+15551234567) | [email@example.com](mailto:email@example.com) | [linkedin.com/in/user](https://linkedin.com/in/user)
+email@example.com | [linkedin.com/in/user](https://linkedin.com/in/user) | [github.com/user](https://github.com/user)
+
+{{ tagline }}
 
 ## Education
 
-### University Name [Sept 2019 - June 2024]{.right}
+### University Name || Sept 2019 - June 2024
 
 _Degree Name_
 
@@ -409,9 +570,9 @@ _Degree Name_
 
 ## Work Experience
 
-### Company Name [Start - End]{.right}
+### Company Name || Start - End
 
-_Job Title - Employment Type_
+_Job Title_
 
 - Achievement with quantified impact using `Technology`
 

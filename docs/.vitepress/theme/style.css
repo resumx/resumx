@@ -343,18 +343,19 @@ main a {
 	filter: brightness(0.92);
 }
 
-/* Pronunciation tooltip */
-.pronounce {
+/* Inline hint tooltip — shows extra info on hover via data-hint attribute */
+.hint {
 	position: relative;
 	cursor: help;
 	text-decoration: underline dotted;
 	text-underline-offset: 3px;
 }
 
-.pronounce:hover::after {
-	content: attr(data-pronounce);
+.hint:hover::after {
+	content: attr(data-hint);
 	position: absolute;
-	left: 0;
+	left: 50%;
+	transform: translateX(-50%);
 	top: calc(100% + 6px);
 	background: var(--vp-c-bg-soft);
 	color: var(--vp-c-text-2);
@@ -365,6 +366,14 @@ main a {
 	white-space: nowrap;
 	z-index: 10;
 	pointer-events: none;
+}
+
+@media (max-width: 640px) {
+	.hint:hover::after {
+		white-space: normal;
+		width: max-content;
+		max-width: 75vw;
+	}
 }
 
 figcaption {

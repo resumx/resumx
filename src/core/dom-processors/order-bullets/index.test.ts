@@ -13,8 +13,9 @@ function run(
 	bulletOrder: BulletOrder,
 	selects: string[] | null,
 	tagMap?: Record<string, string[]>,
+	contentTags?: string[],
 ): string {
-	return orderBullets(bulletOrder, selects, tagMap)(html)
+	return orderBullets(bulletOrder, selects, tagMap, contentTags)(html)
 }
 
 function liTexts(html: string): string[] {
@@ -291,6 +292,57 @@ describe('orderBullets', () => {
 			`
 			const result = run(html, 'tag', ['frontend', 'backend'])
 			expect(liTexts(result)).toEqual(['DevOps', 'Untagged'])
+		})
+	})
+
+	describe('bullet-order: tag with hierarchical tags', () => {
+		const contentTags = [
+			'backend',
+			'backend/node',
+			'backend/jvm',
+			'frontend',
+			'leadership',
+		]
+
+		it('ancestor bullet gets priority when child is selected', () => {
+			const html = `
+				<ul>
+					<li>General</li>
+					<li class="@backend">REST APIs</li>
+					<li class="@backend/node">Express</li>
+				</ul>
+			`
+			const result = run(html, 'tag', ['backend/node'], {}, contentTags)
+			expect(liTexts(result)).toEqual(['Express', 'REST APIs', 'General'])
+		})
+
+		it('descendant bullets get priority when parent is selected', () => {
+			const html = `
+				<ul>
+					<li>General</li>
+					<li class="@backend/jvm">Spring</li>
+					<li class="@backend">REST APIs</li>
+					<li class="@backend/node">Express</li>
+				</ul>
+			`
+			const result = run(html, 'tag', ['backend'], {}, contentTags)
+			expect(liTexts(result)).toEqual([
+				'REST APIs',
+				'Express',
+				'Spring',
+				'General',
+			])
+		})
+
+		it('flat tags unchanged with hierarchy present', () => {
+			const html = `
+				<ul>
+					<li>General</li>
+					<li class="@leadership">Leading</li>
+				</ul>
+			`
+			const result = run(html, 'tag', ['leadership'], {}, contentTags)
+			expect(liTexts(result)).toEqual(['Leading', 'General'])
 		})
 	})
 })

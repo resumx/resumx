@@ -417,6 +417,50 @@ describe('validateTagComposition', () => {
 			validateTagComposition({ frontend: [] }, ['frontend']),
 		).not.toThrow()
 	})
+
+	it('accepts implicit parent tag when children exist in content', () => {
+		expect(() =>
+			validateTagComposition({ fullstack: ['frontend', 'backend'] }, [
+				'frontend',
+				'backend/node',
+				'backend/jvm',
+			]),
+		).not.toThrow()
+	})
+
+	it('accepts hierarchical constituent that exists in content', () => {
+		expect(() =>
+			validateTagComposition({ stripe: ['frontend', 'backend/node'] }, [
+				'frontend',
+				'backend/node',
+				'backend/jvm',
+			]),
+		).not.toThrow()
+	})
+})
+
+describe('resolveForFlag with hierarchical tags', () => {
+	it('resolves implicit parent when only children exist as content tags', () => {
+		const result = resolveForFlag('backend', {}, {}, [
+			'backend/node',
+			'backend/jvm',
+		])
+		expect(result).toEqual({ selects: ['backend'] })
+	})
+
+	it('resolves direct content tag as before', () => {
+		const result = resolveForFlag('backend/node', {}, {}, [
+			'backend/node',
+			'backend/jvm',
+		])
+		expect(result).toEqual({ selects: ['backend/node'] })
+	})
+
+	it('throws for name that is not a parent of any content tag', () => {
+		expect(() =>
+			resolveForFlag('devops', {}, {}, ['backend/node', 'frontend']),
+		).toThrow(/Unknown view 'devops'/)
+	})
 })
 
 describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () => {

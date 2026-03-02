@@ -225,6 +225,7 @@ export async function runRender(
 		content,
 		icons: fmConfig?.icons,
 		tagMap: hasTagMap ? tagMap : undefined,
+		contentTags: discoveredTargets,
 		baseDir: context.cssBaseDir,
 	}
 

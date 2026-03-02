@@ -75,7 +75,11 @@ export function resolveForFlag(
 	if (inTag) return tagViews[name]!
 	if (inCustom) return customViews[name]!
 
-	if (contentTags.includes(name)) return { selects: [name] }
+	if (
+		contentTags.includes(name)
+		|| contentTags.some(t => t.startsWith(name + '/'))
+	)
+		return { selects: [name] }
 
 	const allKnown = [
 		...new Set([
@@ -183,7 +187,11 @@ export function validateTagComposition(
 
 	for (const [composedName, constituents] of Object.entries(tagMap)) {
 		for (const constituent of constituents) {
-			if (contentTags.includes(constituent) || definedTags.has(constituent))
+			if (
+				contentTags.includes(constituent)
+				|| definedTags.has(constituent)
+				|| contentTags.some(t => t.startsWith(constituent + '/'))
+			)
 				continue
 
 			const allKnown = [...new Set([...contentTags, ...definedTags])]

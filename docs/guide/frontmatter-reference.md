@@ -234,7 +234,17 @@ The shorthand `fullstack: [frontend, backend]` is sugar for `fullstack: { extend
 
 Compositions can reference other composed tags (recursive expansion). Circular references produce an error. Every constituent must exist as a content tag (`{.@name}` in your resume) or as another composed tag. Typos produce an error with a Levenshtein suggestion.
 
-See [Tags](/guide/tags) for tagging syntax, composition, and tag views. See [Views](/guide/views) for custom views and ephemeral views.
+Constituents can be [hierarchical tags](/guide/tags#hierarchical-tags) like `backend/node`. When expanded, each constituent's lineage (ancestors + self + descendants) is included:
+
+```yaml
+tags:
+  stripe: [frontend, backend/node]
+  # Expands to: @frontend (+ @frontend/* descendants)
+  #            + @backend (ancestor) + @backend/node (self)
+  #            + untagged
+```
+
+See [Tags](/guide/tags) for tagging syntax, composition, hierarchical tags, and tag views. See [Views](/guide/views) for custom views and ephemeral views.
 
 ### `vars`
 

@@ -20,9 +20,10 @@ function run(
 	html: string,
 	activeTag?: string,
 	tagMap?: Record<string, string[]>,
+	contentTags?: string[],
 ): string {
 	const selects = activeTag ? [activeTag] : null
-	return filterByTag(selects, tagMap)(html)
+	return filterByTag(selects, tagMap, contentTags)(html)
 }
 
 // =============================================================================
@@ -315,6 +316,135 @@ describe('filterByTag', () => {
 				'<p>Common</p><p class="@frontend">FE</p><p class="@backend">BE</p>'
 			const result = filterByTag(null)(html)
 			expect(result).toBe(html)
+		})
+	})
+
+	describe('hierarchical tags', () => {
+		const contentTags = [
+			'backend',
+			'backend/node',
+			'backend/jvm',
+			'frontend',
+			'frontend/react',
+			'leadership',
+		]
+
+		it('child view includes ancestor content', () => {
+			const html =
+				'<p class="@backend">REST APIs</p><p class="@backend/node">Express</p><p class="@backend/jvm">Spring</p><p>Common</p>'
+			const result = run(html, 'backend/node', {}, contentTags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['REST APIs', 'Express', 'Common'])
+		})
+
+		it('parent view includes all descendant content', () => {
+			const html =
+				'<p class="@backend">REST APIs</p><p class="@backend/node">Express</p><p class="@backend/jvm">Spring</p><p>Common</p>'
+			const result = run(html, 'backend', {}, contentTags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['REST APIs', 'Express', 'Spring', 'Common'])
+		})
+
+		it('siblings are excluded from child view', () => {
+			const html =
+				'<p class="@backend/node">Express</p><p class="@backend/jvm">Spring</p><p class="@frontend">React</p>'
+			const result = run(html, 'backend/node', {}, contentTags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Express'])
+		})
+
+		it('flat tags are unaffected by hierarchy', () => {
+			const html =
+				'<p class="@leadership">Leading</p><p class="@frontend">FE</p><p>Common</p>'
+			const result = run(html, 'leadership', {}, contentTags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Leading', 'Common'])
+		})
+
+		it('composition with hierarchical constituents expands correctly', () => {
+			const html =
+				'<p class="@frontend">FE</p><p class="@frontend/react">React</p><p class="@backend">BE generic</p><p class="@backend/node">Node</p><p class="@backend/jvm">JVM</p><p>Common</p>'
+			const result = run(
+				html,
+				'stripe',
+				{ stripe: ['frontend/react', 'backend/node'] },
+				contentTags,
+			)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['FE', 'React', 'BE generic', 'Node', 'Common'])
+		})
+
+		it('composition does not cascade: ancestor from child does not pull siblings', () => {
+			const html =
+				'<p class="@backend/node">Node</p><p class="@backend/jvm">JVM</p>'
+			const result = run(
+				html,
+				'stripe',
+				{ stripe: ['backend/node'] },
+				contentTags,
+			)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Node'])
+		})
+
+		it('redundant ancestor+descendant on same element is kept', () => {
+			const html = '<p class="@backend @backend/node">Both tags</p>'
+			const result = run(html, 'backend/node', {}, contentTags)
+			const doc = parseHtml(result)
+			expect(doc.body.children.length).toBe(1)
+			expect(doc.body.children[0].textContent).toBe('Both tags')
+		})
+
+		it('orphan hierarchy works (child exists without parent content)', () => {
+			const orphanTags = ['backend/node', 'backend/jvm']
+			const html =
+				'<p class="@backend/node">Node</p><p class="@backend/jvm">JVM</p>'
+			const result = run(html, 'backend/node', {}, orphanTags)
+			const doc = parseHtml(result)
+			expect(doc.body.children.length).toBe(1)
+			expect(doc.body.children[0].textContent).toBe('Node')
+		})
+
+		it('does not confuse @backend-legacy with @backend', () => {
+			const html =
+				'<p class="@backend">Backend</p><p class="@backend-legacy">Legacy</p>'
+			const tags = ['backend', 'backend-legacy', 'backend/node']
+			const result = run(html, 'backend/node', {}, tags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Backend'])
+		})
+
+		it('three-level depth: mid-level view includes ancestor and descendants', () => {
+			const deepTags = [
+				'data',
+				'data/ml',
+				'data/ml/nlp',
+				'data/ml/cv',
+				'data/analytics',
+			]
+			const html =
+				'<p class="@data">Data generic</p><p class="@data/ml">ML</p><p class="@data/ml/nlp">NLP</p><p class="@data/ml/cv">CV</p><p class="@data/analytics">Analytics</p>'
+			const result = run(html, 'data/ml', {}, deepTags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Data generic', 'ML', 'NLP', 'CV'])
+		})
+
+		it('trailing slash is treated as a distinct tag (does not match parent)', () => {
+			const html =
+				'<p class="@backend/">Trailing slash</p><p class="@backend">Backend</p>'
+			const tags = ['backend', 'backend/', 'backend/node']
+			const result = run(html, 'backend', {}, tags)
+			const doc = parseHtml(result)
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toContain('Backend')
 		})
 	})
 

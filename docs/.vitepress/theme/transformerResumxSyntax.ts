@@ -156,7 +156,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 			// 4) Standalone {attrs} — dim { }, italic inner text
 			// Matches {.class}, {#id}, {lang=en}, and combinations thereof
 			for (const m of code.matchAll(
-				/(?<!\])\{((?:[.#][\w:.@\-]+|[\w-]+=[\w-]+)(?:\s+(?:[.#][\w:.@\-]+|[\w-]+=[\w-]+))*)\}/g,
+				/(?<!\])\{((?:[.#][\w:.@/\-]+|[\w-]+=[\w-]+)(?:\s+(?:[.#][\w:.@/\-]+|[\w-]+=[\w-]+))*)\}/g,
 			)) {
 				if (!matched.has(String(m.index))) {
 					let pos = m.index

@@ -7,6 +7,7 @@ import SidebarGroupLabel from './SidebarGroupLabel.vue'
 import DocActions from './DocActions.vue'
 import IconGallery from './IconGallery.vue'
 import ResumeDemo from './ResumeDemo.vue'
+import TagLineage from './TagLineage.vue'
 
 export default {
 	extends: DefaultTheme,
@@ -19,5 +20,6 @@ export default {
 	enhanceApp({ app, router, siteData }) {
 		app.component('IconGallery', IconGallery)
 		app.component('ResumeDemo', ResumeDemo)
+		app.component('TagLineage', TagLineage)
 	},
 } satisfies Theme

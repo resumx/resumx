@@ -1,5 +1,8 @@
 import { withDOM } from '../../../lib/dom-kit/dom.js'
-import { extractTagNames, resolveTagSet } from '../../target-composition.js'
+import {
+	extractTagNames,
+	resolveTagSetWithLineage,
+} from '../../target-composition.js'
 import type { BulletOrder } from '../../view/types.js'
 
 /**
@@ -13,12 +16,13 @@ export function orderBullets(
 	bulletOrder: BulletOrder,
 	selects: string[] | null,
 	tagMap?: Record<string, string[]>,
+	contentTags?: string[],
 ): (html: string) => string {
 	if (bulletOrder === 'none' || !selects?.length) {
 		return html => html
 	}
 
-	const priorityMap = buildPriorityMap(selects, tagMap ?? {})
+	const priorityMap = buildPriorityMap(selects, tagMap ?? {}, contentTags ?? [])
 
 	return html =>
 		withDOM(html, root => {
@@ -58,15 +62,21 @@ export function orderBullets(
  * Each constituent gets a unique incrementing priority following the
  * selects declaration order. Tags that appear in multiple selects
  * keep their first (highest-priority) position.
+ * Hierarchical lineage (ancestors + descendants) is included.
  */
 function buildPriorityMap(
 	selects: string[],
 	tagMap: Record<string, string[]>,
+	allContentTags: string[],
 ): Map<string, number> {
 	const map = new Map<string, number>()
 	let nextRank = 0
 	for (const select of selects) {
-		for (const tag of resolveTagSet(select, tagMap)) {
+		for (const tag of resolveTagSetWithLineage(
+			select,
+			tagMap,
+			allContentTags,
+		)) {
 			if (!map.has(tag)) {
 				map.set(tag, nextRank++)
 			}
