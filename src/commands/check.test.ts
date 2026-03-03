@@ -117,6 +117,35 @@ Languages
 		const { ok } = await runCheck(VALID_RESUME)
 		expect(ok).toBe(true)
 	})
+
+	it('should not false-positive on YAML comments in frontmatter', async () => {
+		const content = `---
+output: output/
+pages: 1 # Adjusts layout to fit within target page count
+style:
+  font-size: 11pt
+  # font-family: 'Georgia', serif
+  # header-align: center
+---
+
+# Your Name
+
+[+1234567890](tel:+1234567890) | [your@email.com](mailto:your@email.com)
+
+## Education
+
+### University || 2020 - 2024
+
+- GPA: 4.0
+`
+		const { ok, filteredIssues } = await runCheck(content)
+
+		const contactIssues = filteredIssues.filter(
+			i => i.code === 'missing-contact',
+		)
+		expect(contactIssues).toHaveLength(0)
+		expect(ok).toBe(true)
+	})
 })
 
 // =============================================================================

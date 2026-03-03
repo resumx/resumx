@@ -9,6 +9,23 @@ import type {
 	Severity,
 } from './types.js'
 
+/**
+ * Strip YAML/TOML frontmatter from raw content so markdown-it doesn't
+ * misinterpret YAML comments (e.g. `# comment`) as ATX headings.
+ *
+ * Returns the body without frontmatter and the number of lines consumed
+ * by the frontmatter block (used to adjust issue line numbers back to
+ * original file positions).
+ */
+function stripFrontmatter(raw: string): { body: string; lineOffset: number } {
+	const match = raw.match(/^(---|\+\+\+)\r?\n[\s\S]*?\r?\n\1[ \t]*(?:\r?\n|$)/)
+	if (!match) return { body: raw, lineOffset: 0 }
+
+	const fm = match[0]
+	const lineOffset = fm.split('\n').length - (fm.endsWith('\n') ? 1 : 0)
+	return { body: raw.slice(fm.length), lineOffset }
+}
+
 // Built-in plugins
 import {
 	missingNamePlugin,
@@ -84,9 +101,10 @@ export async function validate(
 	content: string,
 	options: ValidatorOptions = {},
 ): Promise<ValidationResult> {
+	const { body, lineOffset } = stripFrontmatter(content)
 	const md = createMarkdownRenderer()
-	const tokens = md.parse(content, {})
-	const lines = content.split('\n')
+	const tokens = md.parse(body, {})
+	const lines = body.split('\n')
 
 	const ctx: ValidationContext = { content, tokens, lines }
 	const rules = options.rules ?? {}
@@ -104,6 +122,14 @@ export async function validate(
 			if (override === 'off') continue // Skip disabled rules
 			if (override) issue.severity = override // Override severity
 			allIssues.push(issue)
+		}
+	}
+
+	// Adjust line numbers back to original file positions
+	if (lineOffset > 0) {
+		for (const issue of allIssues) {
+			issue.range.start.line += lineOffset
+			issue.range.end.line += lineOffset
 		}
 	}
 
