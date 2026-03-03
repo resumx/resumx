@@ -1,5 +1,4 @@
 ---
-theme: zurich # (default), oxford, seattle
 output: output/
 pages: 1 # Adjusts layout to fit within target page count
 style:
