@@ -29,7 +29,7 @@ export const MINIMUMS: {
 	'section-gap': 2, // px
 	'line-height': 1, // unitless
 	'font-size': 9, // pt
-	'page-margin-y': 0.3, // in
+	'page-margin-y': 0.25, // in
 	'page-margin-x': 0.35, // in
 }
 
