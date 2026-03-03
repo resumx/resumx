@@ -1,6 +1,6 @@
 ---
 style:
-  font-family: "'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif"
+  font-family: "'Times New Roman', serif"
   line-height: 1.15
 ---
 

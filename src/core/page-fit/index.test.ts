@@ -13,7 +13,7 @@ describe('fitToPages (integration)', () => {
 <head>
 <style>
 :root {
-	--font-family: Arial, sans-serif;
+	--font-family: 'Times New Roman', serif;
 	--font-size: 11pt;
 	--line-height: 1.35;
 	--text-color: #333;

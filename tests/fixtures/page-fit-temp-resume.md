@@ -3,6 +3,7 @@ output: output/
 pages: 1
 style:
   font-size: 10pt
+  font-family: "'Times New Roman', serif"
 ---
 
 # Adrian Sterling
@@ -101,6 +102,12 @@ _Software Engineer, Core Infrastructure_ || San Francisco, CA
 - Implemented advanced debugging tools for TensorFlow.js runtime environment
 - Mentored by Google engineers and contributed 15K+ lines of production code
 - Presented findings at internal Google Engineering Review to 50+ senior engineers
+
+### ACM ICPC Regional Finalist || \[Apr 2020\]
+
+- Placed top 20 out of 300+ teams in the North America East Regional programming contest
+- Solved 8 out of 12 algorithmic problems within 5-hour competition window
+- Implemented advanced graph algorithms and dynamic programming solutions under pressure
 
 ## Technical Skills
 
