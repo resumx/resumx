@@ -1,6 +1,7 @@
 # Resumx
 
-> `CLAUDE.md` is a symlink to this file. Only modify `AGENTS.md`.
+**IMPORTANT**: `CLAUDE.md` is a symlink to this file. Only modify `AGENTS.md`.
+**IMPORTANT**: NEVER read `CLAUDE.md` if you have already read `AGENTS.md`.
 
 Resumx is a CLI that renders resumes from Markdown to PDF, HTML, and DOCX. Users write their resume in a single `.md` file with optional YAML frontmatter, and the renderer handles page fitting, styling, target-specific filtering, and multi-language output.
 
@@ -32,7 +33,7 @@ Resumx is built on four bets:
 ## Ground Rules
 
 - This package has no published release yet, so there are no existing users to protect. When removing or replacing features, just delete the old code. No deprecation notices, no backward compatibility shims.
-- Keep the README, docs, and skill file in sync with any functionality change.
+- Keep the README, docs, and skill file (under skills/) in sync with any functionality change.
 
 ## Design Principles
 
