@@ -32,5 +32,5 @@ Keep everything truthful.
 ```
 
 ::: tip Going deeper
-Once you're familiar with [tailoring](/guide/tailoring), check out [AI Workflows](/guide/ai-workflows) to see how agents can automate the entire application process, from reading job descriptions to producing tailored PDFs.
+Once you're familiar with [tailoring](/guide/tailoring), check out [AI Workflows](/guide/ai-tailoring-workflows) to see how agents can automate the entire application process, from reading job descriptions to producing tailored PDFs.
 :::
