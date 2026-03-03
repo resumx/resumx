@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   build:
-    if: false  # disabled until Pages is enabled in repo settings
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
