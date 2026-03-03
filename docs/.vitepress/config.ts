@@ -134,7 +134,6 @@ export default defineConfig({
 		sidebar: {
 			'/playbook/': [
 				{
-					text: 'Writing & Formatting',
 					items: [
 						{ text: 'Resume Length', link: '/playbook/resume-length' },
 						{
@@ -146,14 +145,9 @@ export default defineConfig({
 							link: '/playbook/tailored-vs-generic',
 						},
 						{ text: 'Resume Wording', link: '/playbook/resume-wording' },
-					],
-				},
-				{
-					text: 'Insights & Research',
-					items: [
 						{
-							text: 'Content-Level Biases',
-							link: '/playbook/content-level-biases',
+							text: 'Application Timing',
+							link: '/playbook/application-timing',
 						},
 					],
 				},
