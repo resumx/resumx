@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { resolve, relative, join } from 'node:path'
+import { resolve, join } from 'node:path'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import {
@@ -133,13 +133,7 @@ export async function startWatch(init: WatchInit): Promise<WatchHandle> {
 
 	await new Promise<void>((watchResolve, reject) => {
 		watcher.on('ready', () => {
-			const displayPaths = [inputPath, ...userCssPaths, ...viewFiles].map(p =>
-				relative(cwd, p),
-			)
-			console.log(
-				chalk.blue(`\nWatching for changes...`)
-					+ ` (${displayPaths.join(', ')})`,
-			)
+			console.log(chalk.blue(`\nWatching for changes...`))
 			console.log('')
 			watchResolve()
 		})
