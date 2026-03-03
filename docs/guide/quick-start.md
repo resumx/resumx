@@ -5,7 +5,7 @@ Get from zero to a rendered resume in under a minute.
 ## 1. Install
 
 ```bash
-npm install -g resumx
+npm install -g @resumx/resumx
 ```
 
 Resumx uses Playwright's Chromium to render PDFs. After installing, run:

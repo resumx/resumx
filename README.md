@@ -74,7 +74,7 @@ resumx resume.md --for backend,frontend,fullstack
 **Install:**
 
 ```bash
-npm install -g resumx
+npm install -g @resumx/resumx
 npx playwright install chromium
 ```
 
