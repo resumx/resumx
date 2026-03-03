@@ -31,6 +31,18 @@ Map each `## Heading` to a JSON Resume section by keywords in the heading text:
 | `projects`         | project, portfolio, contribution                          |
 | `basics` (summary) | summary, profile, objective, about, overview              |
 
+## Inline Columns
+
+`||` splits a line into columns, pushing content to opposite sides. Dates and locations appear after `||`:
+
+```markdown
+### Google || Jan 2020 - Present
+
+_Senior Software Engineer_ || San Francisco, CA
+```
+
+When extracting, treat text after `||` as the right-aligned field (date, location). When generating, use `||` to place dates and locations.
+
 ## Extraction Rules by Section
 
 ### `basics` — Header (everything before the first `## `)
@@ -38,7 +50,7 @@ Map each `## Heading` to a JSON Resume section by keywords in the heading text:
 ```markdown
 # John Doe
 
-> [john@gmail.com](mailto:john@gmail.com) | [(912) 555-4321](tel:+19125554321) | San Francisco, CA | [johndoe.com](https://johndoe.com) | [linkedin.com/in/john](https://linkedin.com/in/john)
+[john@gmail.com](mailto:john@gmail.com) | [(912) 555-4321](tel:+19125554321) | San Francisco, CA | [johndoe.com](https://johndoe.com) | [linkedin.com/in/john](https://linkedin.com/in/john)
 ```
 
 | Pattern                                                                         | JSON Resume field                                              |
@@ -75,8 +87,9 @@ Extract `username` from the URL path (e.g., `github.com/john` → username `john
 | Pattern                          | JSON field                |
 | -------------------------------- | ------------------------- |
 | `### Text`                       | `name` (company/org name) |
-| Date range on H3 line            | `startDate`, `endDate`    |
+| Text after `\|\|` on H3 line     | `startDate`, `endDate`    |
 | `_italic text_` on line after H3 | `position`                |
+| Text after `\|\|` on subtitle    | `location`                |
 | `- bullet` items                 | `highlights[]`            |
 | `[text](url)` in entry           | `url`                     |
 
@@ -92,7 +105,7 @@ Extract `username` from the URL path (e.g., `github.com/john` → username `john
 | Pattern                       | JSON field                                             |
 | ----------------------------- | ------------------------------------------------------ |
 | `### Text`                    | `institution`                                          |
-| Date range on H3 line         | `startDate`, `endDate`                                 |
+| Text after `\|\|` on H3 line  | `startDate`, `endDate`                                 |
 | `_italic text_`               | Parse into `studyType` and `area` (see Degree Parsing) |
 | Bullet matching `GPA: X.XX`   | `score`                                                |
 | Bullet matching `coursework:` | `courses[]` (comma-separated)                          |
@@ -108,13 +121,13 @@ Extract `username` from the URL path (e.g., `github.com/john` → username `john
 
 ### `awards` — Dash-separated H3
 
-H3 uses `Title — Awarder` pattern (em-dash or en-dash separator).
+H3 uses `Title — Awarder || Date` pattern (em-dash or en-dash separator, `||` for date).
 
 | Pattern                   | JSON field               |
 | ------------------------- | ------------------------ |
 | Text before `—`/`–` in H3 | `title`                  |
 | Text after `—`/`–` in H3  | `awarder`                |
-| Date on H3 line           | `date`                   |
+| Text after `\|\|` on H3   | `date`                   |
 | Bullets or paragraph text | `summary` (join as text) |
 
 ### `certificates` — Dash-separated H3
@@ -123,7 +136,7 @@ H3 uses `Title — Awarder` pattern (em-dash or en-dash separator).
 | ------------------- | ---------- |
 | Text before `—`/`–` | `name`     |
 | Text after `—`/`–`  | `issuer`   |
-| Date on H3 line     | `date`     |
+| Text after `\|\|`   | `date`     |
 | `[text](url)`       | `url`      |
 
 ### `publications` — Dash-separated H3
@@ -132,7 +145,7 @@ H3 uses `Title — Awarder` pattern (em-dash or en-dash separator).
 | ------------------------- | ------------- |
 | Text before `—`/`–`       | `name`        |
 | Text after `—`/`–`        | `publisher`   |
-| Date on H3 line           | `releaseDate` |
+| Text after `\|\|`         | `releaseDate` |
 | Bullets or paragraph text | `summary`     |
 | `[text](url)`             | `url`         |
 
@@ -195,13 +208,13 @@ Available upon request.
 
 ### `projects`
 
-| Pattern                     | JSON field             |
-| --------------------------- | ---------------------- |
-| `### Text`                  | `name`                 |
-| `_italic text_` in/after H3 | `description`          |
-| Date range on H3 line       | `startDate`, `endDate` |
-| `- bullet` items            | `highlights[]`         |
-| `[text](url)`               | `url`                  |
+| Pattern                      | JSON field             |
+| ---------------------------- | ---------------------- |
+| `### Text`                   | `name`                 |
+| `_italic text_` in/after H3  | `description`          |
+| Text after `\|\|` on H3 line | `startDate`, `endDate` |
+| `- bullet` items             | `highlights[]`         |
+| `[text](url)`                | `url`                  |
 
 ### Date Formatting (Resumx → JSON)
 
@@ -248,7 +261,7 @@ Return a single JSON object. Omit top-level keys whose arrays would be empty.
 Section heading: `## Work Experience`
 
 ```markdown
-### {name} [{startDate} - {endDate}]{.right}
+### {name} || {startDate} - {endDate}
 
 _{position}_
 
@@ -271,7 +284,7 @@ Section heading: `## Volunteer Experience`
 Section heading: `## Education`
 
 ```markdown
-### {institution} [{startDate} - {endDate}]{.right}
+### {institution} || {startDate} - {endDate}
 
 _{studyType} in {area}_
 
@@ -289,7 +302,7 @@ _{studyType} in {area}_
 Section heading: `## Awards`
 
 ```markdown
-### {title} — {awarder} [{date}]{.right}
+### {title} — {awarder} || {date}
 
 - {summary}
 ```
@@ -299,7 +312,7 @@ Section heading: `## Awards`
 Section heading: `## Certificates`
 
 ```markdown
-### {name} — {issuer} [{date}]{.right}
+### {name} — {issuer} || {date}
 ```
 
 - If `url` exists, make the name a link: `### [{name}]({url}) — {issuer}`
@@ -309,7 +322,7 @@ Section heading: `## Certificates`
 Section heading: `## Publications`
 
 ```markdown
-### {name} — {publisher} [{releaseDate}]{.right}
+### {name} — {publisher} || {releaseDate}
 
 - {summary}
 ```
@@ -358,7 +371,7 @@ Section heading: `## References`
 Section heading: `## Projects`
 
 ```markdown
-### {name} [{startDate} - {endDate}]{.right}
+### {name} || {startDate} - {endDate}
 
 _{description}_
 
