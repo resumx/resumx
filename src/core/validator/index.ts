@@ -19,6 +19,7 @@ import {
 	longBulletPlugin,
 	singleBulletSectionPlugin,
 	unknownFencedDivTagPlugin,
+	nonPtFontSizePlugin,
 } from './plugins/index.js'
 
 /** Named presets - plugin collections */
@@ -32,6 +33,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		longBulletPlugin,
 		singleBulletSectionPlugin,
 		unknownFencedDivTagPlugin,
+		nonPtFontSizePlugin,
 	],
 	minimal: [
 		missingNamePlugin,
@@ -40,6 +42,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		noEntriesPlugin,
 		emptyBulletPlugin,
 		unknownFencedDivTagPlugin,
+		nonPtFontSizePlugin,
 	],
 	strict: [
 		missingNamePlugin,
@@ -50,6 +53,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		longBulletPlugin,
 		singleBulletSectionPlugin,
 		unknownFencedDivTagPlugin,
+		nonPtFontSizePlugin,
 	],
 	none: [],
 }
@@ -137,5 +141,6 @@ export {
 	longBulletPlugin,
 	singleBulletSectionPlugin,
 	unknownFencedDivTagPlugin,
+	nonPtFontSizePlugin,
 	type LongBulletOptions,
 } from './plugins/index.js'
