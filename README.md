@@ -3,15 +3,15 @@
 ---
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/resumx"><img src="https://img.shields.io/npm/v/resumx?color=blue" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@resumx/resumx"><img src="https://img.shields.io/npm/v/@resumx/resumx?color=blue" alt="npm version"></a>
 </p>
 
 <p align="center">
-  <a href="https://resumx.dev/guide/"><strong>Documentation</strong></a> | 
-  <a href="https://resumx.dev/playbook/resume-length"><strong>The Resume Playbook</strong></a>
+  <a href="https://resumx.dev/"><strong>Documentation</strong></a> | 
+  <a href="https://resumx.dev/playbook/resume-length.html"><strong>The Resume Playbook</strong></a>
 </p>
 
-Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
+Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
 - **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
 - **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
@@ -120,11 +120,11 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | `resumx [file] --pages 1`              | Fit to 1 page           |
 | `resumx init`                          | Create from template    |
 
-See the full [CLI Reference](https://resumx.dev/guide/cli-reference).
+See the full [CLI Reference](https://resumx.dev/guide/cli-reference.html).
 
 ## Documentation
 
-For full documentation, visit [resumx.dev](https://resumx.dev/guide).
+For full documentation, visit [resumx.dev](https://resumx.dev).
 
 ## License
 
