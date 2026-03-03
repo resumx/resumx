@@ -24,6 +24,8 @@ Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-
 pages: 1
 tags:
   fullstack: [frontend, backend]
+style:
+  section-title-color: "#c43218"
 ---
 # Jane Doe
 

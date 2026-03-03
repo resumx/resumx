@@ -15,6 +15,8 @@ Tailored resumes get [10x more interviews](/playbook/tailored-vs-generic), but m
 pages: 1
 tags:
   fullstack: [frontend, backend]
+style:
+  section-title-color: "#c43218"
 ---
 # Jane Doe
 

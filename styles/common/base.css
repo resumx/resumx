@@ -30,7 +30,8 @@
  */
 	:root {
 		/* ---- Typography ---- */
-		--font-family: 'Georgia', serif; /* any font stack */
+		--font-family:
+			'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif;
 		--title-font-family: var(
 			--font-family
 		); /* any font stack — overrides --font-family for h1, h2 */
@@ -48,7 +49,7 @@
 		/* ---- Headings ---- */
 		--header-align: center; /* left | center | right */
 		--name-size: 1.85rem; /* any font-size */
-		--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+		--name-caps: small-caps; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
 		--name-italic: normal; /* normal | italic */
 		--section-title-size: 1.25rem; /* any font-size */
@@ -57,7 +58,7 @@
 		--section-title-italic: normal; /* normal | italic */
 		--section-title-color: var(--text-color); /* any color */
 		--section-title-align: left; /* left | center | right */
-		--section-title-border: 1px solid var(--section-title-color); /* any border shorthand | none */
+		--section-title-border: 1.5px solid var(--section-title-color); /* any border shorthand | none */
 		--entry-title-size: 1.05rem; /* any font-size */
 		--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
 		--entry-title-italic: normal; /* normal | italic */
@@ -237,6 +238,10 @@
  */
 	dd {
 		margin: 0;
+	}
+
+	p {
+		margin: calc(var(--row-gap) * var(--gap)) 0;
 	}
 
 	/*
