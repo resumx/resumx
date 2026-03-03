@@ -9,8 +9,12 @@
 	"type": "module",
 	"main": "dist/index.js",
 	"exports": {
-		".": "./dist/index.js"
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
 	},
+	"types": "./dist/index.d.ts",
 	"bin": {
 		"rmx": "dist/index.js",
 		"resumx": "dist/index.js"
@@ -19,7 +23,8 @@
 		"dist",
 		"styles",
 		"templates",
-		"assets"
+		"assets",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"build": "tsc",
