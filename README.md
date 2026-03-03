@@ -1,4 +1,4 @@
-![Resumx OG Image](./.github/resumx-og-image.png)
+![Resumx OG Image](https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-og-image.png)
 
 ---
 
@@ -61,7 +61,7 @@ _Senior Software Engineer_
 Render with:
 
 ```bash
-resumx resume.md --for backend -v tagline="Payments APIs, Go, Distributed Systems" -o Stripe_backend.pdf
+resumx resume.md --for backend,frontend,fullstack
 ```
 
 <img
@@ -107,8 +107,6 @@ npx skills add resumx/resumx
 ```
 
 This enables AI assistants like Cursor, Claude Code, and Copilot to understand and work with your Resumx files.
-
-<!-- TODO: image for terminal output of resumx init + render -->
 
 ## CLI
 
