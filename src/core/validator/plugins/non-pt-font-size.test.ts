@@ -74,43 +74,43 @@ describe('nonPtFontSizePlugin', () => {
 		})
 	})
 
-	describe('non-pt units produce a warning', () => {
-		it('warns when font-size uses px', async () => {
+	describe('non-pt units produce a critical issue', () => {
+		it('flags as critical when font-size uses px', async () => {
 			const issues = await validate(withStyle('font-size: 16px'))
 			expect(issues).toHaveLength(1)
-			expect(issues[0]!.severity).toBe('warning')
+			expect(issues[0]!.severity).toBe('critical')
 			expect(issues[0]!.code).toBe('non-pt-font-size')
 		})
 
-		it('warns when font-size uses em', async () => {
+		it('flags as critical when font-size uses em', async () => {
 			const issues = await validate(withStyle('font-size: 1em'))
 			expect(issues).toHaveLength(1)
 			expect(issues[0]!.code).toBe('non-pt-font-size')
 		})
 
-		it('warns when font-size uses rem', async () => {
+		it('flags as critical when font-size uses rem', async () => {
 			const issues = await validate(withStyle('font-size: 1rem'))
 			expect(issues).toHaveLength(1)
 			expect(issues[0]!.code).toBe('non-pt-font-size')
 		})
 
-		it('warns when font-size uses vw', async () => {
+		it('flags as critical when font-size uses vw', async () => {
 			const issues = await validate(withStyle('font-size: 2vw'))
 			expect(issues).toHaveLength(1)
 			expect(issues[0]!.code).toBe('non-pt-font-size')
 		})
 
-		it('warns when font-size uses %', async () => {
+		it('flags as critical when font-size uses %', async () => {
 			const issues = await validate(withStyle('font-size: 120%'))
 			expect(issues).toHaveLength(1)
 			expect(issues[0]!.code).toBe('non-pt-font-size')
 		})
 	})
 
-	describe('warning message quality', () => {
-		it('includes the actual unit in the message', async () => {
+	describe('message quality', () => {
+		it('mentions the font-size property in the message', async () => {
 			const issues = await validate(withStyle('font-size: 16px'))
-			expect(issues[0]!.message).toContain('px')
+			expect(issues[0]!.message).toContain('font-size')
 		})
 
 		it('includes pt as the recommended unit in the message', async () => {
