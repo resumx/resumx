@@ -439,11 +439,10 @@
 	}
 
 	/*
- * Inline code — monospace by default, no code-block styling.
- * Themes can override font-family (e.g. inherit for seamless tech tags).
+ * Inline code — inherit by default, no code-block styling.
  */
 	code {
-		font-family: monospace;
+		font-family: inherit;
 		font-size: inherit;
 		background: none;
 		padding: 0;
