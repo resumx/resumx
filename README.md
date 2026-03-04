@@ -69,6 +69,19 @@ resumx resume.md --for backend,frontend,fullstack
   alt="Rendered sample of the snippet above, frontend targetted"
 />
 
+### Also included
+
+- **200k+ icons, zero config:** Add any of 200k+ icons with `:icon-name:` syntax.
+- **Tailwind CSS built in:** Apply utility classes directly in Markdown with `{.class}` syntax, compiled on-the-fly with Tailwind v4.
+- **30+ style options:** Tweak colors, fonts, spacing, and bullet styles from frontmatter or CLI, no CSS required.
+- **Live preview:** `resumx --watch` rebuilds on every save so you see changes instantly.
+- **PDF, HTML, DOCX, and PNG:** One source, four output formats.
+- **Per-application views:** Create `.view.yaml` files with custom taglines, section order, and tag selections for each company, then batch-render with `--for '*'`.
+- **Multi-language output:** Tag content with `{lang=en}` / `{lang=fr}` to produce localized resumes from a single file.
+- **Built-in validation:** Catches missing names, empty bullets, overly long bullets, and more. Run `resumx --check` or add it as a pre-commit hook.
+- **Template variables:** Swap in per-application text like `{{ tagline }}` without touching the resume itself.
+- **Git-native workflow:** Render from any previous commit or tag.
+
 ## Quick Start
 
 **Install:**
