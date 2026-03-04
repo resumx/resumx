@@ -13,10 +13,11 @@
 
 Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
-- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
 - **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
-- **AI-friendly by default:** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
-- **More writing, fewer decisions:** Sensible defaults for layout and structure so you focus on substance.
+- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
+- **AI agent skills included:** Ships with [agent skills](https://resumx.dev) so OpenClaw, Claude Code, and Copilot understand Resumx syntax, validate your resume, and tailor it for you.
+- **30+ style options:** Tweak colors, fonts, spacing, and bullet styles from frontmatter or CLI, no CSS required.
+- **Catch mistakes before recruiters do:** Built-in validation flags weak bullets, missing info, and formatting issues before you hit send.
 
 <!-- prettier-ignore-start -->
 ```markdown
@@ -73,12 +74,10 @@ resumx resume.md --for backend,frontend,fullstack
 
 - **200k+ icons, zero config:** Add any of 200k+ icons with `:icon-name:` syntax.
 - **Tailwind CSS built in:** Apply utility classes directly in Markdown with `{.class}` syntax, compiled on-the-fly with Tailwind v4.
-- **30+ style options:** Tweak colors, fonts, spacing, and bullet styles from frontmatter or CLI, no CSS required.
 - **Live preview:** `resumx --watch` rebuilds on every save so you see changes instantly.
 - **PDF, HTML, DOCX, and PNG:** One source, four output formats.
 - **Per-application views:** Create `.view.yaml` files with custom taglines, section order, and tag selections for each company, then batch-render with `--for '*'`.
 - **Multi-language output:** Tag content with `{lang=en}` / `{lang=fr}` to produce localized resumes from a single file.
-- **Built-in validation:** Catches missing names, empty bullets, overly long bullets, and more. Run `resumx --check` or add it as a pre-commit hook.
 - **Template variables:** Swap in per-application text like `{{ tagline }}` without touching the resume itself.
 - **Git-native workflow:** Render from any previous commit or tag.
 
