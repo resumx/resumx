@@ -55,6 +55,7 @@ const guideSidebar = [
 		items: [
 			{ text: 'Multi-Language', link: '/guide/multi-language' },
 			{ text: 'Git Integration', link: '/guide/git-integration' },
+			{ text: 'Vercel Analytics', link: '/guide/vercel-analytics' },
 		],
 	},
 	{
