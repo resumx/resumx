@@ -29,7 +29,6 @@ Resumx is built on four bets:
 
 ## Ground Rules
 
-- This package has no published release yet, so there are no existing users to protect. When removing or replacing features, just delete the old code. No deprecation notices, no backward compatibility shims.
 - Keep the README, docs, and skill file (under skills/) in sync with any functionality change.
 
 ## Design Principles
