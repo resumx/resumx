@@ -121,6 +121,10 @@
 	width: auto;
 }
 
+.VPNav {
+	overflow: visible !important;
+}
+
 .VPNavBar .divider-line {
 	--vp-c-gutter: transparent;
 	position: relative;
