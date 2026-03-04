@@ -159,7 +159,7 @@ Under a `validate` key:
 
 Presets: `recommended`, `minimal`, `strict`, `none`.
 
-Available rules: `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`, `long-bullet`, `single-bullet-section`, `unknown-fenced-div-tag`, `non-pt-font-size`.
+Available rules: `missing-name`, `missing-contact`, `no-sections`, `no-entries`, `empty-bullet`, `long-bullet`, `single-bullet-section`, `unknown-fenced-div-tag`, `non-pt-font-size`, `spaced-bracketed-span`.
 
 ### Unknown Fields
 

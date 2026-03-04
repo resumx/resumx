@@ -37,6 +37,7 @@ import {
 	singleBulletSectionPlugin,
 	unknownFencedDivTagPlugin,
 	nonPtFontSizePlugin,
+	spacedBracketedSpanPlugin,
 } from './plugins/index.js'
 
 /** Named presets - plugin collections */
@@ -51,6 +52,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		singleBulletSectionPlugin,
 		unknownFencedDivTagPlugin,
 		nonPtFontSizePlugin,
+		spacedBracketedSpanPlugin,
 	],
 	minimal: [
 		missingNamePlugin,
@@ -60,6 +62,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		emptyBulletPlugin,
 		unknownFencedDivTagPlugin,
 		nonPtFontSizePlugin,
+		spacedBracketedSpanPlugin,
 	],
 	strict: [
 		missingNamePlugin,
@@ -71,6 +74,7 @@ export const presets: Record<PresetName, ValidatorPlugin[]> = {
 		singleBulletSectionPlugin,
 		unknownFencedDivTagPlugin,
 		nonPtFontSizePlugin,
+		spacedBracketedSpanPlugin,
 	],
 	none: [],
 }
@@ -168,5 +172,6 @@ export {
 	singleBulletSectionPlugin,
 	unknownFencedDivTagPlugin,
 	nonPtFontSizePlugin,
+	spacedBracketedSpanPlugin,
 	type LongBulletOptions,
 } from './plugins/index.js'
