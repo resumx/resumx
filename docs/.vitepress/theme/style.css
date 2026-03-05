@@ -108,6 +108,10 @@
 	--docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
 
+#app {
+	overflow-x: hidden;
+}
+
 /**
  * Component: Navbar
  * -------------------------------------------------------------------------- */
