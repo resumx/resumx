@@ -27,17 +27,17 @@ Resumx is a resume builder that automates the parts you shouldn't be spending ti
     <tr>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/seattle.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/seattle.png?raw=true" alt="Seattle" width="200" />
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/seattle.png?raw=true" alt="Seattle" />
         </a>
       </td>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/oxford.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/oxford.png?raw=true" alt="Oxford" width="200" />
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/oxford.png?raw=true" alt="Oxford" />
         </a>
       </td>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/zurich.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/zurich.png?raw=true" alt="Zurich" width="200" />
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/zurich.png?raw=true" alt="Zurich" />
         </a>
       </td>
     </tr>
