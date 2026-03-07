@@ -1,4 +1,4 @@
-![Resumx OG Image](https://github.com/resumx/resumx/blob/HEAD/.github/resumx-og-image.png?raw=true)
+![Resumx OG Image](https://github.com/resumx/resumx/raw/HEAD/.github/resumx-og-image.png)
 
 ---
 
@@ -17,7 +17,7 @@ Resumx is a resume builder that automates the parts you shouldn't be spending ti
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif" alt="Page Fit Demo" width="600px" />
 
-- **Tailor for every role in one file.** [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html)
+- **Your resume is a database. Each application is a query.** Tailoring becomes trivial when it's a filter, not a new file.
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="600px" />
 
@@ -27,26 +27,30 @@ Resumx is a resume builder that automates the parts you shouldn't be spending ti
     <tr>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/seattle.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/seattle.png?raw=true" alt="Seattle" />
+          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/seattle.png" alt="Seattle" />
         </a>
       </td>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/oxford.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/oxford.png?raw=true" alt="Oxford" />
+          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/oxford.png" alt="Oxford" />
         </a>
       </td>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/zurich.pdf">
-          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/zurich.png?raw=true" alt="Zurich" />
+          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/zurich.png" alt="Zurich" />
         </a>
       </td>
     </tr>
   </table>
 
-- **PDF, HTML, DOCX, and PNG** from a single source.
-- **Render from any commit or tag**
+- **Git as your application tracker.** `git tag` to mark, `git resumx` to render.
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/git-version-demo.gif" alt="Git Version Demo" width="600px" />
+
+- **Built for AI editors.** Plain text with agent skills. No integration needed.
+- **Markdown in, schema out.** Write plain Markdown. The [schema is inferred](https://resumx.dev/guide/semantic-selectors.html).
+- **PDF, HTML, DOCX, and PNG** from a single source.
+- **Multi-language, variables, live preview, and more.**
 
 ## Quick Start
 
