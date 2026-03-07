@@ -9,7 +9,7 @@ import {
 // validateTemplateVars
 // =============================================================================
 
-const VALID = ['view', 'lang']
+const VALID = ['view', 'lang', 'format']
 
 describe('validateTemplateVars', () => {
 	it('accepts known variables', () => {
@@ -31,10 +31,8 @@ describe('validateTemplateVars', () => {
 		)
 	})
 
-	it('throws on unknown variable {format}', () => {
-		expect(() => validateTemplateVars('resume-{format}', VALID)).toThrow(
-			'Unknown template variable(s): {format}',
-		)
+	it('accepts known variable {format}', () => {
+		expect(() => validateTemplateVars('resume-{format}', VALID)).not.toThrow()
 	})
 
 	it('lists all unknown variables', () => {
@@ -45,7 +43,7 @@ describe('validateTemplateVars', () => {
 
 	it('mentions valid variables in error', () => {
 		expect(() => validateTemplateVars('{foo}', VALID)).toThrow(
-			'Valid variables: {view}, {lang}',
+			'Valid variables: {view}, {lang}, {format}',
 		)
 	})
 

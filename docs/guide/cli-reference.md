@@ -38,7 +38,7 @@ When reading from stdin, the output filename is derived from:
 | Flag                       | Description                                                                                                      |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                                            |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{view}`/`{lang}`.                                 |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{view}`/`{lang}`/`{format}`.                      |
 | `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.                                     |
 | `-s, --style <name=value>` | Override style property. Repeatable.                                                                             |
 | `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).                               |

@@ -73,12 +73,13 @@ Output path for rendered files. Supports three modes depending on its value:
 | ------------------------------- | ---------- | ----------------------------------------------------------------------------- |
 | `./dist/`                       | Directory  | Ends with `/`, output files go into this directory using default naming rules |
 | `John_Doe`                      | Plain name | No `{…}`, used as the base filename, with automatic tag/lang suffixes         |
-| `./dist/John_Doe-{view}-{lang}` | Template   | Contains `{view}` and/or `{lang}`, expanded for each combination              |
+| `./dist/John_Doe-{view}-{lang}` | Template   | Contains `{view}`, `{lang}`, and/or `{format}`, expanded for each combination |
 
 **Template variables:**
 
 - `{view}` — the tag or view name (e.g. `frontend`, `stripe-swe`). Expands to empty string when rendering without `--for`; orphaned separators are cleaned up automatically.
 - `{lang}` — the language tag (e.g. `en`, `fr`). Expands to empty string when no languages exist.
+- `{format}` — the output format (e.g. `pdf`, `html`). Useful for organizing outputs into format-specific directories.
 
 When using template mode, if the expanded paths would produce duplicate filenames, an error is raised with a suggestion.
 

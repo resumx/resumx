@@ -179,14 +179,18 @@ export async function runRender(
 	let baseOutputName = context.defaultOutputName
 	let baseOutputDir = cwd
 	let outputTemplate: string | undefined
+	let outputTemplateDir: string | undefined
 
 	if (firstView.output) {
-		validateTemplateVars(firstView.output, ['view', 'lang'])
+		validateTemplateVars(firstView.output, ['view', 'lang', 'format'])
 
-		if (firstView.output.endsWith('/')) {
-			baseOutputDir = resolve(cwd, firstView.output.slice(0, -1) || '.')
-		} else if (/\{[^}]+\}/.test(firstView.output)) {
+		const hasTemplateVars = /\{[^}]+\}/.test(firstView.output)
+		if (hasTemplateVars && firstView.output.endsWith('/')) {
+			outputTemplateDir = firstView.output.slice(0, -1) || '.'
+		} else if (hasTemplateVars) {
 			outputTemplate = firstView.output
+		} else if (firstView.output.endsWith('/')) {
+			baseOutputDir = resolve(cwd, firstView.output.slice(0, -1) || '.')
 		} else {
 			const resolved = resolve(cwd, firstView.output)
 			baseOutputDir = dirname(resolved)
@@ -210,8 +214,9 @@ export async function runRender(
 	}
 
 	const outputStrategy =
-		outputTemplate ?
-			{ template: outputTemplate, cwd }
+		outputTemplate ? { template: outputTemplate, cwd }
+		: outputTemplateDir ?
+			{ templateDir: outputTemplateDir, name: baseOutputName, cwd }
 		:	{ dir: baseOutputDir, name: baseOutputName }
 
 	const plans = planRenders(

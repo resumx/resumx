@@ -21,6 +21,7 @@ export interface NamedView {
 export type OutputStrategy =
 	| { dir: string; name: string }
 	| { template: string; cwd: string }
+	| { templateDir: string; name: string; cwd: string }
 
 /**
  * Expand pre-resolved named views across langs × formats into a flat list of
@@ -39,6 +40,8 @@ export function planRenders(
 ): RenderPlan[] {
 	const plans: RenderPlan[] = []
 	const isTemplate = 'template' in output
+	const isTemplateDir = 'templateDir' in output
+	const hasMultipleViews = namedViews.length > 1
 	const hasMultipleLangs = langs.length > 1
 
 	const effectiveLangs: Array<string | undefined> =
@@ -46,10 +49,11 @@ export function planRenders(
 
 	for (const [namedView, lang] of cartesian(namedViews, effectiveLangs)) {
 		const viewName = namedView.name
-		const showView = !!viewName
+		const displayViewName =
+			viewName ?? (hasMultipleViews ? 'default' : undefined)
 		const showLang = isTemplate ? !!lang : hasMultipleLangs && !!lang
 
-		const labelParts = [showView && viewName, showLang && lang].filter(
+		const labelParts = [displayViewName, showLang && lang].filter(
 			Boolean,
 		) as string[]
 		const label = labelParts.length > 0 ? `[${labelParts.join(', ')}]` : ''
@@ -59,39 +63,68 @@ export function planRenders(
 			lang: lang ?? namedView.view.lang,
 		}
 
-		let outputDir: string
-		let outputName: string
-
 		if (isTemplate) {
-			const expanded = cleanupPath(
-				expandTemplate(output.template, {
-					view: viewName ?? '',
-					lang: lang ?? '',
-				}),
-			)
-			const resolvedPath = resolve(output.cwd, expanded)
-			outputDir = dirname(resolvedPath)
-			outputName = stripDocExtension(basename(resolvedPath))
+			for (const format of formats) {
+				const expanded = cleanupPath(
+					expandTemplate(output.template, {
+						view: viewName ?? 'default',
+						lang: lang ?? '',
+						format,
+					}),
+				)
+				const resolvedPath = resolve(output.cwd, expanded)
+				const outputDir = dirname(resolvedPath)
+				const outputName = stripDocExtension(basename(resolvedPath))
+				plans.push({
+					view: resolved,
+					viewName,
+					outputPath: join(outputDir, `${outputName}.${format}`),
+					format,
+					label,
+				})
+			}
 		} else {
-			outputDir = output.dir
 			const suffixParts = [viewName, hasMultipleLangs && lang].filter(
 				Boolean,
 			) as string[]
-			outputName =
+			const baseName =
+				isTemplateDir ? output.name : (output as { name: string }).name
+			const outputName =
 				suffixParts.length > 0 ?
-					`${output.name}-${suffixParts.join('-')}`
-				:	output.name
-		}
+					`${baseName}-${suffixParts.join('-')}`
+				:	baseName
 
-		for (const format of formats) {
-			const ext = format === 'docx' ? 'docx' : format
-			plans.push({
-				view: resolved,
-				viewName,
-				outputPath: join(outputDir, `${outputName}.${ext}`),
-				format,
-				label,
-			})
+			if (isTemplateDir) {
+				for (const format of formats) {
+					const expandedDir = cleanupPath(
+						expandTemplate(output.templateDir, {
+							view: viewName ?? 'default',
+							lang: lang ?? '',
+							format,
+						}),
+					)
+					plans.push({
+						view: resolved,
+						viewName,
+						outputPath: join(
+							resolve(output.cwd, expandedDir),
+							`${outputName}.${format}`,
+						),
+						format,
+						label,
+					})
+				}
+			} else {
+				for (const format of formats) {
+					plans.push({
+						view: resolved,
+						viewName,
+						outputPath: join(output.dir, `${outputName}.${format}`),
+						format,
+						label,
+					})
+				}
+			}
 		}
 	}
 

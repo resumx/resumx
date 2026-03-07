@@ -139,13 +139,131 @@ describe('planRenders', () => {
 			expect(plans[0]!.outputPath).toBe('/proj/frontend/resume.pdf')
 		})
 
-		it('cleans up empty view placeholder when name is undefined', () => {
+		it('uses "default" for {view} when no view name is defined', () => {
 			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
 			const tmpl = { template: 'out/{view}-resume', cwd: '/proj' }
 
 			const plans = planRenders(namedViews, [], ['pdf'], tmpl)
 
-			expect(plans[0]!.outputPath).toBe('/proj/out/resume.pdf')
+			expect(plans[0]!.outputPath).toBe('/proj/out/default-resume.pdf')
+		})
+
+		it('uses "default" when {view} is the entire filename segment', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const namedViews: NamedView[] = [
+				{ name: undefined, view: BASE_VIEW },
+				{ name: 'frontend', view: feView },
+			]
+			const tmpl = { template: '{format}/{view}', cwd: '/proj' }
+
+			const plans = planRenders(namedViews, [], ['pdf'], tmpl)
+
+			expect(plans).toHaveLength(2)
+			expect(plans[0]!.outputPath).toBe('/proj/pdf/default.pdf')
+			expect(plans[0]!.label).toBe('[default]')
+			expect(plans[1]!.outputPath).toBe('/proj/pdf/frontend.pdf')
+			expect(plans[1]!.label).toBe('[frontend]')
+		})
+
+		it('expands {format} into template for each format', () => {
+			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
+			const tmpl = { template: 'out/{format}/resume', cwd: '/proj' }
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], tmpl)
+
+			expect(plans).toHaveLength(2)
+			expect(plans[0]!.outputPath).toBe('/proj/out/pdf/resume.pdf')
+			expect(plans[1]!.outputPath).toBe('/proj/out/html/resume.html')
+		})
+
+		it('expands {format} in both directory and filename', () => {
+			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
+			const tmpl = { template: '{format}/resume-{format}', cwd: '/proj' }
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], tmpl)
+
+			expect(plans).toHaveLength(2)
+			expect(plans[0]!.outputPath).toBe('/proj/pdf/resume-pdf.pdf')
+			expect(plans[1]!.outputPath).toBe('/proj/html/resume-html.html')
+		})
+
+		it('combines {view} and {format} as extension-style suffix', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const beView = resolveView([{ selects: ['backend'] }])
+			const namedViews: NamedView[] = [
+				{ name: 'frontend', view: feView },
+				{ name: 'backend', view: beView },
+			]
+			const tmpl = { template: 'out/resume-{view}.{format}', cwd: '/proj' }
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], tmpl)
+
+			expect(plans).toHaveLength(4)
+			expect(plans[0]!.outputPath).toBe('/proj/out/resume-frontend.pdf')
+			expect(plans[1]!.outputPath).toBe('/proj/out/resume-frontend.html')
+			expect(plans[2]!.outputPath).toBe('/proj/out/resume-backend.pdf')
+			expect(plans[3]!.outputPath).toBe('/proj/out/resume-backend.html')
+		})
+	})
+
+	describe('templateDir output strategy', () => {
+		it('expands {format} directory with auto-suffixed filename', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const beView = resolveView([{ selects: ['backend'] }])
+			const namedViews: NamedView[] = [
+				{ name: 'frontend', view: feView },
+				{ name: 'backend', view: beView },
+			]
+			const tmplDir = {
+				templateDir: 'output/{format}',
+				name: 'resume',
+				cwd: '/proj',
+			}
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], tmplDir)
+
+			expect(plans).toHaveLength(4)
+			expect(plans[0]!.outputPath).toBe('/proj/output/pdf/resume-frontend.pdf')
+			expect(plans[1]!.outputPath).toBe(
+				'/proj/output/html/resume-frontend.html',
+			)
+			expect(plans[2]!.outputPath).toBe('/proj/output/pdf/resume-backend.pdf')
+			expect(plans[3]!.outputPath).toBe('/proj/output/html/resume-backend.html')
+		})
+
+		it('produces unsuffixed filename when no view name', () => {
+			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
+			const tmplDir = {
+				templateDir: 'output/{format}',
+				name: 'resume',
+				cwd: '/proj',
+			}
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], tmplDir)
+
+			expect(plans).toHaveLength(2)
+			expect(plans[0]!.outputPath).toBe('/proj/output/pdf/resume.pdf')
+			expect(plans[1]!.outputPath).toBe('/proj/output/html/resume.html')
+		})
+
+		it('adds lang suffix alongside view suffix', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const namedViews: NamedView[] = [{ name: 'frontend', view: feView }]
+			const tmplDir = {
+				templateDir: 'output/{format}',
+				name: 'resume',
+				cwd: '/proj',
+			}
+
+			const plans = planRenders(namedViews, ['en', 'fr'], ['pdf'], tmplDir)
+
+			expect(plans).toHaveLength(2)
+			expect(plans[0]!.outputPath).toBe(
+				'/proj/output/pdf/resume-frontend-en.pdf',
+			)
+			expect(plans[1]!.outputPath).toBe(
+				'/proj/output/pdf/resume-frontend-fr.pdf',
+			)
 		})
 	})
 })
