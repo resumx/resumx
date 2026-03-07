@@ -11,7 +11,7 @@
   <a href="https://github.com/resumx/resumx/actions/workflows/ci.yml"><img src="https://github.com/resumx/resumx/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
 </p>
 
-Resumx is a resume builder that automates the parts you shouldn't be spending time on. You write in Markdown, set a target page count, and the renderer handles layout, page fitting, and styling automatically so you can focus on content and tailoring.
+Most resume effort goes to layout and styling, the factors that matter least for getting hired. Resumx automates all of it so you can focus on content and tailoring instead.
 
 - **Add or remove content freely, it always fits the page count you set**
 
