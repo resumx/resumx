@@ -11,11 +11,6 @@
   <a href="https://github.com/resumx/resumx/actions/workflows/ci.yml"><img src="https://github.com/resumx/resumx/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
 </p>
 
-<p align="center">
-  <a href="https://resumx.dev/"><strong>Documentation</strong></a> | 
-  <a href="https://resumx.dev/playbook/resume-length.html"><strong>The Resume Playbook</strong></a>
-</p>
-
 Resumx is a resume builder that automates the parts you shouldn't be spending time on. You write in Markdown, set a target page count, and the renderer handles layout, page fitting, and styling automatically so you can focus on content and tailoring.
 
 - **Add or remove content freely, it always fits the page count you set**
@@ -62,6 +57,10 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 ## Documentation
 
 For full documentation, visit [resumx.dev](https://resumx.dev).
+
+## The Resume Playbook
+
+Research-backed guidance on what actually moves the needle in hiring, from resume length to tailoring strategy. Read [The Resume Playbook](https://resumx.dev/playbook/resume-length.html).
 
 ## CLI
 
