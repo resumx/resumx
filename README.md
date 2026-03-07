@@ -12,13 +12,13 @@
   <a href="https://resumx.dev/playbook/resume-length.html"><strong>The Resume Playbook</strong></a>
 </p>
 
-Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
+A Markdown resume renderer that handles layout and page fitting for you.
 
-- **Add or remove content freely, it always fits number of pages you set**
+- **Add or remove content freely, it always fits the page count you set**
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif" alt="Page Fit Demo" width="700px" />
 
-- **Tailor for every role in one file**
+- **Tailor for every role in one file.** [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html)
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="700px" />
 
