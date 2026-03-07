@@ -1,0 +1,59 @@
+zurich:
+  style:
+    font-family: "'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif"
+    name-caps: small-caps
+    section-title-color: '#c43218'
+    section-title-border: 1.5px solid var(--section-title-color)
+    auto-icons: none
+
+seattle:
+  style:
+    font-family: "'Segoe UI', 'Helvetica Neue', sans-serif"
+    name-color: '#004F90'
+    name-caps: normal
+    name-weight: bold
+    name-size: 1.8rem
+    section-title-color: '#004F90'
+    section-title-size: 1.3rem;
+    section-title-border: 1.5px solid var(--section-title-color)
+    bullet-style: circle
+  css: |
+    h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      border-bottom: none;
+    }
+
+    a {
+      font-style: italic;
+    }
+
+    h2::after {
+      content: '';
+      flex: 1;
+      border-bottom: var(--section-title-border);
+    }
+
+    .date-range, time {
+      font-style: italic;
+      font-weight: normal;
+    }
+
+oxford:
+  style:
+    font-family: "'Times New Roman', serif"
+    name-caps: normal
+    name-weight: bold
+    name-size: 1.5rem
+    section-title-align: center
+    section-title-border: 1.5px dotted var(--section-title-color)
+    section-gap: 15px
+    bullet-style: square
+    link-color: black
+    auto-icons: none
+  css: |
+    .date-range, time {
+      font-style: italic;
+      font-weight: normal;
+    }
