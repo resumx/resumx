@@ -15,9 +15,13 @@
 Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
 - **Add or remove content freely, it always fits number of pages you set**
-  ![Page Fit Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif)
+
+  <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif" alt="Page Fit Demo" width="700px" />
+
 - **Tailor for every role in one file**
-  ![Multiple Role Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif)
+
+  <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="700px" />
+
 - **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.**
 - **PDF, HTML, DOCX, and PNG** from a single source.
 - **Render from any commit or tag**
