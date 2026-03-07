@@ -12,8 +12,8 @@ const vhsDir = join(__dirname, '..')
 const workDir = join(__dirname, '.tmp')
 const outputGif = join(vhsDir, 'page-fit-demo.gif')
 
-const VARIANTS = ['sparse', 'medium', 'step3', 'dense']
-const DELAY = 120
+const VARIANTS = ['step1', 'step2', 'step3', 'step4', 'step5']
+const DELAY = 80
 const VIEWPORT_WIDTH = 1200
 const OUTPUT_WIDTH = 1000
 

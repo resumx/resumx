@@ -20,6 +20,7 @@ style:
 - Cumulative GPA: 3.82 | Dean's List (2019-2022) | Computer Science Excellence Award
 - Advanced coursework: Distributed Systems, Advanced Algorithms, Compiler Design, Applied Cryptography
 - President, Computer Science Student Association (2021-2025) — Led 200+ members, organized FAANG speaker series
+- Teaching Assistant, CS161 (Operating Systems) — held weekly office hours for 120+ students
 
 ## Work Experience
 
@@ -31,6 +32,7 @@ _Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 - Reduced deployment latency by 60% across 50+ services
 - Led cloud-native migration on Google Cloud, improving scalability 300% and saving $2M annually
 - Built CI/CD pipeline with Cloud Build, Terraform, GitOps reducing release cycles to 2 days
+- Mentored 5 junior engineers, 3 promoted within 12 months
 
 ### PwC || July 2021 - May 2022
 
@@ -38,6 +40,7 @@ _Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 - Impacted 50M+ monthly active users
 - Designed high-performance APIs with Node.js handling 1M+ QPS at 99.99% uptime
 - Developed automated testing with Jest and Cypress, improving coverage from 45% to 85%
+- Reduced page load time by 38% through lazy loading and CDN optimizations
 
 ### Google || Jan 2021 - June 2021
 
@@ -46,6 +49,22 @@ _Software Engineering Intern_ || Mountain View, CA
 - Built data pipeline processing 10TB/day for Search quality signals using Go and BigQuery
 - Shipped A/B test framework adopted by 3 teams, reducing experiment setup time by 70%
 - Contributed 8 patches to open-source Bazel build rules, merged to main
+
+### Stripe || May 2020 - Aug 2020
+
+_Software Engineering Intern_ || San Francisco, CA
+
+- Implemented idempotency layer for payment retry logic, reducing duplicate charges by 99.8%
+- Built internal dashboard for fraud signal monitoring with React and GraphQL
+- Wrote load tests revealing 3x throughput bottleneck in webhook delivery, fixed before launch
+
+### Palantir || Jun 2019 - Aug 2019
+
+_Software Engineering Intern_ || Palo Alto, CA
+
+- Prototyped graph-based anomaly detection pipeline on classified datasets using Python and Spark
+- Delivered internal CLI tooling that reduced analyst onboarding time from 3 days to 4 hours
+- Presented findings to engineering leadership, resulted in full-team adoption
 
 ## Projects
 
@@ -84,6 +103,9 @@ _Software Engineering Intern_ || Mountain View, CA
 Languages
 : TypeScript, JavaScript, Python, Java, SQL, GraphQL, HTML/CSS
 
+Go & Rust
+: Go, Rust
+
 Frameworks
 : React, Vue.js, Node.js, Express.js, FastAPI, Flask, Spring Boot, Next.js
 
@@ -95,3 +117,6 @@ Cloud & DevOps
 
 Tools & Other
 : Git, Linux, Nginx, WebSocket, REST APIs, Microservices, Jest, Cypress
+
+Observability
+: Datadog, OpenTelemetry, Grafana, Prometheus

@@ -20,7 +20,6 @@ style:
 - Cumulative GPA: 3.82 | Dean's List (2019-2022) | Computer Science Excellence Award
 - Advanced coursework: Distributed Systems, Advanced Algorithms, Compiler Design, Applied Cryptography
 - President, Computer Science Student Association (2021-2025) — Led 200+ members, organized FAANG speaker series
-- Teaching Assistant, CS161 (Operating Systems) — held weekly office hours for 120+ students
 
 ## Work Experience
 
@@ -28,16 +27,16 @@ style:
 
 _Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 
-- Architected distributed microservices orchestration platform with Kubernetes and Docker serving 400M+ users
-- Reduced deployment latency by 60% across 50+ services, saving ~$800K/year in compute costs
+- Architected distributed microservices orchestration platform with Kubernetes and Docker
+- Reduced deployment latency by 60% across 50+ services
 - Led cloud-native migration on Google Cloud, improving scalability 300% and saving $2M annually
-- Built CI/CD pipeline with Cloud Build, Terraform, GitOps reducing release cycles from 2 weeks to 2 days
+- Built CI/CD pipeline with Cloud Build, Terraform, GitOps reducing release cycles to 2 days
 - Mentored 5 junior engineers, 3 promoted within 12 months
 
 ### PwC || July 2021 - May 2022
 
 - Built full-stack features for social platform (2B+ users) using React, Express.js, MongoDB
-- Impacted 50M+ monthly active users across 12 product surfaces
+- Impacted 50M+ monthly active users
 - Designed high-performance APIs with Node.js handling 1M+ QPS at 99.99% uptime
 - Developed automated testing with Jest and Cypress, improving coverage from 45% to 85%
 - Reduced page load time by 38% through lazy loading and CDN optimizations
@@ -49,22 +48,6 @@ _Software Engineering Intern_ || Mountain View, CA
 - Built data pipeline processing 10TB/day for Search quality signals using Go and BigQuery
 - Shipped A/B test framework adopted by 3 teams, reducing experiment setup time by 70%
 - Contributed 8 patches to open-source Bazel build rules, merged to main
-
-### Stripe || May 2020 - Aug 2020
-
-_Software Engineering Intern_ || San Francisco, CA
-
-- Implemented idempotency layer for payment retry logic, reducing duplicate charges by 99.8%
-- Built internal dashboard for fraud signal monitoring with React and GraphQL
-- Wrote load tests revealing 3x throughput bottleneck in webhook delivery, fixed before launch
-
-### Palantir || Jun 2019 - Aug 2019
-
-_Software Engineering Intern_ || Palo Alto, CA
-
-- Prototyped graph-based anomaly detection pipeline on classified datasets using Python and Spark
-- Delivered internal CLI tooling that reduced analyst onboarding time from 3 days to 4 hours
-- Presented findings to engineering leadership, resulted in full-team adoption
 
 ## Projects
 
@@ -101,16 +84,16 @@ _Software Engineering Intern_ || Palo Alto, CA
 ## Technical Skills
 
 Languages
-: TypeScript, JavaScript, Python, Java, Go, Rust, SQL, GraphQL, HTML/CSS
+: TypeScript, JavaScript, Python, Java, SQL, GraphQL, HTML/CSS
 
 Frameworks
-: React, Vue.js, Node.js, Express.js, FastAPI, Flask, Spring Boot, Next.js, gRPC
+: React, Vue.js, Node.js, Express.js, FastAPI, Flask, Spring Boot, Next.js
 
 Databases
-: PostgreSQL, MongoDB, MySQL, Redis, DynamoDB, BigQuery, Cassandra
+: PostgreSQL, MongoDB, MySQL, Redis, DynamoDB
 
 Cloud & DevOps
-: AWS (EC2, S3, Lambda, RDS, ECS), GCP, Docker, Kubernetes, Terraform, Bazel
+: AWS (EC2, S3, Lambda, RDS, ECS), Docker, Kubernetes, Terraform
 
 Tools & Other
-: Git, Linux, Nginx, WebSocket, REST APIs, Microservices, Jest, Cypress, Datadog
+: Git, Linux, Nginx, WebSocket, REST APIs, Microservices, Jest, Cypress

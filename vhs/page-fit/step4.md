@@ -58,6 +58,14 @@ _Software Engineering Intern_ || San Francisco, CA
 - Built internal dashboard for fraud signal monitoring with React and GraphQL
 - Wrote load tests revealing 3x throughput bottleneck in webhook delivery, fixed before launch
 
+### Palantir || Jun 2019 - Aug 2019
+
+_Software Engineering Intern_ || Palo Alto, CA
+
+- Prototyped graph-based anomaly detection pipeline on classified datasets using Python and Spark
+- Delivered internal CLI tooling that reduced analyst onboarding time from 3 days to 4 hours
+- Presented findings to engineering leadership, resulted in full-team adoption
+
 ## Projects
 
 ### CloudTask: Distributed Task Management System _(Team of 4)_

@@ -30,14 +30,12 @@ _Senior Software Engineer, Infrastructure Platform Team_ || San Francisco, CA
 - Architected distributed microservices orchestration platform with Kubernetes and Docker
 - Reduced deployment latency by 60% across 50+ services
 - Led cloud-native migration on Google Cloud, improving scalability 300% and saving $2M annually
-- Built CI/CD pipeline with Cloud Build, Terraform, GitOps reducing release cycles to 2 days
 
 ### PwC || July 2021 - May 2022
 
 - Built full-stack features for social platform (2B+ users) using React, Express.js, MongoDB
 - Impacted 50M+ monthly active users
 - Designed high-performance APIs with Node.js handling 1M+ QPS at 99.99% uptime
-- Developed automated testing with Jest and Cypress, improving coverage from 45% to 85%
 
 ## Projects
 
