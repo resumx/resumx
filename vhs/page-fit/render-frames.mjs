@@ -203,7 +203,7 @@ function buildCompositeHtml(codeHtml, resumeDataUrl, panelHeightPx, fontSize) {
 <html><head><style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  background: #f0f0f0;
+  background: #161616;
   display: flex;
   justify-content: center;
   padding: 20px;
