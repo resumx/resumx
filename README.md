@@ -3,7 +3,7 @@
 ---
 
 <p align="center">
-  <em>Resume builder for tech professionals.</em>
+  <em>Resume builder for engineers.</em>
 </p>
 
 <p align="center">
