@@ -110,6 +110,7 @@ resumx resume.md --for stripe-swe
 | `bullet-order` | `none` \| `tag`          | 項目符號排序策略。預設為 `none`。                |
 | `vars`         | `Record<string, string>` | 給 <code v-pre>{{ }}</code> 佔位符使用的變數值。 |
 | `style`        | `Record<string, string>` | 樣式覆寫（同 frontmatter 的 `style`）。          |
+| `css`          | `string \| string[]`     | CSS 檔案路徑或行內 CSS 字串。                    |
 | `format`       | `string`                 | 輸出格式 (`pdf`、`html`、`docx`、`png`)。        |
 | `output`       | `string`                 | 輸出路徑（同 frontmatter 的 `output`）。         |
 

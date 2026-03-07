@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { generateHtml } from './html-generator.js'
+import { generateHtml, resolveCSS } from './html-generator.js'
 import type { DocumentContext } from './types.js'
 import type { ResolvedView } from './view/types.js'
 import type { SectionsConfig } from './view/types.js'
@@ -387,6 +387,57 @@ Languages
 			).rejects.toThrow('not found')
 		})
 
+		it('renders inline CSS in a separate style tag', async () => {
+			await withTempDir(async dir => {
+				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+				const inlineCSS = 'h2 { color: red; }'
+				const html = await gen('# Test\n\n## Section', {
+					cssPaths: [join(dir, 'style.css'), inlineCSS],
+				})
+
+				const styleTags = html.match(/<style>/g)
+				expect(styleTags?.length).toBe(2)
+				expect(html).toContain('h2 { color: red; }')
+			})
+		})
+
+		it('renders each inline CSS entry in its own style tag', async () => {
+			await withTempDir(async dir => {
+				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+				const html = await gen('# Test', {
+					cssPaths: [
+						join(dir, 'style.css'),
+						'h2 { color: red; }',
+						'h3 { color: blue; }',
+					],
+				})
+
+				const styleTags = html.match(/<style>/g)
+				expect(styleTags?.length).toBe(3)
+				expect(html).toContain('h2 { color: red; }')
+				expect(html).toContain('h3 { color: blue; }')
+			})
+		})
+
+		it('inline CSS appears after base CSS', async () => {
+			await withTempDir(async dir => {
+				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
+
+				const inlineCSS = 'h2 { letter-spacing: 0.05em; }'
+				const html = await gen('# Test', {
+					cssPaths: [join(dir, 'style.css'), inlineCSS],
+				})
+
+				const basePos = html.indexOf('--font-family: Arial')
+				const inlinePos = html.indexOf('letter-spacing: 0.05em')
+				expect(basePos).toBeGreaterThan(-1)
+				expect(inlinePos).toBeGreaterThan(-1)
+				expect(inlinePos).toBeGreaterThan(basePos)
+			})
+		})
+
 		describe('activeTag filtering', () => {
 			it('filters content to keep only matching tag', async () => {
 				await withTempDir(async dir => {
@@ -455,6 +506,78 @@ Languages
 					expect(html).toContain('PostgreSQL')
 				})
 			})
+		})
+	})
+
+	describe('resolveCSS', () => {
+		it('returns default stylesheet when css is null', () => {
+			const result = resolveCSS(null, '/tmp')
+			expect(result.paths.length).toBe(1)
+			expect(result.inline).toEqual([])
+		})
+
+		it('returns default stylesheet when css is empty', () => {
+			const result = resolveCSS([], '/tmp')
+			expect(result.paths.length).toBe(1)
+			expect(result.inline).toEqual([])
+		})
+
+		it('treats entries ending with .css as file paths', () => {
+			withTempDir(async dir => {
+				writeVirtualFiles(dir, { 'theme.css': 'body {}' })
+				const result = resolveCSS([join(dir, 'theme.css')], dir)
+				expect(result.paths.length).toBe(2)
+				expect(result.inline).toEqual([])
+			})
+		})
+
+		it('treats entries not ending with .css as inline CSS', () => {
+			const result = resolveCSS(['h2 { color: red; }'], '/tmp')
+			expect(result.paths.length).toBe(1)
+			expect(result.inline).toEqual(['h2 { color: red; }'])
+		})
+
+		it('splits mixed file paths and inline CSS', () => {
+			withTempDir(async dir => {
+				writeVirtualFiles(dir, { 'base.css': 'body {}' })
+				const result = resolveCSS(
+					[join(dir, 'base.css'), 'h2 { color: red; }'],
+					dir,
+				)
+				expect(result.paths.length).toBe(2)
+				expect(result.inline).toEqual(['h2 { color: red; }'])
+			})
+		})
+
+		it('throws for non-existent .css file', () => {
+			expect(() => resolveCSS(['/no/such/file.css'], '/tmp')).toThrow(
+				'CSS file not found',
+			)
+		})
+
+		it.each(['.less', '.sass', '.scss', '.styl'])(
+			'throws for preprocessor extension %s',
+			ext => {
+				expect(() => resolveCSS([`theme${ext}`], '/tmp')).toThrow(
+					'not supported',
+				)
+			},
+		)
+
+		it('handles multiline inline CSS from YAML block scalar', () => {
+			const blockCSS = `h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h2::after {
+  content: '';
+  flex: 1;
+}`
+			const result = resolveCSS([blockCSS], '/tmp')
+			expect(result.paths.length).toBe(1)
+			expect(result.inline).toEqual([blockCSS])
 		})
 	})
 })

@@ -110,6 +110,7 @@ resumx resume.md --for stripe-swe
 | `bullet-order` | `none` \| `tag`          | Bullet ordering strategy. Default: `none`.                   |
 | `vars`         | `Record<string, string>` | Variable values for <code v-pre>{{ }}</code> placeholders.   |
 | `style`        | `Record<string, string>` | Style overrides (same as frontmatter `style`).               |
+| `css`          | `string \| string[]`     | CSS file path(s) or inline CSS string(s).                    |
 | `format`       | `string`                 | Output format (`pdf`, `html`, `docx`, `png`).                |
 | `output`       | `string`                 | Output path (same as frontmatter `output`).                  |
 

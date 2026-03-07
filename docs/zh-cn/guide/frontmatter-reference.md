@@ -37,7 +37,7 @@ YAML 使用 `---` 分隔符；TOML 使用 `+++`。两者均被完全支持，你
 
 ### `css`
 
-除了默认样式外，要加载的自定义 CSS 文件的路径。当指定多个文件时，它们将按顺序加载。
+自定义 CSS 文件路径或行内 CSS 字符串。以 `.css` 结尾的条目会被解析为文件路径，其他则视为行内 CSS。行内 CSS 会在基础样式之后以独立的 `<style>` 标签渲染，确保错误隔离。
 
 | 属性         | 值                     |
 | ------------ | ---------------------- |
@@ -55,7 +55,25 @@ css: my-styles.css
 
 # 多个 CSS 文件
 css: [base.css, overrides.css]
+
+# 行内 CSS (无需额外文件)
+css: |
+  h2 {
+    letter-spacing: 0.05em;
+  }
+
+# 混合使用：文件路径 + 行内 CSS
+css:
+  - base.css
+  - |
+    h2::after {
+      content: '';
+      flex: 1;
+      border-bottom: var(--section-title-border);
+    }
 ```
+
+不支持 CSS 预处理器文件 (`.less`、`.sass`、`.scss`、`.styl`)。
 
 ### `output`
 

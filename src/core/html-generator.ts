@@ -17,25 +17,49 @@ import type { VarsEnv } from '../lib/mdit-plugins/variable-substitution/index.js
 import type { ResolvedView } from './view/types.js'
 import type { DocumentContext } from './types.js'
 
+const PREPROCESSOR_EXTS = ['.less', '.sass', '.scss', '.styl']
+
+export interface ResolvedCSS {
+	paths: string[]
+	inline: string[]
+}
+
 /**
- * Resolve CSS file paths from view config and document base directory.
- * The default stylesheet is always included first, user CSS cascades on top.
+ * Classify CSS entries into file paths and inline CSS strings.
+ * Entries ending with `.css` are resolved as file paths.
+ * Everything else is treated as inline CSS.
+ * Known preprocessor extensions produce a clear error.
  */
-export function resolveCssPaths(
-	css: string[] | null,
-	baseDir: string,
-): string[] {
-	if (!css || css.length === 0) return [DEFAULT_STYLESHEET]
+export function resolveCSS(css: string[] | null, baseDir: string): ResolvedCSS {
+	if (!css || css.length === 0)
+		return { paths: [DEFAULT_STYLESHEET], inline: [] }
 
-	const userPaths = css.map(p => {
-		const absolutePath = isAbsolute(p) ? p : resolve(baseDir, p)
-		if (!existsSync(absolutePath)) {
-			throw new Error(`CSS file not found: ${absolutePath}`)
+	const paths = [DEFAULT_STYLESHEET]
+	const inline: string[] = []
+
+	for (const entry of css) {
+		const trimmed = entry.trimEnd()
+		const lower = trimmed.toLowerCase()
+		const ext = PREPROCESSOR_EXTS.find(e => lower.endsWith(e))
+		if (ext) {
+			throw new Error(
+				`CSS preprocessor files (${ext}) are not supported. Use plain CSS instead.`,
+			)
 		}
-		return absolutePath
-	})
 
-	return [DEFAULT_STYLESHEET, ...userPaths]
+		if (lower.endsWith('.css')) {
+			const absolutePath =
+				isAbsolute(trimmed) ? trimmed : resolve(baseDir, trimmed)
+			if (!existsSync(absolutePath)) {
+				throw new Error(`CSS file not found: ${absolutePath}`)
+			}
+			paths.push(absolutePath)
+		} else {
+			inline.push(entry)
+		}
+	}
+
+	return { paths, inline }
 }
 
 function resolveBaseCSS(
@@ -51,7 +75,15 @@ function resolveBaseCSS(
 	return resolvedCSS + '\n' + variablesCSS
 }
 
-function assembleHtml(body: string, css: string): string {
+function assembleHtml(
+	body: string,
+	css: string,
+	inlineBlocks: string[],
+): string {
+	const inlineStyles = inlineBlocks
+		.map(block => `\n<style>\n${block}\n</style>`)
+		.join('')
+
 	const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,7 +91,7 @@ function assembleHtml(body: string, css: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 ${css}
-</style>
+</style>${inlineStyles}
 </head>
 <body>
 ${body}
@@ -86,19 +118,19 @@ export async function generateHtml(
 	doc: DocumentContext,
 	view: ResolvedView,
 ): Promise<string> {
-	const cssPaths = resolveCssPaths(view.css, doc.baseDir)
+	const resolved = resolveCSS(view.css, doc.baseDir)
 	const env: { iconOverrides?: Record<string, string> } & VarsEnv = {
 		iconOverrides: doc.icons,
 		vars: view.vars,
 	}
 	const rawBody = await markdownRenderer.renderAsync(doc.content, env)
 
-	const baseCSS = resolveBaseCSS(cssPaths, view.style)
+	const baseCSS = resolveBaseCSS(resolved.paths, view.style)
 	const pipeline = assemblePipeline(view, doc)
 	const body = pipeline(rawBody)
 
 	const tailwindCSS = await compileTailwindCSS(body)
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
 
-	return assembleHtml(body, combinedCSS)
+	return assembleHtml(body, combinedCSS, resolved.inline)
 }

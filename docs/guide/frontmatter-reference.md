@@ -37,7 +37,7 @@ These fields form the [default view](/guide/views#default-view), the base render
 
 ### `css`
 
-Path(s) to custom CSS file(s) to load in addition to the default styles. When multiple files are specified, they are loaded in order.
+Custom CSS file path(s) or inline CSS string(s) to load in addition to the default styles. Entries ending with `.css` are resolved as file paths, everything else is treated as inline CSS. Inline CSS renders in a separate `<style>` tag after the base styles for error isolation.
 
 | Property     | Value                        |
 | ------------ | ---------------------------- |
@@ -55,7 +55,25 @@ css: my-styles.css
 
 # Multiple CSS files
 css: [base.css, overrides.css]
+
+# Inline CSS (no file needed)
+css: |
+  h2 {
+    letter-spacing: 0.05em;
+  }
+
+# Mixed: file path + inline CSS
+css:
+  - base.css
+  - |
+    h2::after {
+      content: '';
+      flex: 1;
+      border-bottom: var(--section-title-border);
+    }
 ```
+
+CSS preprocessor files (`.less`, `.sass`, `.scss`, `.styl`) are not supported.
 
 ### `output`
 

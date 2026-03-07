@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname, relative } from 'node:path'
 import { parseFrontmatterFromString } from '../../core/frontmatter.js'
 import { getOutputName, extractNameFromContent } from '../../core/renderer.js'
-import { resolveCssPaths } from '../../core/html-generator.js'
+import { resolveCSS } from '../../core/html-generator.js'
 import { DEFAULT_STYLESHEET } from '../../core/styles.js'
 import { runRender, handleCheck } from './run-render.js'
 import { startWatch } from './watch.js'
@@ -97,20 +97,19 @@ export async function renderCommand(
 		if (!proceed) return
 	}
 
-	let cssPaths: string[] = []
+	let userCssPaths: string[] = []
 	try {
 		const resolvedCss =
 			options.css && options.css.length > 0 ?
 				options.css
 			:	(parsed.config?.css ?? null)
-		cssPaths = resolveCssPaths(resolvedCss, mdDir)
+		const resolved = resolveCSS(resolvedCss, mdDir)
+		userCssPaths = resolved.paths.filter(
+			p => p !== DEFAULT_STYLESHEET && existsSync(p),
+		)
 	} catch {
 		// Will error during render
 	}
-
-	const userCssPaths = cssPaths.filter(
-		p => p !== DEFAULT_STYLESHEET && existsSync(p),
-	)
 
 	await runRender(parsed, options, cwd, context)
 

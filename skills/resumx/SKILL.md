@@ -137,7 +137,7 @@ YAML (`---`) or TOML (`+++`). CLI flags always override frontmatter.
 
 | Field          | Type                                    | Default             | Description                                                                           |
 | -------------- | --------------------------------------- | ------------------- | ------------------------------------------------------------------------------------- |
-| `css`          | `string \| string[]`                    | None                | Path(s) to custom CSS file(s)                                                         |
+| `css`          | `string \| string[]`                    | None                | CSS file path(s) or inline CSS string(s). Ends with `.css` = file, otherwise = inline |
 | `output`       | `string`                                | Input filename stem | Output path (name, directory with `/`, or template with `{view}`/`{lang}`/`{format}`) |
 | `pages`        | `positive integer`                      | No clamping         | Target page count                                                                     |
 | `sections`     | `{ hide?: string[], pin?: string[] }`   | All in source order | Section visibility and ordering                                                       |
@@ -273,7 +273,21 @@ h2 {
 }
 ```
 
-Reference by path: `css: my-styles.css` or `--css my-styles.css`.
+Reference by path: `css: my-styles.css` or `--css my-styles.css`. For small overrides, inline CSS avoids creating a file:
+
+```yaml
+css: |
+  h2 { letter-spacing: 0.05em; }
+```
+
+Mix file paths and inline CSS in an array:
+
+```yaml
+css:
+  - base.css
+  - |
+    h2::after { content: ''; flex: 1; border-bottom: var(--section-title-border); }
+```
 
 For building a stylesheet from scratch, `@import` bundled modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`, `.max-N`).
 
@@ -426,7 +440,7 @@ stripe-swe:
 
 Render with `--for stripe-swe`. Batch with `--for '*'` or `--for 'stripe-*'`. Use `--for default` to target the default view (no tag filtering); combine with named views, e.g. `--for default,frontend`, to render both. Do not name a view `default` (reserved).
 
-Custom view fields: `selects` (content tags to include), `sections`, `pages`, `bullet-order`, `vars`, `style`, `format`, `output`.
+Custom view fields: `selects` (content tags to include), `sections`, `pages`, `bullet-order`, `vars`, `style`, `css`, `format`, `output`.
 
 A view without `selects` applies no content filter (all content renders). An explicit `selects: []` means only untagged content.
 
