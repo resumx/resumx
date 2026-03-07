@@ -35,14 +35,8 @@ A Markdown resume renderer that handles layout and page fitting for you.
 ```bash
 npm install -g @resumx/resumx
 npx playwright install chromium
-```
 
-### Optional Dependencies
-
-For **DOCX export** (`--format docx`), install pdf2docx:
-
-```bash
-# Using pip
+# For DOCX export, install pdf2docx:
 pip install pdf2docx
 ```
 
