@@ -49,7 +49,8 @@ style:
 | `name-caps`            | `normal`                               | 名字大小写 (`small-caps`, `all-small-caps`, `normal`) |
 | `name-weight`          | `normal`                               | 名字字重                                              |
 | `name-italic`          | `normal`                               | 名字是否斜体 (`normal`, `italic`)                     |
-| `section-title-size`   | `1.22rem`                              | 章节标题 (h2) 字体大小                                |
+| `name-color`           | `var(--text-color)`                    | 名字 (h1) 颜色                                        |
+| `section-title-size`   | `1.25rem`                              | 章节标题 (h2) 字体大小                                |
 | `section-title-caps`   | `normal`                               | 章节标题大小写                                        |
 | `section-title-weight` | `bold`                                 | 章节标题字重                                          |
 | `section-title-color`  | `var(--text-color)`                    | 章节标题颜色                                          |

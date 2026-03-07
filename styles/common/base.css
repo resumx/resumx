@@ -52,6 +52,7 @@
 		--name-caps: small-caps; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
 		--name-italic: normal; /* normal | italic */
+		--name-color: var(--text-color); /* any color */
 		--section-title-size: 1.25rem; /* any font-size */
 		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
@@ -277,6 +278,7 @@
 		font-weight: var(--name-weight);
 		font-style: var(--name-italic);
 		line-height: 1.4;
+		color: var(--name-color);
 	}
 
 	h2 {

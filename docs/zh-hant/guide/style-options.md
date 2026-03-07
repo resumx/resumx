@@ -49,7 +49,8 @@ style:
 | `name-caps`            | `normal`                               | 姓名大小寫 (`small-caps`, `all-small-caps`, `normal`) |
 | `name-weight`          | `normal`                               | 姓名文字粗細                                          |
 | `name-italic`          | `normal`                               | 姓名斜體 (`normal`, `italic`)                         |
-| `section-title-size`   | `1.22rem`                              | 區塊標題 (h2) 字體大小                                |
+| `name-color`           | `var(--text-color)`                    | 姓名 (h1) 顏色                                        |
+| `section-title-size`   | `1.25rem`                              | 區塊標題 (h2) 字體大小                                |
 | `section-title-caps`   | `normal`                               | 區塊標題大小寫                                        |
 | `section-title-weight` | `bold`                                 | 區塊標題文字粗細                                      |
 | `section-title-color`  | `var(--text-color)`                    | 區塊標題顏色                                          |

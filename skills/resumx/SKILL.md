@@ -248,7 +248,7 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Colors:** `text-color`, `muted-color`, `accent-color`, `link-color`, `background-color`.
 
-**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`.
+**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `name-color`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`.
 
 **Links:** `link-underline` (`underline`, `none`).
 

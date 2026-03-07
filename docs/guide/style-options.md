@@ -49,7 +49,8 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 | `name-caps`            | `normal`                               | Name capitalization (`small-caps`, `all-small-caps`, `normal`) |
 | `name-weight`          | `normal`                               | Name font weight                                               |
 | `name-italic`          | `normal`                               | Name italic (`normal`, `italic`)                               |
-| `section-title-size`   | `1.22rem`                              | Section (h2) font size                                         |
+| `name-color`           | `var(--text-color)`                    | Name (h1) color                                                |
+| `section-title-size`   | `1.25rem`                              | Section (h2) font size                                         |
 | `section-title-caps`   | `normal`                               | Section title capitalization                                   |
 | `section-title-weight` | `bold`                                 | Section title font weight                                      |
 | `section-title-color`  | `var(--text-color)`                    | Section title color                                            |
