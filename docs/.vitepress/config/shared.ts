@@ -45,8 +45,6 @@ export const shared = defineConfig({
 	],
 	rewrites: {
 		'guide/what-is-resumx.md': 'index.md',
-		'zh-cn/guide/what-is-resumx.md': 'zh-cn/index.md',
-		'zh-hant/guide/what-is-resumx.md': 'zh-hant/index.md',
 	},
 	markdown: {
 		codeTransformers: [
