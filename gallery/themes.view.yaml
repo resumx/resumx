@@ -1,10 +1,14 @@
-zurich:
+oxford:
   style:
     font-family: "'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif"
     name-caps: small-caps
-    section-title-color: '#c43218'
-    section-title-border: 1.5px solid var(--section-title-color)
-    auto-icons: none
+    page-margin-x: 0.3in
+    section-title-caps: small-caps
+  css: |
+    section > :not(h2) {
+      margin-left: 11px;
+      margin-right: 14px;
+    }
 
 seattle:
   style:
@@ -40,20 +44,23 @@ seattle:
       font-weight: normal;
     }
 
-oxford:
+tokyo:
   style:
-    font-family: "'Times New Roman', serif"
+    font-family: "'Source Sans 3', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif"
     name-caps: normal
     name-weight: bold
     name-size: 1.5rem
-    section-title-align: center
-    section-title-border: 1.5px dotted var(--section-title-color)
-    section-gap: 15px
-    bullet-style: square
-    link-color: black
-    auto-icons: none
+    section-title-size: 1.1rem
+    section-gap: 30px
+    section-title-border: 1.5px solid var(--section-title-color)
+    entry-title-size: 1rem
   css: |
     .date-range, time {
       font-style: italic;
       font-weight: normal;
     }
+
+zurich:
+  style:
+    font-family: "'Times', serif"
+    name-caps: normal

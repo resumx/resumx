@@ -17,23 +17,23 @@ Most resume effort goes to layout and styling, the factors that matter least for
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="600px" />
 
-- **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.** Mix and match to create your own look.
+- **LaTeX-quality output, Markdown simplicity.** 30+ style options, built-in Tailwind CSS, and 200k+ icon shortcodes.
 
   <table>
     <tr>
-      <td align="center">
-        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/seattle.pdf">
-          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/seattle.png" alt="Seattle" />
-        </a>
-      </td>
       <td align="center">
         <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/oxford.pdf">
           <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/oxford.png" alt="Oxford" />
         </a>
       </td>
       <td align="center">
-        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/zurich.pdf">
-          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/zurich.png" alt="Zurich" />
+        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/seattle.pdf">
+          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/seattle.png" alt="Seattle" />
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/tokyo.pdf">
+          <img src="https://github.com/resumx/resumx/raw/HEAD/gallery/png/tokyo.png" alt="Tokyo" />
         </a>
       </td>
     </tr>
@@ -43,7 +43,10 @@ Most resume effort goes to layout and styling, the factors that matter least for
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/git-version-demo.gif" alt="Git Version Demo" width="600px" />
 
-- **Built for AI editors.** Plain text with agent skills. No integration needed.
+- **Built with AI in mind.** Optimized for autonomous AI editing. Agent skills are included.
+  ```sh
+  npx skills add resumx/resumx
+  ```
 - **Markdown in, schema out.** Write plain Markdown. The [schema is inferred](https://resumx.dev/guide/semantic-selectors.html).
 - **PDF, HTML, DOCX, and PNG** from a single source.
 - **Multi-language, variables, live preview, and more.**
@@ -66,14 +69,6 @@ pip install pdf2docx
 resumx init resume.md     # Generate a template resume
 resumx resume.md --watch  # Live preview
 ```
-
-## Install Agent Skills
-
-```bash
-npx skills add resumx/resumx
-```
-
-This enables AI assistants like Cursor, Claude Code, and Copilot to understand and work with your Resumx files.
 
 ## Documentation
 
