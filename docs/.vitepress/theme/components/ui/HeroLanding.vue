@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useData } from 'vitepress'
 import InfiniteSlider from './InfiniteSlider.vue'
 import FooterLanding from './FooterLanding.vue'
-
-const { isDark } = useData()
 
 const GITHUB_RELEASES_API =
 	'https://api.github.com/repos/resumx/resumx/releases/latest'
@@ -203,11 +200,26 @@ const tools = [
 					<InfiniteSlider :gap="48" reverse :duration="30">
 						<span v-for="tool in tools" :key="tool.name" class="tool-badge">
 							<img
-								:src="isDark && tool.darkIcon ? tool.darkIcon : tool.icon"
+								v-if="!tool.darkIcon"
+								:src="tool.icon"
 								:alt="tool.name"
 								:class="['tool-icon', { 'tool-icon--invert': tool.invert }]"
 								loading="lazy"
 							/>
+							<template v-else>
+								<img
+									:src="tool.icon"
+									:alt="tool.name"
+									class="tool-icon tool-icon--light-only"
+									loading="lazy"
+								/>
+								<img
+									:src="tool.darkIcon"
+									:alt="tool.name"
+									class="tool-icon tool-icon--dark-only"
+									loading="lazy"
+								/>
+							</template>
 						</span>
 					</InfiniteSlider>
 				</div>
@@ -242,6 +254,18 @@ const tools = [
 
 .dark .tool-icon--invert {
 	filter: brightness(0) invert(1);
+}
+
+.tool-icon--dark-only {
+	display: none;
+}
+
+.dark .tool-icon--light-only {
+	display: none;
+}
+
+.dark .tool-icon--dark-only {
+	display: inline;
 }
 </style>
 
