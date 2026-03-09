@@ -223,6 +223,10 @@ main a {
 	font-weight: 450 !important;
 }
 
+.dark .VPSidebarItem:not(.is-active) > .item > .link > .text {
+	color: #c5c5c5 !important;
+}
+
 .VPSidebarItem > .item > .link > .text {
 	font-size: 0.93rem !important;
 }
