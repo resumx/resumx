@@ -157,9 +157,11 @@ TODO.md
 private/
 vhs/output/
 vhs/page-fit/.tmp/
+docs/.vitepress/theme/components/landing/page-fit/.tmp/
 
 # Generated docs assets
 docs/public/schemas/
 
 # V8 CPU profile
 *.cpuprofile
+docs/.vitepress/theme/components/landing/page-fit/.tmp.html

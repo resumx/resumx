@@ -2,6 +2,10 @@
 import { ref, onMounted } from 'vue'
 import InfiniteSlider from './InfiniteSlider.vue'
 import FooterLanding from './FooterLanding.vue'
+import DemoCard from '../landing/DemoCard.vue'
+import IconRevealDemo from '../landing/IconRevealDemo.vue'
+import TagFilterDemo from '../landing/tag-filter/TagFilterDemo.vue'
+import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 
 const GITHUB_RELEASES_API =
 	'https://api.github.com/repos/resumx/resumx/releases/latest'
@@ -223,6 +227,29 @@ const tools = [
 						</span>
 					</InfiniteSlider>
 				</div>
+			</div>
+		</section>
+
+		<section class="features-section">
+			<PageFitDemo />
+			<div class="features-bento">
+				<DemoCard
+					label="Targeting"
+					heading="One file, every role"
+					subtitle="Tag bullets with {.@frontend}, {.@backend}, or both. Filter at build time."
+					header-align="left"
+				>
+					<TagFilterDemo />
+				</DemoCard>
+
+				<DemoCard
+					label="Icons"
+					heading="Icons, typed"
+					subtitle="200+ built-in shortcodes render into crisp SVGs automatically."
+					header-align="right"
+				>
+					<IconRevealDemo />
+				</DemoCard>
 			</div>
 		</section>
 
@@ -660,6 +687,33 @@ const tools = [
 
 .hero-btn-icon--end {
 	margin-left: 0.5rem;
+}
+
+/* ---- Features Section ---- */
+.features-section {
+	margin: 4rem 4rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	margin: 0 auto;
+	padding: 2rem 1.5rem 3rem;
+}
+
+.features-bento {
+	display: grid;
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+	.features-bento {
+		grid-template-columns: 1.5fr 1fr;
+	}
+}
+
+@media (min-width: 640px) {
+	.features-section {
+		padding: 2.5rem 2rem 4rem;
+	}
 }
 
 /* ---- Logos Section ---- */
