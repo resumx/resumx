@@ -24,19 +24,19 @@ const aiPrompt = computed(
 	() => `Read ${rawGithubUrl.value}, I want to ask questions about it.`,
 )
 
-async function copyMarkdown() {
-	try {
-		const res = await fetch(rawGithubUrl.value)
-		const text = await res.text()
-		await navigator.clipboard.writeText(text)
-		copied.value = true
-		setTimeout(() => (copied.value = false), 2000)
-	} catch {
-		// Fallback: copy the URL instead
-		await navigator.clipboard.writeText(rawGithubUrl.value)
-		copied.value = true
-		setTimeout(() => (copied.value = false), 2000)
-	}
+function copyMarkdown() {
+	// ClipboardItem with a Promise<Blob> preserves the user gesture while resolving data async.
+	const textPromise = fetch(rawGithubUrl.value)
+		.then((res) => (res.ok ? res.text() : rawGithubUrl.value))
+		.then((text) => new Blob([text], { type: 'text/plain' }))
+
+	navigator.clipboard
+		.write([new ClipboardItem({ 'text/plain': textPromise })])
+		.then(() => {
+			copied.value = true
+			setTimeout(() => (copied.value = false), 2000)
+		})
+		.catch(() => {})
 }
 
 function openInGitHub() {
