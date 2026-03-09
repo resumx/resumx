@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /// <reference types="vite/client" />
 
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 
 const allIcons = import.meta.glob('../../../../../assets/icons/*.svg', {
 	eager: true,
 	import: 'default',
 }) as Record<string, string>
 
-const FEATURED = [
+const INITIAL = [
 	'github',
 	'react',
 	'python',
@@ -18,17 +18,49 @@ const FEATURED = [
 	'aws',
 	'go',
 	'vue',
-	'graphql',
-	'tailwindcss',
+	'kotlin',
+	'swift',
 	'vercel',
 ]
 
-const icons = FEATURED.map((slug, i) => {
+const EXTRA = [
+	'redis',
+	'svelte',
+	'nextjs',
+	'nodejs',
+	'django',
+	'java',
+	'ruby',
+	'linux',
+	'git',
+	'kafka',
+	'dart',
+	'scala',
+	'elixir',
+	'flask',
+	'sass',
+	'gradle',
+	'helm',
+	'nestjs',
+	'nginx',
+	'deno',
+]
+
+type Icon = { slug: string; url: string }
+
+function resolve(slug: string): Icon | null {
 	const entry = Object.entries(allIcons).find(([p]) =>
 		p.endsWith(`/${slug}.svg`),
 	)
-	return entry ? { slug, url: entry[1], i } : null
-}).filter((v): v is { slug: string; url: string; i: number } => v !== null)
+	return entry ? { slug, url: entry[1] } : null
+}
+
+const initialIcons = INITIAL.map(resolve).filter((v): v is Icon => v !== null)
+const extraIcons = EXTRA.map(resolve).filter((v): v is Icon => v !== null)
+
+const slots = ref<Icon[]>([...initialIcons])
+const pool = ref<Icon[]>([...extraIcons])
+const fadingSlots = reactive(new Set<number>())
 
 type Breakpoint = 'xs' | 'sm' | 'md' | 'ml' | 'lg' | 'xl'
 const breakpoint = ref<Breakpoint>('xs')
@@ -45,7 +77,9 @@ const displayCount = computed(() => {
 			return 9
 	}
 })
-const displayIcons = computed(() => icons.slice(0, displayCount.value))
+const displaySlots = computed(() =>
+	slots.value.slice(0, displayCount.value).map((icon, i) => ({ ...icon, i })),
+)
 
 let mediaQueries: { mq: MediaQueryList; bp: Breakpoint }[] = []
 
@@ -64,6 +98,48 @@ function onMediaChange() {
 	if (active) breakpoint.value = active.bp
 }
 
+const FADE_MS = 350
+const SWAP_INTERVAL_MS = 2800
+const INITIAL_DELAY_MS = 2000
+let swapTimer: ReturnType<typeof setInterval> | undefined
+
+function pickSwapCount(): number {
+	const r = Math.random()
+	if (r < 0.6) return 1
+	if (r < 0.9) return 2
+	return 3
+}
+
+function swapRandomSlots() {
+	const count = displayCount.value
+	if (pool.value.length === 0) return
+
+	const n = Math.min(pickSwapCount(), count, pool.value.length)
+	const chosen: number[] = []
+
+	while (chosen.length < n) {
+		const idx = Math.floor(Math.random() * count)
+		if (!fadingSlots.has(idx) && !chosen.includes(idx)) chosen.push(idx)
+		if (chosen.length + fadingSlots.size >= count) break
+	}
+
+	for (const slotIdx of chosen) {
+		fadingSlots.add(slotIdx)
+
+		setTimeout(() => {
+			const old = slots.value[slotIdx]
+			const pickIdx = Math.floor(Math.random() * pool.value.length)
+			const replacement = pool.value[pickIdx]
+
+			pool.value.splice(pickIdx, 1)
+			pool.value.push(old)
+			slots.value[slotIdx] = replacement
+
+			fadingSlots.delete(slotIdx)
+		}, FADE_MS)
+	}
+}
+
 onMounted(() => {
 	mediaQueries = [
 		{ mq: window.matchMedia('(max-width: 479px)'), bp: 'xs' },
@@ -75,25 +151,35 @@ onMounted(() => {
 	]
 	updateBreakpoint()
 	mediaQueries.forEach(({ mq }) => mq.addEventListener('change', onMediaChange))
+
+	setTimeout(() => {
+		swapTimer = setInterval(swapRandomSlots, SWAP_INTERVAL_MS)
+	}, INITIAL_DELAY_MS)
 })
 
 onUnmounted(() => {
 	mediaQueries.forEach(({ mq }) => mq.removeEventListener('change', onMediaChange))
+	if (swapTimer) clearInterval(swapTimer)
 })
 </script>
 
 <template>
 	<div class="icon-grid icon-grid--visible" :class="`icon-grid--${breakpoint}`">
 		<div
-			v-for="icon in displayIcons"
-			:key="icon.slug"
+			v-for="(icon, idx) in displaySlots"
+			:key="idx"
 			class="icon-cell"
 			:style="{ '--i': icon.i }"
 		>
-			<div class="icon-cell-visual">
-				<img :src="icon.url" :alt="icon.slug" class="icon-cell-img" />
+			<div
+				class="icon-cell-inner"
+				:class="{ 'icon-cell-inner--hidden': fadingSlots.has(idx) }"
+			>
+				<div class="icon-cell-visual">
+					<img :src="icon.url" :alt="icon.slug" class="icon-cell-img" />
+				</div>
+				<code class="icon-cell-code">:{{ icon.slug }}:</code>
 			</div>
-			<code class="icon-cell-code">:{{ icon.slug }}:</code>
 		</div>
 	</div>
 </template>
@@ -130,10 +216,8 @@ onUnmounted(() => {
 
 .icon-cell {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
 	padding: 0.75rem;
 	min-width: 0;
 	aspect-ratio: 1;
@@ -143,6 +227,19 @@ onUnmounted(() => {
 	transition:
 		border-color 0.2s,
 		box-shadow 0.2s;
+}
+
+.icon-cell-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	transition: opacity 350ms ease;
+}
+
+.icon-cell-inner--hidden {
+	opacity: 0;
 }
 
 .icon-cell:hover {

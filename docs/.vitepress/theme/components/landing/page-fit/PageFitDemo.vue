@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 
 interface StepData {
 	codeHtmlAdded: string
@@ -20,25 +20,7 @@ const hoverStep = ref<number | null>(null)
 const userHasEngaged = ref(false)
 let autoIntervalId: ReturnType<typeof setInterval> | null = null
 
-const AUTO_STEP_MS = 1800
-const CODE_SCROLL_DURATION_MS = 1200
-
-function animateScroll(
-	el: HTMLElement,
-	toTop: number,
-	durationMs: number,
-): void {
-	const startTop = el.scrollTop
-	const start = performance.now()
-
-	function tick(now: number) {
-		const t = Math.min((now - start) / durationMs, 1)
-		const eased = 1 - (1 - t) ** 3
-		el.scrollTop = startTop + (toTop - startTop) * eased
-		if (t < 1) requestAnimationFrame(tick)
-	}
-	requestAnimationFrame(tick)
-}
+const AUTO_STEP_MS = 1500
 
 onMounted(async () => {
 	const res = await fetch('/demos/page-fit/manifest.json')
@@ -145,22 +127,8 @@ const currentCodeHtml = computed(() => {
 	return direction.value === 'forward' ? s.codeHtmlAdded : s.codeHtmlRemoved
 })
 
-watch(step, async (newVal, oldVal) => {
+watch(step, (newVal, oldVal) => {
 	direction.value = newVal >= oldVal ? 'forward' : 'backward'
-	await nextTick()
-	if (!codeBody.value) return
-	const diffClass = direction.value === 'forward' ? '.line-new' : '.line-del'
-	const firstDiff = codeBody.value.querySelector(diffClass)
-	if (firstDiff) {
-		const container = codeBody.value
-		const containerRect = container.getBoundingClientRect()
-		const lineRect = (firstDiff as HTMLElement).getBoundingClientRect()
-		const scrollOffset =
-			lineRect.top - containerRect.top + container.scrollTop - 40
-		animateScroll(container, scrollOffset, CODE_SCROLL_DURATION_MS)
-	} else {
-		animateScroll(codeBody.value, 0, CODE_SCROLL_DURATION_MS)
-	}
 })
 
 const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
@@ -514,8 +482,8 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 .label-down-enter-active,
 .label-down-leave-active {
 	transition:
-		transform 0.3s ease-out,
-		opacity 0.3s ease-out;
+		transform 0.5s ease-out,
+		opacity 0.5s ease-out;
 }
 .label-down-enter-from {
 	position: absolute;
@@ -532,8 +500,8 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 .label-up-enter-active,
 .label-up-leave-active {
 	transition:
-		transform 0.3s ease-out,
-		opacity 0.3s ease-out;
+		transform 0.5s ease-out,
+		opacity 0.5s ease-out;
 }
 .label-up-enter-from {
 	position: absolute;
@@ -569,7 +537,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	height: 100%;
 	border-radius: 3px;
 	background: var(--vp-c-text-3);
-	transition: width 0.2s ease;
+	transition: width 0.5s ease-in-out;
 	pointer-events: none;
 }
 
@@ -583,7 +551,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	border: 2px solid var(--vp-c-bg);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 	transform: translate(-50%, -50%);
-	transition: left 0.2s ease;
+	transition: left 0.5s ease-in-out;
 	pointer-events: none;
 }
 
