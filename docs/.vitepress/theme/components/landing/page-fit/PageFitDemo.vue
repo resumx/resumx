@@ -13,6 +13,8 @@ interface Manifest {
 
 const step = ref(0)
 const direction = ref<'forward' | 'backward'>('forward')
+const showArrowIndicator = ref(false)
+let arrowIndicatorTimeout: ReturnType<typeof setTimeout> | null = null
 const manifest = ref<Manifest | null>(null)
 const codeBody = ref<HTMLDivElement>()
 const sliderTrack = ref<HTMLDivElement>()
@@ -130,6 +132,14 @@ const currentCodeHtml = computed(() => {
 
 watch(step, (newVal, oldVal) => {
 	direction.value = newVal >= oldVal ? 'forward' : 'backward'
+	if (oldVal !== undefined && newVal !== oldVal) {
+		if (arrowIndicatorTimeout) clearTimeout(arrowIndicatorTimeout)
+		showArrowIndicator.value = true
+		arrowIndicatorTimeout = setTimeout(() => {
+			showArrowIndicator.value = false
+			arrowIndicatorTimeout = null
+		}, 550)
+	}
 })
 
 </script>
@@ -177,9 +187,38 @@ watch(step, (newVal, oldVal) => {
 
 		<div class="slider-row">
 			<span class="slider-label">
-				<Transition :name="direction === 'forward' ? 'label-down' : 'label-up'">
-					<span :key="step" class="slider-label-text">{{ manifest.steps[step].lineCount }} lines</span>
-				</Transition>
+				<span class="slider-arrow-indicator-wrap">
+					<Transition name="arrow-indicator">
+						<span
+							v-if="showArrowIndicator"
+							:class="['slider-arrow-indicator', direction === 'forward' ? 'arrow-up' : 'arrow-down']"
+							aria-hidden="true"
+						>
+							<svg
+								v-if="direction === 'forward'"
+								class="arrow-svg"
+								viewBox="0 0 12 12"
+								aria-hidden="true"
+							>
+								<path d="M6 2L2 10h8L6 2z" fill="#34c759" />
+							</svg>
+							<svg
+								v-else
+								class="arrow-svg"
+								viewBox="0 0 12 12"
+								aria-hidden="true"
+							>
+								<path d="M6 10L2 2h8L6 10z" fill="var(--vp-c-brand-1)" />
+							</svg>
+						</span>
+					</Transition>
+				</span>
+				<span class="slider-label-number-wrap">
+					<Transition :name="direction === 'forward' ? 'label-up' : 'label-down'">
+						<span :key="step" class="slider-label-number">{{ manifest.steps[step].lineCount }}</span>
+					</Transition>
+				</span>
+				<span class="slider-label-static">lines</span>
 			</span>
 			<div
 				ref="sliderTrack"
@@ -457,22 +496,112 @@ watch(step, (newVal, oldVal) => {
 .slider-row {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 16px;
 	padding: 0.5rem 0;
+	min-height: 24px;
 }
 
 .slider-label {
 	position: relative;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	font-size: 0.8125rem;
 	font-weight: 600;
 	color: var(--vp-c-text-1);
 	min-width: 5rem;
-	height: 1.25em;
+	height: 24px;
 }
 
-.slider-label-text {
+.slider-arrow-indicator-wrap {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 24px;
+	margin-right: 2px;
+	flex-shrink: 0;
+}
+
+.slider-arrow-indicator {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.slider-arrow-indicator .arrow-svg {
+	width: 14px;
+	height: 14px;
 	display: block;
+}
+
+.slider-arrow-indicator.arrow-up {
+	animation: arrow-fade-in-up 0.5s ease-out;
+}
+
+.slider-arrow-indicator.arrow-down {
+	animation: arrow-fade-in-down 0.5s ease-out;
+}
+
+@keyframes arrow-fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes arrow-fade-in-down {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.arrow-indicator-enter-active {
+	transition: opacity 0.25s ease-out;
+}
+
+.arrow-indicator-leave-active {
+	transition: opacity 0.2s ease-in;
+}
+
+.arrow-indicator-enter-from,
+.arrow-indicator-leave-to {
+	opacity: 0;
+}
+
+.slider-label-number-wrap {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-end;
+	position: relative;
+	width: 3ch;
+	height: 24px;
+	overflow: visible;
+	text-align: right;
+	flex-shrink: 0;
+}
+
+.slider-label-number {
+	display: block;
+	width: 100%;
+	text-align: right;
+	line-height: 24px;
+}
+
+.slider-label-static {
+	flex-shrink: 0;
+	margin-left: 0.3em;
+	white-space: nowrap;
+	line-height: 24px;
 }
 
 /* Forward: new label slides down in, old slides down out */
@@ -482,13 +611,18 @@ watch(step, (newVal, oldVal) => {
 		transform 0.5s ease-out,
 		opacity 0.5s ease-out;
 }
-.label-down-enter-from {
+.label-down-enter-from,
+.label-down-leave-to {
 	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+.label-down-enter-from {
 	transform: translateY(-100%);
 	opacity: 0;
 }
 .label-down-leave-to {
-	position: absolute;
 	transform: translateY(100%);
 	opacity: 0;
 }
@@ -500,13 +634,18 @@ watch(step, (newVal, oldVal) => {
 		transform 0.5s ease-out,
 		opacity 0.5s ease-out;
 }
-.label-up-enter-from {
+.label-up-enter-from,
+.label-up-leave-to {
 	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+.label-up-enter-from {
 	transform: translateY(100%);
 	opacity: 0;
 }
 .label-up-leave-to {
-	position: absolute;
 	transform: translateY(-100%);
 	opacity: 0;
 }
