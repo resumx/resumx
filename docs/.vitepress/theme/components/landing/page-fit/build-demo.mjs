@@ -148,6 +148,7 @@ async function main() {
 		const prevLines = i > 0 ? mdContents[i - 1].split('\n') : null
 		const nextLines = i < mdContents.length - 1 ? mdContents[i + 1].split('\n') : null
 		return {
+			lineCount: lines.length,
 			codeHtmlAdded: buildCodePanel(lines, prevLines, 'added'),
 			// Backward view: show the NEXT step's lines with extras marked red,
 			// so the user sees what's being removed when sliding left.

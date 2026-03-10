@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 
 interface StepData {
+	lineCount?: number
 	codeHtmlAdded: string
 	codeHtmlRemoved: string
 }
@@ -131,7 +132,6 @@ watch(step, (newVal, oldVal) => {
 	direction.value = newVal >= oldVal ? 'forward' : 'backward'
 })
 
-const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 </script>
 
 <template>
@@ -178,9 +178,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 		<div class="slider-row">
 			<span class="slider-label">
 				<Transition :name="direction === 'forward' ? 'label-down' : 'label-up'">
-					<span :key="step" class="slider-label-text">{{
-						stepLabels[step]
-					}}</span>
+					<span :key="step" class="slider-label-text">{{ manifest.steps[step].lineCount }} lines</span>
 				</Transition>
 			</span>
 			<div
