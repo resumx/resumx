@@ -274,7 +274,6 @@ onUnmounted(() => {
 	border-radius: 12px;
 	background: var(--vp-c-bg);
 	border: 1px solid var(--vp-c-divider);
-	cursor: pointer;
 	transition:
 		border-color 0.2s,
 		box-shadow 0.2s;
