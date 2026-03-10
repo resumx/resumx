@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import InfiniteSlider from './InfiniteSlider.vue'
 import FooterLanding from './FooterLanding.vue'
 import DemoCard from '../landing/DemoCard.vue'
@@ -20,7 +21,16 @@ const GLYPH_CHARS = [
 	'|',
 	'||',
 ]
-const PARTICLE_COUNT = 35
+// How deep the virtual box is. Higher = more small/faint particles (realistic
+// perspective where most volume is far away). 0 = uniform, no depth bias.
+const BOX_DEPTH = 3.5
+
+const PARTICLE_BREAKPOINTS: [minWidth: number, count: number][] = [
+	[1440, 55],
+	[1024, 40],
+	[640, 28],
+	[0, 18],
+]
 
 interface Particle {
 	id: number
@@ -40,22 +50,56 @@ function rand(min: number, max: number): number {
 	return Math.random() * (max - min) + min
 }
 
-const particles = Array.from(
-	{ length: PARTICLE_COUNT },
-	(_, i): Particle => ({
-		id: i,
-		char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
-		x: rand(0, 100),
-		y: rand(0, 100),
-		size: rand(0.6, 1.05),
-		opacity: rand(0.03, 0.16),
-		duration: rand(8, 18),
-		delay: rand(-20, 0),
-		dx: rand(-80, 80),
-		dy: rand(-100, -30),
-		rot: rand(-25, 25),
-	}),
+const particlePool = Array.from(
+	{ length: 55 },
+	(_, i): Particle => {
+		const z = 1 + Math.random() * BOX_DEPTH
+		const depth =
+			BOX_DEPTH > 0
+				? (1 / z - 1 / (1 + BOX_DEPTH)) / (1 - 1 / (1 + BOX_DEPTH))
+				: Math.random()
+		const jitter = (base: number, spread: number) =>
+			Math.max(0, Math.min(1, base + rand(-spread, spread)))
+
+		const sizeT = jitter(depth, 0.2)
+		const opacityT = jitter(depth, 0.25)
+		const speedT = jitter(depth, 0.2)
+		const driftScale = 0.4 + speedT * 0.6
+
+		return {
+			id: i,
+			char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
+			x: rand(0, 100),
+			y: rand(0, 100),
+			size: 0.6 + sizeT * 0.45,
+			opacity: 0.03 + opacityT * 0.13,
+			duration: 18 - speedT * 10,
+			delay: rand(-20, 0),
+			dx: rand(-80, 80) * driftScale,
+			dy: rand(-100, -30) * driftScale,
+			rot: rand(-25, 25),
+		}
+	},
 )
+
+const viewportWidth = ref(1024)
+const particles = computed(() => {
+	const count =
+		PARTICLE_BREAKPOINTS.find(([w]) => viewportWidth.value >= w)?.[1] ?? 18
+	return particlePool.slice(0, count)
+})
+
+let resizeHandler: (() => void) | undefined
+onMounted(() => {
+	viewportWidth.value = window.innerWidth
+	resizeHandler = () => {
+		viewportWidth.value = window.innerWidth
+	}
+	window.addEventListener('resize', resizeHandler)
+})
+onUnmounted(() => {
+	if (resizeHandler) window.removeEventListener('resize', resizeHandler)
+})
 
 const tools = [
 	{ name: 'Cursor', icon: '/images/logos/cursor.svg', invert: true },
@@ -151,7 +195,7 @@ const tools = [
 					target="_blank"
 					rel="noopener"
 				>
-					<!-- Heart icon -->
+					<!-- Code icon (signals open source, reads clearly at small size) -->
 					<svg
 						class="hero-icon hero-icon--muted"
 						xmlns="http://www.w3.org/2000/svg"
@@ -164,9 +208,8 @@ const tools = [
 						stroke-linecap="round"
 						stroke-linejoin="round"
 					>
-						<path
-							d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-						/>
+						<polyline points="16 18 22 12 16 6" />
+						<polyline points="8 6 2 12 8 18" />
 					</svg>
 					<span class="hero-badge-text">Free &amp; open source</span>
 					<span class="hero-badge-divider" />
@@ -648,7 +691,7 @@ const tools = [
 	display: flex;
 	width: fit-content;
 	align-items: center;
-	gap: 0.375rem;
+	gap: 0.25rem;
 	border-radius: 9999px;
 	border: 1px solid var(--vp-c-divider);
 	background-color: var(--vp-c-bg-soft);
@@ -662,7 +705,7 @@ const tools = [
 
 @media (min-width: 640px) {
 	.hero-badge {
-		gap: 0.75rem;
+		gap: 0.5rem;
 		padding: 0.25rem 0.75rem;
 	}
 }
