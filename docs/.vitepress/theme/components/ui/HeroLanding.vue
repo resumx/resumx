@@ -189,11 +189,11 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">Built to bring out your best, every time.</h1>
+				<h1 class="hero-heading">The resume builder that gets out of your way.</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
-					Every detail tuned to make your experience shine. All on autopilot.
+					Write in Markdown. Get a perfectly fitted PDF.<br />No layout fiddling.
 				</p>
 
 				<!-- Buttons -->
