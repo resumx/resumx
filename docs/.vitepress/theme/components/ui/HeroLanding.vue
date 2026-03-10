@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import InfiniteSlider from './InfiniteSlider.vue'
 import FooterLanding from './FooterLanding.vue'
 import DemoCard from '../landing/DemoCard.vue'
@@ -8,10 +7,6 @@ import TagFilterDemo from '../landing/tag-filter/TagFilterDemo.vue'
 import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 import GitVersionDemo from '../landing/GitVersionDemo.vue'
 import StyleCarousel from '../landing/StyleCarousel.vue'
-
-const GITHUB_RELEASES_API =
-	'https://api.github.com/repos/resumx/resumx/releases/latest'
-const badgeText = ref<string>("v0.1.1 released — see what's new")
 
 const GLYPH_CHARS = [
 	'#',
@@ -61,19 +56,6 @@ const particles = Array.from(
 		rot: rand(-25, 25),
 	}),
 )
-
-onMounted(() => {
-	fetch(GITHUB_RELEASES_API)
-		.then(res => (res.ok ? res.json() : Promise.reject(res)))
-		.then((data: { tag_name?: string }) => {
-			if (data?.tag_name) {
-				badgeText.value = `${data.tag_name} released — see what's new`
-			}
-		})
-		.catch(() => {
-			// Keep fallback on network error or no releases
-		})
-})
 
 const tools = [
 	{ name: 'Cursor', icon: '/images/logos/cursor.svg', invert: true },
@@ -165,11 +147,11 @@ const tools = [
 				<!-- Badge -->
 				<a
 					class="hero-badge"
-					href="https://github.com/resumx/resumx/releases"
+					href="https://github.com/resumx/resumx"
 					target="_blank"
 					rel="noopener"
 				>
-					<!-- Rocket icon -->
+					<!-- Heart icon -->
 					<svg
 						class="hero-icon hero-icon--muted"
 						xmlns="http://www.w3.org/2000/svg"
@@ -183,15 +165,10 @@ const tools = [
 						stroke-linejoin="round"
 					>
 						<path
-							d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+							d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
 						/>
-						<path
-							d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
-						/>
-						<path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-						<path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
 					</svg>
-					<span class="hero-badge-text">{{ badgeText }}</span>
+					<span class="hero-badge-text">Free &amp; open source</span>
 					<span class="hero-badge-divider" />
 					<!-- Arrow right icon -->
 					<svg
@@ -691,7 +668,7 @@ const tools = [
 }
 
 .hero-badge-text {
-	font-size: 0.625rem;
+	font-size: 0.75rem;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
