@@ -29,20 +29,21 @@ onMounted(() => {
 const tools = [
 	{ name: 'Cursor', icon: '/images/logos/cursor.svg', invert: true },
 	{
-		name: 'Gemini',
-		icon: '/images/logos/gemini-light.svg',
-		darkIcon: '/images/logos/gemini-dark.svg',
-		invert: false,
-	},
-	{
-		name: 'GitHub Copilot',
-		icon: '/images/logos/github-copilot.svg',
-		invert: true,
-	},
-	{
 		name: 'Claude',
 		icon: '/images/logos/claude-light.svg',
 		darkIcon: '/images/logos/claude-dark.svg',
+		invert: false,
+	},
+	{
+		name: 'OpenClaw',
+		icon: '/images/logos/openclaw-light.png',
+		darkIcon: '/images/logos/openclaw-dark.png',
+		invert: false,
+	},
+	{
+		name: 'Gemini',
+		icon: '/images/logos/gemini-light.svg',
+		darkIcon: '/images/logos/gemini-dark.svg',
 		invert: false,
 	},
 	{ name: 'OpenAI', icon: '/images/logos/openai.svg', invert: true },
@@ -53,10 +54,9 @@ const tools = [
 		invert: false,
 	},
 	{
-		name: 'OpenClaw',
-		icon: '/images/logos/openclaw-light.png',
-		darkIcon: '/images/logos/openclaw-dark.png',
-		invert: false,
+		name: 'GitHub Copilot',
+		icon: '/images/logos/github-copilot.svg',
+		invert: true,
 	},
 	{
 		name: 'OpenCode',
