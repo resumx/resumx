@@ -13,7 +13,18 @@ const GITHUB_RELEASES_API =
 	'https://api.github.com/repos/resumx/resumx/releases/latest'
 const badgeText = ref<string>("v0.1.1 released — see what's new")
 
-const GLYPH_CHARS = ['#', '---', '>', '**', '- [ ]', '{.@}', '##', '```', '|', '||']
+const GLYPH_CHARS = [
+	'#',
+	'---',
+	'>',
+	'**',
+	'- [ ]',
+	'{.@}',
+	'##',
+	'```',
+	'|',
+	'||',
+]
 const PARTICLE_COUNT = 35
 
 interface Particle {
@@ -34,19 +45,22 @@ function rand(min: number, max: number): number {
 	return Math.random() * (max - min) + min
 }
 
-const particles = Array.from({ length: PARTICLE_COUNT }, (_, i): Particle => ({
-	id: i,
-	char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
-	x: rand(0, 100),
-	y: rand(0, 100),
-	size: rand(0.6, 1.05),
-	opacity: rand(0.03, 0.16),
-	duration: rand(8, 18),
-	delay: rand(-20, 0),
-	dx: rand(-80, 80),
-	dy: rand(-100, -30),
-	rot: rand(-25, 25),
-}))
+const particles = Array.from(
+	{ length: PARTICLE_COUNT },
+	(_, i): Particle => ({
+		id: i,
+		char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
+		x: rand(0, 100),
+		y: rand(0, 100),
+		size: rand(0.6, 1.05),
+		opacity: rand(0.03, 0.16),
+		duration: rand(8, 18),
+		delay: rand(-20, 0),
+		dx: rand(-80, 80),
+		dy: rand(-100, -30),
+		rot: rand(-25, 25),
+	}),
+)
 
 onMounted(() => {
 	fetch(GITHUB_RELEASES_API)
@@ -144,7 +158,8 @@ const tools = [
 							'--glyph-rot': p.rot + 'deg',
 							'--glyph-o': p.opacity,
 						}"
-					>{{ p.char }}</span>
+						>{{ p.char }}</span
+					>
 				</div>
 
 				<!-- Badge -->
@@ -198,13 +213,12 @@ const tools = [
 
 				<!-- Heading -->
 				<h1 class="hero-heading">
-					Stop Tweaking Themes.<br class="hero-heading-br" />
-					Start Getting Interviews.
+					Built to bring out your best, every time.
 				</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
-					Layout and styling on autopilot, so you focus on content.
+					Every detail tuned to make your experience shine. All on autopilot.
 				</p>
 
 				<!-- Buttons -->
@@ -293,7 +307,7 @@ const tools = [
 				<DemoCard
 					label="Targeting"
 					heading="One file, every role"
-					subtitle="Tag bullets with {.@frontend}, {.@backend}, or both. Filter at build time."
+					subtitle="Tag, mix and match, ship a tailored resume for every role."
 					header-align="left"
 				>
 					<TagFilterDemo />
@@ -302,7 +316,7 @@ const tools = [
 				<DemoCard
 					label="Icons"
 					heading="Icons, typed"
-					subtitle="200k+ built-in shortcodes render into crisp SVGs automatically."
+					subtitle="200k+ icons, just type a shortcode."
 					header-align="right"
 				>
 					<IconRevealDemo />
@@ -312,7 +326,7 @@ const tools = [
 			<DemoCard
 				label="Version Control"
 				heading="Every version you sent, recoverable."
-				subtitle="Each submission lives on its own Git branch. Check out any past version and rebuild it in one command."
+				subtitle="Your resume lives in Git. Render any past commit in one command."
 			>
 				<GitVersionDemo />
 			</DemoCard>
@@ -550,7 +564,10 @@ const tools = [
 		opacity: var(--glyph-o);
 	}
 	20% {
-		transform: translate(calc(var(--glyph-dx) * 0.3), calc(var(--glyph-dy) * 0.5))
+		transform: translate(
+				calc(var(--glyph-dx) * 0.3),
+				calc(var(--glyph-dy) * 0.5)
+			)
 			rotate(calc(var(--glyph-rot) * 0.4));
 	}
 	50% {
@@ -559,7 +576,10 @@ const tools = [
 		opacity: calc(var(--glyph-o) * 1.3);
 	}
 	80% {
-		transform: translate(calc(var(--glyph-dx) * -0.3), calc(var(--glyph-dy) * 0.4))
+		transform: translate(
+				calc(var(--glyph-dx) * -0.3),
+				calc(var(--glyph-dy) * 0.4)
+			)
 			rotate(calc(var(--glyph-rot) * -0.5));
 	}
 	100% {
@@ -578,8 +598,7 @@ const tools = [
 
 .hero-glyph {
 	position: absolute;
-	font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas,
-		monospace;
+	font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
 	color: var(--vp-c-text-3);
 	white-space: nowrap;
 	user-select: none;

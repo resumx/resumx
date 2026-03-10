@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /// <reference types="vite/client" />
 
-import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 
 const allIcons = import.meta.glob('../../../../../assets/icons/*.svg', {
 	eager: true,
@@ -44,6 +44,29 @@ const EXTRA = [
 	'kibana',
 	'nginx',
 	'ocaml',
+	'blender',
+	'claude',
+	'd3',
+	'fastapi',
+	'gradio',
+	'haskell',
+	'hrt',
+	'meta',
+	'netflix',
+	'qt',
+	'rails',
+	'tesla',
+	'adobe',
+	'bain',
+	'sap',
+	'sst',
+	'trpc',
+	'pug',
+	'pgsql',
+	'kaggle',
+	'julia',
+	'etcd',
+	'delphi',
 ]
 
 type Icon = { slug: string; url: string }
@@ -100,7 +123,7 @@ function onMediaChange() {
 }
 
 const FADE_MS = 500
-const SWAP_INTERVAL_MS = 2300
+const SWAP_INTERVAL_MS = 1400
 const INITIAL_DELAY_MS = 0
 let swapTimer: ReturnType<typeof setInterval> | undefined
 
@@ -127,7 +150,7 @@ function swapRandomSlots() {
 	for (const slotIdx of chosen) {
 		fadingSlots.add(slotIdx)
 
-		setTimeout(() => {
+		setTimeout(async () => {
 			const old = slots.value[slotIdx]
 			const pickIdx = Math.floor(Math.random() * pool.value.length)
 			const replacement = pool.value[pickIdx]
@@ -136,6 +159,7 @@ function swapRandomSlots() {
 			pool.value.push(old)
 			slots.value[slotIdx] = replacement
 
+			await nextTick()
 			fadingSlots.delete(slotIdx)
 		}, FADE_MS)
 	}

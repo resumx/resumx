@@ -150,8 +150,8 @@ watch(step, (newVal, oldVal) => {
 			<span class="demo-label">Auto Page Fitting</span>
 			<h2 class="demo-heading">Add content freely. Layout adapts.</h2>
 			<p class="demo-subtitle">
-				Drag the slider to add more content. The layout compresses automatically
-				to keep everything on one page.
+				Add or remove content without worrying about overflow. The layout
+				readjusts to keep everything on one page.
 			</p>
 		</div>
 
