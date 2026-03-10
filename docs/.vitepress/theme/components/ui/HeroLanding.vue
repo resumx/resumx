@@ -13,6 +13,41 @@ const GITHUB_RELEASES_API =
 	'https://api.github.com/repos/resumx/resumx/releases/latest'
 const badgeText = ref<string>("v0.1.1 released — see what's new")
 
+const GLYPH_CHARS = ['#', '---', '>', '**', '- [ ]', '{.@}', '##', '```', '|', '||']
+const PARTICLE_COUNT = 35
+
+interface Particle {
+	id: number
+	char: string
+	x: number
+	y: number
+	size: number
+	opacity: number
+	duration: number
+	delay: number
+	dx: number
+	dy: number
+	rot: number
+}
+
+function rand(min: number, max: number): number {
+	return Math.random() * (max - min) + min
+}
+
+const particles = Array.from({ length: PARTICLE_COUNT }, (_, i): Particle => ({
+	id: i,
+	char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
+	x: rand(0, 100),
+	y: rand(0, 100),
+	size: rand(0.6, 1.05),
+	opacity: rand(0.03, 0.16),
+	duration: rand(8, 18),
+	delay: rand(-20, 0),
+	dx: rand(-80, 80),
+	dy: rand(-100, -30),
+	rot: rand(-25, 25),
+}))
+
 onMounted(() => {
 	fetch(GITHUB_RELEASES_API)
 		.then(res => (res.ok ? res.json() : Promise.reject(res)))
@@ -90,6 +125,26 @@ const tools = [
 					<div class="hero-content-line hero-content-line--ro" />
 					<div class="hero-content-line hero-content-line--li" />
 					<div class="hero-content-line hero-content-line--ri" />
+				</div>
+
+				<!-- Floating Markdown glyphs (particle field) -->
+				<div aria-hidden="true" class="hero-glyphs">
+					<span
+						v-for="p in particles"
+						:key="p.id"
+						class="hero-glyph"
+						:style="{
+							left: p.x + '%',
+							top: p.y + '%',
+							fontSize: p.size + 'rem',
+							animationDuration: p.duration + 's',
+							animationDelay: p.delay + 's',
+							'--glyph-dx': p.dx + 'px',
+							'--glyph-dy': p.dy + 'px',
+							'--glyph-rot': p.rot + 'deg',
+							'--glyph-o': p.opacity,
+						}"
+					>{{ p.char }}</span>
 				</div>
 
 				<!-- Badge -->
@@ -486,6 +541,55 @@ const tools = [
 	.hero-content-line--ri {
 		right: 3rem;
 	}
+}
+
+/* ---- Floating glyphs (particle field) ---- */
+@keyframes glyph-drift {
+	0% {
+		transform: translate(0, 0) rotate(0deg);
+		opacity: var(--glyph-o);
+	}
+	20% {
+		transform: translate(calc(var(--glyph-dx) * 0.3), calc(var(--glyph-dy) * 0.5))
+			rotate(calc(var(--glyph-rot) * 0.4));
+	}
+	50% {
+		transform: translate(var(--glyph-dx), var(--glyph-dy))
+			rotate(var(--glyph-rot));
+		opacity: calc(var(--glyph-o) * 1.3);
+	}
+	80% {
+		transform: translate(calc(var(--glyph-dx) * -0.3), calc(var(--glyph-dy) * 0.4))
+			rotate(calc(var(--glyph-rot) * -0.5));
+	}
+	100% {
+		transform: translate(0, 0) rotate(0deg);
+		opacity: var(--glyph-o);
+	}
+}
+
+.hero-glyphs {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	overflow: hidden;
+}
+
+.hero-glyph {
+	position: absolute;
+	font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas,
+		monospace;
+	color: var(--vp-c-text-3);
+	white-space: nowrap;
+	user-select: none;
+	will-change: transform;
+	opacity: var(--glyph-o);
+	animation: glyph-drift ease-in-out infinite;
+	--glyph-dx: 0px;
+	--glyph-dy: 0px;
+	--glyph-rot: 0deg;
+	--glyph-o: 0.15;
 }
 
 /* ---- Icons ---- */
