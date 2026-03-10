@@ -708,12 +708,19 @@ const tools = [
 
 /* ---- Features Section ---- */
 .features-section {
-	margin: 4rem 4rem 0;
+	margin: 3rem 3rem 0;
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
 	margin: 0 auto;
-	padding: 2rem 1.5rem 3rem;
+	padding: 1.5rem 0.5rem 2rem;
+}
+
+@media (min-width: 1024px) {
+	.features-section {
+		margin: 4rem 4rem 0;
+		padding: 2rem 1.5rem 3rem;
+	}
 }
 
 .features-bento {

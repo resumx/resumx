@@ -239,7 +239,6 @@ onUnmounted(() => stopFlip())
 .git-demo {
 	--git-blue: #3794ff;
 	--git-blue-soft: rgba(55, 148, 255, 0.15);
-	padding: 1.5rem 1rem;
 }
 
 @media (min-width: 640px) {
