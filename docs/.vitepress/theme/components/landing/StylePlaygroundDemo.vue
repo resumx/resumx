@@ -392,6 +392,12 @@ onUnmounted(() => {
 	margin-top: 0.5rem;
 }
 
+@media (max-width: 511px) {
+	.ann-line--close {
+		margin-top: 1.5rem;
+	}
+}
+
 .ann-fence,
 .ann-brace {
 	color: var(--vp-c-text-3);
