@@ -62,13 +62,15 @@ const slots = ref<Icon[]>([...initialIcons])
 const pool = ref<Icon[]>([...extraIcons])
 const fadingSlots = reactive(new Set<number>())
 
-type Breakpoint = 'xs' | 'sm' | 'md' | 'ml' | 'lg' | 'xl'
+type Breakpoint = 'xs' | 'ms' | 'ml' | 'lg' | 'xl'
 const breakpoint = ref<Breakpoint>('xs')
 
 const displayCount = computed(() => {
 	switch (breakpoint.value) {
 		case 'xs':
 			return 8
+		case 'ms':
+			return 10
 		case 'ml':
 			return 4
 		case 'xl':
@@ -86,8 +88,7 @@ let mediaQueries: { mq: MediaQueryList; bp: Breakpoint }[] = []
 function updateBreakpoint() {
 	const w = window.innerWidth
 	if (w < 480) breakpoint.value = 'xs'
-	else if (w < 640) breakpoint.value = 'sm'
-	else if (w < 768) breakpoint.value = 'md'
+	else if (w <= 767) breakpoint.value = 'ms'
 	else if (w < 900) breakpoint.value = 'ml'
 	else if (w < 1024) breakpoint.value = 'lg'
 	else breakpoint.value = 'xl'
@@ -143,8 +144,7 @@ function swapRandomSlots() {
 onMounted(() => {
 	mediaQueries = [
 		{ mq: window.matchMedia('(max-width: 479px)'), bp: 'xs' },
-		{ mq: window.matchMedia('(min-width: 480px) and (max-width: 639px)'), bp: 'sm' },
-		{ mq: window.matchMedia('(min-width: 640px) and (max-width: 767px)'), bp: 'md' },
+		{ mq: window.matchMedia('(min-width: 480px) and (max-width: 767px)'), bp: 'ms' },
 		{ mq: window.matchMedia('(min-width: 768px) and (max-width: 899px)'), bp: 'ml' },
 		{ mq: window.matchMedia('(min-width: 900px) and (max-width: 1023px)'), bp: 'lg' },
 		{ mq: window.matchMedia('(min-width: 1024px)'), bp: 'xl' },
@@ -189,13 +189,18 @@ onUnmounted(() => {
 	display: grid;
 	gap: 0.75rem;
 	justify-content: center;
-	/* xs: 4x2 (8) under 480, sm/md: 5x2 (9) under 768, ml: 2x2 (4), lg: 3x3 (9), xl: 4x3 (12) */
+	/* xs: 4x2 (8) under 480, ms: 5x2 (10) 480–767, ml: 2x2 (4), lg: 3x3 (9), xl: 4x3 (12) */
 	grid-template-columns: repeat(5, 1fr);
 	grid-template-rows: repeat(2, 1fr);
 }
 
 .icon-grid--xs {
 	grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: repeat(2, 1fr);
+}
+
+.icon-grid--ms {
+	grid-template-columns: repeat(5, 1fr);
 	grid-template-rows: repeat(2, 1fr);
 }
 

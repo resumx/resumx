@@ -214,9 +214,10 @@ onUnmounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	padding: 1rem;
+	padding: 0.85rem;
 	border: 1px solid var(--vp-c-divider);
 	border-radius: 10px;
+	background-color: var(--vp-c-bg);
 	background-image: repeating-linear-gradient(
 		135deg,
 		transparent,

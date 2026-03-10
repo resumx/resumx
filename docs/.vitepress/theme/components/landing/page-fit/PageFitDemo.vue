@@ -264,8 +264,8 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	margin-bottom: 1rem;
 	border-radius: 10px;
 	border: 1px solid var(--vp-c-divider);
-	padding: 0.75rem;
-	background-color: var(--vp-c-bg-soft);
+	padding: 0.85rem;
+	background-color: var(--vp-c-bg);
 	background-image: repeating-linear-gradient(
 		135deg,
 		transparent,
@@ -280,7 +280,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 		grid-template-columns: 1fr minmax(calc((600px - 2.5rem) * 210 / 297), auto);
 		grid-template-rows: 600px;
 		gap: 16px;
-		padding: 1rem;
+		padding: 0.85rem;
 	}
 }
 

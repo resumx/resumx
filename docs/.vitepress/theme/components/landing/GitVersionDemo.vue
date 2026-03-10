@@ -254,7 +254,8 @@ onUnmounted(() => stopFlip())
 	gap: 10px;
 	border-radius: 10px;
 	border: 1px solid var(--vp-c-divider);
-	padding: 0.75rem;
+	padding: 0.85rem;
+	background-color: var(--vp-c-bg);
 	background-image: repeating-linear-gradient(
 		135deg,
 		transparent,
@@ -268,7 +269,7 @@ onUnmounted(() => stopFlip())
 	.demo-panels {
 		grid-template-columns: 1fr 1fr;
 		gap: 16px;
-		padding: 1rem;
+		padding: 0.85rem;
 	}
 }
 
