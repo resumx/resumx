@@ -10,6 +10,7 @@ import IconGallery from './IconGallery.vue'
 import ResumeDemo from './ResumeDemo.vue'
 import TagLineage from './TagLineage.vue'
 import HeroLanding from './components/ui/HeroLanding.vue'
+import NavBarTitleA11y from './NavBarTitleA11y.vue'
 
 export default {
 	extends: DefaultTheme,
@@ -17,6 +18,7 @@ export default {
 		return h(DefaultTheme.Layout, null, {
 			// https://vitepress.dev/guide/extending-default-theme#layout-slots
 			'doc-before': () => [h(DocActions), h(SidebarGroupLabel)],
+			'nav-bar-title-after': () => h(NavBarTitleA11y),
 		})
 	},
 	enhanceApp({ app, router, siteData }) {

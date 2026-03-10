@@ -313,7 +313,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 
 .panel-title {
 	font-size: 0.75rem;
-	color: var(--vp-c-text-3);
+	color: var(--vp-c-text-2);
 	margin-left: 6px;
 	font-family: var(--vp-font-family-base);
 }
@@ -368,8 +368,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 }
 
 .code-body :deep(.ln) {
-	color: var(--vp-c-text-3);
-	opacity: 0.5;
+	color: #4b5563;
 	user-select: none;
 	display: inline-block;
 	width: 20px;
@@ -381,35 +380,35 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	color: #89b4fa;
 }
 .code-body :deep(.hl-h1) {
-	color: #89dceb;
+	color: #0e7490;
 	font-weight: bold;
 }
 .code-body :deep(.hl-h2) {
-	color: #89dceb;
+	color: #0e7490;
 }
 .code-body :deep(.hl-h3) {
-	color: #74c7ec;
+	color: #0b6b84;
 }
 .code-body :deep(.hl-dash) {
-	color: #f9e2af;
+	color: #b45309;
 }
 .code-body :deep(.hl-meta) {
-	color: #a6adc8;
+	color: #5c6370;
 	font-style: italic;
 }
 .code-body :deep(.hl-pages-key) {
-	color: #f38ba8;
+	color: #c73e5c;
 	font-weight: bold;
 }
 .code-body :deep(.hl-pages-val) {
-	color: #a6e3a1;
+	color: #1e6b2e;
 	font-weight: bold;
 }
 .code-body :deep(.hl-key) {
-	color: #cba6f7;
+	color: #7c3aed;
 }
 .code-body :deep(.hl-val) {
-	color: #a6e3a1;
+	color: #1e6b2e;
 }
 
 /* Resume panel */

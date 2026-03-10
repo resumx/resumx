@@ -280,7 +280,7 @@ onUnmounted(() => {
 .chrome-filename {
 	font-size: 0.75rem;
 	font-weight: 500;
-	color: var(--vp-c-text-3);
+	color: var(--vp-c-text-2);
 	font-family: var(--vp-font-family-mono);
 	margin-left: 6px;
 }
@@ -411,7 +411,7 @@ onUnmounted(() => {
 
 .preview-date {
 	font-size: 0.8125rem;
-	color: var(--vp-c-text-3);
+	color: var(--vp-c-text-2);
 }
 
 .preview-bullets {

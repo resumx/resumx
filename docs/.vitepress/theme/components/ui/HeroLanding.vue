@@ -68,7 +68,7 @@ const tools = [
 </script>
 
 <template>
-	<div class="hero-landing">
+	<main class="hero-landing">
 		<!-- Hero Section -->
 		<section class="hero-section">
 			<!-- Top radial gradient (desktop only) -->
@@ -271,7 +271,7 @@ const tools = [
 		</section>
 
 		<FooterLanding />
-	</div>
+	</main>
 </template>
 
 <!-- Global overrides for VitePress page layout when hero is present -->
@@ -757,9 +757,10 @@ const tools = [
 	text-align: center;
 	font-weight: 500;
 	font-size: 0.9375rem;
-	color: var(--vp-c-text-3);
+	color: var(--vp-c-text-2);
 	letter-spacing: -0.025em;
 	margin-bottom: 0.75rem;
+	border-top-style: none !important;
 }
 
 @media (min-width: 640px) {

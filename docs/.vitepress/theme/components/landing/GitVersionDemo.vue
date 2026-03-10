@@ -313,7 +313,7 @@ onUnmounted(() => stopFlip())
 }
 
 .term-line--success {
-	color: #0d9488;
+	color: #0f766e;
 }
 
 .term-line--tag {
@@ -447,7 +447,7 @@ onUnmounted(() => stopFlip())
 .commit-hash {
 	font-family: var(--vp-font-family-mono);
 	font-size: 0.6875rem;
-	color: var(--git-blue);
+	color: var(--git-blue) !important;
 	flex-shrink: 0;
 	background: none;
 	padding: 0;
@@ -455,7 +455,7 @@ onUnmounted(() => stopFlip())
 
 .commit-msg {
 	font-size: 0.75rem;
-	color: var(--vp-c-text-2);
+	color: #4b5563 !important;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -484,12 +484,28 @@ onUnmounted(() => stopFlip())
 .fork-label {
 	font-family: var(--vp-font-family-mono);
 	font-size: 0.6875rem;
-	color: var(--vp-c-text-3);
+	color: #4b5563 !important;
 	transition: color 0.4s ease;
 	white-space: nowrap;
 }
 
 .fork-label--glow {
+	color: var(--git-blue) !important;
+}
+
+.dark .commit-hash {
 	color: var(--git-blue);
+}
+.dark .commit-msg {
+	color: var(--vp-c-text-2);
+}
+.dark .fork-label {
+	color: var(--vp-c-text-3);
+}
+.dark .fork-label--glow {
+	color: var(--git-blue);
+}
+.dark .term-line--success {
+	color: #2dd4bf;
 }
 </style>

@@ -282,7 +282,7 @@ onUnmounted(() => {
 .icon-cell-code {
 	font-size: 0.6875rem;
 	font-family: var(--vp-font-family-mono);
-	color: var(--vp-c-text-3);
+	color: #4b5563;
 	background: none;
 	padding: 0;
 	line-height: 1;
@@ -293,6 +293,10 @@ onUnmounted(() => {
 .icon-grid--visible .icon-cell-code {
 	animation: label-in 0.35s ease-out forwards;
 	animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+.dark .icon-cell-code {
+	color: var(--vp-c-text-3);
 }
 
 @keyframes label-in {

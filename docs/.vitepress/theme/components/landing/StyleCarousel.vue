@@ -333,17 +333,20 @@ function slideStyle(i: number): Record<string, string> {
 	}
 }
 
-/* Dots */
+/* Dots: min 24px touch target for accessibility */
 .carousel-dots {
 	display: flex;
 	justify-content: center;
+	align-items: center;
 	gap: 8px;
 	padding-top: 1rem;
 }
 
 .carousel-dot {
-	width: 8px;
-	height: 8px;
+	width: 24px;
+	height: 24px;
+	min-width: 24px;
+	min-height: 24px;
 	border-radius: 50%;
 	border: none;
 	background: var(--vp-c-divider);
@@ -352,14 +355,35 @@ function slideStyle(i: number): Record<string, string> {
 		background 0.25s ease,
 		transform 0.25s ease;
 	padding: 0;
+	position: relative;
+}
+
+.carousel-dot::before {
+	content: '';
+	position: absolute;
+	inset: 50%;
+	width: 8px;
+	height: 8px;
+	margin: -4px 0 0 -4px;
+	border-radius: 50%;
+	background-color: var(--vp-c-divider);
+	transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.carousel-dot:hover::before {
+	background-color: var(--vp-c-text-3);
+}
+
+.carousel-dot.active::before {
+	background-color: var(--vp-c-brand-1);
+	transform: scale(1.25);
 }
 
 .carousel-dot:hover {
-	background: var(--vp-c-text-3);
+	background: transparent;
 }
 
 .carousel-dot.active {
-	background: var(--vp-c-brand-1);
-	transform: scale(1.25);
+	background: transparent;
 }
 </style>
