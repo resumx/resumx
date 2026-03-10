@@ -3,6 +3,7 @@ import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { inject } from '@vercel/analytics'
+import posthog from 'posthog-js'
 import './style.css'
 import SidebarGroupLabel from './SidebarGroupLabel.vue'
 import DocActions from './DocActions.vue'
@@ -22,7 +23,16 @@ export default {
 		})
 	},
 	enhanceApp({ app, router, siteData }) {
-		if (typeof window !== 'undefined') inject()
+		if (typeof window !== 'undefined') {
+			inject()
+			posthog.init('phc_DpX1MLcKPymhdbhrwIwgLBB6ymLPkBLGS2srLrcmqUE', {
+				api_host: 'https://us.i.posthog.com',
+				capture_pageview: false,
+			})
+			router.onAfterRouteChange = () => {
+				posthog.capture('$pageview')
+			}
+		}
 		app.component('IconGallery', IconGallery)
 		app.component('ResumeDemo', ResumeDemo)
 		app.component('TagLineage', TagLineage)

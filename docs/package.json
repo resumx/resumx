@@ -10,7 +10,8 @@
 	},
 	"dependencies": {
 		"@vercel/analytics": "^1.6.1",
-		"geist": "^1.7.0"
+		"geist": "^1.7.0",
+		"posthog-js": "^1.360.0"
 	},
 	"devDependencies": {
 		"@shikijs/transformers": "^3.22.0",
