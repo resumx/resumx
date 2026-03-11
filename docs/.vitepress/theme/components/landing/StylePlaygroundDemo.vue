@@ -36,6 +36,18 @@ const FM_OPTIONS: FmOption[] = [
 	{ key: 'section-title-border', values: BORDER_DISPLAY, index: borderIdx },
 ]
 
+const COLOR_VAL_CSS = ['#333', '#1e40af', '#c43218']
+
+function fmValStyle(opt: FmOption): Record<string, string> {
+	if (opt.key === 'section-title-color') {
+		return { color: COLOR_VAL_CSS[opt.index.value] }
+	}
+	if (opt.key === 'section-title-border' && opt.index.value === 0) {
+		return { textDecoration: 'underline', textUnderlineOffset: '3px' }
+	}
+	return {}
+}
+
 const headingStyle = computed((): Record<string, string> => {
 	const s: Record<string, string> = {}
 	if (COLOR_CSS[colorIdx.value]) s.color = COLOR_CSS[colorIdx.value]
@@ -168,6 +180,7 @@ onUnmounted(() => {
 						<span
 							class="fm-val"
 							:key="opt.values[opt.index.value]"
+							:style="fmValStyle(opt)"
 						>
 							{{ opt.values[opt.index.value] }}
 						</span>
@@ -294,12 +307,8 @@ onUnmounted(() => {
 .fm-val {
 	display: inline-block;
 	margin-left: 0.5ch;
-	color: var(--vp-c-text-3);
+	color: var(--vp-c-text-2);
 	transition: color 0.2s ease;
-}
-
-.fm-line--changed .fm-val {
-	color: var(--vp-c-brand-1);
 }
 
 /* --- Click hint icon --- */
