@@ -108,7 +108,24 @@ const formats = [
 const activeFormat = ref(0)
 let formatFlipId: ReturnType<typeof setInterval> | null = null
 
+const pageFitSectionRef = ref<HTMLElement | null>(null)
+const PAGE_FIT_SCROLL_TRIGGER_ID = 'page-fit-scale'
+
+/** Page-fit scroll spring: initial scale when element enters (tune these). */
+const PAGE_FIT_INITIAL_SCALE = 0.8
+const PAGE_FIT_INITIAL_SCALE_SMALL = 0.92
+const PAGE_FIT_SMALL_SCREEN_MAX_WIDTH = 640
+/** Page-fit tint: strength of the entrance background (0 = none, 1 = full). Tune this. */
+const PAGE_FIT_TINT_STRENGTH = 0.5
+/** Spring config: tension (stiffness) and friction (damping). Higher friction = more damp. */
+const SPRING_TENSION = 40
+const SPRING_FRICTION = 9
+
 let resizeHandler: (() => void) | undefined
+let pageFitSpringTrigger: { progress: number; kill: () => void } | null = null
+type TickerCb = (time?: number, deltaTime?: number) => void
+let pageFitTickerRef: TickerCb | null = null
+
 onMounted(() => {
 	viewportWidth.value = window.innerWidth
 	resizeHandler = () => {
@@ -123,10 +140,53 @@ onMounted(() => {
 	if (window.location.hash === '#import') {
 		openConvertDialog()
 	}
+
+	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
+		import('gsap').then(({ gsap }) => {
+			gsap.registerPlugin(ST)
+			const el = pageFitSectionRef.value
+			if (!el) return
+			const isSmall = window.innerWidth <= PAGE_FIT_SMALL_SCREEN_MAX_WIDTH
+			const initialScale = isSmall ? PAGE_FIT_INITIAL_SCALE_SMALL : PAGE_FIT_INITIAL_SCALE
+			gsap.set(el, { scale: initialScale, transformOrigin: '50% 50%' })
+			el.style.setProperty('--page-fit-tint', String(PAGE_FIT_TINT_STRENGTH))
+			const st = ST.create({
+				trigger: el,
+				start: 'top bottom',
+				end: 'top 60%',
+				id: PAGE_FIT_SCROLL_TRIGGER_ID,
+			})
+			pageFitSpringTrigger = st as unknown as { progress: number; kill: () => void }
+			let currentScale = initialScale
+			let velocity = 0
+			const ticker: TickerCb = (_time?, deltaTime?) => {
+				if (!pageFitSpringTrigger) return
+				const progress = pageFitSpringTrigger.progress
+				const initial = window.innerWidth <= PAGE_FIT_SMALL_SCREEN_MAX_WIDTH ? PAGE_FIT_INITIAL_SCALE_SMALL : PAGE_FIT_INITIAL_SCALE
+				const targetScale = initial + progress * (1 - initial)
+				const dt = Math.min((deltaTime ?? 16) / 1000, 0.05)
+				velocity += (targetScale - currentScale) * SPRING_TENSION * dt - velocity * SPRING_FRICTION * dt
+				currentScale += velocity * dt
+				currentScale = Math.max(initial - 0.1, Math.min(1.5, currentScale))
+				gsap.set(el, { scale: currentScale })
+				el.style.setProperty('--page-fit-tint', String((1 - progress) * PAGE_FIT_TINT_STRENGTH))
+			}
+			pageFitTickerRef = ticker
+			gsap.ticker.add(ticker)
+		})
+	})
 })
 onUnmounted(() => {
 	if (resizeHandler) window.removeEventListener('resize', resizeHandler)
 	if (formatFlipId != null) clearInterval(formatFlipId)
+	if (pageFitTickerRef) {
+		import('gsap').then(({ gsap }) => gsap.ticker.remove(pageFitTickerRef!))
+		pageFitTickerRef = null
+	}
+	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
+		ST.getById(PAGE_FIT_SCROLL_TRIGGER_ID)?.kill()
+		pageFitSpringTrigger = null
+	})
 })
 
 function scrollToFeatures() {
@@ -418,7 +478,9 @@ const tools = [
 		</section>
 
 		<section class="features-section">
-			<PageFitDemo />
+			<div ref="pageFitSectionRef" class="page-fit-section-wrap">
+				<PageFitDemo />
+			</div>
 			<div class="features-bento">
 				<DemoCard
 					label="Targeting"
@@ -1093,6 +1155,25 @@ html.dark .tool-icon--dark-only {
 	gap: 1.25rem;
 	margin: 0 auto;
 	padding: 1.5rem 0.5rem 2rem;
+}
+
+/* Neutral elevation tint: light mode = darker white, dark mode = lighter black */
+.page-fit-section-wrap {
+	--page-fit-elevation: color-mix(in srgb, var(--vp-c-bg) 78%, black);
+	position: relative;
+	border-radius: 3rem;
+	overflow: hidden;
+	background: color-mix(in srgb, var(--page-fit-elevation) calc(var(--page-fit-tint, 1) * 100%), transparent);
+}
+
+@media (max-width: 640px) {
+	.page-fit-section-wrap {
+		border-radius: 1.5rem;
+	}
+}
+
+.dark .page-fit-section-wrap {
+	--page-fit-elevation: color-mix(in srgb, var(--vp-c-bg) 92%, white);
 }
 
 @media (min-width: 1280px) {
