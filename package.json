@@ -117,6 +117,9 @@
 		"vitest": "^2.1.0"
 	},
 	"lint-staged": {
+		"*": [
+			"tsx scripts/check-windows-compat.ts"
+		],
 		"*.{ts,js,json,css,md}": [
 			"prettier --write"
 		],
