@@ -87,6 +87,14 @@ const particles = computed(() => {
 	return particlePool.slice(0, count)
 })
 
+const formats = [
+	{ name: 'PDF', color: '#c2410c' },
+	{ name: 'HTML', color: '#ea580c' },
+	{ name: 'DOCX', color: '#2563eb' },
+]
+const activeFormat = ref(0)
+let formatFlipId: ReturnType<typeof setInterval> | null = null
+
 let resizeHandler: (() => void) | undefined
 onMounted(() => {
 	viewportWidth.value = window.innerWidth
@@ -94,9 +102,14 @@ onMounted(() => {
 		viewportWidth.value = window.innerWidth
 	}
 	window.addEventListener('resize', resizeHandler)
+
+	formatFlipId = setInterval(() => {
+		activeFormat.value = (activeFormat.value + 1) % formats.length
+	}, 1500)
 })
 onUnmounted(() => {
 	if (resizeHandler) window.removeEventListener('resize', resizeHandler)
+	if (formatFlipId != null) clearInterval(formatFlipId)
 })
 
 const tools = [
@@ -236,8 +249,17 @@ const tools = [
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
-					Write in Markdown. Get a perfectly fitted PDF.<br />No layout
-					fiddling.
+					Write in Markdown. Get a perfectly fitted
+					<span class="hero-format-rotator">
+						<span
+							v-for="(fmt, i) in formats"
+							:key="fmt.name"
+							class="hero-format-word"
+							:class="{ 'hero-format-word--active': i === activeFormat }"
+							:style="{ color: fmt.color }"
+							>{{ fmt.name }}</span
+						></span
+					><br />No layout fiddling.
 				</p>
 
 				<!-- Buttons -->
@@ -825,7 +847,7 @@ html.dark .tool-icon--dark-only {
 	margin: 0 auto;
 	max-width: 32rem;
 	text-align: center;
-	font-size: 0.9375rem;
+	font-size: 0.875rem;
 	color: var(--vp-c-text-2);
 	letter-spacing: 0.025em;
 	line-height: 1.6;
@@ -844,6 +866,33 @@ html.dark .tool-icon--dark-only {
 	.hero-subtitle {
 		font-size: 1.25rem;
 	}
+}
+
+/* ---- Format rotator ---- */
+.hero-format-rotator {
+	display: inline-block;
+	position: relative;
+	width: 4.5ch;
+	height: 1.6em;
+	vertical-align: bottom;
+	overflow: hidden;
+}
+
+.hero-format-word {
+	position: absolute;
+	left: 0;
+	top: 0;
+	text-align: left;
+	opacity: 0;
+	transform: translateY(60%);
+	transition:
+		opacity 0.3s ease,
+		transform 0.3s ease;
+}
+
+.hero-format-word--active {
+	opacity: 1;
+	transform: translateY(0);
 }
 
 /* ---- Buttons ---- */
