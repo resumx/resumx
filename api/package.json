@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@openrouter/sdk": "^0.1.0",
+		"@openrouter/sdk": "^0.9.11",
 		"mammoth": "^1.9.0"
 	},
 	"devDependencies": {
