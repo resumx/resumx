@@ -267,7 +267,7 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">Resumes as code - write, render, done</h1>
+				<h1 class="hero-heading">Resumes as code - write, render, send</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
@@ -286,8 +286,12 @@ const tools = [
 
 				<!-- Buttons -->
 				<div class="hero-buttons">
-				<a class="hero-btn hero-btn--secondary hero-btn--mobile-only" href="#features" @click.prevent="scrollToFeatures()">
-					See it in action
+					<a
+						class="hero-btn hero-btn--secondary hero-btn--mobile-only"
+						href="#features"
+						@click.prevent="scrollToFeatures()"
+					>
+						See it in action
 						<svg
 							class="hero-icon hero-btn-icon--end"
 							xmlns="http://www.w3.org/2000/svg"
@@ -304,8 +308,11 @@ const tools = [
 							<path d="m5 12 7 7 7-7" />
 						</svg>
 					</a>
-					<a class="hero-btn hero-btn--secondary hero-btn--desktop-only" href="/guide/quick-start">
-					Get Started
+					<a
+						class="hero-btn hero-btn--secondary hero-btn--desktop-only"
+						href="/guide/quick-start"
+					>
+						Get Started
 						<svg
 							class="hero-icon hero-btn-icon--end"
 							xmlns="http://www.w3.org/2000/svg"
