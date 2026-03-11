@@ -391,7 +391,7 @@ const tools = [
 
 			<DemoCard
 				label="Styling"
-				heading="Style it in place."
+				heading="Make it yours."
 				subtitle="30+ style options. Tailwind classes supported. No CSS needed."
 			>
 				<StylePlaygroundDemo />
