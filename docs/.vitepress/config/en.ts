@@ -47,20 +47,10 @@ export const en = defineConfig({
 			],
 			'/': [
 				{
-					text: 'Getting Started',
+					text: 'Essentials',
 					items: [
-						{ text: 'What is Resumx?', link: '/guide/what-is-resumx' },
 						{ text: 'Quick Start', link: '/guide/quick-start' },
-					],
-				},
-				{
-					text: 'Writing Your Resume',
-					items: [
-						{
-							text: 'Syntax',
-							link: '/guide/syntax',
-						},
-						{ text: 'Icons', link: '/guide/icons' },
+						{ text: 'Syntax', link: '/guide/syntax' },
 						{ text: 'Fit to Page', link: '/guide/fit-to-page' },
 					],
 				},
@@ -90,6 +80,7 @@ export const en = defineConfig({
 							text: 'Customizing Your Resume',
 							link: '/guide/customizing-your-resume',
 						},
+						{ text: 'Icons', link: '/guide/icons' },
 						{
 							text: 'Style Options',
 							link: '/guide/style-options',
@@ -102,6 +93,7 @@ export const en = defineConfig({
 					],
 				},
 				{
+					text: 'References',
 					items: [
 						{
 							text: 'Semantic Selectors',

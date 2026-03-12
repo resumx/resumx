@@ -21,9 +21,8 @@ onUnmounted(() => {
 
 const columns = [
 	{
-		title: 'Getting Started',
+		title: 'Essentials',
 		links: [
-			{ text: 'What is Resumx?', href: '/guide/what-is-resumx' },
 			{ text: 'Quick Start', href: '/guide/quick-start' },
 			{ text: 'Syntax', href: '/guide/syntax' },
 		],
