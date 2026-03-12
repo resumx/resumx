@@ -169,3 +169,4 @@ docs/public/schemas/
 *.cpuprofile
 docs/.vitepress/theme/components/landing/page-fit/.tmp.html
 .vercel
+*.code-workspace
