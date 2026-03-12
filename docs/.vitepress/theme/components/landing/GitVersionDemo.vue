@@ -108,8 +108,8 @@ onMounted(() => {
 			if (!el) return
 			const st = ST.create({
 				trigger: el,
-				start: 'top 55%',
-				end: 'bottom 65%',
+				start: 'top 70%',
+				end: 'bottom 80%',
 				id: SCROLL_TRIGGER_ID,
 				onUpdate: self => updateActiveFromProgress(self.progress),
 			})
