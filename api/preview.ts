@@ -14,23 +14,16 @@ import type { ViewLayer } from '../src/core/view/types.js'
 
 const MAX_MARKDOWN_LENGTH = 50_000
 
-let browser: Browser | null = null
-
-async function acquireBrowser(): Promise<Browser> {
-	if (!browser || !browser.isConnected()) {
-		if (process.env['VERCEL']) {
-			const chromium = await import('@sparticuz/chromium')
-			browser = await playwrightCore.launch({
-				args: chromium.default.args,
-				executablePath: await chromium.default.executablePath(),
-				headless: true,
-			})
-		} else {
-			const { chromium } = await import('playwright')
-			browser = await chromium.launch({ headless: true })
-		}
+async function launchBrowser(): Promise<Browser> {
+	if (process.env['VERCEL']) {
+		const chromium = await import('@sparticuz/chromium')
+		return playwrightCore.launch({
+			args: chromium.default.args,
+			executablePath: await chromium.default.executablePath(),
+			headless: true,
+		})
 	}
-	return browser
+	return playwrightCore.launch({ headless: true })
 }
 
 function getAllowedOrigin(origin: string): string | null {
@@ -136,53 +129,54 @@ export default async function handler(
 		}
 
 		const needsPageFit = view.pages !== null
-		const html = await generateHtml(doc, view, {
-			tailwind: needsPageFit ? 'compile' : 'cdn',
-		})
+		const html = await generateHtml(doc, view, { tailwind: 'cdn' })
 
 		let finalHtml = html
 		let pageFit: Pick<FitResult, 'originalPages' | 'finalPages'> | undefined
 
-		if (needsPageFit) {
-			try {
-				const b = await acquireBrowser()
-				const page = await b.newPage()
-				try {
-					await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
-					await page.setContent(html, { waitUntil: 'domcontentloaded' })
-					const result = await fitToPagesOnPage(page, html, view.pages!)
-					finalHtml = result.html
-					pageFit = {
-						originalPages: result.originalPages,
-						finalPages: result.finalPages,
-					}
-				} finally {
-					await page.close()
-				}
-			} catch (err) {
-				console.error('Page fit error:', err)
-				warnings.push(
-					'Page fitting failed. Showing content without page constraints.',
-				)
-			}
-		}
-
-		const b = await acquireBrowser()
-		const page = await b.newPage()
+		const browser = await launchBrowser()
 		try {
-			await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
-			await page.setContent(finalHtml, { waitUntil: 'domcontentloaded' })
-			const pdfBuffer = await page.pdf({
-				preferCSSPageSize: true,
-				printBackground: true,
-			})
-			res.setHeader('Content-Type', 'application/pdf')
-			if (warnings.length > 0)
-				res.setHeader('X-Resumx-Warnings', JSON.stringify(warnings))
-			if (pageFit) res.setHeader('X-Resumx-Page-Fit', JSON.stringify(pageFit))
-			res.status(200).send(Buffer.from(pdfBuffer))
+			if (needsPageFit) {
+				try {
+					const page = await browser.newPage()
+					try {
+						await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
+						await page.setContent(html, { waitUntil: 'networkidle' })
+						const result = await fitToPagesOnPage(page, html, view.pages!)
+						finalHtml = result.html
+						pageFit = {
+							originalPages: result.originalPages,
+							finalPages: result.finalPages,
+						}
+					} finally {
+						await page.close()
+					}
+				} catch (err) {
+					console.error('Page fit error:', err)
+					warnings.push(
+						'Page fitting failed. Showing content without page constraints.',
+					)
+				}
+			}
+
+			const page = await browser.newPage()
+			try {
+				await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
+				await page.setContent(finalHtml, { waitUntil: 'networkidle' })
+				const pdfBuffer = await page.pdf({
+					preferCSSPageSize: true,
+					printBackground: true,
+				})
+				res.setHeader('Content-Type', 'application/pdf')
+				if (warnings.length > 0)
+					res.setHeader('X-Resumx-Warnings', JSON.stringify(warnings))
+				if (pageFit) res.setHeader('X-Resumx-Page-Fit', JSON.stringify(pageFit))
+				res.status(200).send(Buffer.from(pdfBuffer))
+			} finally {
+				await page.close()
+			}
 		} finally {
-			await page.close()
+			await browser.close()
 		}
 	} catch (err) {
 		console.error('Preview error:', err)
