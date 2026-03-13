@@ -13,7 +13,8 @@ import ConvertDialog from '../convert/ConvertDialog.vue'
 
 const showConvertDialog = ref(false)
 
-const GITHUB_RELEASES_API = 'https://api.github.com/repos/resumx/resumx/releases/latest'
+const GITHUB_RELEASES_API =
+	'https://api.github.com/repos/resumx/resumx/releases/latest'
 const badgeText = ref('Free & open source')
 
 function openConvertDialog() {
@@ -371,7 +372,7 @@ const tools = [
 
 				<!-- Heading -->
 				<h1 class="hero-heading">
-					Let AI rewrite your resume without ever breaking the layout.
+					Let AI write your resume without breaking the layout.
 				</h1>
 
 				<!-- Subtitle -->
@@ -451,7 +452,9 @@ const tools = [
 							stroke-linecap="round"
 							stroke-linejoin="round"
 						>
-							<path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+							<path
+								d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+							/>
 						</svg>
 					</a>
 				</div>
@@ -576,7 +579,9 @@ const tools = [
 						stroke-linecap="round"
 						stroke-linejoin="round"
 					>
-						<path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+						<path
+							d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+						/>
 					</svg>
 				</a>
 			</div>
