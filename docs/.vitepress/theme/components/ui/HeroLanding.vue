@@ -13,6 +13,9 @@ import ConvertDialog from '../convert/ConvertDialog.vue'
 
 const showConvertDialog = ref(false)
 
+const GITHUB_RELEASES_API = 'https://api.github.com/repos/resumx/resumx/releases/latest'
+const badgeText = ref('Free & open source')
+
 function openConvertDialog() {
 	showConvertDialog.value = true
 	history.replaceState(null, '', '#import')
@@ -127,6 +130,17 @@ type TickerCb = (time?: number, deltaTime?: number) => void
 let pageFitTickerRef: TickerCb | null = null
 
 onMounted(() => {
+	fetch(GITHUB_RELEASES_API)
+		.then(res => (res.ok ? res.json() : Promise.reject(res)))
+		.then((data: { tag_name?: string }) => {
+			if (data?.tag_name) {
+				badgeText.value = `${data.tag_name} released — see what's new`
+			}
+		})
+		.catch(() => {
+			// Keep fallback on network error or no releases
+		})
+
 	viewportWidth.value = window.innerWidth
 	resizeHandler = () => {
 		viewportWidth.value = window.innerWidth
@@ -335,7 +349,7 @@ const tools = [
 						<polyline points="16 18 22 12 16 6" />
 						<polyline points="8 6 2 12 8 18" />
 					</svg>
-					<span class="hero-badge-text">Free &amp; open source</span>
+					<span class="hero-badge-text">{{ badgeText }}</span>
 					<span class="hero-badge-divider" />
 					<!-- Arrow right icon -->
 					<svg
