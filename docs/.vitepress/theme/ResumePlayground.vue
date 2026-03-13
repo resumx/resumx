@@ -637,6 +637,21 @@ onUnmounted(() => {
 	margin-bottom: 16px;
 }
 
+@media (max-width: 640px) {
+	.playground-header {
+		flex-direction: column;
+		gap: 12px;
+	}
+	.header-actions {
+		width: 100%;
+		justify-content: flex-start;
+	}
+}
+
+.header-left {
+	min-width: 0;
+}
+
 .header-left h1 {
 	font-size: 1.5rem;
 	font-weight: 600;
@@ -648,6 +663,13 @@ onUnmounted(() => {
 	margin: 0;
 	font-size: 0.9rem;
 	color: var(--vp-c-text-2);
+	line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+	.header-left p {
+		font-size: 0.875rem;
+	}
 }
 
 .hint-cli a {
