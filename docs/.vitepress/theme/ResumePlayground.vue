@@ -848,8 +848,8 @@ onUnmounted(() => {
 	width: 100%;
 	resize: none;
 	font-family: var(--vp-font-family-mono);
-	font-size: 13px;
-	line-height: 1.65;
+	font-size: 12px;
+	line-height: 1.41;
 	tab-size: 2;
 	color: var(--vp-c-text-1);
 	background: var(--vp-code-block-bg);
