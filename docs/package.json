@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"codegen": "pnpm --filter @resumx/resumx run generate:playground-pdf && mkdir -p public/schemas && cp ../schemas/*.schema.json public/schemas/",
+		"codegen": "mkdir -p public/schemas && cp ../schemas/*.schema.json public/schemas/",
 		"dev": "pnpm run codegen && vitepress dev .",
 		"build": "pnpm run codegen && vitepress build .",
 		"preview": "vitepress preview ."
