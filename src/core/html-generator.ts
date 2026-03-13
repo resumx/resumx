@@ -79,6 +79,7 @@ function assembleHtml(
 	body: string,
 	css: string,
 	inlineBlocks: string[],
+	headExtra?: string,
 ): string {
 	const inlineStyles = inlineBlocks
 		.map(block => `\n<style>\n${block}\n</style>`)
@@ -91,7 +92,7 @@ function assembleHtml(
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 ${css}
-</style>${inlineStyles}
+</style>${inlineStyles}${headExtra ? `\n${headExtra}` : ''}
 </head>
 <body>
 ${body}
@@ -110,6 +111,14 @@ ${body}
 	})
 }
 
+const TAILWIND_CDN_SCRIPT =
+	'<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>'
+
+export interface GenerateHtmlOptions {
+	/** 'compile' (default) runs @tailwindcss/node; 'cdn' injects a browser script tag instead. */
+	tailwind?: 'compile' | 'cdn'
+}
+
 /**
  * Convert markdown to standalone HTML with embedded CSS.
  * Resolves CSS paths internally from view.css + doc.baseDir.
@@ -117,6 +126,7 @@ ${body}
 export async function generateHtml(
 	doc: DocumentContext,
 	view: ResolvedView,
+	options?: GenerateHtmlOptions,
 ): Promise<string> {
 	const resolved = resolveCSS(view.css, doc.baseDir)
 	const env: { iconOverrides?: Record<string, string> } & VarsEnv = {
@@ -129,8 +139,11 @@ export async function generateHtml(
 	const pipeline = assemblePipeline(view, doc)
 	const body = pipeline(rawBody)
 
-	const tailwindCSS = await compileTailwindCSS(body)
+	const tailwindMode = options?.tailwind ?? 'compile'
+	const tailwindCSS =
+		tailwindMode === 'compile' ? await compileTailwindCSS(body) : ''
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
+	const headExtra = tailwindMode === 'cdn' ? TAILWIND_CDN_SCRIPT : undefined
 
-	return assembleHtml(body, combinedCSS, resolved.inline)
+	return assembleHtml(body, combinedCSS, resolved.inline, headExtra)
 }

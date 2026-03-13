@@ -98,10 +98,6 @@
 		"yaml": "^2.8.2",
 		"zod": "^4.3.6"
 	},
-	"optionalDependencies": {
-		"lightningcss-linux-x64-gnu": "^1.30.2",
-		"lightningcss-linux-x64-musl": "^1.30.2"
-	},
 	"devDependencies": {
 		"@mdit/helper": "^0.22.2",
 		"@types/js-beautify": "^1.14.3",

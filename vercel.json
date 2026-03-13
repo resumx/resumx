@@ -8,7 +8,7 @@
 		},
 		"api/preview.ts": {
 			"maxDuration": 15,
-			"includeFiles": "{styles/**,assets/icons/**,node_modules/**/lightningcss-linux-x64-gnu/**,node_modules/**/lightningcss-linux-x64-musl/**}"
+			"includeFiles": "{styles/**,assets/icons/**}"
 		}
 	}
 }

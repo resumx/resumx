@@ -114,7 +114,7 @@ export default async function handler(
 			baseDir: process.cwd(),
 		}
 
-		const html = await generateHtml(doc, view)
+		const html = await generateHtml(doc, view, { tailwind: 'cdn' })
 
 		res.status(200).json({
 			html,

@@ -153,13 +153,6 @@ importers:
       vitest:
         specifier: ^2.1.0
         version: 2.1.9(@edge-runtime/vm@3.2.0)(@types/node@22.19.7)(lightningcss@1.30.2)
-    optionalDependencies:
-      lightningcss-linux-x64-gnu:
-        specifier: ^1.30.2
-        version: 1.30.2
-      lightningcss-linux-x64-musl:
-        specifier: ^1.30.2
-        version: 1.30.2
 
   api:
     dependencies:
