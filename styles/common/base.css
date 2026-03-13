@@ -53,6 +53,11 @@
 		--name-weight: normal; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
 		--name-italic: normal; /* normal | italic */
 		--name-color: var(--text-color); /* any color */
+		--contact-size: 1rem; /* any font-size */
+		--contact-color: var(--text-color); /* any color */
+		--contact-weight: normal; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
+		--contact-italic: normal; /* normal | italic */
+		--contact-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--section-title-size: 1.25rem; /* any font-size */
 		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--section-title-weight: bold; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
@@ -279,6 +284,15 @@
 		font-style: var(--name-italic);
 		line-height: 1.4;
 		color: var(--name-color);
+	}
+
+	address {
+		font-size: var(--contact-size);
+		color: var(--contact-color);
+		font-weight: var(--contact-weight);
+		font-style: var(--contact-italic);
+		font-variant-caps: var(--contact-caps);
+		text-decoration: var(--contact-underline);
 	}
 
 	h2 {

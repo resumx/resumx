@@ -27,7 +27,7 @@
 		"CHANGELOG.md"
 	],
 	"scripts": {
-		"build": "tsc",
+		"build": "pnpm run generate:style-options && tsc",
 		"dev": "tsc --watch",
 		"test": "vitest run",
 		"test:related": "vitest related --run",

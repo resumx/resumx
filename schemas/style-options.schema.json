@@ -76,6 +76,44 @@
 		"name-color": {
 			"type": "string"
 		},
+		"contact-size": {
+			"type": "string"
+		},
+		"contact-color": {
+			"type": "string"
+		},
+		"contact-weight": {
+			"enum": [
+				"normal",
+				"bold",
+				100,
+				200,
+				300,
+				400,
+				500,
+				600,
+				700,
+				800,
+				900
+			]
+		},
+		"contact-italic": {
+			"type": "string",
+			"enum": [
+				"normal",
+				"italic"
+			]
+		},
+		"contact-caps": {
+			"type": "string",
+			"enum": [
+				"small-caps",
+				"all-small-caps",
+				"petite-caps",
+				"unicase",
+				"normal"
+			]
+		},
 		"section-title-size": {
 			"type": "string"
 		},
