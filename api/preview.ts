@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { chromium, type Browser } from 'playwright'
+import { chromium as playwrightCore, type Browser } from 'playwright-core'
 import {
 	parseFrontmatterFromString,
 	extractTagMap,
@@ -18,7 +18,17 @@ let browser: Browser | null = null
 
 async function acquireBrowser(): Promise<Browser> {
 	if (!browser || !browser.isConnected()) {
-		browser = await chromium.launch({ headless: true })
+		if (process.env['VERCEL']) {
+			const chromium = await import('@sparticuz/chromium')
+			browser = await playwrightCore.launch({
+				args: chromium.default.args,
+				executablePath: await chromium.default.executablePath(),
+				headless: true,
+			})
+		} else {
+			const { chromium } = await import('playwright')
+			browser = await chromium.launch({ headless: true })
+		}
 	}
 	return browser
 }
