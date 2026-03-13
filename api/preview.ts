@@ -136,33 +136,28 @@ export default async function handler(
 
 		const browser = await launchBrowser()
 		try {
-			if (needsPageFit) {
-				try {
-					const page = await browser.newPage()
+			const page = await browser.newPage()
+			try {
+				await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
+				await page.setContent(html, { waitUntil: 'networkidle' })
+
+				if (needsPageFit) {
 					try {
-						await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
-						await page.setContent(html, { waitUntil: 'networkidle' })
 						const result = await fitToPagesOnPage(page, html, view.pages!)
 						finalHtml = result.html
 						pageFit = {
 							originalPages: result.originalPages,
 							finalPages: result.finalPages,
 						}
-					} finally {
-						await page.close()
+						await page.setContent(finalHtml, { waitUntil: 'networkidle' })
+					} catch (err) {
+						console.error('Page fit error:', err)
+						warnings.push(
+							'Page fitting failed. Showing content without page constraints.',
+						)
 					}
-				} catch (err) {
-					console.error('Page fit error:', err)
-					warnings.push(
-						'Page fitting failed. Showing content without page constraints.',
-					)
 				}
-			}
 
-			const page = await browser.newPage()
-			try {
-				await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
-				await page.setContent(finalHtml, { waitUntil: 'networkidle' })
 				const pdfBuffer = await page.pdf({
 					preferCSSPageSize: true,
 					printBackground: true,
