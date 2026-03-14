@@ -43,6 +43,24 @@ Resumx is built on four bets:
 6. **Markdown is the source of truth.** Frontmatter configures the render, it doesn't define the resume.
 7. **Restraint.** When principles conflict, do less. Explicit beats implicit for expensive or surprising operations.
 
+## Workspace Structure
+
+This repo uses **pnpm workspaces** with three packages:
+
+| Package        | Path    | Name             |
+| -------------- | ------- | ---------------- |
+| CLI (main)     | `.`     | `@resumx/resumx` |
+| Docs site      | `docs/` | `@resumx/docs`   |
+| Serverless API | `api/`  | `@resumx/api`    |
+
+When adding dependencies, install them in the correct workspace:
+
+```sh
+pnpm add <pkg>                   # root (CLI)
+pnpm add <pkg> --filter @resumx/docs  # docs
+pnpm add <pkg> --filter @resumx/api   # api
+```
+
 ## Development Workflow
 
 - Optimize icons after adding or modifying them: `pnpm run optimize-icons -- assets/icons assets/icons`
