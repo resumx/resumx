@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@openrouter/sdk": "^0.1.0",
+		"@openrouter/sdk": "^0.9.11",
 		"@sparticuz/chromium": "^143.0.4",
 		"mammoth": "^1.9.0",
 		"playwright-core": "^1.58.2"
