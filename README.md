@@ -1,7 +1,5 @@
 ![Resumx OG Image](https://github.com/resumx/resumx/raw/HEAD/.github/resumx-og-image.png)
 
----
-
 <p align="center">
   <a href="https://resumx.dev"><strong>Read the Docs 📖</strong></a>
 </p>
@@ -11,7 +9,9 @@
   <a href="https://github.com/resumx/resumx/actions/workflows/ci.yml"><img src="https://github.com/resumx/resumx/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
 </p>
 
-![Page Fit Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif)
+## Documentation
+
+Visit [resumx.dev](https://resumx.dev) to get started.
 
 ## Quick Start
 
