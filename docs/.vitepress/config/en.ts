@@ -51,25 +51,6 @@ export const en = defineConfig({
 					],
 				},
 				{
-					text: 'Tailoring',
-					items: [
-						{
-							text: 'How It Works',
-							link: '/guide/tailoring',
-						},
-						{ text: 'Tags', link: '/guide/tags' },
-						{ text: 'Views', link: '/guide/views' },
-						{
-							text: `${sparkleIcon}AI Tailoring Workflows`,
-							link: '/guide/ai-tailoring-workflows',
-						},
-						{
-							text: 'Multi-Language',
-							link: '/guide/multi-language',
-						},
-					],
-				},
-				{
 					text: 'Styling',
 					items: [
 						{
@@ -86,6 +67,25 @@ export const en = defineConfig({
 							link: '/guide/tailwind-css',
 						},
 						{ text: 'Custom CSS', link: '/guide/custom-css' },
+					],
+				},
+				{
+					text: 'Tailoring',
+					items: [
+						{
+							text: 'How It Works',
+							link: '/guide/tailoring',
+						},
+						{ text: 'Tags', link: '/guide/tags' },
+						{ text: 'Views', link: '/guide/views' },
+						{
+							text: `${sparkleIcon}AI Tailoring Workflows`,
+							link: '/guide/ai-tailoring-workflows',
+						},
+						{
+							text: 'Multi-Language',
+							link: '/guide/multi-language',
+						},
 					],
 				},
 				{
