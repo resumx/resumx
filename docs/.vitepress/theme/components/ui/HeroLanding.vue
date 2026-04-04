@@ -10,6 +10,7 @@ import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 import GitVersionDemo from '../landing/GitVersionDemo.vue'
 import StylePlaygroundDemo from '../landing/StylePlaygroundDemo.vue'
 import ConvertDialog from '../convert/ConvertDialog.vue'
+import InstallSection from './InstallSection.vue'
 
 const showConvertDialog = ref(false)
 
@@ -403,7 +404,7 @@ const tools = [
 							class="hero-heading-claude-logo hero-heading-claude-logo--dark-only"
 						/>
 					</span>
-					write your resume without breaking the layout.
+					write your resume. Resumx makes it perfect.
 				</h1>
 
 				<!-- Subtitle -->
@@ -577,47 +578,49 @@ const tools = [
 				</DemoCard>
 			</div>
 
-			<div class="features-bento features-bento--tailor-git">
-				<DemoCard
-					label="Tailoring"
-					heading="Your resume is a database."
-					header-align="left"
-				>
-					<template #subtitle>
-						Your resume is a database, each application is a query.<br />Tailoring
-						doesn't require separate files.
-					</template>
-					<MultiTargetDemo />
-				</DemoCard>
+		<DemoCard
+			label="Styling"
+			heading="Make it yours."
+			subtitle="30+ style options. Tailwind classes supported. No CSS needed."
+		>
+			<StylePlaygroundDemo />
+		</DemoCard>
 
-				<DemoCard
-					label="Version Control"
-					heading="Time travel for your resume."
-					header-align="right"
-				>
-					<template #subtitle>
-						Your resume lives in Git. Render any past commit in one command.
-					</template>
-					<GitVersionDemo />
-				</DemoCard>
-			</div>
+		<div class="features-bento features-bento--tailor-git">
+			<DemoCard
+				label="Tailoring"
+				heading="Your resume is a database."
+				header-align="left"
+			>
+				<template #subtitle>
+					Your resume is a database, each application is a query.<br />Tailoring
+					doesn't require separate files.
+				</template>
+				<MultiTargetDemo />
+			</DemoCard>
 
 			<DemoCard
-				label="Styling"
-				heading="Make it yours."
-				subtitle="30+ style options. Tailwind classes supported. No CSS needed."
+				label="Version Control"
+				heading="Time travel for your resume."
+				header-align="right"
 			>
-				<StylePlaygroundDemo />
+				<template #subtitle>
+					Your resume lives in Git. Render any past commit in one command.
+				</template>
+				<GitVersionDemo />
 			</DemoCard>
+		</div>
 		</section>
 
-		<section class="bottom-cta">
-			<div class="hero-buttons">
-				<a
-					class="hero-btn hero-btn--primary bottom-cta-playground"
-					href="/playground"
-				>
-					Playground
+	<InstallSection />
+
+	<section class="bottom-cta">
+		<div class="hero-buttons">
+			<a
+				class="hero-btn hero-btn--primary bottom-cta-playground"
+				href="/playground"
+			>
+				Playground
 					<svg
 						class="hero-icon hero-btn-icon--end"
 						xmlns="http://www.w3.org/2000/svg"
