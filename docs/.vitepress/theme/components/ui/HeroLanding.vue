@@ -372,7 +372,18 @@ const tools = [
 
 				<!-- Heading -->
 				<h1 class="hero-heading">
-					Let AI write your resume without breaking the layout.
+					Let
+					<span class="hero-heading-claude">
+						<img
+							src="/images/logos/claude-light.svg"
+							alt=""
+							width="24"
+							height="24"
+							class="hero-heading-claude-logo hero-heading-claude-logo--light-only"
+							loading="lazy"
+						/>
+					</span>
+					write your resume without breaking the layout.
 				</h1>
 
 				<!-- Subtitle -->
@@ -631,6 +642,22 @@ html.dark .tool-icon--light-only {
 }
 
 html.dark .tool-icon--dark-only {
+	display: inline !important;
+}
+
+.hero-heading-claude-logo--dark-only {
+	display: none;
+}
+
+html:not(.dark) .hero-heading-claude-logo--dark-only {
+	display: none !important;
+}
+
+html.dark .hero-heading-claude-logo--light-only {
+	display: none !important;
+}
+
+html.dark .hero-heading-claude-logo--dark-only {
 	display: inline !important;
 }
 </style>
@@ -981,6 +1008,22 @@ html.dark .tool-icon--dark-only {
 	.hero-heading {
 		font-size: 3.75rem;
 	}
+}
+
+.hero-heading-claude {
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
+	transform: translateY(0.09em);
+	opacity: 0.84;
+}
+
+.hero-heading-claude-logo {
+	height: 0.902em;
+	width: auto;
+	object-fit: contain;
+	flex-shrink: 0;
+	vertical-align: middle;
 }
 
 /* ---- Subtitle ---- */
