@@ -144,6 +144,14 @@ watch(step, (newVal, oldVal) => {
 </script>
 
 <template>
+	<figure v-if="!manifest" class="page-fit-fallback" role="img" aria-label="Auto page fitting demo">
+		<figcaption class="sr-only">
+			Interactive demo showing automatic page fitting. As resume content grows from a few
+			bullet points to a full page, Resumx automatically adjusts font size and spacing so
+			everything fits on exactly one page with no manual tweaking. A slider lets you add or
+			remove lines and watch the PDF preview reflow in real time.
+		</figcaption>
+	</figure>
 	<section v-if="manifest" class="page-fit-demo">
 		<div class="demo-header">
 			<span class="demo-label">Auto Page Fitting</span>

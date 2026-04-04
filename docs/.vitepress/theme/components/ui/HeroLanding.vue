@@ -559,29 +559,32 @@ const tools = [
 				<PageFitDemo />
 			</div>
 			<div class="features-bento">
-				<DemoCard
-					label="Targeting"
-					heading="Tag it. Filter it. Nail it."
-					subtitle="Tag, mix and match, ship a tailored resume for every role."
-					header-align="left"
-				>
-					<TagFilterDemo />
-				</DemoCard>
+			<DemoCard
+				label="Targeting"
+				heading="Tag it. Filter it. Nail it."
+				subtitle="Tag, mix and match, ship a tailored resume for every role."
+				description="Markdown source with bullet points tagged {.@backend}, {.@frontend}, and {.@ai} next to a PDF preview. Selecting a target like 'frontend' filters the output to show only matching bullets such as Dashboard redesign and Design system."
+				header-align="left"
+			>
+				<TagFilterDemo />
+			</DemoCard>
 
-				<DemoCard
-					label="Icons"
-					heading="Icons, typed."
-					subtitle="200k+ icons, just type a shortcode."
-					header-align="right"
-				>
-					<IconRevealDemo />
-				</DemoCard>
+			<DemoCard
+				label="Icons"
+				heading="Icons, typed."
+				subtitle="200k+ icons, just type a shortcode."
+				description="Grid of technology icons rendered from Markdown shortcodes: :mongodb:, :react:, :python:, :docker:, :ts:, :spring:, :azure:, :go:, and many more from a library of over 200,000 icons."
+				header-align="right"
+			>
+				<IconRevealDemo />
+			</DemoCard>
 			</div>
 
 		<DemoCard
 			label="Styling"
 			heading="Make it yours."
 			subtitle="30+ style options. Tailwind classes supported. No CSS needed."
+			description="Interactive style editor showing YAML frontmatter options like section-title-color, section-title-align, and section-title-border with a live preview. Clicking each option cycles through values and the resume preview updates instantly. Tailwind utility classes like .grid and .grid-cols-3 are also supported."
 		>
 			<StylePlaygroundDemo />
 		</DemoCard>
@@ -590,6 +593,7 @@ const tools = [
 			<DemoCard
 				label="Tailoring"
 				heading="Your resume is a database."
+				description="Terminal running 'resumx resume.md --for stripe-infra, vercel-swe, startup-cto' which generates three separate tailored PDFs from a single Markdown file in about one second. Each target filters tagged content to produce a role-specific resume."
 				header-align="left"
 			>
 				<template #subtitle>
@@ -602,6 +606,7 @@ const tools = [
 			<DemoCard
 				label="Version Control"
 				heading="Time travel for your resume."
+				description="Git commit history for a resume: commits like 'feat: add ML pipeline metrics', 'feat: tailor for Stripe', 'refactor: rewrite summary', and branch tags like sent/stripe-2026-02 and sent/google-2026-01. Any past version can be rendered with 'git resumx resume.md'."
 				header-align="right"
 			>
 				<template #subtitle>

@@ -5,6 +5,7 @@ withDefaults(
 		label: string
 		heading: string
 		subtitle?: string
+		description?: string
 		headerAlign?: 'left' | 'center' | 'right'
 	}>(),
 	{ headerAlign: 'center' }
@@ -23,7 +24,11 @@ const hasSubtitleSlot = () => !!slots.subtitle
 			</p>
 			<p v-else-if="subtitle" class="demo-card-subtitle">{{ subtitle }}</p>
 		</div>
-		<div class="demo-card-body">
+		<figure v-if="description" class="demo-card-body" role="img" :aria-label="heading">
+			<slot />
+			<figcaption class="sr-only">{{ description }}</figcaption>
+		</figure>
+		<div v-else class="demo-card-body">
 			<slot />
 		</div>
 	</div>
