@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { setCorsHeaders } from './_lib/cors.js'
 import { verifyTurnstile } from './_lib/turnstile.js'
 import { detectFormat } from './_lib/format.js'
 import {
@@ -9,35 +10,6 @@ import {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_SIZE * 1.37)
-
-function getAllowedOrigin(origin: string): string | null {
-	try {
-		const url = new URL(origin)
-		const prodUrl = process.env['VERCEL_PROJECT_PRODUCTION_URL']
-		if (prodUrl && url.host === prodUrl) return origin
-		const vercelUrl = process.env['VERCEL_URL']
-		if (vercelUrl && url.host === vercelUrl) return origin
-		if (
-			url.hostname === 'localhost'
-			&& process.env['VERCEL_ENV'] !== 'production'
-		)
-			return origin
-		return null
-	} catch {
-		return null
-	}
-}
-
-function setCorsHeaders(req: VercelRequest, res: VercelResponse): void {
-	const origin = req.headers.origin
-	if (!origin) return
-	const allowed = getAllowedOrigin(Array.isArray(origin) ? origin[0] : origin)
-	if (allowed) {
-		res.setHeader('Access-Control-Allow-Origin', allowed)
-		res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-		res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-	}
-}
 
 async function prepareInput(
 	format: string,
@@ -95,7 +67,10 @@ export default async function handler(
 	req: VercelRequest,
 	res: VercelResponse,
 ): Promise<void> {
-	setCorsHeaders(req, res)
+	setCorsHeaders(req, res, {
+		methods: 'POST, OPTIONS',
+		allowHeaders: 'Content-Type',
+	})
 
 	if (req.method === 'OPTIONS') {
 		res.status(204).end()

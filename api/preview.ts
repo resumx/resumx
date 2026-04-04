@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { chromium as playwrightCore, type Browser } from 'playwright-core'
+import { setCorsHeaders } from './_lib/cors.js'
 import {
 	parseFrontmatterFromString,
 	extractTagMap,
@@ -26,44 +27,15 @@ async function launchBrowser(): Promise<Browser> {
 	return playwrightCore.launch({ headless: true })
 }
 
-function getAllowedOrigin(origin: string): string | null {
-	try {
-		const url = new URL(origin)
-		const prodUrl = process.env['VERCEL_PROJECT_PRODUCTION_URL']
-		if (prodUrl && url.host === prodUrl) return origin
-		const vercelUrl = process.env['VERCEL_URL']
-		if (vercelUrl && url.host === vercelUrl) return origin
-		if (
-			url.hostname === 'localhost'
-			&& process.env['VERCEL_ENV'] !== 'production'
-		)
-			return origin
-		return null
-	} catch {
-		return null
-	}
-}
-
-function setCorsHeaders(req: VercelRequest, res: VercelResponse): void {
-	const origin = req.headers.origin
-	if (!origin) return
-	const allowed = getAllowedOrigin(Array.isArray(origin) ? origin[0] : origin)
-	if (allowed) {
-		res.setHeader('Access-Control-Allow-Origin', allowed)
-		res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-		res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-		res.setHeader(
-			'Access-Control-Expose-Headers',
-			'X-Resumx-Warnings, X-Resumx-Page-Fit',
-		)
-	}
-}
-
 export default async function handler(
 	req: VercelRequest,
 	res: VercelResponse,
 ): Promise<void> {
-	setCorsHeaders(req, res)
+	setCorsHeaders(req, res, {
+		methods: 'POST, OPTIONS',
+		allowHeaders: 'Content-Type',
+		exposeHeaders: 'X-Resumx-Warnings, X-Resumx-Page-Fit',
+	})
 
 	if (req.method === 'OPTIONS') {
 		res.status(204).end()
