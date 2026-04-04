@@ -48,25 +48,15 @@ export const en = defineConfig({
 						{ text: 'Quick Start', link: '/guide/quick-start' },
 						{ text: 'Syntax', link: '/guide/syntax' },
 						{ text: 'Fit to Page', link: '/guide/fit-to-page' },
-					],
-				},
-				{
-					text: 'Styling',
-					items: [
 						{
-							text: 'Customizing Your Resume',
-							link: '/guide/customizing-your-resume',
+							text: 'Frontmatter Styles',
+							link: '/guide/style-options',
 						},
 						{ text: 'Icons', link: '/guide/icons' },
 						{
-							text: 'Style Options',
-							link: '/guide/style-options',
-						},
-						{
-							text: 'Tailwind CSS',
+							text: 'Tailwind & CSS',
 							link: '/guide/tailwind-css',
 						},
-						{ text: 'Custom CSS', link: '/guide/custom-css' },
 					],
 				},
 				{
