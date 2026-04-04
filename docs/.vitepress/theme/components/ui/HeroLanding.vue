@@ -380,7 +380,6 @@ const tools = [
 							width="24"
 							height="24"
 							class="hero-heading-claude-logo hero-heading-claude-logo--light-only"
-							loading="lazy"
 						/>
 					</span>
 					write your resume without breaking the layout.
