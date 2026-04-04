@@ -381,6 +381,13 @@ const tools = [
 							height="24"
 							class="hero-heading-claude-logo hero-heading-claude-logo--light-only"
 						/>
+						<img
+							src="/images/logos/claude-dark.svg"
+							alt=""
+							width="24"
+							height="24"
+							class="hero-heading-claude-logo hero-heading-claude-logo--dark-only"
+						/>
 					</span>
 					write your resume without breaking the layout.
 				</h1>
