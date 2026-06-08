@@ -123,7 +123,14 @@ export async function convertWithAI(input: ConversionInput): Promise<string> {
 		model,
 		system: SYSTEM_PROMPT,
 		messages: buildUserMessages(input),
-		maxOutputTokens: 4096,
+		maxOutputTokens: 8192,
+		providerOptions: {
+			google: {
+				thinkingConfig: {
+					thinkingLevel: 'minimal',
+				},
+			},
+		},
 	})
 
 	const trimmed = text
