@@ -1,4 +1,9 @@
-import { OpenRouter } from '@openrouter/sdk'
+import {
+	generateText,
+	type FilePart,
+	type ModelMessage,
+	type TextPart,
+} from 'ai'
 
 export type ConversionInput =
 	| { kind: 'text'; text: string; label: string }
@@ -80,57 +85,55 @@ Languages
 - Always include \`pages\` in frontmatter. Choose 1 or 2 based on content density (see above).
 `
 
-function buildUserContent(input: ConversionInput) {
+function buildUserMessages(input: ConversionInput): ModelMessage[] {
 	if (input.kind === 'text') {
-		return `Convert this ${input.label} resume to Resumx Markdown:\n\n${input.text}`
+		return [
+			{
+				role: 'user',
+				content: `Convert this ${input.label} resume to Resumx Markdown:\n\n${input.text}`,
+			},
+		]
 	}
 
-	const dataUri = `data:${input.mimeType};base64,${input.buffer.toString('base64')}`
-	return [
+	const content: Array<TextPart | FilePart> = [
 		{
-			type: 'text' as const,
+			type: 'text',
 			text: `Convert this ${input.label} resume to Resumx Markdown:`,
 		},
-		{ type: 'image_url' as const, imageUrl: { url: dataUri } },
+		{
+			type: 'file',
+			mediaType: input.mimeType,
+			data: input.buffer,
+			filename: 'resume.pdf',
+		},
 	]
+
+	return [{ role: 'user', content }]
 }
 
 export async function convertWithAI(input: ConversionInput): Promise<string> {
-	const apiKey = process.env['OPENROUTER_API_KEY']
-	if (!apiKey) {
-		throw new Error('OPENROUTER_API_KEY not configured')
+	if (!process.env['AI_GATEWAY_API_KEY']) {
+		throw new Error('AI_GATEWAY_API_KEY not configured')
 	}
 
-	const model = process.env['OPENROUTER_MODEL'] ?? 'google/gemini-2.0-flash-001'
+	const model =
+		process.env['RESUME_TO_RESUMX_MARKDOWN_MODEL'] ?? 'google/gemini-3.5-flash'
 
-	const client = new OpenRouter({ apiKey })
-
-	const response = await client.chat.send({
+	const { text } = await generateText({
 		model,
-		messages: [
-			{ role: 'system', content: SYSTEM_PROMPT },
-			{ role: 'user', content: buildUserContent(input) },
-		],
-		temperature: 0.1,
-		maxTokens: 4096,
+		system: SYSTEM_PROMPT,
+		messages: buildUserMessages(input),
+		maxOutputTokens: 4096,
 	})
 
-	const raw = response.choices?.[0]?.message?.content
-	if (!raw) {
-		throw new Error('AI returned empty response')
-	}
-
-	const content =
-		typeof raw === 'string' ? raw : (
-			raw
-				.filter((p): p is { type: 'text'; text: string } => p.type === 'text')
-				.map(p => p.text)
-				.join('')
-		)
-	const trimmed = content
+	const trimmed = text
 		.replace(/^```\w*\n/, '')
 		.replace(/\n```$/, '')
 		.trim()
+
+	if (!trimmed) {
+		throw new Error('AI returned empty response')
+	}
 
 	if (trimmed.toUpperCase().startsWith(NOT_A_RESUME_PREFIX)) {
 		throw new NotAResumeError()
