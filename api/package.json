@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@sparticuz/chromium": "^143.0.4",
+		"@sparticuz/chromium": "^149.0.0",
 		"ai": "^6.0.197",
 		"mammoth": "^1.9.0",
 		"playwright-core": "^1.58.2"
